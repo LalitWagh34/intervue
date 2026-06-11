@@ -1,0 +1,228 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum Mode{
+  voice
+  text 
+  coding
+  system_design
+}  
+
+enum Status {
+  active
+  in_progress
+  abandoned
+  completed
+}
+
+
+enum Difficulty{
+  Junior
+  Med
+  senior
+}
+
+enum EvalStatus{
+  pending
+  processing
+  completed
+  failed
+}
+
+model Session {
+  id String @id @default(cuid())
+  userId String
+  token String @unique
+  expiredAt DateTime
+  ipAddres String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId] , references: [id] , onDelete: Cascade)
+}
+
+model Account {
+  id String @id 
+  userId String
+  accountId String
+  providerId String
+  accessToken String
+  refreshToken String?
+  accessTokenExpiresAt DateTime?
+  redreshTokenExpiresAt DateTime?
+  scope String?
+  idToken String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id] , onDelete: Cascade)
+
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model User{
+  id String @id 
+  email String @unique
+  emailVerified Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name String?
+  image String?
+  // googleId String? @unique
+
+  profile Profile?
+  interview Interview[]
+  submissions Submission[]
+  chats Chat[]
+  sessions Session[]
+  accounts Account[]
+}
+
+model Profile{
+  id String @id @default(cuid())
+  userId String @unique
+  fullName String?
+  avatarUrl String?
+  targetRole String?
+  experienceLevel String?
+  githubUrl String?
+  linkedinUrl String?
+  resumeUrl String?
+  skills String[]
+  githubData Json?
+  streakCount Int @default(0)
+  totalSessions Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId] , references: [id] , onDelete: Cascade)
+}
+
+model Interview{
+  id String @id @default(cuid())
+  userId String
+  mode Mode // voice|| text ||codin
+  role String
+  difficulty String @default("medium")
+  status Status @default(active) // active || abandoned || completed
+  score Int?
+  feedback String?
+  transcript String?
+  recordingUrl String?
+  canvasData Json?
+  duration Int?
+  endedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId]  , references: [id] , onDelete: Cascade)
+  messages Message[]
+  evaluation Evaluation?
+}
+
+model Message{
+  id String @id @default(cuid())
+  interviewId String?
+  role String? // user || assitant
+  content String
+  audioUrl String?
+  createdAt DateTime @default(now())
+  
+  interview Interview? @relation(fields: [interviewId] ,references: [id] , onDelete: Cascade)
+
+}
+
+model Evaluation{
+  id String @id @default(cuid())
+  interviewId String @unique
+  status EvalStatus @default(pending) //pending||processing ||completed|failed
+  score Int?
+  feedback String?
+  strengths String[]
+  improvements String[]
+  dimensionScores Json?  
+  rubric Json?
+  createdAt DateTime @default(now())
+  completedAt DateTime?
+
+  interview Interview? @relation(fields: [interviewId] , references: [id] , onDelete: Cascade)
+}
+
+model Problem{
+  id String @id @default(cuid())
+  title String
+  slug String @unique
+  description String
+  difficulty String
+  tags String[]
+  company String[]
+  starterCode Json?
+  testCases Json?
+  contraints String?
+  examples Json?
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  submissions Submission[]
+}
+
+model Submission{
+  id String @id @default(cuid())
+  userId String
+  problemId String
+  languageId String
+  status String
+  sourceCode String
+  stdout String?
+  stderr String?
+  time String?
+  memory String?
+  aifeedback String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId] , references: [id] , onDelete: Cascade)
+  problem Problem @relation(fields: [problemId] , references: [id])
+  @@index([userId , problemId])
+}
+
+model Chat {
+  id String @id @default(cuid())
+  userId String
+  title String @default("New Chat")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId] ,references: [id] , onDelete: Cascade)
+  messages ChatMessage[]
+}
+
+model ChatMessage{
+  id String @id @default(cuid())
+  chatId String
+  role String // user || assistant
+  content String
+  createdAt DateTime @default(now())
+
+  chat Chat @relation(fields: [chatId] , references: [id] , onDelete: Cascade)
+}
+
