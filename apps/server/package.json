@@ -4,16 +4,9 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest",
-    "@types/node": "^25.9.3"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^6.0.3"
-  },
-  "dependencies": {
-    "@hono/node-server": "^2.0.4",
-    "@prisma/client": "^7.8.0",
-    "hono": "^4.12.25",
-    "prisma": "^7.8.0"
+    "typescript": "^5"
   }
 }
