@@ -1,14 +1,22 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
-import { useSession } from "./lib/auth";
-import { Navigate } from "react-router-dom";
+import AppLayout from "./components/layout/AppLayout";
+import ProfileSetupPage from "./pages/ProfileSetupPage";
+import ProfilePage from "./pages/ProfilePage";
+
+import { useSession } from "@/lib/auth";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = useSession();
 
-  if (isPending) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  if (isPending)
+    return (
+      <div className="flex items-center justify-center h-screen bg-black text-white">
+        Loading...
+      </div>
+    );
   if (!session) return <Navigate to="/login" />;
 
   return <>{children}</>;
@@ -19,14 +27,26 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+
       <Route
-        path="/dashboard"
+        path="/profile-setup"
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <ProfileSetupPage />
           </ProtectedRoute>
         }
       />
+
+      <Route
+        element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+      </Route>
     </Routes>
   );
 }
