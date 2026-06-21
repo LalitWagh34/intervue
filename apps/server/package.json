@@ -11,6 +11,7 @@
     "@intervue/db": "workspace:*",
     "better-auth": "^1.6.18",
     "dotenv": "^16.0.0",
+    "groq-sdk": "^1.2.1",
     "hono": "^4.0.0"
   },
   "devDependencies": {

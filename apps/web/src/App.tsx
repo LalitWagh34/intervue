@@ -5,6 +5,8 @@ import DashboardPage from "./pages/DashboardPage";
 import AppLayout from "./components/layout/AppLayout";
 import ProfileSetupPage from "./pages/ProfileSetupPage";
 import ProfilePage from "./pages/ProfilePage";
+import InterviewPage from "./pages/InterviewPage";
+import ResultsPage from "./pages/ResultsPage";
 
 import { useSession } from "@/lib/auth";
 
@@ -46,6 +48,8 @@ export default function App() {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/interview" element={<InterviewPage />} />
+        <Route path="/results/:id" element={<ResultsPage />} />
       </Route>
     </Routes>
   );
