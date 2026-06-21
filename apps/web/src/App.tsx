@@ -7,7 +7,8 @@ import ProfileSetupPage from "./pages/ProfileSetupPage";
 import ProfilePage from "./pages/ProfilePage";
 import InterviewPage from "./pages/InterviewPage";
 import ResultsPage from "./pages/ResultsPage";
-
+import PracticeHubPage from "./pages/PracticeHubPage";
+import HistoryPage from "./pages/HistoryPage";
 import { useSession } from "@/lib/auth";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -50,6 +51,8 @@ export default function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/interview" element={<InterviewPage />} />
         <Route path="/results/:id" element={<ResultsPage />} />
+        <Route path="/practice" element={<PracticeHubPage />} />
+        <Route path="/history" element={<HistoryPage />} />
       </Route>
     </Routes>
   );

@@ -7,30 +7,35 @@ import { Send, Square } from "lucide-react";
 type Msg = { role: "user" | "assistant"; content: string };
 
 export default function InterviewPage() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const role = searchParams.get("role") || "Full Stack Engineer";
-  const difficulty = searchParams.get("difficulty") || "mid";
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const role = searchParams.get("role") || "Full Stack Engineer";
+    const difficulty = searchParams.get("difficulty") || "mid";
 
-  const [interviewId, setInterviewId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Msg[]>([]);
-  const [input, setInput] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [isStarting, setIsStarting] = useState(true);
-  const bottomRef = useRef<HTMLDivElement>(null);
+    const [interviewId, setInterviewId] = useState<string | null>(null);
+    const [messages, setMessages] = useState<Msg[]>([]);
+    const [input, setInput] = useState("");
+    const [isStreaming, setIsStreaming] = useState(false);
+    const [isStarting, setIsStarting] = useState(true);
+    const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+    const hasStarted = useRef(false);
+
+    useEffect(() => {
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+
     async function startInterview() {
-      const res = await api.post("/interviews", {
+        const res = await api.post("/interviews", {
         mode: "text",
         role,
         difficulty,
-      });
-      setInterviewId(res.data.interview.id);
-      setIsStarting(false);
+        });
+        setInterviewId(res.data.interview.id);
+        setIsStarting(false);
     }
     startInterview();
-  }, []);
+    }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
