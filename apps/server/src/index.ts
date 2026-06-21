@@ -5,7 +5,7 @@ import { auth } from "./lib/auth";
 import type { AuthVariables } from "./types";
 import profileRoutes from "./routes/profile"
 import interviewRoutes from "./routes/interview";
-
+import chatRoutes from "./routes/chat";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -28,6 +28,7 @@ app.on(["GET", "POST"], "/api/auth/**", (c) => {
 
 app.route("/api/profile", profileRoutes);
 app.route("/api/interviews", interviewRoutes);
+app.route("/api/chats", chatRoutes);
 
 // Health check
 app.get("/health", (c) => {
