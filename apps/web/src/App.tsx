@@ -10,6 +10,8 @@ import ResultsPage from "./pages/ResultsPage";
 import PracticeHubPage from "./pages/PracticeHubPage";
 import HistoryPage from "./pages/HistoryPage";
 import ChatPage from "./pages/ChatPage";
+import AdminPage from "./pages/AdminPage";
+
 import { useSession } from "@/lib/auth";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -56,6 +58,7 @@ export default function App() {
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/chat/:id" element={<ChatPage />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Route>
     </Routes>
   );

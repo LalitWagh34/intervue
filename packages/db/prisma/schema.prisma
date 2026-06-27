@@ -5,9 +5,10 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-   url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
+// ─── Interview enums ───────────────────────────────
 enum Mode {
   voice
   text
@@ -15,14 +16,14 @@ enum Mode {
   system_design
 }
 
-enum Status {
+enum InterviewStatus {
   active
   in_progress
   completed
   abandoned
 }
 
-enum Difficulty {
+enum InterviewDifficulty {
   junior
   mid
   senior
@@ -35,6 +36,44 @@ enum EvalStatus {
   failed
 }
 
+// ─── Coding enums ──────────────────────────────────
+enum ProblemDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum Language {
+  CPP
+  JAVA
+  PYTHON
+  JAVASCRIPT
+  TYPESCRIPT
+}
+
+enum Verdict {
+  ACCEPTED
+  WRONG_ANSWER
+  TLE
+  MLE
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+  PENDING
+}
+
+enum ProblemStatus {
+  draft
+  published
+  archived
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+
+// ─── better-auth models ────────────────────────────
 model Session {
   id        String   @id
   userId    String
@@ -74,21 +113,24 @@ model Verification {
   updatedAt  DateTime @updatedAt
 }
 
+// ─── App models ────────────────────────────────────
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
   emailVerified Boolean  @default(false)
   name          String?
   image         String?
+  role          UserRole @default(user)    // add this line
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   profile     Profile?
   interviews  Interview[]
-  submissions Submission[]
   chats       Chat[]
   sessions    Session[]
   accounts    Account[]
+  problems    Problem[]
+  submissions Submission[]
 }
 
 model Profile {
@@ -112,12 +154,12 @@ model Profile {
 }
 
 model Interview {
-  id           String     @id @default(cuid())
+  id           String              @id @default(cuid())
   userId       String
   mode         Mode
   role         String
-  difficulty   Difficulty @default(mid)
-  status       Status     @default(active)
+  difficulty   InterviewDifficulty @default(mid)
+  status       InterviewStatus     @default(active)
   score        Int?
   feedback     String?
   transcript   String?
@@ -125,8 +167,8 @@ model Interview {
   canvasData   Json?
   duration     Int?
   endedAt      DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages   Message[]
@@ -161,35 +203,79 @@ model Evaluation {
 }
 
 model Problem {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  description String
-  difficulty  String
-  tags        String[]
-  company     String[]
-  starterCode Json?
-  testCases   Json?
-  constraints String?
-  examples    Json?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id           Int               @id @default(autoincrement())
+  title        String
+  slug         String            @unique
+  difficulty   ProblemDifficulty
+  status       ProblemStatus     @default(draft)
+  description  String            @db.Text
+  constraints  String?           @db.Text
+  inputFormat  String?           @db.Text
+  outputFormat String?           @db.Text
+  hints        String[]
+  editorial    String?           @db.Text
+  tags         String[]
+  company      String[]
+  timeLimit    Int               @default(1000)
+  memoryLimit  Int               @default(256)
+  authorId     String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
+  testCases   TestCase[]
+  examples    ProblemExample[]
+  templates   CodeTemplate[]
   submissions Submission[]
+  author      User?             @relation(fields: [authorId], references: [id])
+}
+
+model TestCase {
+  id             Int     @id @default(autoincrement())
+  input          String  @db.Text
+  expectedOutput String  @db.Text
+  isHidden       Boolean @default(true)
+  orderIndex     Int     @default(0)
+  problemId      Int
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model ProblemExample {
+  id          Int     @id @default(autoincrement())
+  input       String  @db.Text
+  output      String  @db.Text
+  explanation String? @db.Text
+  orderIndex  Int     @default(0)
+  problemId   Int
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+}
+
+model CodeTemplate {
+  id        Int      @id @default(autoincrement())
+  language  Language
+  code      String   @db.Text
+  problemId Int
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, language])
 }
 
 model Submission {
-  id         String   @id @default(cuid())
+  id         Int      @id @default(autoincrement())
+  sourceCode String   @db.Text
+  language   Language
+  languageId Int
+  verdict    Verdict  @default(PENDING)
+  runtime    Int?
+  memory     Int?
+  stderr     String?  @db.Text
+  stdout     String?  @db.Text
+  aiFeedback String?  @db.Text
+  isAccepted Boolean  @default(false)
   userId     String
-  problemId  String
-  languageId String
-  status     String
-  sourceCode String
-  stdout     String?
-  stderr     String?
-  time       String?
-  memory     String?
-  aiFeedback String?
+  problemId  Int
   createdAt  DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)

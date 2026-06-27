@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, Mic, History, Trophy, MessageSquare, User, Code2, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut, useSession } from "@/lib/auth";
-
+import { Settings } from "lucide-react";
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Practice", icon: Mic, href: "/practice" },
@@ -11,6 +11,7 @@ const navItems = [
   { label: "AI Chat", icon: MessageSquare, href: "/chat" },
   { label: "Leaderboard", icon: Trophy, href: "/leaderboard" },
   { label: "Profile", icon: User, href: "/profile" },
+  { label: "Admin", icon: Settings, href: "/admin" },
 ];
 
 export default function Sidebar() {
