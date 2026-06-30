@@ -11,8 +11,9 @@ import PracticeHubPage from "./pages/PracticeHubPage";
 import HistoryPage from "./pages/HistoryPage";
 import ChatPage from "./pages/ChatPage";
 import AdminPage from "./pages/AdminPage";
-
+import CodingPage from "./pages/CodingPage";
 import { useSession } from "@/lib/auth";
+import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = useSession();
@@ -58,7 +59,10 @@ export default function App() {
         <Route path="/history" element={<HistoryPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/chat/:id" element={<ChatPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin" element={<AdminPage />} />        
+        <Route path="/coding" element={<CodingPage />} />
+        <Route path="/coding/:slug" element={<CodingPage />} />
+        <Route path="/voice-interview" element={<VoiceInterviewPage />} />
       </Route>
     </Routes>
   );

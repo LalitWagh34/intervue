@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const MODES = [
   { id: "text", label: "Text interview", desc: "Chat-style Q&A", icon: MessageSquare, available: true },
-  { id: "voice", label: "Voice interview", desc: "Speak with AI", icon: Mic, available: false },
+  { id: "voice", label: "Voice interview", desc: "Speak with AI", icon: Mic, available: true },
   { id: "coding", label: "Coding practice", desc: "Solve problems live", icon: Code2, available: false },
   { id: "system_design", label: "System design", desc: "Whiteboard + critique", icon: LayoutTemplate, available: false },
 ];
@@ -22,7 +22,11 @@ export default function PracticeHubPage() {
   const [difficulty, setDifficulty] = useState("mid");
 
   function startInterview() {
-    navigate(`/interview?role=${encodeURIComponent(role)}&difficulty=${difficulty}&mode=${mode}`);
+    if (mode === "voice") {
+      navigate(`/voice-interview?role=${encodeURIComponent(role)}&difficulty=${difficulty}`);
+    } else {
+      navigate(`/interview?role=${encodeURIComponent(role)}&difficulty=${difficulty}&mode=${mode}`);
+    }
   }
 
   return (

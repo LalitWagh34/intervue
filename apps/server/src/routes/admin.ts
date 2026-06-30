@@ -144,7 +144,7 @@ app.post("/problems/generate", async (c) => {
 Topic: ${body.topic}
 Difficulty: ${body.difficulty}
 Tags: ${body.tags || "any"}
-
+IMPORTANT: In the templates.code field, provide ONLY empty starter code with comments like "// your code here". Do NOT provide the actual solution. The templates are just scaffolding for the user to fill in.
 Respond with ONLY valid JSON, no markdown, no extra text:
 {
   "title": "Problem Title",
@@ -167,6 +167,7 @@ Respond with ONLY valid JSON, no markdown, no extra text:
     { "language": "JAVASCRIPT", "code": "function solution() {\n  // your code here\n}" },
     { "language": "PYTHON", "code": "def solution():\n    # your code here\n    pass" }
   ]
+    
 }`;
 
   const completion = await groq.chat.completions.create({

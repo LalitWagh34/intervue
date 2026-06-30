@@ -16,6 +16,7 @@
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^6.0.0",
     "@prisma/config": "^7.8.0",
+    "@ricky0123/vad-web": "^0.0.30",
     "dotenv": "^17.4.2"
   }
 }

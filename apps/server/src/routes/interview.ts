@@ -104,51 +104,100 @@ app.put("/:id/abandon" , requireAuth ,async(c)=>{
     return c.json({interview})
 })
 
-app.post("/:id/message" , requireAuth ,async(c)=>{
-    const user = c.get("user");
-    const id = c.req.param("id")!;
-    const body = await c.req.json();
+app.post("/:id/message", requireAuth, async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id")!;
+  const body = await c.req.json();
+  const isVoice = body.isVoice === true;
 
-    const interview = await db.interview.findFirst({
-        where:{id ,userId :user.id},
-        include:{messages:{orderBy :{createdAt:"asc"}}},
-    })
+  const interview = await db.interview.findFirst({
+    where: { id, userId: user.id },
+    include: { messages: { orderBy: { createdAt: "asc" } } },
+  });
 
-    if(!interview){
-        return c.json({error:"Interview not found"} , 404);
-    }
+  if (!interview) {
+    return c.json({ error: "Interview not found" }, 404);
+  }
 
-    const profile = await db.profile.findUnique({where:{userId:user.id}});
+  const profile = await db.profile.findUnique({ where: { userId: user.id } });
 
-    await db.message.create({
-        data: {
-            interviewId: id,
-            role: "user",
-            content: body.message,
+  // ─── Handle interview start signal (voice only) ───
+  if (body.message === "[START_INTERVIEW]") {
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "system",
+          content: `You are conducting a ${interview.difficulty} level voice interview for a ${interview.role} position.
+          Candidate background: ${profile?.skills?.join(", ") || "Not specified"}.
+          Start by greeting the candidate warmly and asking your first interview question. Keep it brief and conversational. 2-3 sentences max.`,
         },
-    })
+        { role: "user", content: "Start the interview" },
+      ],
+    });
+
+    const text = completion.choices[0]?.message?.content || "";
+    await db.message.create({
+      data: { interviewId: id, role: "assistant", content: text },
+    });
+    return c.json({ text });
+  }
+
+  // ─── Voice mode — return JSON not SSE ───
+  if (isVoice) {
+    await db.message.create({
+      data: { interviewId: id, role: "user", content: body.message },
+    });
+
     const history = interview.messages.map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
+      role: m.role as "user" | "assistant",
+      content: m.content,
     }));
     history.push({ role: "user", content: body.message });
 
-    const systemPrompt = `You are conducting a ${interview.difficulty} level technical interview for a ${interview.role} position.
+    const systemPrompt = `You are conducting a ${interview.difficulty} level voice interview for a ${interview.role} position.
     Candidate background: ${profile?.skills?.join(", ") || "Not specified"}, experience level: ${profile?.experienceLevel || "unknown"}.
-    Ask one question at a time. Follow up on their answers. Keep questions relevant to ${interview.role}.
-    Keep your responses concise and conversational, like a real interviewer would speak.`;
+    Keep responses SHORT — 2-3 sentences max since this is a voice conversation. Ask one question at a time.`;
 
-    const stream = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [{ role: "system", content: systemPrompt }, ...history],
-        stream: true,
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "system", content: systemPrompt }, ...history],
     });
 
-    let fullResponse = "";
+    const text = completion.choices[0]?.message?.content || "";
+    await db.message.create({
+      data: { interviewId: id, role: "assistant", content: text },
+    });
+    return c.json({ text });
+  }
 
-    return new Response(
-        new ReadableStream({
-            async start(controller) {
+  // ─── Text mode — SSE streaming ───
+  await db.message.create({
+    data: { interviewId: id, role: "user", content: body.message },
+  });
+
+  const history = interview.messages.map((m) => ({
+    role: m.role as "user" | "assistant",
+    content: m.content,
+  }));
+  history.push({ role: "user", content: body.message });
+
+  const systemPrompt = `You are conducting a ${interview.difficulty} level technical interview for a ${interview.role} position.
+  Candidate background: ${profile?.skills?.join(", ") || "Not specified"}, experience level: ${profile?.experienceLevel || "unknown"}.
+  Ask one question at a time. Follow up on their answers. Keep questions relevant to ${interview.role}.
+  Keep your responses concise and conversational, like a real interviewer would speak.`;
+
+  const stream = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [{ role: "system", content: systemPrompt }, ...history],
+    stream: true,
+  });
+
+  let fullResponse = "";
+
+  return new Response(
+    new ReadableStream({
+      async start(controller) {
         for await (const chunk of stream) {
           const text = chunk.choices[0]?.delta?.content || "";
           fullResponse += text;
@@ -158,11 +207,7 @@ app.post("/:id/message" , requireAuth ,async(c)=>{
         }
 
         await db.message.create({
-          data: {
-            interviewId: id,
-            role: "assistant",
-            content: fullResponse,
-          },
+          data: { interviewId: id, role: "assistant", content: fullResponse },
         });
 
         controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
@@ -177,7 +222,5 @@ app.post("/:id/message" , requireAuth ,async(c)=>{
       },
     }
   );
-
-})
-
+});
 export default app;

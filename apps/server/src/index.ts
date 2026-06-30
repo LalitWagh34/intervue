@@ -8,7 +8,8 @@ import interviewRoutes from "./routes/interview";
 import codeRoutes from "./routes/code";
 import chatRoutes from "./routes/chat";
 import adminRoutes from "./routes/admin";
-import { auth } from "./lib/auth";
+import voiceRoutes from "./routes/voice";
+
 
 console.log("auth object:", typeof auth);
 console.log("auth.handler:", typeof auth?.handler);
@@ -36,6 +37,7 @@ app.route("/api/profile", profileRoutes);
 app.route("/api/interviews", interviewRoutes);
 app.route("/api/chats", chatRoutes);
 app.route("/api/code",codeRoutes)
+app.route("/api/voice",voiceRoutes)
 // Health check
 app.route("/api/admin", adminRoutes);
 app.get("/health", (c) => {
