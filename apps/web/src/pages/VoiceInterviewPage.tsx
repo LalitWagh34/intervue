@@ -260,16 +260,28 @@ export default function VoiceInterviewPage() {
             )}
           </button>
         ) : (
-          <div className={cn(
-            "w-16 h-16 rounded-full flex items-center justify-center",
-            status === "listening" ? "bg-green-500" : "bg-zinc-800"
-          )}>
+          <button
+            onClick={() => {
+              if (status === "listening") {
+                recognitionRef.current?.stop();
+                setStatus("idle");
+              } else if (status === "idle") {
+                recognitionRef.current?.start();
+                setStatus("listening");
+              }
+            }}
+            disabled={status === "processing" || status === "speaking"}
+            className={cn(
+              "w-16 h-16 rounded-full flex items-center justify-center transition-colors disabled:opacity-50",
+              status === "listening" ? "bg-green-500 hover:bg-green-600" : "bg-zinc-800 hover:bg-zinc-700"
+            )}
+          >
             {status === "listening" ? (
               <Mic className="w-6 h-6 text-white" />
             ) : (
               <MicOff className="w-6 h-6 text-zinc-400" />
             )}
-          </div>
+          </button>
         )}
       </div>
     </div>
