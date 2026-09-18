@@ -1,104 +1,152 @@
-import { PrismaClient } from "../generated/prisma/index.js";
+import { PrismaClient } from "../generated/prisma";
 
 const db = new PrismaClient();
 
-const problems = [
-  {
-    title: "Two Sum",
-    slug: "two-sum",
-    description: "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.",
-    difficulty: "easy",
-    tags: ["array", "hash-table"],
-    company: ["Google", "Amazon"],
-    constraints: "2 <= nums.length <= 10^4\n-10^9 <= nums[i] <= 10^9",
-    examples: [
-      { input: "nums = [2,7,11,15], target = 9", output: "[0,1]", explanation: "nums[0] + nums[1] == 9" },
-    ],
-    starterCode: {
-      javascript: "function twoSum(nums, target) {\n  // your code here\n}",
-      python: "def two_sum(nums, target):\n    # your code here\n    pass",
-    },
-    testCases: [
-      { input: "[2,7,11,15]\n9", expected: "[0,1]" },
-      { input: "[3,2,4]\n6", expected: "[1,2]" },
-    ],
-  },
-  {
-    title: "Reverse Linked List",
-    slug: "reverse-linked-list",
-    description: "Given the head of a singly linked list, reverse the list, and return the reversed list.",
-    difficulty: "easy",
-    tags: ["linked-list", "recursion"],
-    company: ["Microsoft", "Meta"],
-    constraints: "The number of nodes is in range [0, 5000]",
-    examples: [{ input: "head = [1,2,3,4,5]", output: "[5,4,3,2,1]" }],
-    starterCode: {
-      javascript: "function reverseList(head) {\n  // your code here\n}",
-      python: "def reverse_list(head):\n    # your code here\n    pass",
-    },
-    testCases: [{ input: "[1,2,3,4,5]", expected: "[5,4,3,2,1]" }],
-  },
-  {
-    title: "Valid Parentheses",
-    slug: "valid-parentheses",
-    description: "Given a string `s` containing just the characters `(`, `)`, `{`, `}`, `[`, `]`, determine if the input string is valid.",
-    difficulty: "easy",
-    tags: ["stack", "string"],
-    company: ["Amazon", "Apple"],
-    constraints: "1 <= s.length <= 10^4",
-    examples: [{ input: 's = "()[]{}"', output: "true" }],
-    starterCode: {
-      javascript: "function isValid(s) {\n  // your code here\n}",
-      python: "def is_valid(s):\n    # your code here\n    pass",
-    },
-    testCases: [
-      { input: '"()"', expected: "true" },
-      { input: '"(]"', expected: "false" },
-    ],
-  },
-  {
-    title: "Merge Intervals",
-    slug: "merge-intervals",
-    description: "Given an array of intervals, merge all overlapping intervals and return an array of non-overlapping intervals.",
-    difficulty: "medium",
-    tags: ["array", "sorting"],
-    company: ["Google", "Facebook"],
-    constraints: "1 <= intervals.length <= 10^4",
-    examples: [{ input: "intervals = [[1,3],[2,6],[8,10],[15,18]]", output: "[[1,6],[8,10],[15,18]]" }],
-    starterCode: {
-      javascript: "function merge(intervals) {\n  // your code here\n}",
-      python: "def merge(intervals):\n    # your code here\n    pass",
-    },
-    testCases: [{ input: "[[1,3],[2,6],[8,10],[15,18]]", expected: "[[1,6],[8,10],[15,18]]" }],
-  },
-  {
-    title: "LRU Cache",
-    slug: "lru-cache",
-    description: "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache. Implement `get` and `put` operations.",
-    difficulty: "hard",
-    tags: ["design", "hash-table", "linked-list"],
-    company: ["Amazon", "Microsoft", "Google"],
-    constraints: "1 <= capacity <= 3000",
-    examples: [{ input: 'capacity = 2, ["put",1,1],["put",2,2],["get",1]', output: "1" }],
-    starterCode: {
-      javascript: "class LRUCache {\n  constructor(capacity) {\n    // your code here\n  }\n  get(key) {}\n  put(key, value) {}\n}",
-      python: "class LRUCache:\n    def __init__(self, capacity):\n        pass\n    def get(self, key):\n        pass\n    def put(self, key, value):\n        pass",
-    },
-    testCases: [{ input: "capacity=2", expected: "varies" }],
-  },
-];
-
 async function main() {
-  for (const p of problems) {
-    await db.problem.upsert({
-      where: { slug: p.slug },
-      update: {},
-      create: p,
-    });
+  // Avoid creating duplicate Two Sum problems
+  const existing = await db.problem.findUnique({
+    where: {
+      slug: "two-sum",
+    },
+  });
+
+  if (existing) {
+    console.log(`Two Sum already exists with ID: ${existing.id}`);
+    return;
   }
-  console.log(`Seeded ${problems.length} problems`);
+
+  const problem = await db.problem.create({
+    data: {
+      title: "Two Sum",
+      slug: "two-sum",
+      difficulty: "EASY",
+      status: "published",
+
+      description: `
+Given an array of integers nums and an integer target, return the indices of the two numbers such that they add up to target.
+
+You may assume that each input has exactly one solution.
+
+You may return the answer in any order.
+
+Use 0-based indexing.
+      `.trim(),
+
+      constraints: `
+2 <= nums.length <= 100000
+-1000000000 <= nums[i] <= 1000000000
+-1000000000 <= target <= 1000000000
+Exactly one valid answer exists.
+      `.trim(),
+
+      inputFormat: `
+The first line contains an integer n, the size of the array.
+The second line contains n space-separated integers representing nums.
+The third line contains an integer target.
+      `.trim(),
+
+      outputFormat: `
+Print two space-separated indices whose corresponding values add up to target.
+      `.trim(),
+
+      hints: [
+        "Try using a hash map to store values you have already seen.",
+        "For each number x, look for target - x."
+      ],
+
+      editorial: `
+Use a hash map storing each number and its index.
+
+For every nums[i], calculate complement = target - nums[i].
+If complement already exists in the hash map, return its index and i.
+Otherwise store nums[i] with index i.
+
+Time complexity: O(n)
+Space complexity: O(n)
+      `.trim(),
+
+      tags: ["array", "hash-map"],
+      company: [],
+
+      timeLimit: 1000,
+      memoryLimit: 256,
+
+      testCases: {
+        create: [
+          {
+            input: `4
+2 7 11 15
+9`,
+            expectedOutput: `0 1`,
+            isHidden: false,
+            orderIndex: 0,
+          },
+          {
+            input: `3
+3 2 4
+6`,
+            expectedOutput: `1 2`,
+            isHidden: false,
+            orderIndex: 1,
+          },
+          {
+            input: `2
+3 3
+6`,
+            expectedOutput: `0 1`,
+            isHidden: false,
+            orderIndex: 2,
+          },
+
+          // Hidden tests
+          {
+            input: `5
+-1 -2 -3 -4 -5
+-8`,
+            expectedOutput: `2 4`,
+            isHidden: true,
+            orderIndex: 3,
+          },
+          {
+            input: `6
+10 20 30 40 50 60
+90`,
+            expectedOutput: `2 4`,
+            isHidden: true,
+            orderIndex: 4,
+          },
+          {
+            input: `5
+1000000000 -1000000000 5 7 3
+10`,
+            expectedOutput: `2 3`,
+            isHidden: true,
+            orderIndex: 5,
+          },
+          {
+            input: `8
+1 5 9 12 20 25 30 40
+65`,
+            expectedOutput: `5 7`,
+            isHidden: true,
+            orderIndex: 6,
+          },
+        ],
+      },
+    },
+  });
+
+  console.log("✅ Two Sum created successfully!");
+  console.log(`Problem ID: ${problem.id}`);
+  console.log(`Slug: ${problem.slug}`);
+  console.log(`Test cases: ${problem.testCases.length}`);
 }
 
 main()
-  .catch(console.error)
-  .finally(() => db.$disconnect());
+  .catch((error) => {
+    console.error("❌ Failed to create Two Sum:", error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await db.$disconnect();
+  });

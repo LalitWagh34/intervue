@@ -58,6 +58,7 @@ enum Verdict {
   MLE
   RUNTIME_ERROR
   COMPILATION_ERROR
+  JUDGE_ERROR
   PENDING
 }
 
@@ -238,6 +239,7 @@ model TestCase {
   problemId      Int
 
   problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  @@index([problemId , orderIndex])
 }
 
 model ProblemExample {

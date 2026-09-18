@@ -1,3 +1,5 @@
+// Scrapped Feature Not useful / Working
+/*
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "@/lib/api";
@@ -287,3 +289,4 @@ export default function VoiceInterviewPage() {
     </div>
   );
 }
+  */

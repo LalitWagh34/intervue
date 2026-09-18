@@ -13,7 +13,7 @@ import ChatPage from "./pages/ChatPage";
 import AdminPage from "./pages/AdminPage";
 import CodingPage from "./pages/CodingPage";
 import { useSession } from "@/lib/auth";
-import VoiceInterviewPage from "./pages/VoiceInterviewPage";
+// import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = useSession();
@@ -62,7 +62,7 @@ export default function App() {
         <Route path="/admin" element={<AdminPage />} />        
         <Route path="/coding" element={<CodingPage />} />
         <Route path="/coding/:slug" element={<CodingPage />} />
-        <Route path="/voice-interview" element={<VoiceInterviewPage />} />
+        {/* <Route path="/voice-interview" element={<VoiceInterviewPage />} /> */}
       </Route>
     </Routes>
   );

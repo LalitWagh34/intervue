@@ -3,6 +3,7 @@ import { requireAuth } from "../middleware/auth";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import Groq from "groq-sdk";
+import { judgeSubmission } from "../services/judge";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -69,55 +70,43 @@ app.get("/problems/:slug/submissions", requireAuth, async (c) => {
 
 // Execute code via Judge0
 app.post("/execute", requireAuth, async (c) => {
-  const user = c.get("user");
-  const body = await c.req.json();
+  try {
+    const user = c.get("user");
+    const body = await c.req.json();
 
-  const PISTON_LANGUAGES: Record<string, { language: string; version: string }> = {
-    JAVASCRIPT: { language: "javascript", version: "1.32.3" },
-    PYTHON: { language: "python", version: "3.10.0" },
-    CPP: { language: "c++", version: "10.2.0" },
-    JAVA: { language: "java", version: "15.0.2" },
-    TYPESCRIPT: { language: "typescript", version: "1.32.3" },
-  };
+    if (!body.problemId) {
+      return c.json({ error: "problemId is required" }, 400);
+    }
 
-  const lang = PISTON_LANGUAGES[body.language];
-  if (!lang) return c.json({ error: "Unsupported language" }, 400);
+    if (!body.sourceCode) {
+      return c.json({ error: "sourceCode is required" }, 400);
+    }
 
-  const response = await fetch(`${process.env.PISTON_API_URL}/execute`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      language: lang.language,
-      version: lang.version,
-      files: [{ content: body.sourceCode }],
-      stdin: body.stdin || "",
-    }),
-  });
+    if (!body.language) {
+      return c.json({ error: "language is required" }, 400);
+    }
 
-  const result = await response.json() as any;
-  const stdout = result.run?.stdout || "";
-  const stderr = result.run?.stderr || "";
-  const code = result.run?.code;
-
-  const verdict = code === 0 ? "ACCEPTED" : stderr ? "RUNTIME_ERROR" : "WRONG_ANSWER";
- console.log("Piston full response:", JSON.stringify(result, null, 2));
-  if (body.problemId) {
-    await db.submission.create({
-      data: {
-        userId: user.id,
-        problemId: body.problemId,
-        language: body.language,
-        languageId: 0,
-        sourceCode: body.sourceCode,
-        verdict,
-        stdout,
-        stderr,
-        isAccepted: verdict === "ACCEPTED",
-      },
+    const result = await judgeSubmission({
+      userId: user.id,
+      problemId: Number(body.problemId),
+      sourceCode: body.sourceCode,
+      language: body.language,
     });
-  }
 
-  return c.json({ verdict, stdout, stderr });
+    return c.json(result);
+  } catch (error) {
+    console.error("Judge error:", error);
+
+    return c.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to execute submission",
+      },
+      500
+    );
+  }
 });
 
 // AI code evaluation
