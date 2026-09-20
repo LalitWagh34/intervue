@@ -29,6 +29,12 @@ type FinalVerdict =
   | "COMPILATION_ERROR"
   | "JUDGE_ERROR";
 
+// What executeSingleTestCase actually returns — either a real Judge0
+// result, or a signal that our infrastructure (not the user's code)
+// failed. Keeping these distinct lets judgeSubmission report the right
+// verdict instead of falsely blaming the user's code for our problems.
+type ExecutionOutcome = { result: JudgeResult } | { infraError: string };
+
 const LANGUAGE_IDS: Record<SupportedLanguage, number> = {
   // Judge0 CE language IDs.
   CPP: 54,
@@ -79,10 +85,7 @@ const JUDGE_INFRA_FAILURE_STATUSES: number[] = [
   STATUS.EXEC_FORMAT_ERROR,
 ];
 
-function mapVerdict(
-  result: JudgeResult,
-  memoryLimitKb: number
-): FinalVerdict {
+function mapVerdict(result: JudgeResult, memoryLimitKb: number): FinalVerdict {
   if (JUDGE_INFRA_FAILURE_STATUSES.includes(result.status.id)) {
     return "JUDGE_ERROR";
   }
@@ -147,55 +150,91 @@ async function executeSingleTestCase({
   expectedOutput: string;
   timeLimit: number;
   memoryLimit: number;
-}): Promise<{ result: JudgeResult } | { infraError: string }> {
+}): Promise<ExecutionOutcome> {
   const languageId = LANGUAGE_IDS[language];
   const wallTimeLimitSeconds = Math.min(timeLimit / 1000 + 2, 20);
 
-  // Judge0 blocks on wait=true with no built-in client-side timeout.
-  // Abort a bit after Judge0's own wall-clock limit should have fired,
-  // so a stuck worker/queue doesn't hang the submission forever.
-  const abortTimeoutMs = (wallTimeLimitSeconds + 5) * 1000;
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), abortTimeoutMs);
-
   try {
-    const response = await fetch(
-      `${process.env.JUDGE0_API_URL}/submissions/?base64_encoded=false&wait=true`,
+    // Submit without wait=true — returns a token immediately instead of
+    // holding the connection open for the whole compile+run duration.
+    const submitResponse = await fetch(
+      `${process.env.JUDGE0_API_URL}/submissions/?base64_encoded=false`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           source_code: sourceCode,
           language_id: languageId,
+
           stdin: input,
           expected_output: expectedOutput,
+
           cpu_time_limit: timeLimit / 1000,
           wall_time_limit: wallTimeLimitSeconds,
-          memory_limit: memoryLimit * 1024, // Judge0 expects KB
+
+          // Judge0 expects memory in KB.
+          memory_limit: memoryLimit * 1024,
+
           enable_network: false,
+
           max_processes_and_or_threads: 20,
         }),
-        signal: controller.signal,
       }
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      return { infraError: `Judge0 request failed (${response.status}): ${errorText}` };
-    }
-
-    return { result: (await response.json()) as JudgeResult };
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
+    if (!submitResponse.ok) {
+      const errorText = await submitResponse.text();
       return {
-        infraError: `Judge0 did not respond within ${abortTimeoutMs}ms — judge timeout, not a code TLE`,
+        infraError: `Judge0 submit failed (${submitResponse.status}): ${errorText}`,
       };
     }
+
+    const { token } = (await submitResponse.json()) as { token: string };
+
+    // Poll for the result. Each individual poll is fast — a slow VM
+    // just means more polls, not one connection held open indefinitely.
+    const pollIntervalMs = 500;
+    const maxPollAttempts = 60; // 60 * 500ms = 30s total ceiling
+
+    for (let attempt = 0; attempt < maxPollAttempts; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+
+      const pollResponse = await fetch(
+        `${process.env.JUDGE0_API_URL}/submissions/${token}?base64_encoded=false`
+      );
+
+      if (!pollResponse.ok) {
+        const errorText = await pollResponse.text();
+        return {
+          infraError: `Judge0 poll failed (${pollResponse.status}): ${errorText}`,
+        };
+      }
+
+      const result = (await pollResponse.json()) as JudgeResult;
+
+      // status.id 1 = In Queue, 2 = Processing — anything else means done.
+      if (
+        result.status.id !== STATUS.IN_QUEUE &&
+        result.status.id !== STATUS.PROCESSING
+      ) {
+        return { result };
+      }
+    }
+
     return {
-      infraError: error instanceof Error ? error.message : "Unknown judge error",
+      infraError: `Judge0 did not finish within ${(maxPollAttempts * pollIntervalMs) / 1000}s of polling — token ${token}`,
     };
-  } finally {
-    clearTimeout(timeoutId);
+  } catch (error) {
+    // Network-level failure (fetch itself threw — VM unreachable, DNS
+    // failure, connection refused, etc).
+    return {
+      infraError:
+        error instanceof Error
+          ? error.message
+          : "Unknown network error contacting Judge0",
+    };
   }
 }
 
@@ -239,6 +278,8 @@ export async function judgeSubmission({
 
   const results: Array<{
     testCaseId: number;
+    orderIndex: number;
+    isHidden: boolean;
     verdict: FinalVerdict;
     time: string | null;
     memory: number | null;
@@ -269,6 +310,8 @@ export async function judgeSubmission({
         finalVerdict = "JUDGE_ERROR";
         results.push({
           testCaseId: testCase.id,
+          orderIndex: testCase.orderIndex,
+          isHidden: testCase.isHidden,
           verdict: "JUDGE_ERROR",
           time: null,
           memory: null,
@@ -285,20 +328,30 @@ export async function judgeSubmission({
       if (result.time) maxTime = Math.max(maxTime, Number(result.time) * 1000);
       if (result.memory) maxMemory = Math.max(maxMemory, result.memory);
 
-      results.push({
-        testCaseId: testCase.id,
-        verdict,
-        time: result.time,
-        memory: result.memory,
-        stderr: result.stderr,
-        compileOutput: result.compile_output,
-      });
+    results.push({
+      testCaseId: testCase.id,
+      orderIndex: testCase.orderIndex,
+      isHidden: testCase.isHidden,
+      verdict,
+      time: result.time,
+      memory: result.memory,
+      stderr: result.stderr,
+      compileOutput: result.compile_output,
+    });
 
+      // First failing testcase determines final verdict — worst-case
+      // time/memory below only reflect testcases run up to and
+      // including this one, not the full problem.
       if (verdict !== "ACCEPTED") {
         finalVerdict = verdict;
         break;
       }
     }
+
+    const compileOutput =
+      results.find((r) => r.compileOutput)?.compileOutput ?? null;
+    const stderrOutput =
+      results.find((r) => r.stderr)?.stderr ?? null;
 
     await db.submission.update({
       where: { id: submission.id },
@@ -307,10 +360,7 @@ export async function judgeSubmission({
         isAccepted: finalVerdict === "ACCEPTED",
         runtime: Math.round(maxTime),
         memory: sawAnyResult ? maxMemory : null,
-        stderr:
-          results.find((r) => r.stderr)?.stderr ??
-          results.find((r) => r.compileOutput)?.compileOutput ??
-          null,
+        stderr: stderrOutput ?? compileOutput,
       },
     });
 
@@ -319,6 +369,9 @@ export async function judgeSubmission({
       verdict: finalVerdict,
       runtime: Math.round(maxTime),
       memory: sawAnyResult ? maxMemory : null,
+      totalTestCases: problem.testCases.length,
+      compileOutput,
+      stderr: stderrOutput,
       results,
     };
   } catch (error) {
