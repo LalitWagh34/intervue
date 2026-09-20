@@ -11,6 +11,7 @@ import chatRoutes from "./routes/chat";
 import adminRoutes from "./routes/admin";
 import voiceRoutes from "./routes/voice";
 import roomRoutes from "./routes/rooms";
+import companyRoutes from "./routes/companies";
 import { roomSocketManager } from "./services/roomSocket";
 
 const { upgradeWebSocket, websocket } = createBunWebSocket();
@@ -42,6 +43,7 @@ app.route("/api/code",codeRoutes)
 app.route("/api/voice",voiceRoutes)
 app.route("/api/rooms", roomRoutes);
 app.route("/api/admin", adminRoutes);
+app.route("/api/companies", companyRoutes);
 
 // Real-Time Competitive Rooms WebSocket
 app.get(
