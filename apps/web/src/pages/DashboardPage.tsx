@@ -1,13 +1,25 @@
 import { useProfile } from "@/hooks/useProfile";
 import { useInterviews } from "@/hooks/useInterviews";
 import { Link } from "react-router-dom";
-import { Mic, Code2, MessageSquare, Flame, ArrowRight, Clock } from "lucide-react";
+import {
+  Mic,
+  Code2,
+  MessageSquare,
+  Flame,
+  ArrowRight,
+  Clock,
+  Swords,
+  Trophy,
+  Layers,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MODE_COLORS: Record<string, string> = {
   voice: "text-blue-400",
-  text: "text-green-400",
-  coding: "text-amber-400",
+  text: "text-emerald-400",
+  coding: "text-cyan-400",
   system_design: "text-purple-400",
 };
 
@@ -25,162 +37,235 @@ export default function DashboardPage() {
       : null;
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="p-6 md:p-10 max-w-6xl mx-auto text-slate-100 font-sans">
+      {/* ─── Header ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-white/[0.08]">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/15 text-[#38bdf8] border border-blue-500/30">
+              TakeUForward Candidate
+            </span>
+            <span className="text-slate-400 text-xs font-medium">
+              Target: {profile?.targetRole || "Software Development Engineer"}
+            </span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+            {profile?.fullName ? `Welcome back, ${profile.fullName.split(" ")[0]}` : "Welcome back 👋"}
+          </h1>
+          <p className="text-slate-400 text-xs md:text-sm mt-1">
+            Continue your daily practice routine or jump into live Battle Arenas.
+          </p>
+        </div>
 
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-white">
-          {profile?.fullName ? `Hey, ${profile.fullName.split(" ")[0]} 👋` : "Welcome back 👋"}
-        </h1>
-        <p className="text-zinc-500 text-sm mt-1">
-          Ready to practice? Pick a mode and get started.
-        </p>
+        <Link
+          to="/rooms"
+          className="inline-flex items-center gap-2 bg-[#327cf6] hover:bg-[#2563eb] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-[0_0_20px_rgba(50,124,246,0.35)] transition-all self-start md:self-auto"
+        >
+          <Swords className="w-4 h-4 text-cyan-300" />
+          <span>Quick Battle Match</span>
+        </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-3 mb-8">
+      {/* ─── Stats Grid ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
           {
-            label: "Total sessions",
+            label: "Total Sessions",
             value: interviewsLoading ? "—" : interviews?.length ?? 0,
-            sub: "all time",
+            sub: "mock interviews",
+            icon: Zap,
+            color: "text-blue-400",
           },
           {
-            label: "Avg score",
+            label: "Average Score",
             value: avgScore !== null ? `${avgScore}/10` : "—",
-            sub: "completed sessions",
+            sub: "technical evaluation",
+            icon: Trophy,
+            color: "text-emerald-400",
           },
           {
-            label: "Streak",
-            value: profileLoading ? "—" : `${profile?.streakCount ?? 0}d`,
-            sub: "keep it up",
+            label: "Practice Streak",
+            value: profileLoading ? "—" : `${profile?.streakCount ?? 1} Days`,
+            sub: "consistency bonus",
             icon: Flame,
+            color: "text-amber-400",
           },
           {
-            label: "Target role",
-            value: profile?.targetRole?.split(" ")[0] || "—",
-            sub: profile?.experienceLevel || "set in profile",
+            label: "Target Role",
+            value: profile?.targetRole?.split(" ")[0] || "SDE",
+            sub: profile?.experienceLevel || "Level 1",
+            icon: Sparkles,
+            color: "text-purple-400",
           },
         ].map((stat) => (
           <div
             key={stat.label}
-            className="bg-zinc-950 border border-zinc-900 rounded-xl p-5"
+            className="p-5 rounded-2xl bg-[#0a0b10] border border-white/[0.08] relative overflow-hidden tuf-glass-hover"
           >
-            <p className="text-zinc-500 text-xs mb-3">{stat.label}</p>
-            <p className="text-2xl font-semibold text-white">{stat.value}</p>
-            <p className="text-zinc-600 text-xs mt-1">{stat.sub}</p>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                {stat.label}
+              </span>
+              <stat.icon className={cn("w-4 h-4", stat.color)} />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-sans">
+              {stat.value}
+            </p>
+            <p className="text-[11px] text-slate-400 mt-1 font-medium">{stat.sub}</p>
           </div>
         ))}
       </div>
 
-      {/* Start a session */}
-      <h2 className="text-sm font-medium text-zinc-400 uppercase tracking-wider mb-3">
-        Start a session
+      {/* ─── Featured Banner: TakeUForward Battle Arena ─────────────── */}
+      <div className="mb-10 p-6 rounded-2xl bg-gradient-to-r from-blue-950/40 via-[#0e111a] to-violet-950/30 border border-blue-500/30 relative overflow-hidden shadow-[0_0_35px_rgba(50,124,246,0.12)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div>
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+              Multiplayer Battle Arena
+            </div>
+            <h2 className="text-lg sm:text-xl font-bold text-white">
+              Compete Head-to-Head in Live Timed Coding Rooms
+            </h2>
+            <p className="text-xs text-slate-400 max-w-xl mt-1">
+              Create a private room with friends or join public matches. Solve curated problems with
+              live synchronized timers and real-time scoreboards.
+            </p>
+          </div>
+
+          <Link
+            to="/rooms"
+            className="inline-flex items-center gap-2 bg-[#327cf6] hover:bg-[#2563eb] text-white text-xs font-bold px-5 py-3 rounded-xl shadow-[0_0_20px_rgba(50,124,246,0.4)] transition-all shrink-0 self-start sm:self-auto"
+          >
+            <Swords className="w-4 h-4" />
+            <span>Create / Join Room</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* ─── Practice Launchers ─────────────────────────────────────── */}
+      <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+        Quick Practice Centers
       </h2>
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        <Link to="/practice?mode=voice">
-          <div className="group bg-zinc-950 border border-zinc-900 hover:border-amber-400/30 rounded-xl p-5 transition-all cursor-pointer">
-            <div className="w-9 h-9 bg-blue-400/10 rounded-lg flex items-center justify-center mb-4">
-              <Mic className="w-4 h-4 text-blue-400" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+        <Link to="/practice">
+          <div className="p-5 rounded-2xl bg-[#0a0b10] border border-white/[0.08] hover:border-[#327cf6]/50 transition-all tuf-glass-hover group cursor-pointer">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-105 transition-transform">
+              <Layers className="w-5 h-5" />
             </div>
-            <p className="text-white font-medium text-sm mb-1">Voice interview</p>
-            <p className="text-zinc-600 text-xs">Speak with an AI interviewer</p>
-            <div className="flex items-center gap-1 mt-4 text-amber-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-              Start <ArrowRight className="w-3 h-3" />
+            <h3 className="text-white font-bold text-sm mb-1">Striver DSA Sheets</h3>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Step-by-step topic roadmaps from basics to advanced DP and graphs.
+            </p>
+            <div className="flex items-center gap-1.5 mt-4 text-[#38bdf8] text-xs font-bold">
+              Open Roadmap <ArrowRight className="w-3.5 h-3.5" />
             </div>
           </div>
         </Link>
+
         <Link to="/coding">
-          <div className="group bg-zinc-950 border border-zinc-900 hover:border-amber-400/30 rounded-xl p-5 transition-all cursor-pointer">
-            <div className="w-9 h-9 bg-amber-400/10 rounded-lg flex items-center justify-center mb-4">
-              <Code2 className="w-4 h-4 text-amber-400" />
+          <div className="p-5 rounded-2xl bg-[#0a0b10] border border-white/[0.08] hover:border-[#327cf6]/50 transition-all tuf-glass-hover group cursor-pointer">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center mb-4 text-cyan-400 group-hover:scale-105 transition-transform">
+              <Code2 className="w-5 h-5" />
             </div>
-            <p className="text-white font-medium text-sm mb-1">Coding practice</p>
-            <p className="text-zinc-600 text-xs">Solve problems with AI feedback</p>
-            <div className="flex items-center gap-1 mt-4 text-amber-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-              Start <ArrowRight className="w-3 h-3" />
+            <h3 className="text-white font-bold text-sm mb-1">Monaco Coding IDE</h3>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Live code judge with multi-language starter templates and test breakdown.
+            </p>
+            <div className="flex items-center gap-1.5 mt-4 text-cyan-400 text-xs font-bold">
+              Start Solving <ArrowRight className="w-3.5 h-3.5" />
             </div>
           </div>
         </Link>
-        <Link to="/chat">
-          <div className="group bg-zinc-950 border border-zinc-900 hover:border-amber-400/30 rounded-xl p-5 transition-all cursor-pointer">
-            <div className="w-9 h-9 bg-green-400/10 rounded-lg flex items-center justify-center mb-4">
-              <MessageSquare className="w-4 h-4 text-green-400" />
+
+        <Link to="/practice">
+          <div className="p-5 rounded-2xl bg-[#0a0b10] border border-white/[0.08] hover:border-[#327cf6]/50 transition-all tuf-glass-hover group cursor-pointer">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-105 transition-transform">
+              <Sparkles className="w-5 h-5" />
             </div>
-            <p className="text-white font-medium text-sm mb-1">AI prep chat</p>
-            <p className="text-zinc-600 text-xs">Ask anything about interviews</p>
-            <div className="flex items-center gap-1 mt-4 text-amber-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-              Start <ArrowRight className="w-3 h-3" />
+            <h3 className="text-white font-bold text-sm mb-1">AI Mock Interviews</h3>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Adaptive role-specific interviewers with automated scorecards.
+            </p>
+            <div className="flex items-center gap-1.5 mt-4 text-purple-400 text-xs font-bold">
+              Start Session <ArrowRight className="w-3.5 h-3.5" />
             </div>
           </div>
         </Link>
       </div>
 
-      {/* Recent sessions */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-medium text-zinc-400 uppercase tracking-wider">
-          Recent sessions
+      {/* ─── Recent Sessions ────────────────────────────────────────── */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+          Recent Activity & Sessions
         </h2>
-        <Link to="/history" className="text-xs text-amber-400 hover:text-amber-300">
-          View all →
+        <Link to="/history" className="text-xs font-bold text-[#38bdf8] hover:underline">
+          View all history →
         </Link>
       </div>
 
-      <div className="bg-zinc-950 border border-zinc-900 rounded-xl overflow-hidden">
+      <div className="rounded-2xl bg-[#0a0b10] border border-white/[0.08] overflow-hidden">
         {interviewsLoading ? (
-          <div className="p-6 text-zinc-600 text-sm">Loading...</div>
+          <div className="p-6 text-slate-500 text-xs font-mono">Loading sessions...</div>
         ) : interviews?.length === 0 ? (
-          <div className="p-8 text-center">
-            <p className="text-zinc-600 text-sm">No sessions yet</p>
-            <Link to="/practice" className="text-amber-400 text-xs mt-1 inline-block hover:text-amber-300">
-              Start your first interview →
+          <div className="p-10 text-center">
+            <p className="text-slate-400 text-xs">No practice sessions recorded yet</p>
+            <Link
+              to="/practice"
+              className="text-[#38bdf8] text-xs font-bold mt-2 inline-block hover:underline"
+            >
+              Start your first practice session →
             </Link>
           </div>
         ) : (
-          <div>
-            {interviews?.slice(0, 5).map((interview: any, i: number) => (
+          <div className="divide-y divide-white/[0.04]">
+            {interviews?.slice(0, 5).map((interview: any) => (
               <Link
                 key={interview.id}
                 to={`/results/${interview.id}`}
-                className={cn(
-                  "flex items-center justify-between px-5 py-3.5 hover:bg-zinc-900 transition-colors",
-                  i !== 0 && "border-t border-zinc-900"
-                )}
+                className="flex items-center justify-between p-4 sm:px-6 hover:bg-white/[0.02] transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center">
-                    <Mic className={cn("w-3.5 h-3.5", MODE_COLORS[interview.mode] || "text-zinc-400")} />
+                <div className="flex items-center gap-3.5">
+                  <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center">
+                    <Mic
+                      className={cn(
+                        "w-4 h-4",
+                        MODE_COLORS[interview.mode] || "text-slate-400"
+                      )}
+                    />
                   </div>
                   <div>
-                    <p className="text-white text-sm font-medium">{interview.role}</p>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <Clock className="w-3 h-3 text-zinc-600" />
-                      <p className="text-zinc-600 text-xs">
+                    <p className="text-white text-xs sm:text-sm font-bold">
+                      {interview.role}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5 text-[11px] text-slate-400">
+                      <Clock className="w-3 h-3" />
+                      <span>
                         {new Date(interview.createdAt).toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
                         })}
-                      </p>
-                      <span className="text-zinc-800">·</span>
-                      <span className={cn("text-xs capitalize", MODE_COLORS[interview.mode] || "text-zinc-500")}>
-                        {interview.mode}
                       </span>
+                      <span>•</span>
+                      <span className="capitalize">{interview.mode} mode</span>
                     </div>
                   </div>
                 </div>
+
                 <div className="flex items-center gap-3">
-                  <span className={cn(
-                    "text-xs px-2 py-0.5 rounded-full border",
-                    interview.status === "completed"
-                      ? "text-green-400 border-green-900 bg-green-400/5"
-                      : interview.status === "abandoned"
-                      ? "text-zinc-600 border-zinc-800"
-                      : "text-blue-400 border-blue-900 bg-blue-400/5"
-                  )}>
+                  <span
+                    className={cn(
+                      "text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wide",
+                      interview.status === "completed"
+                        ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
+                        : "text-slate-400 border-slate-700 bg-white/[0.02]"
+                    )}
+                  >
                     {interview.status}
                   </span>
+
                   {interview.score && (
-                    <span className="text-amber-400 font-semibold text-sm">
+                    <span className="text-[#38bdf8] font-mono font-bold text-xs">
                       {interview.score}/10
                     </span>
                   )}
