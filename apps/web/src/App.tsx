@@ -12,6 +12,10 @@ import HistoryPage from "./pages/HistoryPage";
 import ChatPage from "./pages/ChatPage";
 import AdminPage from "./pages/AdminPage";
 import CodingPage from "./pages/CodingPage";
+import RoomsPage from "./pages/rooms/RoomsPage";
+import RoomLobbyPage from "./pages/rooms/RoomLobbyPage";
+import RoomArenaPage from "./pages/rooms/RoomArenaPage";
+import RoomResultsPage from "./pages/rooms/RoomResultsPage";
 import { useSession } from "@/lib/auth";
 // import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
@@ -29,41 +33,58 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+import { Toaster } from "@/components/ui/sonner";
+
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
+    <>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
-      <Route
-        path="/profile-setup"
-        element={
-          <ProtectedRoute>
-            <ProfileSetupPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/profile-setup"
+          element={
+            <ProtectedRoute>
+              <ProfileSetupPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        element={
-          <ProtectedRoute>
-            <AppLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/interview" element={<InterviewPage />} />
-        <Route path="/results/:id" element={<ResultsPage />} />
-        <Route path="/practice" element={<PracticeHubPage />} />
-        <Route path="/history" element={<HistoryPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/chat/:id" element={<ChatPage />} />
-        <Route path="/admin" element={<AdminPage />} />        
-        <Route path="/coding" element={<CodingPage />} />
-        <Route path="/coding/:slug" element={<CodingPage />} />
-        {/* <Route path="/voice-interview" element={<VoiceInterviewPage />} /> */}
-      </Route>
-    </Routes>
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/interview" element={<InterviewPage />} />
+          <Route path="/results/:id" element={<ResultsPage />} />
+          <Route path="/practice" element={<PracticeHubPage />} />
+          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/chat/:id" element={<ChatPage />} />
+          <Route path="/admin" element={<AdminPage />} />        
+          <Route path="/coding" element={<CodingPage />} />
+          <Route path="/coding/:slug" element={<CodingPage />} />
+          <Route path="/rooms" element={<RoomsPage />} />
+          <Route path="/rooms/:code/lobby" element={<RoomLobbyPage />} />
+          <Route path="/rooms/:code/results" element={<RoomResultsPage />} />
+          {/* <Route path="/voice-interview" element={<VoiceInterviewPage />} /> */}
+        </Route>
+
+        <Route
+          path="/rooms/:code/arena"
+          element={
+            <ProtectedRoute>
+              <RoomArenaPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+      <Toaster position="bottom-right" richColors />
+    </>
   );
 }

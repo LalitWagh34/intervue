@@ -9,6 +9,7 @@ import {
   Code2,
   LogOut,
   Settings,
+  Swords,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { signOut, useSession } from "@/lib/auth";
@@ -17,6 +18,7 @@ const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { label: "Practice", icon: Mic, href: "/practice" },
   { label: "Coding", icon: Code2, href: "/coding" },
+  { label: "Battle Arena", icon: Swords, href: "/rooms" },
   { label: "History", icon: History, href: "/history" },
   { label: "AI Chat", icon: MessageSquare, href: "/chat" },
   { label: "Leaderboard", icon: Trophy, href: "/leaderboard" },
