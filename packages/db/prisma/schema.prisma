@@ -73,6 +73,29 @@ enum UserRole {
   admin
 }
 
+// ─── Competitive Room enums ────────────────────────
+enum RoomType {
+  CODING
+  APTITUDE
+  MIXED
+}
+
+enum RoomStatus {
+  WAITING
+  ACTIVE
+  FINISHED
+}
+
+enum ParticipantRole {
+  HOST
+  PARTICIPANT
+}
+
+enum AssessmentCategory {
+  APTITUDE
+  CORE_CS
+}
+
 
 // ─── better-auth models ────────────────────────────
 model Session {
@@ -132,6 +155,11 @@ model User {
   accounts    Account[]
   problems    Problem[]
   submissions Submission[]
+
+  hostedRooms       Room[]            @relation("HostedRooms")
+  roomParticipants  RoomParticipant[]
+  roomSubmissions   RoomSubmission[]
+  roomMcqAnswers    RoomMcqAnswer[]
 }
 
 model Profile {
@@ -223,11 +251,13 @@ model Problem {
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
 
-  testCases   TestCase[]
-  examples    ProblemExample[]
-  templates   CodeTemplate[]
-  submissions Submission[]
-  author      User?             @relation(fields: [authorId], references: [id])
+  testCases       TestCase[]
+  examples        ProblemExample[]
+  templates       CodeTemplate[]
+  submissions     Submission[]
+  roomQuestions   RoomQuestion[]
+  roomSubmissions RoomSubmission[]
+  author          User?             @relation(fields: [authorId], references: [id])
 }
 
 model TestCase {
@@ -304,4 +334,129 @@ model ChatMessage {
   createdAt DateTime @default(now())
 
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}
+
+// ─── Competitive Rooms & Assessment Models ─────────
+
+model AssessmentQuestion {
+  id            String             @id @default(cuid())
+  category      AssessmentCategory // APTITUDE or CORE_CS
+  subject       String             // "DBMS", "OS", "CN", "OOP", "QUANT", "LOGICAL", "VERBAL"
+  topic         String             // e.g. "Deadlocks", "Normalization", "TCP/IP"
+  difficulty    ProblemDifficulty  @default(MEDIUM)
+  question      String             @db.Text
+  options       Json               // ["Option A", "Option B", "Option C", "Option D"]
+  correctOption Int                // 0, 1, 2, or 3
+  explanation   String?            @db.Text
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  roomQuestions RoomQuestion[]
+  mcqAnswers    RoomMcqAnswer[]
+
+  @@index([category, subject])
+  @@index([difficulty])
+}
+
+model Room {
+  id              String           @id @default(cuid())
+  code            String           @unique // 6-character uppercase code (e.g. "K9X2P4")
+  title           String
+  type            RoomType         @default(CODING)
+  status          RoomStatus       @default(WAITING)
+  duration        Int              // Duration in minutes
+  maxParticipants Int              @default(10)
+  hostId          String
+  startTime       DateTime?
+  endTime         DateTime?
+  config          Json?            // e.g. { selectedTopics: string[], allowLateJoin: boolean }
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  host            User             @relation("HostedRooms", fields: [hostId], references: [id], onDelete: Cascade)
+  participants    RoomParticipant[]
+  questions       RoomQuestion[]
+  submissions     RoomSubmission[]
+  mcqAnswers      RoomMcqAnswer[]
+
+  @@index([code])
+  @@index([status])
+  @@index([hostId])
+}
+
+model RoomParticipant {
+  id          String          @id @default(cuid())
+  roomId      String
+  userId      String
+  role        ParticipantRole @default(PARTICIPANT)
+  score       Int             @default(0)
+  solvedCount Int             @default(0)
+  penaltyTime Int             @default(0) // Seconds from startTime for tie breaks
+  joinedAt    DateTime        @default(now())
+  lastSeenAt  DateTime        @default(now())
+
+  room        Room            @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissions RoomSubmission[]
+  mcqAnswers  RoomMcqAnswer[]
+
+  @@unique([roomId, userId])
+  @@index([roomId, score(sort: Desc), penaltyTime(sort: Asc)])
+}
+
+model RoomQuestion {
+  id                   String              @id @default(cuid())
+  roomId               String
+  orderIndex           Int                 @default(0)
+  points               Int                 @default(100)
+  problemId            Int?
+  assessmentQuestionId String?
+
+  room                 Room                @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  problem              Problem?            @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  assessmentQuestion   AssessmentQuestion? @relation(fields: [assessmentQuestionId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, orderIndex])
+}
+
+model RoomSubmission {
+  id            String          @id @default(cuid())
+  roomId        String
+  participantId String
+  userId        String
+  problemId     Int
+  sourceCode    String          @db.Text
+  language      Language
+  verdict       Verdict         @default(PENDING)
+  pointsAwarded Int             @default(0)
+  runtime       Int?
+  memory        Int?
+  submittedAt   DateTime        @default(now())
+
+  room          Room            @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  participant   RoomParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem       Problem         @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, userId, problemId])
+}
+
+model RoomMcqAnswer {
+  id                   String             @id @default(cuid())
+  roomId               String
+  participantId        String
+  userId               String
+  questionId           String
+  selectedOption       Int                // 0, 1, 2, 3
+  isCorrect            Boolean
+  pointsAwarded        Int                // +4 if correct, -1 if wrong
+  answeredAt           DateTime           @default(now())
+
+  room                 Room               @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  participant          RoomParticipant    @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question             AssessmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId, questionId])
+  @@index([roomId, userId])
 }
