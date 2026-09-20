@@ -23,3 +23,24 @@ export function useProblem(slug: string | undefined) {
     enabled: !!slug,
   });
 }
+
+export function useSubmissions(slug: string | undefined) {
+  return useQuery({
+    queryKey: ["submissions", slug],
+    queryFn: async () => {
+      const res = await api.get(`/code/problems/${slug}/submissions`);
+      return res.data.submissions as Array<{
+        id: number;
+        sourceCode: string;
+        language: string;
+        languageId: number;
+        verdict: string;
+        runtime: number | null;
+        memory: number | null;
+        isAccepted: boolean;
+        createdAt: string;
+      }>;
+    },
+    enabled: !!slug,
+  });
+}
