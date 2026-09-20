@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --amber: #f59e0b;
-  --amber-dark: #d97706;
+  --brand-blue: #327cf6;
+  --brand-blue-hover: #2563eb;
+  --brand-blue-glow: rgba(50, 124, 246, 0.4);
+  --canvas-dark: #08090c;
+  --card-dark: #0c0d12;
+  --card-border: rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -10,22 +14,64 @@
 }
 
 body {
-  background-color: #09090b;
-  color: #fafafa;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #08090c;
+  color: #f1f5f9;
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Serif accent font utility */
+.font-serif-accent {
+  font-family: "Instrument Serif", Georgia, Cambria, "Times New Roman", Times, serif;
+  font-style: italic;
+}
+
+/* Monospace font utility */
+.font-mono-code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* TakeUForward-style glassmorphic panels */
+.tuf-glass {
+  background: rgba(12, 13, 18, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tuf-glass-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tuf-glass-hover:hover {
+  background: rgba(18, 20, 28, 0.85);
+  border-color: rgba(50, 124, 246, 0.3);
+  box-shadow: 0 0 25px rgba(50, 124, 246, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Ambient glow blobs */
+.ambient-glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+  opacity: 0.45;
+  mix-blend-mode: screen;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #08090c;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 4px;
+  background: #1e2230;
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #327cf6;
 }
