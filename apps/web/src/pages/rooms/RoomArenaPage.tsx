@@ -240,16 +240,16 @@ export default function RoomArenaPage() {
   const myData = participants.find((p) => p.userId === session?.user?.id);
 
   return (
-    <div className="h-screen bg-[#09090b] text-zinc-100 flex flex-col overflow-hidden font-sans">
+    <div className="h-screen bg-[#0B0C0F] text-[#F5F7FA] flex flex-col overflow-hidden font-sans">
       {/* Top Arena Navigation Bar */}
-      <header className="h-14 border-b border-zinc-800 bg-[#09090b] px-4 flex items-center justify-between shrink-0 select-none">
+      <header className="h-14 border-b border-[#1E2229] bg-[#101216] px-4 flex items-center justify-between shrink-0 select-none">
         {/* Left: Room Title & Question Tabs */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 pr-3 border-r border-zinc-800">
-            <span className="font-semibold text-sm tracking-tight text-white">
+          <div className="flex items-center gap-2 pr-3 border-r border-[#1E2229]">
+            <span className="font-semibold text-sm tracking-tight text-[#F5F7FA]">
               {room.title}
             </span>
-            <Badge variant="outline" className="text-[10px] border-zinc-800 bg-zinc-950 font-mono text-zinc-400">
+            <Badge variant="outline" className="text-[10px] border-[#272B33] bg-[#14161B] font-mono text-[#A1A7B3]">
               {room.code}
             </Badge>
           </div>
@@ -268,15 +268,15 @@ export default function RoomArenaPage() {
                   onClick={() => setActiveQuestionIndex(idx)}
                   className={`px-3 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 transition-all ${
                     isActive
-                      ? "bg-zinc-800 text-white border border-zinc-700 shadow-sm"
-                      : "bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 border border-zinc-800/60"
+                      ? "bg-[#191C22] text-[#F5F7FA] border border-[#272B33] shadow-sm"
+                      : "bg-[#101216] text-[#A1A7B3] hover:text-[#F5F7FA] border border-[#1E2229]"
                   }`}
                 >
-                  {isSolved && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+                  {isSolved && <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />}
                   <span>
                     {q.type === "CODING" ? `Problem ${idx + 1}` : `MCQ ${idx + 1}`}
                   </span>
-                  <span className="text-[10px] text-zinc-500 font-mono">
+                  <span className="text-[10px] text-[#707784] font-mono">
                     {q.points}pts
                   </span>
                 </button>
@@ -290,8 +290,8 @@ export default function RoomArenaPage() {
           <div
             className={`px-3.5 py-1 rounded-full border flex items-center gap-2 font-mono text-xs font-semibold tracking-wider transition-colors ${
               (secondsLeft ?? 100) < 300
-                ? "bg-rose-950/40 border-rose-800/60 text-rose-400 animate-pulse"
-                : "bg-zinc-900 border-zinc-800 text-zinc-200"
+                ? "bg-[#EF4444]/10 border-[#EF4444]/30 text-[#EF4444] animate-pulse"
+                : "bg-[#14161B] border-[#272B33] text-[#F5F7FA]"
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -305,13 +305,13 @@ export default function RoomArenaPage() {
             size="sm"
             variant="outline"
             onClick={() => setIsLeaderboardOpen(!isLeaderboardOpen)}
-            className={`text-xs h-8 border-zinc-800 flex items-center gap-2 transition-colors ${
+            className={`text-xs h-8 border-[#272B33] flex items-center gap-2 transition-colors ${
               isLeaderboardOpen
-                ? "bg-zinc-800 text-white border-zinc-700"
-                : "bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800"
+                ? "bg-[#191C22] text-[#F5F7FA] border-[#3B9CFF]/40"
+                : "bg-[#14161B] text-[#A1A7B3] hover:bg-[#191C22] hover:text-[#F5F7FA]"
             }`}
           >
-            <Trophy className="w-3.5 h-3.5 text-amber-400" />
+            <Trophy className="w-3.5 h-3.5 text-[#F59E0B]" />
             <span>
               Rank #{myData?.rank || 1} • {myData?.score || 0} pts
             </span>
@@ -325,7 +325,7 @@ export default function RoomArenaPage() {
                 navigate("/rooms");
               }
             }}
-            className="text-xs h-8 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
+            className="text-xs h-8 text-[#707784] hover:text-[#F5F7FA] hover:bg-[#14161B]"
           >
             Exit
           </Button>
@@ -337,22 +337,22 @@ export default function RoomArenaPage() {
         {/* Workspace Body */}
         {isCodingQuestion ? (
           // ─── CODING SPLIT VIEW ──────────────────────────────────────
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-x divide-zinc-800 overflow-hidden">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-x divide-[#1E2229] overflow-hidden">
             {/* Left: Problem Description */}
-            <div className="h-full overflow-y-auto p-6 space-y-6 bg-[#09090b]">
+            <div className="h-full overflow-y-auto p-6 space-y-6 bg-[#0B0C0F]">
               <div>
                 <div className="flex items-center justify-between gap-4 mb-2">
-                  <h2 className="text-xl font-semibold text-white tracking-tight">
+                  <h2 className="text-xl font-semibold text-[#F5F7FA] tracking-tight">
                     {activeQuestion.problem.title}
                   </h2>
                   <Badge
                     variant="outline"
                     className={`text-xs border ${
                       activeQuestion.problem.difficulty === "EASY"
-                        ? "border-emerald-800 text-emerald-400 bg-emerald-950/20"
+                        ? "border-[#22C55E]/25 text-[#22C55E] bg-[#22C55E]/10"
                         : activeQuestion.problem.difficulty === "MEDIUM"
-                        ? "border-amber-800 text-amber-400 bg-amber-950/20"
-                        : "border-rose-800 text-rose-400 bg-rose-950/20"
+                        ? "border-[#F59E0B]/25 text-[#F59E0B] bg-[#F59E0B]/10"
+                        : "border-[#EF4444]/25 text-[#EF4444] bg-[#EF4444]/10"
                     }`}
                   >
                     {activeQuestion.problem.difficulty}

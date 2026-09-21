@@ -7,7 +7,6 @@ import {
   Mic,
   MessageSquare,
   BookOpen,
-  CheckCircle2,
   Circle,
   ExternalLink,
   Search,
@@ -21,7 +20,6 @@ import {
   Database,
   Network,
   Building2,
-  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -148,7 +146,7 @@ const CORE_CS_MODULES = [
 
 export default function PracticeHubPage() {
   const navigate = useNavigate();
-  const { data: dbProblems } = useProblems();
+  useProblems();
 
   const [activeTab, setActiveTab] = useState<"sheets" | "companies" | "interviews" | "core_cs">("sheets");
   const [expandedSteps, setExpandedSteps] = useState<Record<number, boolean>>({ 1: true, 3: true });
@@ -189,44 +187,44 @@ export default function PracticeHubPage() {
   }
 
   return (
-    <div className="p-6 md:p-10 max-w-6xl mx-auto text-slate-100 font-sans">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto text-[#F5F7FA] font-sans">
       {/* ─── Header ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-white/[0.08]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-[#272B33]">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/15 text-[#38bdf8] border border-blue-500/30">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#2F80ED]/10 text-[#3B9CFF] border border-[#2F80ED]/25">
               Placement Curriculum
             </span>
-            <span className="text-slate-400 text-xs flex items-center gap-1 font-medium">
-              <Flame className="w-3.5 h-3.5 text-amber-400" /> SDE Prep Roadmap
+            <span className="text-[#A1A7B3] text-xs flex items-center gap-1 font-medium">
+              <Flame className="w-3.5 h-3.5 text-[#F59E0B]" /> SDE Prep Roadmap
             </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#F5F7FA] tracking-tight">
             Placement Preparation Hub
           </h1>
-          <p className="text-slate-400 text-xs md:text-sm mt-1">
+          <p className="text-[#A1A7B3] text-xs md:text-sm mt-1">
             Master Data Structures & Algorithms, practice company-wise questions, test core CS subjects, or launch AI mock interviews.
           </p>
         </div>
 
         <Link
           to="/rooms"
-          className="inline-flex items-center gap-2 bg-[#327cf6] hover:bg-[#2563eb] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-[0_0_20px_rgba(50,124,246,0.35)] transition-all self-start md:self-auto"
+          className="inline-flex items-center gap-2 bg-[#2F80ED] hover:bg-[#3B9CFF] text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-sm transition-colors self-start md:self-auto"
         >
-          <Swords className="w-4 h-4 text-cyan-300" />
+          <Swords className="w-4 h-4 text-[#06B6D4]" />
           <span>Enter Battle Arena</span>
         </Link>
       </div>
 
       {/* ─── Navigation Tabs ────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 mb-8 p-1.5 rounded-2xl bg-[#0c0d14] border border-white/[0.08] max-w-2xl overflow-x-auto">
+      <div className="flex items-center gap-1.5 mb-8 p-1.5 rounded-xl bg-[#101216] border border-[#1E2229] max-w-2xl overflow-x-auto">
         <button
           onClick={() => setActiveTab("sheets")}
           className={cn(
-            "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0",
+            "flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer shrink-0",
             activeTab === "sheets"
-              ? "bg-[#327cf6] text-white shadow-[0_0_15px_rgba(50,124,246,0.35)]"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
+              : "text-[#A1A7B3] hover:text-[#F5F7FA] hover:bg-[#14161B]"
           )}
         >
           <Layers className="w-3.5 h-3.5" />
@@ -236,10 +234,10 @@ export default function PracticeHubPage() {
         <button
           onClick={() => setActiveTab("companies")}
           className={cn(
-            "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0",
+            "flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer shrink-0",
             activeTab === "companies"
-              ? "bg-[#327cf6] text-white shadow-[0_0_15px_rgba(50,124,246,0.35)]"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
+              : "text-[#A1A7B3] hover:text-[#F5F7FA] hover:bg-[#14161B]"
           )}
         >
           <Building2 className="w-3.5 h-3.5" />
@@ -249,23 +247,23 @@ export default function PracticeHubPage() {
         <button
           onClick={() => setActiveTab("interviews")}
           className={cn(
-            "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0",
+            "flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer shrink-0",
             activeTab === "interviews"
-              ? "bg-[#327cf6] text-white shadow-[0_0_15px_rgba(50,124,246,0.35)]"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
+              : "text-[#A1A7B3] hover:text-[#F5F7FA] hover:bg-[#14161B]"
           )}
         >
-          <Sparkles className="w-3.5 h-3.5" />
+          <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6]" />
           <span>AI Interviews</span>
         </button>
 
         <button
           onClick={() => setActiveTab("core_cs")}
           className={cn(
-            "flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0",
+            "flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer shrink-0",
             activeTab === "core_cs"
-              ? "bg-[#327cf6] text-white shadow-[0_0_15px_rgba(50,124,246,0.35)]"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
+              : "text-[#A1A7B3] hover:text-[#F5F7FA] hover:bg-[#14161B]"
           )}
         >
           <BookOpen className="w-3.5 h-3.5" />
@@ -279,13 +277,13 @@ export default function PracticeHubPage() {
           {/* Controls Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
             <div className="relative w-full sm:w-80">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#707784] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search topic or problem..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#0c0d14] border border-white/[0.08] focus:border-[#327cf6] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 outline-none transition-colors"
+                className="w-full bg-[#14161B] border border-[#272B33] focus:border-[#2F80ED] rounded-lg pl-9 pr-4 py-2 text-xs text-[#F5F7FA] placeholder-[#707784] outline-none transition-colors"
               />
             </div>
 
@@ -295,10 +293,10 @@ export default function PracticeHubPage() {
                   key={diff}
                   onClick={() => setSelectedDifficulty(diff)}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                    "px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer",
                     selectedDifficulty === diff
-                      ? "bg-white/[0.12] text-white border border-white/[0.2]"
-                      : "text-slate-400 hover:text-slate-200 bg-white/[0.02] border border-transparent"
+                      ? "bg-[#191C22] text-[#F5F7FA] border border-[#272B33]"
+                      : "text-[#A1A7B3] hover:text-[#F5F7FA] bg-[#14161B] border border-[#1E2229]"
                   )}
                 >
                   {diff}
@@ -326,54 +324,54 @@ export default function PracticeHubPage() {
               return (
                 <div
                   key={step.id}
-                  className="rounded-2xl border border-white/[0.08] bg-[#0a0b10] overflow-hidden transition-all shadow-sm"
+                  className="rounded-xl border border-[#272B33] bg-[#14161B] overflow-hidden shadow-sm"
                 >
                   {/* Step Header */}
                   <div
                     onClick={() => toggleStep(step.id)}
-                    className="p-5 flex items-center justify-between cursor-pointer hover:bg-white/[0.02] transition-colors"
+                    className="p-4 sm:p-5 flex items-center justify-between cursor-pointer hover:bg-[#191C22] transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center font-bold text-xs text-blue-400">
+                      <div className="w-8 h-8 rounded-lg bg-[#2F80ED]/10 border border-[#2F80ED]/25 flex items-center justify-center font-bold text-xs text-[#3B9CFF]">
                         0{step.id}
                       </div>
                       <div>
-                        <h2 className="text-sm font-bold text-white tracking-tight">
+                        <h2 className="text-sm font-semibold text-[#F5F7FA] tracking-tight">
                           {step.title}
                         </h2>
-                        <p className="text-[11px] text-slate-400 mt-0.5">{step.desc}</p>
+                        <p className="text-[11px] text-[#A1A7B3] mt-0.5">{step.desc}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono text-slate-500">
+                      <span className="text-xs font-mono text-[#707784]">
                         {step.problems.length} problems
                       </span>
                       {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                        <ChevronDown className="w-4 h-4 text-[#A1A7B3]" />
                       ) : (
-                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                        <ChevronRight className="w-4 h-4 text-[#A1A7B3]" />
                       )}
                     </div>
                   </div>
 
                   {/* Problems Table */}
                   {isExpanded && (
-                    <div className="border-t border-white/[0.06] divide-y divide-white/[0.04]">
+                    <div className="border-t border-[#1E2229] divide-y divide-[#1E2229]">
                       {filteredProblems.map((problem) => (
                         <div
                           key={problem.id}
-                          className="px-5 py-3.5 flex items-center justify-between hover:bg-white/[0.015] transition-colors text-xs"
+                          className="px-5 py-3.5 flex items-center justify-between hover:bg-[#191C22] transition-colors text-xs"
                         >
                           <div className="flex items-center gap-3">
-                            <Circle className="w-3.5 h-3.5 text-slate-600 hover:text-emerald-400 cursor-pointer transition-colors" />
+                            <Circle className="w-3.5 h-3.5 text-[#707784] hover:text-[#22C55E] cursor-pointer transition-colors" />
                             <div>
-                              <p className="font-semibold text-slate-200">{problem.title}</p>
+                              <p className="font-medium text-[#F5F7FA]">{problem.title}</p>
                               <div className="flex items-center gap-1.5 mt-1">
                                 {problem.companies.map((company, i) => (
                                   <span
                                     key={i}
-                                    className="px-1.5 py-0.5 rounded bg-white/[0.03] text-slate-400 text-[10px] font-mono border border-white/[0.05]"
+                                    className="px-1.5 py-0.5 rounded bg-[#101216] text-[#A1A7B3] text-[10px] font-mono border border-[#1E2229]"
                                   >
                                     {company}
                                   </span>
@@ -385,12 +383,12 @@ export default function PracticeHubPage() {
                           <div className="flex items-center gap-4">
                             <span
                               className={cn(
-                                "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
+                                "px-2 py-0.5 rounded text-[10px] font-semibold uppercase",
                                 problem.difficulty === "EASY"
-                                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                  ? "bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/25"
                                   : problem.difficulty === "MEDIUM"
-                                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                  : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                                  ? "bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/25"
+                                  : "bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/25"
                               )}
                             >
                               {problem.difficulty}
@@ -398,7 +396,7 @@ export default function PracticeHubPage() {
 
                             <Link
                               to={`/coding/${problem.slug}`}
-                              className="px-3 py-1 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 font-bold transition-all text-xs flex items-center gap-1"
+                              className="px-3 py-1 rounded-md bg-[#2F80ED]/10 hover:bg-[#2F80ED]/20 text-[#3B9CFF] border border-[#2F80ED]/30 font-medium transition-colors text-xs flex items-center gap-1"
                             >
                               <span>Solve</span>
                               <ExternalLink className="w-3 h-3" />
@@ -419,27 +417,27 @@ export default function PracticeHubPage() {
       {activeTab === "companies" && (
         <div className="space-y-6">
           {/* Company Picker Bar */}
-          <div className="p-4 rounded-2xl bg-[#0a0b10] border border-white/[0.08]">
+          <div className="p-4 rounded-xl bg-[#14161B] border border-[#272B33]">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                <Building2 className="w-3.5 h-3.5 text-blue-400" />
+              <span className="text-xs font-semibold text-[#A1A7B3] uppercase tracking-wider flex items-center gap-2">
+                <Building2 className="w-3.5 h-3.5 text-[#2F80ED]" />
                 Select Target Company
               </span>
-              <span className="text-xs text-slate-500 font-mono">
+              <span className="text-xs text-[#707784] font-mono">
                 Powered by 470+ Companies Dataset
               </span>
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
               {(featuredCompaniesData?.companies || []).map((comp) => (
                 <button
                   key={comp.slug}
                   onClick={() => setSelectedCompany(comp.name)}
                   className={cn(
-                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer",
+                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer",
                     selectedCompany === comp.name
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25 border border-blue-400/40"
-                      : "bg-white/[0.03] text-slate-400 hover:text-white hover:bg-white/[0.06] border border-white/[0.05]"
+                      ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
+                      : "bg-[#101216] text-[#A1A7B3] hover:text-[#F5F7FA] hover:bg-[#191C22] border border-[#1E2229]"
                   )}
                 >
                   <span className="font-mono text-[11px] opacity-75">{comp.icon}</span>
@@ -452,9 +450,9 @@ export default function PracticeHubPage() {
           {/* Timeframe & Filter Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             {/* Recency Timeframe */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs self-start sm:self-auto">
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-[#101216] border border-[#1E2229] text-xs self-start sm:self-auto">
               {[
-                { id: "thirtyDays", label: "🔥 Last 30 Days (Trending)" },
+                { id: "thirtyDays", label: "🔥 Last 30 Days" },
                 { id: "threeMonths", label: "3 Months" },
                 { id: "sixMonths", label: "6 Months" },
                 { id: "all", label: "All Time" },
@@ -463,10 +461,10 @@ export default function PracticeHubPage() {
                   key={tf.id}
                   onClick={() => setSelectedTimeframe(tf.id)}
                   className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                    "px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer",
                     selectedTimeframe === tf.id
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
+                      : "text-[#A1A7B3] hover:text-[#F5F7FA]"
                   )}
                 >
                   {tf.label}
@@ -476,40 +474,40 @@ export default function PracticeHubPage() {
 
             {/* Search within company */}
             <div className="relative w-full sm:w-72">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#707784] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder={`Search ${selectedCompany} questions...`}
                 value={companySearchQuery}
                 onChange={(e) => setCompanySearchQuery(e.target.value)}
-                className="w-full bg-[#0c0d14] border border-white/[0.08] focus:border-[#327cf6] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 outline-none transition-colors"
+                className="w-full bg-[#14161B] border border-[#272B33] focus:border-[#2F80ED] rounded-lg pl-9 pr-4 py-2 text-xs text-[#F5F7FA] placeholder-[#707784] outline-none transition-colors"
               />
             </div>
           </div>
 
           {/* Company Problem List */}
-          <div className="rounded-2xl border border-white/[0.08] bg-[#0a0b10] overflow-hidden shadow-sm">
-            <div className="p-4 border-b border-white/[0.06] flex items-center justify-between">
+          <div className="rounded-xl border border-[#272B33] bg-[#14161B] overflow-hidden shadow-sm">
+            <div className="p-4 border-b border-[#1E2229] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white tracking-tight">
+                <h2 className="text-sm font-semibold text-[#F5F7FA] tracking-tight">
                   {selectedCompany} Interview Questions
                 </h2>
-                <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold font-mono">
+                <span className="px-2 py-0.5 rounded bg-[#2F80ED]/10 text-[#3B9CFF] border border-[#2F80ED]/25 text-[10px] font-semibold font-mono">
                   {companyQuestionsData?.totalCount || 0} questions
                 </span>
               </div>
-              <span className="text-[11px] text-slate-500 font-mono">
+              <span className="text-[11px] text-[#707784] font-mono">
                 Ranked by interview frequency
               </span>
             </div>
 
             {isCompanyLoading ? (
               <div className="p-12 flex flex-col items-center justify-center gap-3">
-                <div className="w-7 h-7 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-                <p className="text-xs text-slate-400 font-mono">Loading {selectedCompany} questions...</p>
+                <div className="w-7 h-7 rounded-full border-2 border-[#2F80ED] border-t-transparent animate-spin" />
+                <p className="text-xs text-[#A1A7B3] font-mono">Loading {selectedCompany} questions...</p>
               </div>
             ) : (
-              <div className="divide-y divide-white/[0.04]">
+              <div className="divide-y divide-[#1E2229]">
                 {(companyQuestionsData?.questions || [])
                   .filter((q) => {
                     if (!companySearchQuery) return true;
@@ -524,27 +522,27 @@ export default function PracticeHubPage() {
                   .map((q, idx) => (
                     <div
                       key={idx}
-                      className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-white/[0.015] transition-colors"
+                      className="px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#191C22] transition-colors"
                     >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-slate-200 text-xs sm:text-sm">
+                          <span className="font-medium text-[#F5F7FA] text-xs sm:text-sm">
                             {q.title}
                           </span>
                           <span
                             className={cn(
-                              "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
+                              "px-2 py-0.5 rounded text-[10px] font-semibold uppercase",
                               q.difficulty === "EASY"
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                ? "bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/25"
                                 : q.difficulty === "MEDIUM"
-                                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                                ? "bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/25"
+                                : "bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/25"
                             )}
                           >
                             {q.difficulty}
                           </span>
                           {q.isNative && (
-                            <span className="px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold">
+                            <span className="px-2 py-0.5 rounded bg-[#06B6D4]/10 text-[#06B6D4] border border-[#06B6D4]/25 text-[10px] font-semibold">
                               ⚡ Native Runner
                             </span>
                           )}
@@ -555,7 +553,7 @@ export default function PracticeHubPage() {
                           {q.topics.slice(0, 4).map((t, i) => (
                             <span
                               key={i}
-                              className="px-1.5 py-0.5 rounded bg-white/[0.03] text-slate-400 text-[10px] font-mono border border-white/[0.05]"
+                              className="px-1.5 py-0.5 rounded bg-[#101216] text-[#A1A7B3] text-[10px] font-mono border border-[#1E2229]"
                             >
                               {t}
                             </span>
@@ -567,8 +565,8 @@ export default function PracticeHubPage() {
                       <div className="flex items-center gap-3 self-end sm:self-auto shrink-0">
                         {q.frequency > 0 && (
                           <div className="text-right hidden sm:block">
-                            <span className="text-[10px] text-slate-500 font-mono block">Ask Rate</span>
-                            <span className="text-xs font-extrabold text-amber-400 font-mono">
+                            <span className="text-[10px] text-[#707784] font-mono block">Ask Rate</span>
+                            <span className="text-xs font-bold text-[#F59E0B] font-mono">
                               {q.frequency}%
                             </span>
                           </div>
@@ -577,7 +575,7 @@ export default function PracticeHubPage() {
                         {q.isNative ? (
                           <Link
                             to={`/coding/${q.slug}`}
-                            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                            className="px-3 py-1.5 rounded-lg bg-[#22C55E] hover:bg-[#16A34A] text-white font-semibold text-xs shadow-sm transition-colors flex items-center gap-1.5 cursor-pointer"
                           >
                             <Code2 className="w-3.5 h-3.5" />
                             <span>Solve on Intervue</span>
@@ -589,10 +587,10 @@ export default function PracticeHubPage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className={cn(
-                            "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1",
+                            "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1",
                             q.isNative
-                              ? "bg-white/[0.03] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/[0.06]"
-                              : "bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-500/20"
+                              ? "bg-[#101216] hover:bg-[#191C22] text-[#A1A7B3] hover:text-[#F5F7FA] border border-[#1E2229]"
+                              : "bg-[#2F80ED] hover:bg-[#3B9CFF] text-white font-semibold shadow-sm"
                           )}
                         >
                           <span>{q.isNative ? "LeetCode" : "Solve on LeetCode"}</span>
@@ -609,10 +607,10 @@ export default function PracticeHubPage() {
 
       {/* ─── TAB 3: AI INTERVIEWS ────────────────────────────────────── */}
       {activeTab === "interviews" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Mode Selector Cards */}
           <div className="lg:col-span-2 space-y-4">
-            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">
+            <h2 className="text-xs font-semibold text-[#A1A7B3] uppercase tracking-wider mb-2">
               Select Interview Format
             </h2>
 
@@ -622,33 +620,33 @@ export default function PracticeHubPage() {
                   key={mode.id}
                   onClick={() => setInterviewMode(mode.id)}
                   className={cn(
-                    "p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between",
+                    "p-5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between",
                     interviewMode === mode.id
-                      ? "bg-[#0e1322] border-[#327cf6] shadow-[0_0_20px_rgba(50,124,246,0.25)]"
-                      : "bg-[#0a0b10] border-white/[0.08] hover:border-white/[0.15]"
+                      ? "bg-[#191C22] border-[#2F80ED] shadow-sm"
+                      : "bg-[#14161B] border-[#272B33] hover:border-[#3B9CFF]/50"
                   )}
                 >
                   <div>
                     <div
                       className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center mb-3",
+                        "w-10 h-10 rounded-lg flex items-center justify-center mb-3",
                         interviewMode === mode.id
-                          ? "bg-[#327cf6] text-white"
-                          : "bg-white/[0.04] text-slate-400"
+                          ? "bg-[#2F80ED] text-white"
+                          : "bg-[#101216] text-[#A1A7B3] border border-[#1E2229]"
                       )}
                     >
                       <mode.icon className="w-5 h-5" />
                     </div>
-                    <h3 className="font-bold text-white text-sm mb-1">{mode.label}</h3>
-                    <p className="text-slate-400 text-xs leading-relaxed">{mode.desc}</p>
+                    <h3 className="font-semibold text-[#F5F7FA] text-sm mb-1">{mode.label}</h3>
+                    <p className="text-[#A1A7B3] text-xs leading-relaxed">{mode.desc}</p>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-emerald-400 font-bold">READY</span>
+                  <div className="mt-4 pt-3 border-t border-[#1E2229] flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-[#22C55E] font-semibold">READY</span>
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full",
-                        interviewMode === mode.id ? "bg-[#327cf6]" : "bg-white/[0.1]"
+                        interviewMode === mode.id ? "bg-[#2F80ED]" : "bg-[#272B33]"
                       )}
                     />
                   </div>
@@ -657,53 +655,53 @@ export default function PracticeHubPage() {
             </div>
 
             {/* AI Evaluation Rubric Card */}
-            <div className="p-6 rounded-2xl bg-[#0a0b10] border border-white/[0.08] mt-6">
-              <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400" />
+            <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] mt-6">
+              <h3 className="text-sm font-semibold text-[#F5F7FA] mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
                 Multi-Dimensional AI Evaluation Engine
               </h3>
-              <p className="text-slate-400 text-xs leading-relaxed mb-4">
-                After each interview session, our Groq Llama 3.3 engine evaluates your performance across 4 industry-standard dimensions:
+              <p className="text-[#A1A7B3] text-xs leading-relaxed mb-4">
+                After each interview session, our AI evaluation engine scores your performance across 4 core dimensions:
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                  <p className="text-xs font-bold text-white">Technical Accuracy</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Core CS correctness</p>
+                <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                  <p className="text-xs font-semibold text-[#F5F7FA]">Technical Accuracy</p>
+                  <p className="text-[10px] text-[#A1A7B3] mt-1">Core CS correctness</p>
                 </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                  <p className="text-xs font-bold text-white">Communication</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Clarity & structure</p>
+                <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                  <p className="text-xs font-semibold text-[#F5F7FA]">Communication</p>
+                  <p className="text-[10px] text-[#A1A7B3] mt-1">Clarity & structure</p>
                 </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                  <p className="text-xs font-bold text-white">Problem Solving</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Trade-off analysis</p>
+                <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                  <p className="text-xs font-semibold text-[#F5F7FA]">Problem Solving</p>
+                  <p className="text-[10px] text-[#A1A7B3] mt-1">Trade-off analysis</p>
                 </div>
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.05]">
-                  <p className="text-xs font-bold text-white">Edge Cases</p>
-                  <p className="text-[10px] text-slate-400 mt-1">Robust thinking</p>
+                <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                  <p className="text-xs font-semibold text-[#F5F7FA]">Edge Cases</p>
+                  <p className="text-[10px] text-[#A1A7B3] mt-1">Robust thinking</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Configuration Launcher Sidebar */}
-          <div className="p-6 rounded-2xl bg-[#0a0b10] border border-white/[0.08] flex flex-col justify-between">
+          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] flex flex-col justify-between">
             <div className="space-y-5">
-              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-[#A1A7B3] uppercase tracking-wider">
                 Session Configuration
               </h2>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                <label className="text-xs font-medium text-[#A1A7B3] block mb-1.5">
                   Target Engineering Role
                 </label>
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-[#0c0d14] border border-white/[0.1] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-[#327cf6] cursor-pointer"
+                  className="w-full bg-[#101216] border border-[#272B33] rounded-lg px-3 py-2 text-xs text-[#F5F7FA] outline-none focus:border-[#2F80ED] cursor-pointer"
                 >
                   {ROLES.map((r) => (
-                    <option key={r} value={r} className="bg-[#0a0b10]">
+                    <option key={r} value={r} className="bg-[#14161B]">
                       {r}
                     </option>
                   ))}
@@ -711,7 +709,7 @@ export default function PracticeHubPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                <label className="text-xs font-medium text-[#A1A7B3] block mb-1.5">
                   Seniority / Experience Level
                 </label>
                 <div className="space-y-1.5">
@@ -720,10 +718,10 @@ export default function PracticeHubPage() {
                       key={lvl.id}
                       onClick={() => setLevel(lvl.id)}
                       className={cn(
-                        "w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer",
+                        "w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors border cursor-pointer",
                         level === lvl.id
-                          ? "bg-blue-600/15 text-blue-400 border-blue-500/30"
-                          : "bg-white/[0.02] text-slate-400 border-white/[0.05] hover:text-white"
+                          ? "bg-[#2F80ED]/10 text-[#3B9CFF] border-[#2F80ED]/30"
+                          : "bg-[#101216] text-[#A1A7B3] border-[#1E2229] hover:text-[#F5F7FA]"
                       )}
                     >
                       {lvl.label}
@@ -733,10 +731,10 @@ export default function PracticeHubPage() {
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-white/[0.08]">
+            <div className="mt-8 pt-6 border-t border-[#1E2229]">
               <button
                 onClick={startInterview}
-                className="w-full py-3 rounded-xl bg-[#327cf6] hover:bg-[#2563eb] text-white font-bold text-xs shadow-[0_0_20px_rgba(50,124,246,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 rounded-lg bg-[#2F80ED] hover:bg-[#3B9CFF] text-white font-semibold text-xs shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Launch Interview Room</span>
@@ -752,27 +750,27 @@ export default function PracticeHubPage() {
           {CORE_CS_MODULES.map((mod, i) => (
             <div
               key={i}
-              className="p-6 rounded-2xl bg-[#0a0b10] border border-white/[0.08] hover:border-white/[0.15] transition-all flex flex-col justify-between"
+              className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] hover:border-[#3B9CFF]/40 transition-colors flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                  <div className="w-10 h-10 rounded-lg bg-[#2F80ED]/10 border border-[#2F80ED]/25 flex items-center justify-center text-[#3B9CFF]">
                     <mod.icon className="w-5 h-5" />
                   </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/25">
                     {mod.badge}
                   </span>
                 </div>
 
-                <h3 className="text-base font-bold text-white mb-2">{mod.title}</h3>
-                <p className="text-slate-400 text-xs leading-relaxed mb-4">{mod.desc}</p>
+                <h3 className="text-base font-semibold text-[#F5F7FA] mb-2">{mod.title}</h3>
+                <p className="text-[#A1A7B3] text-xs leading-relaxed mb-4">{mod.desc}</p>
               </div>
 
-              <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-500">{mod.questions} MCQs & Concepts</span>
+              <div className="pt-4 border-t border-[#1E2229] flex items-center justify-between">
+                <span className="text-xs font-mono text-[#707784]">{mod.questions} MCQs & Concepts</span>
                 <Link
                   to="/rooms"
-                  className="text-xs font-bold text-blue-400 hover:text-cyan-300 flex items-center gap-1"
+                  className="text-xs font-medium text-[#2F80ED] hover:text-[#3B9CFF] flex items-center gap-1"
                 >
                   <span>Test in Arena</span>
                   <ChevronRight className="w-3.5 h-3.5" />

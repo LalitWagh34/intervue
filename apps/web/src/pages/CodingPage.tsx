@@ -85,9 +85,9 @@ const LANGUAGE_META: Record<Language, { label: string; icon: string; badge: stri
 };
 
 const DIFFICULTY_COLORS: Record<string, string> = {
-  EASY: "text-green-400 border-green-900 bg-green-950/20",
-  MEDIUM: "text-amber-400 border-amber-900 bg-amber-950/20",
-  HARD: "text-red-400 border-red-900 bg-red-950/20",
+  EASY: "text-[#22C55E] border-[#22C55E]/25 bg-[#22C55E]/10",
+  MEDIUM: "text-[#F59E0B] border-[#F59E0B]/25 bg-[#F59E0B]/10",
+  HARD: "text-[#EF4444] border-[#EF4444]/25 bg-[#EF4444]/10",
 };
 
 const formatMemory = (kb: number | null | undefined) => {
@@ -761,31 +761,31 @@ export default function CodingPage() {
   // ==========================================================
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-950 text-white select-none overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#0B0C0F] text-[#F5F7FA] select-none overflow-hidden font-sans">
 
       {/* ==================================================== */}
       {/* TOP BAR */}
       {/* ==================================================== */}
 
-      <div className="h-12 border-b border-zinc-800/80 px-4 flex items-center justify-between bg-zinc-900/60 shrink-0">
+      <div className="h-12 border-b border-[#1E2229] px-4 flex items-center justify-between bg-[#101216] shrink-0">
         
         {/* Left — Navigation & Problem Info */}
         <div className="flex items-center gap-3">
           <Link
             to="/coding"
-            className="text-zinc-400 hover:text-white transition-colors p-1 -ml-1 rounded-md hover:bg-zinc-800"
+            className="text-[#A1A7B3] hover:text-[#F5F7FA] transition-colors p-1 -ml-1 rounded-md hover:bg-[#191C22]"
             title="Back to Problems"
           >
             <ChevronLeft className="w-4 h-4" />
           </Link>
 
-          <span className="font-semibold text-sm text-zinc-100">
+          <span className="font-semibold text-sm text-[#F5F7FA]">
             {problem.title}
           </span>
 
           <Badge
             variant="outline"
-            className={cn("text-[11px] px-2 py-0.5", DIFFICULTY_COLORS[problem.difficulty])}
+            className={cn("text-[11px] px-2 py-0.5 font-semibold", DIFFICULTY_COLORS[problem.difficulty])}
           >
             {problem.difficulty}
           </Badge>
@@ -799,7 +799,7 @@ export default function CodingPage() {
             size="sm"
             variant="outline"
             onClick={() => setIsResetDialogOpen(true)}
-            className="border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 h-8 px-2.5 text-xs gap-1.5"
+            className="border-[#272B33] hover:bg-[#191C22] text-[#A1A7B3] hover:text-[#F5F7FA] h-8 px-2.5 text-xs gap-1.5"
             title="Reset code to default starter template"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -812,16 +812,16 @@ export default function CodingPage() {
               <Button
                 size="sm"
                 variant="outline"
-                className="bg-zinc-900 border-zinc-800 hover:border-zinc-700 text-zinc-200 h-8 px-3 text-xs gap-2 font-mono"
+                className="bg-[#14161B] border-[#272B33] hover:bg-[#191C22] text-[#F5F7FA] h-8 px-3 text-xs gap-2 font-mono"
               >
                 <span>{LANGUAGE_META[language].icon}</span>
                 <span>{LANGUAGE_META[language].label}</span>
-                <ChevronDown className="w-3 h-3 text-zinc-400 opacity-70" />
+                <ChevronDown className="w-3 h-3 text-[#A1A7B3] opacity-70" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="bg-zinc-900 border-zinc-800 text-zinc-200 w-44 p-1"
+              className="bg-[#14161B] border-[#272B33] text-[#F5F7FA] w-44 p-1"
             >
               {availableLanguages.map((lang) => {
                 const meta = LANGUAGE_META[lang];
@@ -833,15 +833,15 @@ export default function CodingPage() {
                     className={cn(
                       "flex items-center justify-between text-xs py-2 px-2.5 rounded-md cursor-pointer",
                       isSelected
-                        ? "bg-zinc-800 text-white font-medium"
-                        : "text-zinc-300 hover:bg-zinc-800/60"
+                        ? "bg-[#2F80ED]/15 text-[#3B9CFF] font-medium"
+                        : "text-[#A1A7B3] hover:bg-[#191C22] hover:text-[#F5F7FA]"
                     )}
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-sm">{meta.icon}</span>
                       <span>{meta.label}</span>
                     </div>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 text-[#3B9CFF]" />}
                   </DropdownMenuItem>
                 );
               })}
@@ -853,7 +853,7 @@ export default function CodingPage() {
             size="sm"
             variant="outline"
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 h-8 w-8 p-0"
+            className="border-[#272B33] hover:bg-[#191C22] text-[#A1A7B3] hover:text-[#F5F7FA] h-8 w-8 p-0"
             title={isFullscreen ? "Exit Fullscreen (Esc)" : "Fullscreen Editor"}
           >
             {isFullscreen ? (
@@ -868,7 +868,7 @@ export default function CodingPage() {
             size="sm"
             onClick={() => submitMutation.mutate()}
             disabled={submitMutation.isPending}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-8 px-3.5 gap-1.5 font-medium shadow-sm"
+            className="bg-[#22C55E] hover:bg-[#16A34A] text-white text-xs h-8 px-3.5 gap-1.5 font-medium shadow-sm cursor-pointer"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             {submitMutation.isPending ? "Running..." : "Run code"}
