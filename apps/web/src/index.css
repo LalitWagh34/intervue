@@ -1,35 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand Visual Identity from UI/UX Spec (Section 3) */
-  --bg-app: #0b0c0f;
-  --bg-soft: #101216;
-  --surface: #14161b;
-  --surface-hover: #191c22;
-  --surface-active: #1d2129;
-  --surface-elevated: #181b21;
+  /* TUF Obsidian Visual Identity */
+  --bg-app: #060709;
+  --bg-soft: #0A0C10;
+  --surface: #0D0E12;
+  --surface-hover: #12141B;
+  --surface-active: #161822;
+  --surface-elevated: #101217;
 
-  --border: #272b33;
-  --border-soft: #1e2229;
+  --border: #181A20;
+  --border-soft: #14161C;
+  --border-hover: #262933;
 
-  --text-primary: #f5f7fa;
-  --text-secondary: #a1a7b3;
-  --text-muted: #707784;
+  --text-primary: #F3F4F6;
+  --text-secondary: #8B92A0;
+  --text-muted: #525866;
 
-  --primary-blue: #2f80ed;
-  --blue-hover: #3b9cff;
-  --blue-pressed: #2563eb;
+  --primary-blue: #327CF6;
+  --blue-hover: #2563EB;
+  --blue-pressed: #1D4ED8;
 
   /* Semantic Colors */
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --purple-ai: #8b5cf6;
-  --cyan: #06b6d4;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --purple-ai: #8B5CF6;
+  --cyan: #06B6D4;
 
-  /* Elevation Shadows (Section 8) */
-  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.18);
-  --shadow-modal: 0 24px 70px rgba(0, 0, 0, 0.45);
+  /* Elevation Shadows */
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --shadow-modal: 0 24px 70px rgba(0, 0, 0, 0.6);
 }
 
 * {
@@ -39,7 +40,8 @@
 body {
   background-color: var(--bg-app);
   color: var(--text-primary);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.015em;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }

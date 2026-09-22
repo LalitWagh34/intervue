@@ -3,19 +3,18 @@ import {
   LayoutDashboard,
   Code2,
   History,
-  Trophy,
   MessageSquare,
   User,
   LogOut,
   Settings,
   Swords,
   BookOpen,
-  Layers,
-  Sparkles,
-  Flame,
   Brain,
+  ChevronLeft,
   ChevronRight,
-  Shield,
+  PanelLeftClose,
+  PanelLeft,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
@@ -33,10 +32,10 @@ interface NavSection {
 
 const NAV_SECTIONS: NavSection[] = [
   {
-    title: "PREPARATION HUB",
+    title: "PREP",
     items: [
       {
-        label: "Practice & Sheets",
+        label: "Prep Hub",
         icon: BookOpen,
         href: "/practice",
         badge: "TUF",
@@ -50,42 +49,42 @@ const NAV_SECTIONS: NavSection[] = [
         badgeColor: "red",
       },
       {
-        label: "Problem Workspace",
+        label: "Practice Code",
         icon: Code2,
         href: "/coding",
       },
       {
-        label: "AI Mock Interview",
+        label: "AI Interview",
         icon: Brain,
         href: "/interview",
       },
     ],
   },
   {
-    title: "ANALYTICS & ACTIVITY",
+    title: "EXPLORE",
     items: [
       {
-        label: "Overview Dashboard",
+        label: "Dashboard",
         icon: LayoutDashboard,
         href: "/dashboard",
       },
       {
-        label: "Contest & Scorecards",
+        label: "Scorecards",
         icon: History,
         href: "/history",
       },
       {
-        label: "AI Mentor Chat",
+        label: "AI Mentor",
         icon: MessageSquare,
         href: "/chat",
       },
     ],
   },
   {
-    title: "ACCOUNT & SETTINGS",
+    title: "MY SPACES",
     items: [
       {
-        label: "Profile & Heatmap",
+        label: "Profile",
         icon: User,
         href: "/profile",
       },
@@ -98,7 +97,12 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isCollapsed: boolean;
+  onToggle: () => void;
+}
+
+export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const location = useLocation();
   const { data: session } = useSession();
   const navigate = useNavigate();
@@ -109,90 +113,125 @@ export default function Sidebar() {
   };
 
   const user = session?.user;
-  const initials = user?.name
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "U";
+  const initials =
+    user?.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U";
 
   return (
-    <aside className="w-[260px] h-screen bg-[#0A0C10] border-r border-[#1B1F27] flex flex-col fixed left-0 top-0 z-30 select-none">
-      {/* Brand Header (TUF-Inspired) */}
-      <div className="h-16 px-5 flex items-center justify-between border-b border-[#1B1F27]">
-        <Link to="/dashboard" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center shadow-[0_0_18px_rgba(37,99,235,0.35)] transition-transform group-hover:scale-105">
-            <Swords className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-white font-bold text-base tracking-tight font-sans">
-                Intervue
-              </span>
-              <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase bg-blue-500/15 text-blue-400 border border-blue-500/30 rounded-md">
-                TUF
-              </span>
+    <aside
+      className={cn(
+        "fixed top-2 left-2 bottom-2 z-40 rounded-2xl bg-[#0A0C10]/95 backdrop-blur-xl border border-[#181A20] shadow-xl flex flex-col select-none transition-all duration-300 ease-in-out overflow-hidden",
+        isCollapsed ? "w-[68px]" : "w-[260px]"
+      )}
+    >
+      {/* Brand Header & Toggle Button (matching tuf_ui sidebar toggle) */}
+      <div className="h-16 px-4 flex items-center justify-between border-b border-[#181A20] shrink-0">
+        {!isCollapsed ? (
+          <Link to="/dashboard" className="flex items-center gap-2.5 group min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center shadow-md shadow-[#327CF6]/20 shrink-0 group-hover:scale-105 transition-transform">
+              <span className="text-white font-bold text-sm tracking-tight font-mono">F&gt;</span>
             </div>
-            <p className="text-[10px] text-zinc-500 font-mono tracking-wide -mt-0.5">
-              placement suite
-            </p>
-          </div>
-        </Link>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-white font-bold text-[15px] tracking-tight font-sans truncate">
+                  take<span className="text-[#327CF6]">U</span>forward
+                </span>
+              </div>
+              <p className="text-[10px] text-[#525866] font-mono tracking-wide -mt-0.5 truncate">
+                placement suite
+              </p>
+            </div>
+          </Link>
+        ) : (
+          <Link to="/dashboard" className="mx-auto" title="takeUforward">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center shadow-md shadow-[#327CF6]/20">
+              <span className="text-white font-bold text-sm font-mono">F&gt;</span>
+            </div>
+          </Link>
+        )}
+
+        {/* TUF Sidebar Collapse / Open Toggle Button */}
+        <button
+          type="button"
+          onClick={onToggle}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className={cn(
+            "w-7 h-7 rounded-lg flex items-center justify-center text-[#8B92A0] hover:text-white hover:bg-[#14161C] border border-transparent hover:border-[#1E2229] transition-all cursor-pointer",
+            isCollapsed && "mx-auto mt-2"
+          )}
+        >
+          {isCollapsed ? (
+            <PanelLeft className="w-4 h-4 text-[#327CF6]" />
+          ) : (
+            <PanelLeftClose className="w-4 h-4" />
+          )}
+        </button>
       </div>
 
       {/* Navigation Sections */}
-      <nav className="flex-1 px-3.5 py-5 space-y-6 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-2.5 py-4 space-y-5 overflow-y-auto scrollbar-none">
         {NAV_SECTIONS.map((section, sIdx) => (
           <div key={sIdx}>
-            {section.title && (
-              <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-2 font-mono">
+            {!isCollapsed && section.title && (
+              <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[#525866] mb-1.5 font-mono">
                 {section.title}
               </p>
             )}
 
             <div className="space-y-1">
-              {section.items.map((item) => {
+              {section.items.map((item, iIdx) => {
                 const isActive =
                   location.pathname === item.href ||
-                  (item.href !== "/dashboard" && location.pathname.startsWith(item.href));
+                  (item.href !== "/" && item.href !== "/dashboard" && location.pathname.startsWith(item.href));
+                const Icon = item.icon;
 
                 return (
                   <Link
-                    key={item.href}
+                    key={iIdx}
                     to={item.href}
+                    title={isCollapsed ? item.label : undefined}
                     className={cn(
-                      "flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 group relative",
+                      "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all group relative cursor-pointer",
                       isActive
-                        ? "bg-blue-600/15 text-white border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.12)]"
-                        : "text-zinc-400 hover:text-zinc-100 hover:bg-[#11141B] border border-transparent"
+                        ? "bg-[#327CF6]/15 text-[#327CF6] font-semibold border border-[#327CF6]/30 shadow-sm"
+                        : "text-[#8B92A0] hover:text-white hover:bg-[#12141B] border border-transparent"
                     )}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <item.icon
-                        className={cn(
-                          "w-4 h-4 transition-colors shrink-0",
-                          isActive
-                            ? "text-blue-400"
-                            : "text-zinc-500 group-hover:text-zinc-300"
-                        )}
-                      />
-                      <span className="truncate">{item.label}</span>
-                    </div>
+                    {/* Active Left Indicator Bar (TUF style) */}
+                    {isActive && (
+                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#327CF6] shadow-[0_0_10px_#327CF6]" />
+                    )}
 
-                    {item.badge && (
-                      <span
-                        className={cn(
-                          "flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase font-mono tracking-wider shrink-0",
-                          item.badgeColor === "red"
-                            ? "bg-red-500/15 text-red-400 border border-red-500/30"
-                            : "bg-blue-500/15 text-blue-400 border border-blue-500/30"
+                    <Icon
+                      className={cn(
+                        "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
+                        isActive ? "text-[#327CF6]" : "text-[#8B92A0] group-hover:text-white",
+                        isCollapsed && "mx-auto"
+                      )}
+                    />
+
+                    {!isCollapsed && (
+                      <div className="flex items-center justify-between flex-1 min-w-0">
+                        <span className="truncate">{item.label}</span>
+                        {item.badge && (
+                          <span
+                            className={cn(
+                              "px-1.5 py-0.2 rounded text-[9px] font-mono font-bold tracking-wider uppercase border",
+                              item.badgeColor === "red"
+                                ? "bg-red-500/15 text-red-400 border-red-500/30"
+                                : item.badgeColor === "emerald"
+                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                : "bg-[#327CF6]/15 text-[#327CF6] border-[#327CF6]/30"
+                            )}
+                          >
+                            {item.badge}
+                          </span>
                         )}
-                      >
-                        {item.badgeColor === "red" && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-                        )}
-                        {item.badge}
-                      </span>
+                      </div>
                     )}
                   </Link>
                 );
@@ -202,42 +241,57 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* User Footer Profile */}
-      <div className="p-3.5 border-t border-[#1B1F27] bg-[#08090D]">
-        <div className="flex items-center justify-between p-2.5 rounded-xl border border-zinc-800/80 bg-[#0E1117]">
-          <Link
-            to="/profile"
-            className="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-85 transition-opacity"
-          >
-            {user?.image ? (
-              <img
-                src={user.image}
-                alt={user.name || "User"}
-                className="w-8 h-8 rounded-lg object-cover ring-1 ring-blue-500/40 shrink-0"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                {initials}
+      {/* Footer Profile / Quick Status */}
+      <div className="p-2.5 border-t border-[#181A20] bg-[#08090C] shrink-0">
+        {!isCollapsed ? (
+          <div className="flex items-center justify-between p-2 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+            <Link to="/profile" className="flex items-center gap-2.5 min-w-0 group">
+              {user?.image ? (
+                <img
+                  src={user.image}
+                  alt={user.name || "User"}
+                  className="w-7 h-7 rounded-lg object-cover ring-1 ring-[#327CF6]/40"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-lg bg-[#327CF6] text-white flex items-center justify-center font-bold text-xs font-mono">
+                  {initials}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-white truncate group-hover:text-[#327CF6] transition-colors">
+                  {user?.name || "Candidate"}
+                </p>
+                <p className="text-[10px] text-[#525866] truncate font-mono">
+                  {user?.email || "Pro Student"}
+                </p>
               </div>
-            )}
-            <div className="truncate min-w-0">
-              <p className="text-xs font-bold text-white truncate">
-                {user?.name || "Student"}
-              </p>
-              <p className="text-[10px] text-zinc-500 font-mono truncate">
-                {user?.email || "Pro Candidate"}
-              </p>
-            </div>
-          </Link>
+            </Link>
 
-          <button
-            onClick={handleSignOut}
-            className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors ml-1"
-            title="Sign Out"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
-        </div>
+            <button
+              onClick={handleSignOut}
+              title="Sign Out"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#525866] hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <Link to="/profile" title={user?.name || "Profile"}>
+              {user?.image ? (
+                <img
+                  src={user.image}
+                  alt="User"
+                  className="w-7 h-7 rounded-lg object-cover ring-1 ring-[#327CF6]/40"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-lg bg-[#327CF6] text-white flex items-center justify-center font-bold text-xs font-mono">
+                  {initials}
+                </div>
+              )}
+            </Link>
+          </div>
+        )}
       </div>
     </aside>
   );
