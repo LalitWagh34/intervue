@@ -42,13 +42,35 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
   const [roomStatus, setRoomStatus] = useState<"WAITING" | "ACTIVE" | "FINISHED">("WAITING");
   const [recentActivities, setRecentActivities] = useState<ActivityEvent[]>([]);
 
+  // Stable refs for callbacks and user state to prevent infinite reconnect loops
+  const onContestStartRef = useRef(onContestStart);
+  onContestStartRef.current = onContestStart;
+
+  const onContestEndRef = useRef(onContestEnd);
+  onContestEndRef.current = onContestEnd;
+
+  const userRef = useRef(user);
+  userRef.current = user;
+
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<any>(null);
+  const isUnmountedRef = useRef(false);
+  const lastJoinedToastRef = useRef<{ name: string; time: number }>({ name: "", time: 0 });
+
+  const userId = user?.id;
 
   const connect = useCallback(() => {
-    if (!roomCode || !user?.id) return;
+    if (!roomCode || !userId || isUnmountedRef.current) return;
 
-    // Use current host or default backend ws port
+    // Clean up any existing socket before opening a new one
+    if (socketRef.current) {
+      try {
+        socketRef.current.onclose = null;
+        socketRef.current.close();
+      } catch (_) {}
+      socketRef.current = null;
+    }
+
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.hostname || "localhost";
     const wsUrl = `${protocol}//${host}:3000/ws/rooms`;
@@ -58,16 +80,21 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
       socketRef.current = ws;
 
       ws.onopen = () => {
+        if (isUnmountedRef.current) {
+          ws.close();
+          return;
+        }
         setIsConnected(true);
-        // Send join event
+
+        const currentUser = userRef.current;
         ws.send(
           JSON.stringify({
             event: "room:join",
             data: {
               roomCode: roomCode.toUpperCase(),
-              userId: user.id,
-              name: user.name || "Anonymous",
-              image: user.image,
+              userId: currentUser?.id || userId,
+              name: currentUser?.name || "Anonymous",
+              image: currentUser?.image,
             },
           })
         );
@@ -87,11 +114,26 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
               }
               break;
 
-            case "participant:joined":
+            case "participant:joined": {
+              // Don't toast for self
+              if (data.userId === userRef.current?.id) break;
+
+              // Throttle join toasts so they don't spam
+              const now = Date.now();
+              if (
+                lastJoinedToastRef.current.name === data.name &&
+                now - lastJoinedToastRef.current.time < 3000
+              ) {
+                break;
+              }
+              lastJoinedToastRef.current = { name: data.name, time: now };
+
               toast.info(`${data.name} joined the room`, {
-                description: `${data.totalConnected} participants now present`,
+                duration: 2500,
+                description: `${data.totalConnected} participant${data.totalConnected > 1 ? "s" : ""} present`,
               });
               break;
+            }
 
             case "participant:left":
               // Sync will update roster
@@ -100,12 +142,13 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
             case "contest:started":
               setRoomStatus("ACTIVE");
               toast.success("Contest Started!", {
+                duration: 3000,
                 description: "The timer is now ticking. Good luck!",
               });
-              onContestStart?.(data);
+              onContestStartRef.current?.(data);
               break;
 
-            case "submission:activity":
+            case "submission:activity": {
               const activity: ActivityEvent = {
                 ...data,
                 timestamp: Date.now(),
@@ -113,10 +156,11 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
               setRecentActivities((prev) => [activity, ...prev.slice(0, 19)]);
               if (data.isAccepted) {
                 toast.success(`🚀 ${data.userName} solved ${data.problemTitle}! (+${data.pointsAwarded} pts)`, {
-                  duration: 4000,
+                  duration: 3500,
                 });
               }
               break;
+            }
 
             case "leaderboard:update":
               if (data.leaderboard) {
@@ -137,9 +181,10 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
               setRoomStatus("FINISHED");
               setRemainingSeconds(0);
               toast.warning("Contest Ended!", {
+                duration: 4000,
                 description: "Submissions closed. Viewing final rankings.",
               });
-              onContestEnd?.(data.finalLeaderboard || []);
+              onContestEndRef.current?.(data.finalLeaderboard || []);
               break;
 
             default:
@@ -152,35 +197,50 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
 
       ws.onclose = () => {
         setIsConnected(false);
-        // Attempt reconnect after 3 seconds if component is still mounted
-        reconnectTimeoutRef.current = setTimeout(() => {
-          connect();
-        }, 3000);
+        // Only schedule reconnect if the unmount was NOT intentional
+        if (!isUnmountedRef.current) {
+          if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+          }
+          reconnectTimeoutRef.current = setTimeout(() => {
+            if (!isUnmountedRef.current) {
+              connect();
+            }
+          }, 3000);
+        }
       };
 
       ws.onerror = (err) => {
-        console.error("WebSocket error:", err);
-        ws.close();
+        console.error("WebSocket connection error:", err);
+        try {
+          ws.close();
+        } catch (_) {}
       };
     } catch (err) {
       console.error("Failed to connect WebSocket:", err);
     }
-  }, [roomCode, user?.id, user?.name, user?.image, onContestStart, onContestEnd]);
+  }, [roomCode, userId]);
 
   useEffect(() => {
+    isUnmountedRef.current = false;
     connect();
 
     return () => {
+      isUnmountedRef.current = true;
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
       if (socketRef.current) {
-        socketRef.current.close();
+        try {
+          socketRef.current.onclose = null;
+          socketRef.current.close();
+        } catch (_) {}
+        socketRef.current = null;
       }
     };
   }, [connect]);
 
-  // Request sync from server (e.g. on manual refresh or window focus)
+  // Request sync from server
   const syncRoom = useCallback(() => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN && roomCode) {
       socketRef.current.send(

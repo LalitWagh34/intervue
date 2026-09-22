@@ -18,6 +18,7 @@ import {
   Wifi,
   Sparkles,
   Shield,
+  Swords,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,9 +61,13 @@ export default function RoomLobbyPage() {
   const [copied, setCopied] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
 
-  // Initialize real-time WebSocket connection
+  const [unjoinedRoom, setUnjoinedRoom] = useState<any>(null);
+  const [isJoiningRoom, setIsJoiningRoom] = useState(false);
+
+  // Initialize real-time WebSocket connection only if user is authorized
+  const isAuthorized = !!room && !unjoinedRoom;
   const { isConnected, participants: socketParticipants, roomStatus } = useRoomSocket({
-    roomCode: code,
+    roomCode: isAuthorized ? code : undefined,
     user: session?.user,
     onContestStart: () => {
       navigate(`/rooms/${code}/arena`);
@@ -70,35 +75,81 @@ export default function RoomLobbyPage() {
   });
 
   // Fetch full room data
-  useEffect(() => {
-    async function loadRoom() {
-      try {
-        const res = await api.get(`/rooms/${code}`);
-        const data = res.data.room;
-        setRoom(data);
+  const loadRoom = async () => {
+    try {
+      const res = await api.get(`/rooms/${code}`);
+      const data = res.data.room;
 
-        // If contest is already active, navigate to arena directly
-        if (data.status === "ACTIVE") {
-          navigate(`/rooms/${code}/arena`);
-        } else if (data.status === "FINISHED") {
-          navigate(`/rooms/${code}/results`);
-        }
-      } catch (err: any) {
-        toast.error(err?.response?.data?.error || "Failed to load room");
-        navigate("/rooms");
-      } finally {
-        setIsLoading(false);
+      if (res.data.requiresJoin || data.isParticipant === false) {
+        setUnjoinedRoom(data);
+        return;
       }
+
+      setUnjoinedRoom(null);
+      setRoom(data);
+
+      // If contest is already active, navigate to arena directly
+      if (data.status === "ACTIVE") {
+        navigate(`/rooms/${code}/arena`);
+      } else if (data.status === "FINISHED") {
+        navigate(`/rooms/${code}/results`);
+      }
+    } catch (err: any) {
+      if (err?.response?.data?.requiresJoin && err?.response?.data?.room) {
+        setUnjoinedRoom(err.response.data.room);
+        return;
+      }
+      toast.error(err?.response?.data?.error || "Failed to load room");
+      navigate("/rooms");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadRoom();
   }, [code, navigate]);
 
+  // Handle explicit join action
+  const handleJoinContest = async () => {
+    if (!code) return;
+    setIsJoiningRoom(true);
+    try {
+      await api.post("/rooms/join", { code });
+      toast.success("Joined room successfully!");
+      await loadRoom();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || "Failed to join room");
+    } finally {
+      setIsJoiningRoom(false);
+    }
+  };
+
   // If status changes to ACTIVE from socket, navigate
   useEffect(() => {
-    if (roomStatus === "ACTIVE" && code) {
+    if (roomStatus === "ACTIVE" && code && !unjoinedRoom) {
       navigate(`/rooms/${code}/arena`);
     }
-  }, [roomStatus, code, navigate]);
+  }, [roomStatus, code, navigate, unjoinedRoom]);
+
+  // Fallback sync polling: poll every 3 seconds while waiting to ensure synchronous start even if WS packets drop
+  useEffect(() => {
+    if (!code || roomStatus === "ACTIVE" || unjoinedRoom) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.get(`/rooms/${code}`);
+        const currentStatus = res.data?.room?.status;
+        if (currentStatus === "ACTIVE") {
+          navigate(`/rooms/${code}/arena`);
+        } else if (res.data?.room?.participants) {
+          setRoom(res.data.room);
+        }
+      } catch (_) {}
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [code, roomStatus, navigate, unjoinedRoom]);
 
   const copyInvite = () => {
     if (!room?.code) return;
@@ -112,10 +163,14 @@ export default function RoomLobbyPage() {
     if (!code) return;
     setIsStarting(true);
     try {
-      await api.post(`/rooms/${code}/start`);
-      toast.success("Starting contest...");
+      const res = await api.post(`/rooms/${code}/start`);
+      toast.success("Starting contest...", { duration: 2500 });
       navigate(`/rooms/${code}/arena`);
     } catch (err: any) {
+      if (err?.response?.data?.status === "ACTIVE" || roomStatus === "ACTIVE") {
+        navigate(`/rooms/${code}/arena`);
+        return;
+      }
       toast.error(err?.response?.data?.error || "Failed to start contest");
       setIsStarting(false);
     }
@@ -132,11 +187,93 @@ export default function RoomLobbyPage() {
     );
   }
 
+  if (unjoinedRoom) {
+    const isLive = unjoinedRoom.status === "ACTIVE";
+    const allowLateJoin = unjoinedRoom.allowLateJoin !== false;
+
+    return (
+      <div className="min-h-screen bg-[#07080B] text-zinc-100 flex items-center justify-center p-6 selection:bg-blue-600/30">
+        <div className="max-w-md w-full rounded-2xl bg-[#0D0F14] border border-zinc-800 p-8 space-y-6 shadow-2xl relative overflow-hidden">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+              <Swords className="w-6 h-6" />
+            </div>
+            <div>
+              <span className="text-[11px] font-mono uppercase tracking-wider text-blue-400 font-semibold">Contest Invitation</span>
+              <h1 className="text-xl font-bold text-white tracking-tight">{unjoinedRoom.title}</h1>
+            </div>
+          </div>
+
+          <div className="space-y-3 py-2 text-xs text-zinc-300">
+            <div className="flex justify-between items-center py-2 border-b border-zinc-800/80">
+              <span className="text-zinc-500">Room Code</span>
+              <span className="font-mono font-bold text-white tracking-wider">{unjoinedRoom.code}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-zinc-800/80">
+              <span className="text-zinc-500">Host</span>
+              <span className="font-medium text-white">{unjoinedRoom.host?.name || "Host"}</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-zinc-800/80">
+              <span className="text-zinc-500">Format & Duration</span>
+              <span className="font-medium text-white">{unjoinedRoom.type} • {unjoinedRoom.duration} mins</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-zinc-800/80">
+              <span className="text-zinc-500">Contest Status</span>
+              <span className={`font-mono font-semibold ${isLive ? "text-emerald-400" : "text-amber-400"}`}>
+                {isLive ? "● LIVE IN PROGRESS" : "Waiting for Host"}
+              </span>
+            </div>
+          </div>
+
+          {isLive && !allowLateJoin ? (
+            <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300">
+              This contest has already started and late joining has been locked by the host.
+            </div>
+          ) : (
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              You are not a registered participant in this room yet. Click below to join this contest session.
+            </p>
+          )}
+
+          <div className="flex items-center gap-3 pt-2">
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/rooms")}
+              className="flex-1 text-zinc-400 hover:text-white rounded-xl"
+            >
+              Back to Hub
+            </Button>
+            {(!isLive || allowLateJoin) && (
+              <Button
+                onClick={handleJoinContest}
+                disabled={isJoiningRoom}
+                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all"
+              >
+                {isJoiningRoom ? "Joining..." : "Join Contest Room"}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!room) return null;
 
-  // Merge socket participants with initial participants
-  const displayParticipants =
-    socketParticipants.length > 0 ? socketParticipants : room.participants;
+  // Merge socket participants with initial participants, deduplicated by userId
+  const participantMap = new Map<string, any>();
+  if (room?.participants) {
+    for (const p of room.participants) {
+      participantMap.set(p.userId, p);
+    }
+  }
+  if (socketParticipants) {
+    for (const p of socketParticipants) {
+      const existing = participantMap.get(p.userId) || {};
+      participantMap.set(p.userId, { ...existing, ...p });
+    }
+  }
+  const displayParticipants = Array.from(participantMap.values());
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 p-8">

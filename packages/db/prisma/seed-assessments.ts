@@ -195,27 +195,89 @@ const assessmentQuestions = [
   },
 ];
 
+import fs from "fs";
+import path from "path";
+
 async function seedAssessments() {
   console.log("Seeding assessment questions (Core CS & Aptitude)...");
 
-  let inserted = 0;
-  for (const q of assessmentQuestions) {
-    const exists = await db.assessmentQuestion.findFirst({
-      where: {
-        subject: q.subject,
-        question: q.question,
-      },
-    });
+  // Collect all questions from built-in list and data directory
+  const allQuestions: any[] = [...assessmentQuestions];
 
-    if (!exists) {
-      await db.assessmentQuestion.create({
-        data: q,
-      });
-      inserted++;
+  const dataDir = path.join(__dirname, "data");
+  if (fs.existsSync(dataDir)) {
+    const files = fs.readdirSync(dataDir).filter((f) => f.endsWith(".json"));
+    for (const file of files) {
+      try {
+        const filePath = path.join(dataDir, file);
+        const content = fs.readFileSync(filePath, "utf-8");
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed)) {
+          console.log(`Loaded ${parsed.length} questions from ${file}`);
+          allQuestions.push(...parsed);
+        }
+      } catch (err) {
+        console.warn(`Could not parse question file ${file}:`, err);
+      }
     }
   }
 
-  console.log(`Successfully seeded ${inserted} new assessment questions! Total available: ${assessmentQuestions.length}`);
+  // Deduplicate questions by (subject, question text)
+  const uniqueMap = new Map<string, any>();
+  for (const q of allQuestions) {
+    if (!q.subject || !q.question || !Array.isArray(q.options) || q.correctOption === undefined) {
+      continue;
+    }
+    const key = `${q.subject}:::${q.question.trim()}`;
+    if (!uniqueMap.has(key)) {
+      uniqueMap.set(key, {
+        category: q.category || (["QUANT", "LOGICAL", "VERBAL"].includes(q.subject) ? "APTITUDE" : "CORE_CS"),
+        subject: q.subject.trim().toUpperCase(),
+        topic: q.topic || "General",
+        difficulty: q.difficulty || "MEDIUM",
+        question: q.question.trim(),
+        options: q.options,
+        correctOption: Number(q.correctOption),
+        explanation: q.explanation || null,
+      });
+    }
+  }
+
+  const uniqueQuestions = Array.from(uniqueMap.values());
+  console.log(`Total unique questions to process: ${uniqueQuestions.length}`);
+
+  // Fetch existing questions to skip
+  const existingQuestions = await db.assessmentQuestion.findMany({
+    select: { subject: true, question: true },
+  });
+
+  const existingSet = new Set(
+    existingQuestions.map((q) => `${q.subject}:::${q.question.trim()}`)
+  );
+
+  const toInsert = uniqueQuestions.filter(
+    (q) => !existingSet.has(`${q.subject}:::${q.question}`)
+  );
+
+  if (toInsert.length > 0) {
+    // Batch insert in chunks of 100 for safety and speed
+    const chunkSize = 100;
+    let totalInserted = 0;
+    for (let i = 0; i < toInsert.length; i += chunkSize) {
+      const chunk = toInsert.slice(i, i + chunkSize);
+      const result = await db.assessmentQuestion.createMany({
+        data: chunk,
+        skipDuplicates: true,
+      });
+      totalInserted += result.count;
+    }
+    console.log(`Successfully batch inserted ${totalInserted} new questions!`);
+  } else {
+    console.log("All questions are already up-to-date in the database.");
+  }
+
+  const finalCount = await db.assessmentQuestion.count();
+  console.log(`Current Total Assessment Questions in DB: ${finalCount}`);
 }
 
 seedAssessments()

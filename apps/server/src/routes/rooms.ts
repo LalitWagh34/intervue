@@ -160,11 +160,23 @@ app.post("/", requireAuth, async (c) => {
         assessmentWhere.subject = { in: assessmentSubjects };
       }
 
-      const selectedMCQs = await db.assessmentQuestion.findMany({
+      let selectedMCQs = await db.assessmentQuestion.findMany({
         where: assessmentWhere,
         take: assessmentCount,
         orderBy: { id: "asc" },
       });
+
+      // Fallback if specific subjects don't yield enough questions
+      if (selectedMCQs.length < assessmentCount) {
+        const fallbackMCQs = await db.assessmentQuestion.findMany({
+          where: {
+            id: { notIn: selectedMCQs.map((m) => m.id) },
+          },
+          take: assessmentCount - selectedMCQs.length,
+          orderBy: { id: "asc" },
+        });
+        selectedMCQs = [...selectedMCQs, ...fallbackMCQs];
+      }
 
       selectedMCQs.forEach((mcq) => {
         questionsToLink.push({
@@ -173,6 +185,30 @@ app.post("/", requireAuth, async (c) => {
           assessmentQuestionId: mcq.id,
         });
       });
+    }
+
+    // Safety check: Never allow an empty contest room
+    if (questionsToLink.length === 0) {
+      // Emergency fallback: fetch any published problem or MCQ
+      const anyProblem = await db.problem.findFirst({ where: { status: "published" } });
+      if (anyProblem) {
+        questionsToLink.push({
+          orderIndex: currentOrder++,
+          points: 100,
+          problemId: anyProblem.id,
+        });
+      } else {
+        const anyMCQ = await db.assessmentQuestion.findFirst();
+        if (anyMCQ) {
+          questionsToLink.push({
+            orderIndex: currentOrder++,
+            points: 4,
+            assessmentQuestionId: anyMCQ.id,
+          });
+        } else {
+          return c.json({ error: "No questions available in database to initialize contest room." }, 400);
+        }
+      }
     }
 
     // Create Room and Link Host Participant + Questions inside a transaction
@@ -263,6 +299,13 @@ app.post("/join", requireAuth, async (c) => {
       return c.json({ error: "This contest has already finished" }, 400);
     }
 
+    if (room.status === "ACTIVE") {
+      const allowLateJoin = (room.config as any)?.allowLateJoin ?? true;
+      if (!allowLateJoin) {
+        return c.json({ error: "Contest has already started and late joining is not permitted." }, 400);
+      }
+    }
+
     // Check if user is already a participant
     const existingParticipant = room.participants.find((p) => p.userId === user.id);
     if (existingParticipant) {
@@ -295,6 +338,62 @@ app.post("/join", requireAuth, async (c) => {
   } catch (error) {
     console.error("Error joining room:", error);
     return c.json({ error: "Internal server error joining room" }, 500);
+  }
+});
+
+// ─── GET /api/rooms/history ──────────────────────────────────────────────
+// Get user's participated and finished contests
+app.get("/history", requireAuth, async (c) => {
+  try {
+    const user = c.get("user");
+
+    const participations = await db.roomParticipant.findMany({
+      where: { userId: user.id },
+      include: {
+        room: {
+          include: {
+            host: { select: { id: true, name: true, image: true } },
+            questions: { select: { id: true } },
+            participants: {
+              select: { id: true, userId: true, score: true, penaltyTime: true },
+              orderBy: [{ score: "desc" }, { penaltyTime: "asc" }],
+            },
+          },
+        },
+      },
+      orderBy: { joinedAt: "desc" },
+    });
+
+    const contests = participations.map((p) => {
+      const room = p.room;
+      const sortedParticipants = room.participants;
+      const rankIndex = sortedParticipants.findIndex((sp) => sp.userId === user.id);
+      const myRank = rankIndex !== -1 ? rankIndex + 1 : 1;
+
+      return {
+        id: room.id,
+        code: room.code,
+        title: room.title,
+        type: room.type,
+        status: room.status,
+        duration: room.duration,
+        startTime: room.startTime,
+        endTime: room.endTime,
+        createdAt: room.createdAt,
+        joinedAt: p.joinedAt,
+        role: p.role,
+        myScore: p.score,
+        mySolvedCount: p.solvedCount,
+        myRank,
+        totalParticipants: sortedParticipants.length,
+        totalQuestions: room.questions.length,
+      };
+    });
+
+    return c.json({ contests });
+  } catch (error) {
+    console.error("Error fetching user contest history:", error);
+    return c.json({ error: "Failed to load contest history" }, 500);
   }
 });
 
@@ -345,6 +444,35 @@ app.get("/:code", requireAuth, async (c) => {
 
     // Check if contest is finished or active
     const isFinished = room.status === "FINISHED";
+
+    // Strictly enforce authorization: if not host and not participant, do NOT reveal questions or allow arena access
+    if (!currentParticipant && !isHost && !isFinished) {
+      return c.json(
+        {
+          error: "You are not a participant in this room. Please join using the room code first.",
+          requiresJoin: true,
+          room: {
+            id: room.id,
+            code: room.code,
+            title: room.title,
+            type: room.type,
+            status: room.status,
+            duration: room.duration,
+            maxParticipants: room.maxParticipants,
+            startTime: room.startTime,
+            endTime: room.endTime,
+            host: room.host,
+            isHost: false,
+            isParticipant: false,
+            currentParticipantId: null,
+            participantCount: room.participants.length,
+            questionsCount: room.questions.length,
+            allowLateJoin: (room.config as any)?.allowLateJoin ?? true,
+          },
+        },
+        403
+      );
+    }
 
     // Sanitize questions: strip hidden answers for active/waiting contests
     const sanitizedQuestions = room.questions.map((rq) => {
@@ -449,6 +577,15 @@ app.post("/:code/start", requireAuth, async (c) => {
       return c.json({ error: "Only the host can start the contest" }, 403);
     }
 
+    if (room.status === "ACTIVE") {
+      return c.json({
+        message: "Contest is already active",
+        status: room.status,
+        startTime: room.startTime,
+        endTime: room.endTime,
+      });
+    }
+
     if (room.status !== "WAITING") {
       return c.json({ error: `Cannot start contest. Current status is ${room.status}` }, 400);
     }
@@ -477,6 +614,84 @@ app.post("/:code/start", requireAuth, async (c) => {
   } catch (error) {
     console.error("Error starting contest:", error);
     return c.json({ error: "Internal server error starting contest" }, 500);
+  }
+});
+
+// ─── POST /api/rooms/:code/finish ────────────────────────────────────────
+// Individual participant finishes and submits their test early
+app.post("/:code/finish", requireAuth, async (c) => {
+  try {
+    const user = c.get("user");
+    const code = (c.req.param("code") || "").toUpperCase();
+
+    const room = await db.room.findUnique({
+      where: { code },
+      include: { participants: true },
+    });
+
+    if (!room) {
+      return c.json({ error: "Room not found" }, 404);
+    }
+
+    const participant = room.participants.find((p) => p.userId === user.id);
+    if (!participant) {
+      return c.json({ error: "You are not a participant in this room" }, 403);
+    }
+
+    // Broadcast subtle activity so other participants see this user finished
+    roomSocketManager.broadcastToRoom(code, "submission:activity", {
+      userId: user.id,
+      userName: user.name || "Participant",
+      userImage: user.image,
+      problemTitle: "Finished Test",
+      isAccepted: true,
+      pointsAwarded: 0,
+    });
+
+    return c.json({
+      message: "Test submitted successfully",
+      roomCode: code,
+      participantId: participant.id,
+    });
+  } catch (error) {
+    console.error("Error submitting test:", error);
+    return c.json({ error: "Internal server error submitting test" }, 500);
+  }
+});
+
+// ─── POST /api/rooms/:code/end ───────────────────────────────────────────
+// Host authoritatively ends contest early
+app.post("/:code/end", requireAuth, async (c) => {
+  try {
+    const user = c.get("user");
+    const code = (c.req.param("code") || "").toUpperCase();
+
+    const room = await db.room.findUnique({
+      where: { code },
+    });
+
+    if (!room) {
+      return c.json({ error: "Room not found" }, 404);
+    }
+
+    if (room.hostId !== user.id) {
+      return c.json({ error: "Only the host can end the contest" }, 403);
+    }
+
+    if (room.status === "FINISHED") {
+      return c.json({ message: "Contest already finished", status: "FINISHED" });
+    }
+
+    // Authoritatively conclude contest and broadcast to all participants
+    await roomSocketManager.handleContestEnd(room.code);
+
+    return c.json({
+      message: "Contest ended successfully",
+      status: "FINISHED",
+    });
+  } catch (error) {
+    console.error("Error ending contest:", error);
+    return c.json({ error: "Internal server error ending contest" }, 500);
   }
 });
 
@@ -521,6 +736,195 @@ app.get("/:code/leaderboard", requireAuth, async (c) => {
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
     return c.json({ error: "Internal server error" }, 500);
+  }
+});
+
+// ─── GET /api/rooms/:code/scorecard ────────────────────────────────────
+// Detailed question-by-question breakdown, user answers, and explanations
+app.get("/:code/scorecard", requireAuth, async (c) => {
+  try {
+    const user = c.get("user");
+    const code = (c.req.param("code") || "").toUpperCase();
+
+    const room = await db.room.findUnique({
+      where: { code },
+      include: {
+        host: { select: { id: true, name: true, image: true } },
+        participants: {
+          include: {
+            user: { select: { id: true, name: true, image: true } },
+          },
+          orderBy: [{ score: "desc" }, { penaltyTime: "asc" }, { joinedAt: "asc" }],
+        },
+        questions: {
+          orderBy: { orderIndex: "asc" },
+          include: {
+            problem: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                difficulty: true,
+                timeLimit: true,
+                memoryLimit: true,
+              },
+            },
+            assessmentQuestion: true,
+          },
+        },
+      },
+    });
+
+    if (!room) {
+      return c.json({ error: "Room not found" }, 404);
+    }
+
+    const participant = room.participants.find((p) => p.userId === user.id);
+    const isHost = room.hostId === user.id;
+
+    if (!participant && !isHost && room.status !== "FINISHED") {
+      return c.json({ error: "Access denied" }, 403);
+    }
+
+    // Fetch user's MCQ answers for this room
+    const userMcqAnswers = await db.roomMcqAnswer.findMany({
+      where: {
+        roomId: room.id,
+        userId: user.id,
+      },
+    });
+    const mcqAnswerMap = new Map(userMcqAnswers.map((a) => [a.questionId, a]));
+
+    // Fetch user's code submissions for this room
+    const userSubmissions = await db.roomSubmission.findMany({
+      where: {
+        roomId: room.id,
+        userId: user.id,
+      },
+      orderBy: { submittedAt: "desc" },
+    });
+    const submissionsByProblemId = new Map<number, any[]>();
+    for (const sub of userSubmissions) {
+      if (!submissionsByProblemId.has(sub.problemId)) {
+        submissionsByProblemId.set(sub.problemId, []);
+      }
+      submissionsByProblemId.get(sub.problemId)!.push(sub);
+    }
+
+    // Compute rank
+    const myRank = participant
+      ? room.participants.findIndex((p) => p.userId === user.id) + 1
+      : 1;
+
+    // Explanations can be revealed if contest finished OR participant is reviewing
+    const canRevealExplanations = room.status === "FINISHED" || participant != null;
+
+    let codingPoints = 0;
+    let mcqPoints = 0;
+    let correctCount = 0;
+    let totalAnswered = 0;
+
+    const questionBreakdown = room.questions.map((rq) => {
+      const isCoding = rq.problem != null;
+
+      if (isCoding) {
+        const problemSubs = submissionsByProblemId.get(rq.problem!.id) || [];
+        const acceptedSub = problemSubs.find((s) => s.verdict === "ACCEPTED");
+        const isSolved = acceptedSub != null;
+        if (isSolved) {
+          codingPoints += rq.points;
+          correctCount++;
+        }
+        if (problemSubs.length > 0) totalAnswered++;
+
+        return {
+          id: rq.id,
+          orderIndex: rq.orderIndex,
+          type: "CODING",
+          points: rq.points,
+          problem: {
+            id: rq.problem!.id,
+            title: rq.problem!.title,
+            slug: rq.problem!.slug,
+            difficulty: rq.problem!.difficulty,
+          },
+          isSolved,
+          bestVerdict: acceptedSub ? "ACCEPTED" : problemSubs[0]?.verdict || "UNATTEMPTED",
+          submissionsCount: problemSubs.length,
+          latestRuntime: problemSubs[0]?.runtime,
+          latestMemory: problemSubs[0]?.memory,
+        };
+      } else {
+        const myAnswer = mcqAnswerMap.get(rq.assessmentQuestion!.id);
+        if (myAnswer) {
+          totalAnswered++;
+          if (myAnswer.isCorrect) {
+            correctCount++;
+            mcqPoints += myAnswer.pointsAwarded;
+          } else {
+            mcqPoints += myAnswer.pointsAwarded;
+          }
+        }
+
+        return {
+          id: rq.id,
+          orderIndex: rq.orderIndex,
+          type: "MCQ",
+          points: rq.points,
+          assessmentQuestion: {
+            id: rq.assessmentQuestion!.id,
+            category: rq.assessmentQuestion!.category,
+            subject: rq.assessmentQuestion!.subject,
+            topic: rq.assessmentQuestion!.topic,
+            difficulty: rq.assessmentQuestion!.difficulty,
+            question: rq.assessmentQuestion!.question,
+            options: rq.assessmentQuestion!.options,
+            correctOption: canRevealExplanations ? rq.assessmentQuestion!.correctOption : undefined,
+            explanation: canRevealExplanations ? rq.assessmentQuestion!.explanation : undefined,
+          },
+          myAnswer: myAnswer
+            ? {
+                selectedOption: myAnswer.selectedOption,
+                isCorrect: myAnswer.isCorrect,
+                pointsAwarded: myAnswer.pointsAwarded,
+                answeredAt: myAnswer.answeredAt,
+              }
+            : null,
+        };
+      }
+    });
+
+    const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+
+    return c.json({
+      room: {
+        id: room.id,
+        code: room.code,
+        title: room.title,
+        type: room.type,
+        status: room.status,
+        duration: room.duration,
+        startTime: room.startTime,
+        endTime: room.endTime,
+        totalParticipants: room.participants.length,
+        totalQuestions: room.questions.length,
+      },
+      userSummary: {
+        rank: myRank,
+        score: participant?.score ?? 0,
+        solvedCount: participant?.solvedCount ?? 0,
+        penaltyTime: participant?.penaltyTime ?? 0,
+        accuracy,
+        codingPoints,
+        mcqPoints,
+        totalAnswered,
+        totalQuestions: room.questions.length,
+      },
+      questions: questionBreakdown,
+    });
+  } catch (error) {
+    console.error("Error fetching scorecard:", error);
+    return c.json({ error: "Failed to generate scorecard" }, 500);
   }
 });
 

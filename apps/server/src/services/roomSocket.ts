@@ -29,13 +29,72 @@ class RoomSocketManager {
   private roomTimers: Map<string, any> = new Map();
 
   /**
+   * Helper to get count of unique userIds in a room
+   */
+  private getUniqueUserCount(roomCode: string): number {
+    const roomSet = this.rooms.get(roomCode.toUpperCase());
+    if (!roomSet) return 0;
+    const userIds = new Set<string>();
+    for (const ws of roomSet) {
+      const c = this.clients.get(ws);
+      if (c?.userId) {
+        userIds.add(c.userId);
+      }
+    }
+    return userIds.size;
+  }
+
+  /**
    * Register a new client connection to a room
    */
-  public joinRoom(ws: any, clientData: { userId: string; roomCode: string; name?: string; image?: string }) {
+  public async joinRoom(ws: any, clientData: { userId: string; roomCode: string; name?: string; image?: string }) {
     const code = clientData.roomCode.toUpperCase();
 
-    // Clean up if already in a room
-    this.leaveRoom(ws);
+    // Verify user is an authorized participant or host
+    try {
+      const isAuthorized = await db.room.findFirst({
+        where: {
+          code,
+          OR: [
+            { hostId: clientData.userId },
+            { participants: { some: { userId: clientData.userId } } },
+          ],
+        },
+        select: { id: true },
+      });
+
+      if (!isAuthorized) {
+        console.warn(`[Socket] Unauthorized join attempt by user ${clientData.userId} for room ${code}`);
+        try {
+          ws.send(JSON.stringify({ type: "error", message: "Unauthorized: You have not joined this room." }));
+          ws.close();
+        } catch (_) {}
+        return;
+      }
+    } catch (err) {
+      console.error("[Socket] Error verifying user participation:", err);
+    }
+
+    if (!this.rooms.has(code)) {
+      this.rooms.set(code, new Set());
+    }
+    const roomSet = this.rooms.get(code)!;
+
+    // Check if this userId already has an active socket in the room (reconnect or page navigation)
+    let alreadyInRoom = false;
+    for (const existingWs of roomSet) {
+      if (existingWs === ws) continue;
+      const meta = this.clients.get(existingWs);
+      if (meta && meta.userId === clientData.userId) {
+        alreadyInRoom = true;
+        // Clean up older socket for the same user
+        this.clients.delete(existingWs);
+        roomSet.delete(existingWs);
+        try {
+          existingWs.close();
+        } catch (_) {}
+      }
+    }
 
     const client: ConnectedClient = {
       ws,
@@ -46,21 +105,20 @@ class RoomSocketManager {
     };
 
     this.clients.set(ws, client);
+    roomSet.add(ws);
 
-    if (!this.rooms.has(code)) {
-      this.rooms.set(code, new Set());
+    const totalUnique = this.getUniqueUserCount(code);
+    console.log(`[Socket] User ${clientData.name || clientData.userId} connected to room ${code}. Total unique: ${totalUnique} (Sockets: ${roomSet.size})`);
+
+    // ONLY broadcast participant joined event to others if this user wasn't already in the room
+    if (!alreadyInRoom) {
+      this.broadcastToRoomExcept(code, ws, "participant:joined", {
+        userId: client.userId,
+        name: client.name || "Anonymous",
+        image: client.image,
+        totalConnected: totalUnique,
+      });
     }
-    this.rooms.get(code)!.add(ws);
-
-    console.log(`[Socket] User ${clientData.name || clientData.userId} joined room ${code}. Total in room: ${this.rooms.get(code)!.size}`);
-
-    // Broadcast participant joined event to others
-    this.broadcastToRoomExcept(code, ws, "participant:joined", {
-      userId: client.userId,
-      name: client.name || "Anonymous",
-      image: client.image,
-      totalConnected: this.rooms.get(code)!.size,
-    });
 
     // Send instant full room sync to the newly connected/reconnected client
     this.sendRoomSync(ws, code);
@@ -82,14 +140,26 @@ class RoomSocketManager {
       if (roomSet.size === 0) {
         this.rooms.delete(roomCode);
       } else {
-        this.broadcastToRoom(roomCode, "participant:left", {
-          userId,
-          totalConnected: roomSet.size,
-        });
+        // Check if user has another active tab/socket in this room
+        let userHasOtherSocket = false;
+        for (const remainingWs of roomSet) {
+          if (this.clients.get(remainingWs)?.userId === userId) {
+            userHasOtherSocket = true;
+            break;
+          }
+        }
+
+        if (!userHasOtherSocket) {
+          const totalUnique = this.getUniqueUserCount(roomCode);
+          this.broadcastToRoom(roomCode, "participant:left", {
+            userId,
+            totalConnected: totalUnique,
+          });
+        }
       }
     }
 
-    console.log(`[Socket] User ${userId} left room ${roomCode}`);
+    console.log(`[Socket] User ${userId} disconnected from room ${roomCode}`);
   }
 
   /**

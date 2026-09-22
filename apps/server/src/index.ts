@@ -23,7 +23,13 @@ app.use("*", logger());
 app.use(
   "*",
   cors({
-    origin: ["http://localhost:5173"],
+    origin: (origin) => {
+      // Allow any localhost/127.0.0.1 origin during development
+      if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1")) {
+        return origin || "http://localhost:5173";
+      }
+      return "http://localhost:5173";
+    },
     credentials: true,
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

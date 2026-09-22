@@ -1,0 +1,107 @@
+[
+  {
+    "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Time and Work",
+    "difficulty": "EASY",
+    "question": "A can finish a work in 12 days and B can finish the same work in 24 days. Working together, in how many days can they complete the work?",
+    "options": ["6 days", "8 days", "9 days", "10 days"],
+    "correctOption": 1,
+    "explanation": "1/A + 1/B = 1/12 + 1/24 = 3/24 = 1/8. Together they take 8 days."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Speed, Distance & Time",
+    "difficulty": "MEDIUM",
+    "question": "A train 150 meters long is traveling at a speed of 54 km/h. How long will it take to cross an electric pole?",
+    "options": ["8 seconds", "10 seconds", "12 seconds", "15 seconds"],
+    "correctOption": 1,
+    "explanation": "Speed = 54 * (5/18) = 15 m/s. Time = Distance / Speed = 150 / 15 = 10 seconds."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Profit and Loss",
+    "difficulty": "MEDIUM",
+    "question": "An article is sold for $300 at a loss of 20%. What was its cost price?",
+    "options": ["$360", "$375", "$350", "$380"],
+    "correctOption": 1,
+    "explanation": "Selling Price = 0.8 * Cost Price => Cost Price = 300 / 0.8 = $375."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Probability",
+    "difficulty": "HARD",
+    "question": "Two unbiased dice are rolled simultaneously. What is the probability of getting a sum equal to 8?",
+    "options": ["5/36", "1/6", "7/36", "1/9"],
+    "correctOption": 0,
+    "explanation": "Pairs with sum 8: (2,6), (3,5), (4,4), (5,3), (6,2) = 5 outcomes. Total = 36. Probability = 5/36."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "LOGICAL",
+    "topic": "Blood Relations",
+    "difficulty": "EASY",
+    "question": "Pointing to a photograph, a man says: 'She is the daughter of my grandfather's only son.' How is the woman in the photograph related to the man?",
+    "options": ["Mother", "Sister", "Aunt", "Daughter"],
+    "correctOption": 1,
+    "explanation": "The man's grandfather's only son is his father. The daughter of his father is his sister."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "LOGICAL",
+    "topic": "Direction Sense",
+    "difficulty": "MEDIUM",
+    "question": "A person walks 10 meters North, turns right and walks 6 meters, then turns right again and walks 10 meters. How far and in which direction is he from the starting point?",
+    "options": ["6 meters East", "6 meters West", "10 meters North", "12 meters East"],
+    "correctOption": 0,
+    "explanation": "Moving 10m North and 10m South cancels the vertical displacement, leaving 6 meters directly East."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "LOGICAL",
+    "topic": "Syllogisms",
+    "difficulty": "MEDIUM",
+    "question": "Statements: 'All apples are fruits. Some fruits are sweet.' Conclusions: I. Some apples are sweet. II. Some sweet things are fruits.",
+    "options": ["Only conclusion I follows", "Only conclusion II follows", "Both I and II follow", "Neither I nor II follows"],
+    "correctOption": 1,
+    "explanation": "'Some fruits are sweet' converts directly to 'Some sweet things are fruits'. Conclusion I does not necessarily follow."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "VERBAL",
+    "topic": "Vocabulary / Antonyms",
+    "difficulty": "EASY",
+    "question": "Select the antonym for the word: METICULOUS",
+    "options": ["Careful", "Careless", "Thorough", "Methodical"],
+    "correctOption": 1,
+    "explanation": "Meticulous means showing great attention to detail; careless is the exact opposite."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "VERBAL",
+    "topic": "Grammar & Sentence Correction",
+    "difficulty": "MEDIUM",
+    "question": "Identify the grammatically correct sentence:",
+    "options": [
+      "Neither the manager nor the employees was present at the meeting.",
+      "Neither the manager nor the employees were present at the meeting.",
+      "Neither the manager or the employees was present at the meeting.",
+      "Neither the manager nor the employees is present at the meeting."
+    ],
+    "correctOption": 1,
+    "explanation": "With 'neither... nor', the verb agrees with the closer subject ('employees', which is plural, so 'were' is correct)."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "VERBAL",
+    "topic": "Sentence Completion",
+    "difficulty": "MEDIUM",
+    "question": "Despite his initial reluctance, he eventually ________ to the proposal after seeing the projected outcomes.",
+    "options": ["acquiesced", "dissent", "abhorred", "relinquish"],
+    "correctOption": 0,
+    "explanation": "'Acquiesced' means accepted something reluctantly but without protest, and fits grammatically as a past tense verb."
+  }
+]

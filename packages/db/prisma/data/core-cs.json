@@ -1,0 +1,122 @@
+[
+  {
+    "category": "CORE_CS",
+    "subject": "OS",
+    "topic": "Process Scheduling",
+    "difficulty": "EASY",
+    "question": "Which of the following CPU scheduling algorithms is non-preemptive?",
+    "options": ["Round Robin", "First-Come, First-Served (FCFS)", "Shortest Remaining Time First (SRTF)", "Priority Scheduling (Preemptive)"],
+    "correctOption": 1,
+    "explanation": "FCFS (First-Come, First-Served) executes processes strictly in the order they arrive until completion, without preemption."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "OS",
+    "topic": "Deadlocks",
+    "difficulty": "MEDIUM",
+    "question": "Which of the following conditions is NOT one of Coffman's four conditions required for a deadlock to occur?",
+    "options": ["Mutual Exclusion", "Hold and Wait", "Preemption Allowed", "Circular Wait"],
+    "correctOption": 2,
+    "explanation": "Deadlock requires 'No Preemption'. If preemption is allowed, resources can be forcibly reclaimed, breaking the deadlock."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "OS",
+    "topic": "Memory Management",
+    "difficulty": "MEDIUM",
+    "question": "What is 'thrashing' in an operating system?",
+    "options": [
+      "A high rate of CPU usage due to intensive calculations",
+      "When the CPU spends more time swapping pages in and out than executing instructions",
+      "Physical damage caused to a solid-state drive due to excessive writes",
+      "A condition where multiple threads simultaneously lock the memory bus"
+    ],
+    "correctOption": 1,
+    "explanation": "Thrashing occurs when virtual memory resources are overused, causing the system to spend more time paging than executing processes."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "OS",
+    "topic": "Virtual Memory",
+    "difficulty": "MEDIUM",
+    "question": "Belady's Anomaly occurs in which page replacement algorithm?",
+    "options": ["Optimal Page Replacement", "Least Recently Used (LRU)", "First-In, First-Out (FIFO)", "Least Frequently Used (LFU)"],
+    "correctOption": 2,
+    "explanation": "Belady's Anomaly is the phenomenon where increasing the number of page frames results in an increase in page faults, observed in FIFO."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "DBMS",
+    "topic": "ACID Properties",
+    "difficulty": "EASY",
+    "question": "In the ACID acronym for database transactions, what does the 'I' stand for?",
+    "options": ["Integrity", "Isolation", "Indexing", "Idempotence"],
+    "correctOption": 1,
+    "explanation": "The 'I' in ACID stands for Isolation, which guarantees that concurrently executing transactions do not interfere with each other."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "DBMS",
+    "topic": "Normalization",
+    "difficulty": "MEDIUM",
+    "question": "A relation is in 3NF if it is in 2NF and:",
+    "options": [
+      "Every non-prime attribute is non-transitively dependent on the primary key",
+      "All attributes are atomic",
+      "It has no composite keys",
+      "Every determinant is a candidate key"
+    ],
+    "correctOption": 0,
+    "explanation": "3NF requires that the table is in 2NF and has no transitive dependencies for non-prime attributes."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "DBMS",
+    "topic": "Indexing",
+    "difficulty": "MEDIUM",
+    "question": "Why are B+ trees preferred over B trees for disk-based database indexes?",
+    "options": [
+      "All data records/pointers are stored in the leaf nodes, enabling fast sequential range queries via linked leaves",
+      "B+ trees use less memory for leaf nodes",
+      "B+ trees have a lower fan-out factor",
+      "B+ trees do not require balancing"
+    ],
+    "correctOption": 0,
+    "explanation": "In B+ trees, internal nodes store only index keys and leaf nodes store actual data/record pointers linked in a doubly-linked list for fast range scans."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "CN",
+    "topic": "TCP/IP & OSI",
+    "difficulty": "EASY",
+    "question": "At which layer of the OSI model does a network router primarily operate?",
+    "options": ["Transport Layer (Layer 4)", "Network Layer (Layer 3)", "Data Link Layer (Layer 2)", "Session Layer (Layer 5)"],
+    "correctOption": 1,
+    "explanation": "Routers operate primarily at Layer 3 (Network Layer) because they route packets using IP addresses."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "CN",
+    "topic": "Protocols",
+    "difficulty": "MEDIUM",
+    "question": "What is the purpose of the 3-Way Handshake in TCP?",
+    "options": [
+      "To encrypt the data payload using asymmetric cryptography",
+      "To establish a reliable connection and synchronize sequence numbers between client and server",
+      "To negotiate the IP addresses of intermediate hops",
+      "To compress network packets before transmission"
+    ],
+    "correctOption": 1,
+    "explanation": "TCP 3-way handshake (SYN, SYN-ACK, ACK) establishes a synchronized, reliable, stateful full-duplex byte stream connection."
+  },
+  {
+    "category": "CORE_CS",
+    "subject": "OOP",
+    "topic": "Polymorphism",
+    "difficulty": "MEDIUM",
+    "question": "Which of the following demonstrates runtime (dynamic) polymorphism in C++ or Java?",
+    "options": ["Method overloading", "Operator overloading", "Virtual function overriding", "Template specialization"],
+    "correctOption": 2,
+    "explanation": "Method overriding via virtual functions (vtable/vptr in C++) resolves the target method dynamically at runtime."
+  }
+]
