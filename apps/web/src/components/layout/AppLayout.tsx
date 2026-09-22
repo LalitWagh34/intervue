@@ -111,14 +111,14 @@ export default function AppLayout() {
           {/* Right Action Bar */}
           <div className="flex items-center gap-3">
             {/* Quick Battle Arena Trigger */}
-            <Link
+            {/* <Link
               to="/rooms"
               className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#327CF6]/10 border border-[#327CF6]/25 hover:border-[#327CF6]/50 text-[#327CF6] text-xs font-semibold shadow-[0_0_15px_rgba(50,124,246,0.15)] transition-all cursor-pointer"
             >
               <Swords className="w-3.5 h-3.5" />
               <span>Battle Arena</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-            </Link>
+            </Link> */}
 
             {/* TUF Coins Balance */}
             <div
