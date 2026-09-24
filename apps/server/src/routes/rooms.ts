@@ -364,18 +364,23 @@ app.get("/history", requireAuth, async (c) => {
       orderBy: { joinedAt: "desc" },
     });
 
+    const now = new Date();
     const contests = participations.map((p) => {
       const room = p.room;
       const sortedParticipants = room.participants;
       const rankIndex = sortedParticipants.findIndex((sp) => sp.userId === user.id);
       const myRank = rankIndex !== -1 ? rankIndex + 1 : 1;
 
+      // Self-heal: If contest endTime has passed, card reliably shows FINISHED
+      const isPastEndTime = room.endTime ? new Date(room.endTime) <= now : false;
+      const effectiveStatus = (room.status === "ACTIVE" && isPastEndTime) ? "FINISHED" : room.status;
+
       return {
         id: room.id,
         code: room.code,
         title: room.title,
         type: room.type,
-        status: room.status,
+        status: effectiveStatus,
         duration: room.duration,
         startTime: room.startTime,
         endTime: room.endTime,
@@ -443,7 +448,13 @@ app.get("/:code", requireAuth, async (c) => {
     const isHost = room.hostId === user.id;
 
     // Check if contest is finished or active
-    const isFinished = room.status === "FINISHED";
+    const now = new Date();
+    const isPastEndTime = room.endTime ? new Date(room.endTime) <= now : false;
+    const isFinished = room.status === "FINISHED" || (room.status === "ACTIVE" && isPastEndTime);
+
+    if (room.status === "ACTIVE" && isPastEndTime) {
+      roomSocketManager.handleContestEnd(room.code).catch(() => {});
+    }
 
     // Strictly enforce authorization: if not host and not participant, do NOT reveal questions or allow arena access
     if (!currentParticipant && !isHost && !isFinished) {
@@ -531,7 +542,7 @@ app.get("/:code", requireAuth, async (c) => {
         code: room.code,
         title: room.title,
         type: room.type,
-        status: room.status,
+        status: isFinished ? "FINISHED" : room.status,
         duration: room.duration,
         maxParticipants: room.maxParticipants,
         startTime: room.startTime,
@@ -648,10 +659,21 @@ app.post("/:code/finish", requireAuth, async (c) => {
       pointsAwarded: 0,
     });
 
+    // Track finished participant count
+    const finishedCount = roomSocketManager.markUserFinished(code, user.id);
+    const totalParticipants = room.participants.length;
+    const allFinished = finishedCount >= totalParticipants && totalParticipants > 0;
+
+    // If ALL participants in the room submitted early, immediately auto-conclude the contest!
+    if (allFinished && room.status === "ACTIVE") {
+      await roomSocketManager.handleContestEnd(code);
+    }
+
     return c.json({
       message: "Test submitted successfully",
       roomCode: code,
       participantId: participant.id,
+      allFinished,
     });
   } catch (error) {
     console.error("Error submitting test:", error);

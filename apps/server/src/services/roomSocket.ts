@@ -58,6 +58,22 @@ class RoomSocketManager {
   // Live Spectator code snapshots: roomCode -> (userId -> CodeSnapshot)
   private codeSnapshots: Map<string, Map<string, CodeSnapshot>> = new Map();
 
+  // Finished participants tracking: roomCode -> Set of userIds
+  private finishedUsers: Map<string, Set<string>> = new Map();
+
+  public markUserFinished(roomCode: string, userId: string): number {
+    const code = roomCode.toUpperCase();
+    if (!this.finishedUsers.has(code)) {
+      this.finishedUsers.set(code, new Set());
+    }
+    this.finishedUsers.get(code)!.add(userId);
+    return this.finishedUsers.get(code)!.size;
+  }
+
+  public getFinishedCount(roomCode: string): number {
+    return this.finishedUsers.get(roomCode.toUpperCase())?.size || 0;
+  }
+
   /**
    * Helper to get count of unique userIds in a room
    */
