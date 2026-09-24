@@ -18,6 +18,28 @@ export interface LeaderboardEntry {
   score: number;
   solvedCount: number;
   penaltyTime: number;
+  warningsCount: number;
+  isDisqualified: boolean;
+}
+
+export interface AntiCheatViolation {
+  id: string;
+  roomCode: string;
+  userId: string;
+  userName: string;
+  type: "TAB_SWITCH" | "WINDOW_BLUR" | "SUSPICIOUS_PASTE";
+  warningLevel: number;
+  penaltyAddedSeconds?: number;
+  isDisqualified?: boolean;
+  details?: string;
+  timestamp: number;
+}
+
+export interface CodeSnapshot {
+  problemId: number;
+  sourceCode: string;
+  language: string;
+  updatedAt: number;
 }
 
 class RoomSocketManager {
@@ -27,6 +49,14 @@ class RoomSocketManager {
   private clients: Map<any, ConnectedClient> = new Map();
   // Active room timer timeouts
   private roomTimers: Map<string, any> = new Map();
+
+  // Anti-Cheat tracking per room
+  private roomViolations: Map<string, AntiCheatViolation[]> = new Map();
+  private participantWarnings: Map<string, Map<string, number>> = new Map();
+  private disqualifiedUsers: Map<string, Set<string>> = new Map();
+
+  // Live Spectator code snapshots: roomCode -> (userId -> CodeSnapshot)
+  private codeSnapshots: Map<string, Map<string, CodeSnapshot>> = new Map();
 
   /**
    * Helper to get count of unique userIds in a room
@@ -87,7 +117,6 @@ class RoomSocketManager {
       const meta = this.clients.get(existingWs);
       if (meta && meta.userId === clientData.userId) {
         alreadyInRoom = true;
-        // Clean up older socket for the same user
         this.clients.delete(existingWs);
         roomSet.delete(existingWs);
         try {
@@ -140,7 +169,6 @@ class RoomSocketManager {
       if (roomSet.size === 0) {
         this.rooms.delete(roomCode);
       } else {
-        // Check if user has another active tab/socket in this room
         let userHasOtherSocket = false;
         for (const remainingWs of roomSet) {
           if (this.clients.get(remainingWs)?.userId === userId) {
@@ -227,12 +255,155 @@ class RoomSocketManager {
   }
 
   /**
+   * Check if a user is disqualified in a room
+   */
+  public isUserDisqualified(roomCode: string, userId: string): boolean {
+    const set = this.disqualifiedUsers.get(roomCode.toUpperCase());
+    return set ? set.has(userId) : false;
+  }
+
+  /**
+   * Get anti-cheat warning count for a user in a room
+   */
+  public getUserWarningCount(roomCode: string, userId: string): number {
+    return this.participantWarnings.get(roomCode.toUpperCase())?.get(userId) || 0;
+  }
+
+  /**
+   * Authoritative Anti-Cheat Violation Recorder with Penalty Escalation Ladder
+   */
+  public async recordViolation(
+    roomCode: string,
+    userId: string,
+    violationType: "TAB_SWITCH" | "WINDOW_BLUR" | "SUSPICIOUS_PASTE",
+    details?: string
+  ) {
+    const code = roomCode.toUpperCase();
+
+    if (!this.participantWarnings.has(code)) {
+      this.participantWarnings.set(code, new Map());
+    }
+    const warningsMap = this.participantWarnings.get(code)!;
+    const currentWarnings = (warningsMap.get(userId) || 0) + 1;
+    warningsMap.set(userId, currentWarnings);
+
+    let penaltyAdded = 0;
+    let isDisqualified = false;
+
+    if (!this.disqualifiedUsers.has(code)) {
+      this.disqualifiedUsers.set(code, new Set());
+    }
+
+    const participant = await db.roomParticipant.findFirst({
+      where: {
+        userId,
+        room: { code },
+      },
+      include: {
+        user: { select: { name: true } },
+      },
+    });
+
+    const userName = participant?.user?.name || "Participant";
+
+    if (currentWarnings === 2) {
+      // Strike 2: Add +180s (+3 minutes) penalty to participant score in database
+      penaltyAdded = 180;
+      if (participant) {
+        await db.roomParticipant.update({
+          where: { id: participant.id },
+          data: { penaltyTime: { increment: 180 } },
+        });
+      }
+    } else if (currentWarnings >= 3) {
+      // Strike 3: Automatic disqualification
+      isDisqualified = true;
+      this.disqualifiedUsers.get(code)!.add(userId);
+    }
+
+    const violation: AntiCheatViolation = {
+      id: `viol_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      roomCode: code,
+      userId,
+      userName,
+      type: violationType,
+      warningLevel: Math.min(3, currentWarnings),
+      penaltyAddedSeconds: penaltyAdded,
+      isDisqualified,
+      details,
+      timestamp: Date.now(),
+    };
+
+    if (!this.roomViolations.has(code)) {
+      this.roomViolations.set(code, []);
+    }
+    const violations = this.roomViolations.get(code)!;
+    violations.unshift(violation);
+    if (violations.length > 50) violations.pop();
+
+    // Broadcast violation event to all clients in the room (including host and spectators)
+    this.broadcastToRoom(code, "anticheat:violation", {
+      violation,
+      warningsCount: currentWarnings,
+      isDisqualified,
+    });
+
+    // Update leaderboard if penalty was applied
+    if (penaltyAdded > 0 || isDisqualified) {
+      this.broadcastLeaderboard(code);
+    }
+
+    return violation;
+  }
+
+  /**
+   * Update live code snapshot for participant (used by Spectator Mode)
+   */
+  public updateCodeSnapshot(
+    roomCode: string,
+    userId: string,
+    data: { problemId: number; sourceCode: string; language: string }
+  ) {
+    const code = roomCode.toUpperCase();
+    if (!this.codeSnapshots.has(code)) {
+      this.codeSnapshots.set(code, new Map());
+    }
+    const snapshot: CodeSnapshot = {
+      ...data,
+      updatedAt: Date.now(),
+    };
+    this.codeSnapshots.get(code)!.set(userId, snapshot);
+
+    // Broadcast live code update to room spectators
+    this.broadcastToRoom(code, "code:stream_update", {
+      userId,
+      ...snapshot,
+    });
+  }
+
+  /**
+   * Retrieve active code snapshot for a target participant
+   */
+  public getCodeSnapshot(roomCode: string, targetUserId: string): CodeSnapshot | null {
+    const code = roomCode.toUpperCase();
+    return this.codeSnapshots.get(code)?.get(targetUserId) || null;
+  }
+
+  /**
+   * Get all anti-cheat violations recorded for a room
+   */
+  public getRoomViolations(roomCode: string): AntiCheatViolation[] {
+    return this.roomViolations.get(roomCode.toUpperCase()) || [];
+  }
+
+  /**
    * Authoritative Room Sync: sends complete state snapshot to client
    */
   public async sendRoomSync(ws: any, roomCode: string) {
     try {
+      const code = roomCode.toUpperCase();
       const room = await db.room.findUnique({
-        where: { code: roomCode.toUpperCase() },
+        where: { code },
         include: {
           participants: {
             include: {
@@ -250,23 +421,28 @@ class RoomSocketManager {
         ? Math.max(0, Math.floor((new Date(room.endTime).getTime() - Date.now()) / 1000))
         : room.duration * 60;
 
+      const participantsList = room.participants.map((p, idx) => ({
+        rank: idx + 1,
+        participantId: p.id,
+        userId: p.userId,
+        name: p.user.name || "Anonymous",
+        image: p.user.image,
+        role: p.role,
+        score: p.score,
+        solvedCount: p.solvedCount,
+        penaltyTime: p.penaltyTime,
+        warningsCount: this.getUserWarningCount(code, p.userId),
+        isDisqualified: this.isUserDisqualified(code, p.userId),
+        isSelf: client?.userId === p.userId,
+      }));
+
       this.sendToClient(ws, "room:sync", {
         status: room.status,
         startTime: room.startTime,
         endTime: room.endTime,
         remainingSeconds,
-        participants: room.participants.map((p, idx) => ({
-          rank: idx + 1,
-          participantId: p.id,
-          userId: p.userId,
-          name: p.user.name || "Anonymous",
-          image: p.user.image,
-          role: p.role,
-          score: p.score,
-          solvedCount: p.solvedCount,
-          penaltyTime: p.penaltyTime,
-          isSelf: client?.userId === p.userId,
-        })),
+        participants: participantsList,
+        violations: this.getRoomViolations(code),
       });
     } catch (err) {
       console.error(`[Socket] Error sending room sync for ${roomCode}:`, err);
@@ -303,6 +479,8 @@ class RoomSocketManager {
         score: p.score,
         solvedCount: p.solvedCount,
         penaltyTime: p.penaltyTime,
+        warningsCount: this.getUserWarningCount(code, p.userId),
+        isDisqualified: this.isUserDisqualified(code, p.userId),
       }));
 
       this.broadcastToRoom(code, "leaderboard:update", {
@@ -344,7 +522,6 @@ class RoomSocketManager {
       durationSeconds: Math.floor((endTime.getTime() - startTime.getTime()) / 1000),
     });
 
-    // Schedule authoritative end timer
     const msUntilEnd = Math.max(0, endTime.getTime() - Date.now());
 
     if (this.roomTimers.has(code)) {
@@ -398,6 +575,8 @@ class RoomSocketManager {
         score: p.score,
         solvedCount: p.solvedCount,
         penaltyTime: p.penaltyTime,
+        warningsCount: this.getUserWarningCount(code, p.userId),
+        isDisqualified: this.isUserDisqualified(code, p.userId),
       }));
 
       this.broadcastToRoom(code, "contest:ended", {

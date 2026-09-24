@@ -25,10 +25,16 @@ import {
   Minimize2,
   Shield,
   ShieldAlert,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  User,
+  Activity,
   HelpCircle,
   Flame,
   ArrowRight,
   LogOut,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +93,11 @@ export default function RoomArenaPage() {
     remainingSeconds: socketRemaining,
     roomStatus,
     recentActivities,
+    violations,
+    inspectedCode,
+    emitViolation,
+    emitCodeSync,
+    inspectUserCode,
   } = useRoomSocket({
     roomCode: code,
     user: session?.user,
@@ -94,6 +105,24 @@ export default function RoomArenaPage() {
       navigate(`/rooms/${code}/results`);
     },
   });
+
+  // Spectator mode & Code Inspector states
+  const [isSpectatorMode, setIsSpectatorMode] = useState(false);
+  const [inspectedParticipant, setInspectedParticipant] = useState<any | null>(null);
+  const [spectatorTab, setSpectatorTab] = useState<"competitors" | "incidents">("competitors");
+  const [spectatorSearch, setSpectatorSearch] = useState("");
+  const [isInspectorModalOpen, setIsInspectorModalOpen] = useState(false);
+
+  // Auto-select top/other competitor when entering spectator mode
+  useEffect(() => {
+    if (isSpectatorMode && !inspectedParticipant && participants.length > 0) {
+      const target = participants.find((p) => p.userId !== session?.user?.id) || participants[0];
+      if (target) {
+        setInspectedParticipant(target);
+        inspectUserCode(target.userId);
+      }
+    }
+  }, [isSpectatorMode, inspectedParticipant, participants, session?.user?.id, inspectUserCode]);
 
   // Local Authoritative Timer
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
@@ -116,20 +145,24 @@ export default function RoomArenaPage() {
     return () => clearInterval(timer);
   }, []);
 
-  // Anti-Cheat System
+  // Anti-Cheat System with backend escalation
   const {
     strikes,
     maxStrikes,
     warningModalOpen,
     currentReason,
+    currentType,
     dismissWarning,
     isFullscreen,
     isTerminated,
     requestFullscreen,
     exitFullscreen,
   } = useAntiCheat({
-    enabled: room?.status === "ACTIVE",
+    enabled: room?.status === "ACTIVE" && !isSpectatorMode,
     maxStrikes: 3,
+    onViolation: (type, details) => {
+      emitViolation(type, details);
+    },
     onMaxStrikesReached: async () => {
       toast.error("Disqualified: 3 Anti-Cheat Strikes Reached");
       try {
@@ -147,6 +180,22 @@ export default function RoomArenaPage() {
       });
     },
   });
+
+  // Periodic Code Sync for Live Spectators
+  useEffect(() => {
+    const activeQ = room?.questions?.[activeQuestionIndex];
+    if (!activeQ?.problem || isSpectatorMode || !sourceCode) return;
+
+    const timeout = setTimeout(() => {
+      emitCodeSync({
+        problemId: activeQ.problem.id,
+        sourceCode,
+        language,
+      });
+    }, 1500);
+
+    return () => clearTimeout(timeout);
+  }, [sourceCode, activeQuestionIndex, room, language, isSpectatorMode, emitCodeSync]);
 
   // Load authoritative room data
   useEffect(() => {
@@ -481,6 +530,26 @@ export default function RoomArenaPage() {
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
 
+          {/* Live Spectator Mode Toggle */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsSpectatorMode(!isSpectatorMode)}
+            className={`text-xs h-8 border-zinc-800 flex items-center gap-1.5 rounded-xl transition-all ${
+              isSpectatorMode
+                ? "bg-purple-600/20 text-purple-300 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.25)]"
+                : "bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            }`}
+            title={isSpectatorMode ? "Return to Coding Arena" : "Live Spectator & Anti-Cheat Surveillance"}
+          >
+            {isSpectatorMode ? (
+              <EyeOff className="w-3.5 h-3.5 text-purple-400" />
+            ) : (
+              <Eye className="w-3.5 h-3.5 text-purple-400" />
+            )}
+            <span className="hidden md:inline">{isSpectatorMode ? "Exit Spectator" : "Spectator"}</span>
+          </Button>
+
           {/* Standings Button */}
           <Button
             size="sm"
@@ -535,7 +604,299 @@ export default function RoomArenaPage() {
       {/* ─── MAIN ARENA WORKSPACE ────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Workspace Body */}
-        {isCodingQuestion && activeQuestion?.problem ? (
+        {isSpectatorMode ? (
+          <div className="flex-1 flex overflow-hidden bg-[#07090D]">
+            {/* Left Panel: Competitors & Surveillance Violations */}
+            <div className="w-80 md:w-96 border-r border-zinc-800/80 bg-[#0A0D14] flex flex-col shrink-0">
+              {/* Spectator Panel Header & Tab Switcher */}
+              <div className="p-4 border-b border-zinc-800/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                    </span>
+                    <h2 className="text-sm font-bold text-white tracking-wide">
+                      Spectator Command Center
+                    </h2>
+                  </div>
+                  <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/30 text-[10px]">
+                    Live Surveillance
+                  </Badge>
+                </div>
+
+                {/* Tab Toggle: Competitors vs Incidents */}
+                <div className="grid grid-cols-2 p-1 rounded-xl bg-black/50 border border-zinc-800 text-xs">
+                  <button
+                    onClick={() => setSpectatorTab("competitors")}
+                    className={`py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
+                      spectatorTab === "competitors"
+                        ? "bg-purple-600/30 text-purple-200 border border-purple-500/40 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>Roster ({participants.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setSpectatorTab("incidents")}
+                    className={`py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
+                      spectatorTab === "incidents"
+                        ? "bg-red-600/30 text-red-200 border border-red-500/40 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <span>Incidents ({violations.length})</span>
+                  </button>
+                </div>
+
+                {spectatorTab === "competitors" && (
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input
+                      type="text"
+                      placeholder="Search competitor..."
+                      value={spectatorSearch}
+                      onChange={(e) => setSpectatorSearch(e.target.value)}
+                      className="w-full bg-black/40 border border-zinc-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-purple-500/50"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Tab Content */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+                {spectatorTab === "competitors" ? (
+                  participants
+                    .filter((p) =>
+                      p.name.toLowerCase().includes(spectatorSearch.toLowerCase())
+                    )
+                    .map((p, idx) => {
+                      const isSelected = inspectedParticipant?.userId === p.userId;
+                      const isMe = p.userId === session?.user?.id;
+                      const strikesCount = p.warningsCount || 0;
+
+                      return (
+                        <div
+                          key={p.userId}
+                          onClick={() => {
+                            setInspectedParticipant(p);
+                            inspectUserCode(p.userId);
+                          }}
+                          className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-purple-950/30 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.15)] ring-1 ring-purple-500/30"
+                              : "bg-[#0E121A] border-zinc-800/80 hover:border-zinc-700 text-zinc-300"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="font-mono text-xs font-bold text-zinc-400 w-5">
+                                #{p.rank || idx + 1}
+                              </span>
+                              <span className="font-semibold text-xs text-white truncate max-w-[130px]">
+                                {p.name} {isMe && "(You)"}
+                              </span>
+                            </div>
+
+                            {/* Anti-Cheat Status Badge */}
+                            {p.isDisqualified ? (
+                              <Badge className="bg-red-500/20 text-red-400 border-red-500/40 text-[9px] px-1.5 py-0 flex items-center gap-1 font-bold">
+                                <ShieldAlert className="w-2.5 h-2.5" />
+                                DQ
+                              </Badge>
+                            ) : strikesCount === 2 ? (
+                              <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[9px] px-1.5 py-0 flex items-center gap-1">
+                                <AlertTriangle className="w-2.5 h-2.5" />
+                                2 Strikes (+3m)
+                              </Badge>
+                            ) : strikesCount === 1 ? (
+                              <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/40 text-[9px] px-1.5 py-0 flex items-center gap-1">
+                                <AlertTriangle className="w-2.5 h-2.5" />
+                                1 Strike
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[9px] px-1.5 py-0 flex items-center gap-1">
+                                <ShieldCheck className="w-2.5 h-2.5" />
+                                Clean
+                              </Badge>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                            <span className="text-zinc-300 font-medium">
+                              {p.score} pts • {p.solvedCount} solved
+                            </span>
+                            {p.penaltyTime > 0 && (
+                              <span className="text-amber-400/90 text-[10px]">
+                                +{Math.round(p.penaltyTime / 60)}m pen
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                ) : (
+                  /* Real-time Room Violations Feed */
+                  violations.length === 0 ? (
+                    <div className="p-8 text-center text-zinc-500 text-xs flex flex-col items-center gap-2">
+                      <ShieldCheck className="w-8 h-8 text-emerald-500/50" />
+                      <span>No violations recorded yet.</span>
+                      <span className="text-[11px] text-zinc-600">
+                        Tab switches, window defocus, and suspicious pastes will be logged here in real-time.
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {violations.map((v) => (
+                        <div
+                          key={v.id}
+                          className={`p-3 rounded-xl border text-xs space-y-1.5 ${
+                            v.isDisqualified
+                              ? "bg-red-950/20 border-red-500/40 text-red-200"
+                              : v.warningLevel === 2
+                              ? "bg-amber-950/20 border-amber-500/40 text-amber-200"
+                              : "bg-zinc-900/60 border-zinc-800 text-zinc-300"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-white truncate max-w-[150px]">
+                              {v.userName}
+                            </span>
+                            <span className="text-[10px] font-mono text-zinc-500">
+                              {new Date(v.timestamp).toLocaleTimeString()}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-black/40 border border-zinc-700/60 text-zinc-300">
+                              {v.type}
+                            </span>
+                            {v.isDisqualified ? (
+                              <span className="text-red-400 font-bold text-[10px]">
+                                DISQUALIFIED
+                              </span>
+                            ) : v.penaltyAddedSeconds ? (
+                              <span className="text-amber-400 font-semibold text-[10px]">
+                                +3m penalty applied
+                              </span>
+                            ) : (
+                              <span className="text-zinc-400 text-[10px]">
+                                Strike #{v.warningLevel}
+                              </span>
+                            )}
+                          </div>
+
+                          {v.details && (
+                            <div className="text-[11px] text-zinc-400 font-mono truncate">
+                              {v.details}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Right Panel: Live Competitor Code Inspector */}
+            <div className="flex-1 flex flex-col overflow-hidden bg-[#090B0E]">
+              {inspectedParticipant ? (
+                <>
+                  {/* Inspector Header */}
+                  <div className="p-4 border-b border-zinc-800 bg-[#0D1017] flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-sm">
+                        {inspectedParticipant.name?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-white">
+                            {inspectedParticipant.name}
+                          </h3>
+                          <Badge variant="outline" className="text-[10px] border-zinc-700 text-zinc-400">
+                            Rank #{inspectedParticipant.rank || 1}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-zinc-400 flex items-center gap-2 mt-0.5">
+                          <span>Score: <strong className="text-white font-mono">{inspectedParticipant.score} pts</strong></span>
+                          <span>•</span>
+                          <span>Solved: <strong className="text-white font-mono">{inspectedParticipant.solvedCount}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      {/* Live Streaming Beacon */}
+                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Live Keystrokes</span>
+                      </div>
+
+                      {/* Language Indicator */}
+                      <Badge className="bg-zinc-800 text-zinc-300 border-zinc-700 font-mono text-xs">
+                        {inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId && inspectedCode.language
+                          ? inspectedCode.language
+                          : "CPP"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Monaco Editor (Read-Only) */}
+                  <div className="flex-1 overflow-hidden relative">
+                    <Editor
+                      height="100%"
+                      theme="vs-dark"
+                      language={
+                        MONACO_LANG_MAP[
+                          inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId
+                            ? inspectedCode.language
+                            : "CPP"
+                        ] || "cpp"
+                      }
+                      value={
+                        inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId
+                          ? inspectedCode.sourceCode
+                          : `// Live Code Stream for ${inspectedParticipant.name}\n// Waiting for candidate code updates or keystrokes...\n// When candidate types in their editor, updates will mirror here.`
+                      }
+                      options={{
+                        readOnly: true,
+                        minimap: { enabled: true },
+                        fontSize: 13,
+                        lineNumbers: "on",
+                        scrollBeyondLastLine: false,
+                        automaticLayout: true,
+                        domReadOnly: true,
+                      }}
+                    />
+                  </div>
+
+                  {/* Inspector Footer Status */}
+                  <div className="px-4 py-2 border-t border-zinc-800 bg-[#0B0D12] flex items-center justify-between text-xs text-zinc-400 font-mono">
+                    <div className="flex items-center gap-2">
+                      <Code2 className="w-3.5 h-3.5 text-purple-400" />
+                      <span>
+                        {inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId && inspectedCode.updatedAt
+                          ? `Last synchronized: ${new Date(inspectedCode.updatedAt).toLocaleTimeString()}`
+                          : "Awaiting candidate activity"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-zinc-500">Read-Only Spectator Mode</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-zinc-500 text-sm space-y-2">
+                  <Eye className="w-10 h-10 text-zinc-700" />
+                  <p>Select a competitor from the left roster to view their live code and proctoring status.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : isCodingQuestion && activeQuestion?.problem ? (
           // ─── CODING SPLIT VIEW ──────────────────────────────────────
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-x divide-zinc-800/90 overflow-hidden">
             {/* Left: Problem Description */}
@@ -878,6 +1239,7 @@ export default function RoomArenaPage() {
               <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
                 {participants.map((p, idx) => {
                   const isMe = p.userId === session?.user?.id;
+                  const strikes = p.warningsCount || 0;
 
                   return (
                     <div
@@ -892,14 +1254,49 @@ export default function RoomArenaPage() {
                         <span className="font-mono font-bold text-zinc-400 w-5 text-center">
                           #{p.rank || idx + 1}
                         </span>
-                        <span className="font-medium truncate max-w-[120px]">
-                          {p.name} {isMe && "(You)"}
-                        </span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-medium truncate max-w-[105px]">
+                              {p.name} {isMe && "(You)"}
+                            </span>
+                            {/* Anti-cheat status pill */}
+                            {p.isDisqualified ? (
+                              <Badge className="bg-red-500/20 text-red-400 border-red-500/40 text-[9px] px-1 py-0 font-bold">
+                                DQ
+                              </Badge>
+                            ) : strikes > 0 ? (
+                              <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[9px] px-1 py-0">
+                                {strikes} ⚠️
+                              </Badge>
+                            ) : null}
+                          </div>
+                          {p.penaltyTime > 0 && (
+                            <span className="text-[10px] text-amber-400 font-mono">
+                              +{Math.round(p.penaltyTime / 60)}m pen
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="text-right font-mono">
-                        <div className="font-bold text-white">{p.score} pts</div>
-                        <div className="text-[10px] text-zinc-500">{p.solvedCount} solved</div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right font-mono">
+                          <div className="font-bold text-white">{p.score} pts</div>
+                          <div className="text-[10px] text-zinc-500">{p.solvedCount} solved</div>
+                        </div>
+
+                        {!isMe && (
+                          <button
+                            onClick={() => {
+                              inspectUserCode(p.userId);
+                              setInspectedParticipant(p);
+                              setIsInspectorModalOpen(true);
+                            }}
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"
+                            title="Inspect Live Code"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -926,6 +1323,107 @@ export default function RoomArenaPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* ─── LIVE CODE INSPECTOR MODAL (FOR STANDINGS DRAWER) ───────── */}
+      <AnimatePresence>
+        {isInspectorModalOpen && inspectedParticipant && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-4xl h-[75vh] rounded-2xl bg-[#0B0D12] border border-zinc-800 flex flex-col shadow-2xl overflow-hidden"
+            >
+              {/* Modal Header */}
+              <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-[#0E121A]">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-sm">
+                    {inspectedParticipant.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-white">
+                        {inspectedParticipant.name}'s Live Code
+                      </h3>
+                      <Badge className="bg-zinc-800 text-zinc-300 border-zinc-700 text-[10px]">
+                        Rank #{inspectedParticipant.rank || 1}
+                      </Badge>
+                    </div>
+                    <span className="text-[11px] text-zinc-400">
+                      {inspectedParticipant.score} pts • {inspectedParticipant.solvedCount} solved
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Live Stream</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsInspectorModalOpen(false);
+                      setInspectedParticipant(null);
+                    }}
+                    className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Editor Body */}
+              <div className="flex-1 overflow-hidden relative">
+                <Editor
+                  height="100%"
+                  theme="vs-dark"
+                  language={
+                    MONACO_LANG_MAP[
+                      inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId
+                        ? inspectedCode.language
+                        : "CPP"
+                    ] || "cpp"
+                  }
+                  value={
+                    inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId
+                      ? inspectedCode.sourceCode
+                      : `// Live Code Stream for ${inspectedParticipant.name}\n// Waiting for candidate code stream...`
+                  }
+                  options={{
+                    readOnly: true,
+                    minimap: { enabled: true },
+                    fontSize: 13,
+                    lineNumbers: "on",
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                  }}
+                />
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-3 border-t border-zinc-800 bg-[#090B0E] flex items-center justify-between text-xs text-zinc-400">
+                <span className="font-mono text-[11px]">
+                  {inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId && inspectedCode.updatedAt
+                    ? `Last synced: ${new Date(inspectedCode.updatedAt).toLocaleTimeString()}`
+                    : "Awaiting candidate keystroke"}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setIsInspectorModalOpen(false);
+                    setInspectedParticipant(null);
+                  }}
+                  className="rounded-lg h-7 text-xs border-zinc-800 hover:bg-zinc-800 text-zinc-300"
+                >
+                  Close
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ─── MODERN ANIMATED FINISH ASSESSMENT MODAL ────────────────── */}
       <AnimatePresence>
@@ -1171,14 +1669,35 @@ export default function RoomArenaPage() {
               </div>
 
               <div className="p-3.5 rounded-xl bg-black/30 border border-zinc-800 text-xs text-zinc-300 leading-relaxed space-y-1.5">
-                <div className="font-semibold text-white">Detected Action:</div>
-                <div className="text-zinc-400 font-mono">{currentReason || "Tab switch or window defocus"}</div>
+                <div className="font-semibold text-white">Detected Violation:</div>
+                <div className="text-amber-400 font-mono text-[11px]">{currentReason || "Tab switch or window defocus"}</div>
+              </div>
+
+              {/* Authoritative Escalation Ladder explanation */}
+              <div className="p-3.5 rounded-xl bg-black/50 border border-zinc-800/80 text-[11px] space-y-2">
+                <div className="font-semibold text-zinc-300 uppercase tracking-wider text-[10px]">
+                  Surveillance Escalation Ladder
+                </div>
+                <div className={`flex items-center justify-between ${strikes === 1 ? "text-amber-300 font-semibold" : "text-zinc-500"}`}>
+                  <span>Strike 1: Room Warning Recorded</span>
+                  <span className="text-[10px] font-mono">Incident logged</span>
+                </div>
+                <div className={`flex items-center justify-between ${strikes === 2 ? "text-amber-300 font-semibold" : "text-zinc-500"}`}>
+                  <span>Strike 2: Time Penalty Imposed</span>
+                  <span className="text-[10px] font-mono font-bold text-amber-400">+180s Penalty</span>
+                </div>
+                <div className={`flex items-center justify-between ${strikes >= 3 ? "text-red-400 font-semibold" : "text-zinc-500"}`}>
+                  <span>Strike 3: Disqualification</span>
+                  <span className="text-[10px] font-mono font-bold text-red-400">Lockout (HTTP 403)</span>
+                </div>
               </div>
 
               <p className="text-xs text-zinc-400 leading-relaxed">
                 {isTerminated
-                  ? "You have accumulated 3 anti-cheat violations. Your test is being locked and finalized."
-                  : "Switching tabs, minimizing the test window, or losing focus is strictly prohibited. If you reach 3 strikes, you will be disqualified."}
+                  ? "You have accumulated 3 anti-cheat violations. Your test is permanently disqualified and locked."
+                  : strikes === 2
+                  ? "A 3-minute (+180s) penalty has been added to your contest time. One more violation will disqualify you."
+                  : "Switching tabs, minimizing the test window, or copying external code is strictly prohibited."}
               </p>
 
               {!isTerminated && (

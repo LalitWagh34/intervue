@@ -963,6 +963,10 @@ app.post("/:code/mcq-answer", requireAuth, async (c) => {
       return c.json({ error: "You are not a participant in this room" }, 403);
     }
 
+    if (roomSocketManager.isUserDisqualified(code, user.id)) {
+      return c.json({ error: "Disqualified: You have exceeded the maximum allowed anti-cheat warnings." }, 403);
+    }
+
     // Fetch the question to verify the answer deterministically
     const question = await db.assessmentQuestion.findUnique({
       where: { id: questionId },
@@ -1091,6 +1095,10 @@ app.post("/:code/submit-code", requireAuth, async (c) => {
       return c.json({ error: "You are not a participant in this room" }, 403);
     }
 
+    if (roomSocketManager.isUserDisqualified(code, user.id)) {
+      return c.json({ error: "Disqualified: You have exceeded the maximum allowed anti-cheat warnings." }, 403);
+    }
+
     const roomQuestion = room.questions[0];
     if (!roomQuestion || !roomQuestion.problem) {
       return c.json({ error: "Problem is not part of this room contest" }, 400);
@@ -1174,6 +1182,13 @@ app.post("/:code/submit-code", requireAuth, async (c) => {
       },
     });
 
+    // Also update code snapshot for spectator inspection
+    roomSocketManager.updateCodeSnapshot(code, user.id, {
+      problemId: Number(problemId),
+      sourceCode,
+      language,
+    });
+
     return c.json({
       ...judgeResult,
       pointsAwarded,
@@ -1183,6 +1198,24 @@ app.post("/:code/submit-code", requireAuth, async (c) => {
     console.error("Error submitting code in room:", error);
     return c.json({ error: "Internal server error submitting code" }, 500);
   }
+});
+
+// ─── GET /api/rooms/:code/anticheat-logs ──────────────────────────────────
+// Returns all anti-cheat violation events for host & spectator inspection
+app.get("/:code/anticheat-logs", requireAuth, async (c) => {
+  const code = (c.req.param("code") || "").toUpperCase();
+  const violations = roomSocketManager.getRoomViolations(code);
+  return c.json({ violations });
+});
+
+// ─── GET /api/rooms/:code/participant-code/:userId ────────────────────────
+// Spectator inspects live code snapshot of a competitor
+app.get("/:code/participant-code/:userId", requireAuth, async (c) => {
+  const code = (c.req.param("code") || "").toUpperCase();
+  const targetUserId = c.req.param("userId");
+  if (!targetUserId) return c.json({ snapshot: null });
+  const snapshot = roomSocketManager.getCodeSnapshot(code, targetUserId);
+  return c.json({ snapshot });
 });
 
 export default app;

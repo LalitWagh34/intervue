@@ -82,6 +82,26 @@ app.get(
             if (data?.roomCode) {
               roomSocketManager.sendRoomSync(ws, data.roomCode);
             }
+          } else if (eventName === "anticheat:violation") {
+            if (data?.roomCode && data?.userId && data?.type) {
+              roomSocketManager.recordViolation(data.roomCode, data.userId, data.type, data.details);
+            }
+          } else if (eventName === "code:sync") {
+            if (data?.roomCode && data?.userId && data?.sourceCode !== undefined) {
+              roomSocketManager.updateCodeSnapshot(data.roomCode, data.userId, {
+                problemId: data.problemId,
+                sourceCode: data.sourceCode,
+                language: data.language,
+              });
+            }
+          } else if (eventName === "code:inspect") {
+            if (data?.roomCode && data?.targetUserId) {
+              const snapshot = roomSocketManager.getCodeSnapshot(data.roomCode, data.targetUserId);
+              roomSocketManager.sendToClient(ws, "code:inspect_result", {
+                targetUserId: data.targetUserId,
+                snapshot,
+              });
+            }
           }
         } catch (err) {
           console.error("[WS] Error parsing client message:", err);

@@ -480,6 +480,7 @@ export async function runSampleTestCases({
 
   for (let idx = 0; idx < casesToRun.length; idx++) {
     const tc = casesToRun[idx];
+    if (!tc) continue;
     const outcome = await executeSingleTestCase({
       sourceCode,
       language,

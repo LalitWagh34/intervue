@@ -11,6 +11,8 @@ export interface Participant {
   score: number;
   solvedCount: number;
   penaltyTime: number;
+  warningsCount?: number;
+  isDisqualified?: boolean;
   isSelf?: boolean;
 }
 
@@ -22,6 +24,27 @@ export interface ActivityEvent {
   isAccepted: boolean;
   pointsAwarded: number;
   timestamp: number;
+}
+
+export interface AntiCheatViolationEvent {
+  id: string;
+  roomCode: string;
+  userId: string;
+  userName: string;
+  type: "TAB_SWITCH" | "WINDOW_BLUR" | "SUSPICIOUS_PASTE";
+  warningLevel: number;
+  penaltyAddedSeconds?: number;
+  isDisqualified?: boolean;
+  details?: string;
+  timestamp: number;
+}
+
+export interface InspectedCodeSnapshot {
+  targetUserId: string;
+  problemId: number;
+  sourceCode: string;
+  language: string;
+  updatedAt: number;
 }
 
 interface UseRoomSocketProps {
@@ -41,8 +64,9 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [roomStatus, setRoomStatus] = useState<"WAITING" | "ACTIVE" | "FINISHED">("WAITING");
   const [recentActivities, setRecentActivities] = useState<ActivityEvent[]>([]);
+  const [violations, setViolations] = useState<AntiCheatViolationEvent[]>([]);
+  const [inspectedCode, setInspectedCode] = useState<InspectedCodeSnapshot | null>(null);
 
-  // Stable refs for callbacks and user state to prevent infinite reconnect loops
   const onContestStartRef = useRef(onContestStart);
   onContestStartRef.current = onContestStart;
 
@@ -62,7 +86,6 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
   const connect = useCallback(() => {
     if (!roomCode || !userId || isUnmountedRef.current) return;
 
-    // Clean up any existing socket before opening a new one
     if (socketRef.current) {
       try {
         socketRef.current.onclose = null;
@@ -112,13 +135,14 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
               if (data.remainingSeconds !== undefined) {
                 setRemainingSeconds(data.remainingSeconds);
               }
+              if (data.violations) {
+                setViolations(data.violations);
+              }
               break;
 
             case "participant:joined": {
-              // Don't toast for self
               if (data.userId === userRef.current?.id) break;
 
-              // Throttle join toasts so they don't spam
               const now = Date.now();
               if (
                 lastJoinedToastRef.current.name === data.name &&
@@ -136,7 +160,6 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
             }
 
             case "participant:left":
-              // Sync will update roster
               break;
 
             case "contest:started":
@@ -171,6 +194,56 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
               }
               break;
 
+            case "anticheat:violation": {
+              if (data.violation) {
+                setViolations((prev) => [data.violation, ...prev.slice(0, 29)]);
+
+                // Broadcast alert
+                const v = data.violation;
+                if (v.isDisqualified) {
+                  toast.error(`🚫 ${v.userName} was DISQUALIFIED!`, {
+                    description: `Multiple anti-cheat violations (${v.warningLevel}/3).`,
+                    duration: 5000,
+                  });
+                } else if (v.penaltyAddedSeconds) {
+                  toast.warning(`⚠️ ${v.userName} penalized +3 mins!`, {
+                    description: `Strike ${v.warningLevel}/3: ${v.type}`,
+                    duration: 4000,
+                  });
+                } else {
+                  toast.warning(`⚠️ Anti-Cheat Warning: ${v.userName}`, {
+                    description: `Strike ${v.warningLevel}/3: ${v.type}`,
+                    duration: 3500,
+                  });
+                }
+              }
+              break;
+            }
+
+            case "code:inspect_result":
+              if (data.snapshot) {
+                setInspectedCode({
+                  targetUserId: data.targetUserId,
+                  ...data.snapshot,
+                });
+              }
+              break;
+
+            case "code:stream_update":
+              setInspectedCode((prev) => {
+                if (prev && prev.targetUserId === data.userId) {
+                  return {
+                    targetUserId: data.userId,
+                    problemId: data.problemId,
+                    sourceCode: data.sourceCode,
+                    language: data.language,
+                    updatedAt: data.updatedAt,
+                  };
+                }
+                return prev;
+              });
+              break;
+
             case "contest:time_sync":
               if (data.remainingSeconds !== undefined) {
                 setRemainingSeconds(data.remainingSeconds);
@@ -197,7 +270,6 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
 
       ws.onclose = () => {
         setIsConnected(false);
-        // Only schedule reconnect if the unmount was NOT intentional
         if (!isUnmountedRef.current) {
           if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
@@ -252,12 +324,74 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
     }
   }, [roomCode]);
 
+  // Emit anti-cheat violation to room
+  const emitViolation = useCallback(
+    (type: string, details?: string) => {
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN && roomCode && userId) {
+        socketRef.current.send(
+          JSON.stringify({
+            event: "anticheat:violation",
+            data: {
+              roomCode: roomCode.toUpperCase(),
+              userId,
+              type,
+              details,
+            },
+          })
+        );
+      }
+    },
+    [roomCode, userId]
+  );
+
+  // Emit live code sync to room spectators
+  const emitCodeSync = useCallback(
+    (payload: { problemId: number; sourceCode: string; language: string }) => {
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN && roomCode && userId) {
+        socketRef.current.send(
+          JSON.stringify({
+            event: "code:sync",
+            data: {
+              roomCode: roomCode.toUpperCase(),
+              userId,
+              ...payload,
+            },
+          })
+        );
+      }
+    },
+    [roomCode, userId]
+  );
+
+  // Spectator inspects a specific participant's code
+  const inspectUserCode = useCallback(
+    (targetUserId: string) => {
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN && roomCode) {
+        socketRef.current.send(
+          JSON.stringify({
+            event: "code:inspect",
+            data: {
+              roomCode: roomCode.toUpperCase(),
+              targetUserId,
+            },
+          })
+        );
+      }
+    },
+    [roomCode]
+  );
+
   return {
     isConnected,
     participants,
     remainingSeconds,
     roomStatus,
     recentActivities,
+    violations,
+    inspectedCode,
     syncRoom,
+    emitViolation,
+    emitCodeSync,
+    inspectUserCode,
   };
 }
