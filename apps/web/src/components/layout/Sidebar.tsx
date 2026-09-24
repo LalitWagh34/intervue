@@ -138,7 +138,8 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-white font-bold text-[15px] tracking-tight font-sans truncate">
-                  take<span className="text-[#327CF6]">U</span>forward
+                  {/* take<span className="text-[#327CF6]">U</span>forward */}
+                  inter<span className="text-[#327CF6]">V</span>ue
                 </span>
               </div>
               <p className="text-[10px] text-[#525866] font-mono tracking-wide -mt-0.5 truncate">

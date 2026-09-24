@@ -3,7 +3,7 @@ import { requireAuth } from "../middleware/auth";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import Groq from "groq-sdk";
-import { judgeSubmission } from "../services/judge";
+import { judgeSubmission, runSampleTestCases } from "../services/judge";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -68,7 +68,46 @@ app.get("/problems/:slug/submissions", requireAuth, async (c) => {
   return c.json({ submissions });
 });
 
-// Execute code via Judge0
+// Run sample test cases (non-authoritative, does not save submission)
+app.post("/run", requireAuth, async (c) => {
+  try {
+    const body = await c.req.json();
+
+    if (!body.problemId) {
+      return c.json({ error: "problemId is required" }, 400);
+    }
+    if (!body.sourceCode) {
+      return c.json({ error: "sourceCode is required" }, 400);
+    }
+    if (!body.language) {
+      return c.json({ error: "language is required" }, 400);
+    }
+
+    const result = await runSampleTestCases({
+      problemId: Number(body.problemId),
+      sourceCode: body.sourceCode,
+      language: body.language,
+    });
+
+    return c.json({
+      ...result,
+      mode: "run",
+    });
+  } catch (error) {
+    console.error("Run error:", error);
+    return c.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to run sample test cases",
+      },
+      500
+    );
+  }
+});
+
+// Execute code (authoritative submission or sample run depending on mode)
 app.post("/execute", requireAuth, async (c) => {
   try {
     const user = c.get("user");
@@ -77,11 +116,63 @@ app.post("/execute", requireAuth, async (c) => {
     if (!body.problemId) {
       return c.json({ error: "problemId is required" }, 400);
     }
-
     if (!body.sourceCode) {
       return c.json({ error: "sourceCode is required" }, 400);
     }
+    if (!body.language) {
+      return c.json({ error: "language is required" }, 400);
+    }
 
+    if (body.mode === "run") {
+      const result = await runSampleTestCases({
+        problemId: Number(body.problemId),
+        sourceCode: body.sourceCode,
+        language: body.language,
+      });
+      return c.json({
+        ...result,
+        mode: "run",
+      });
+    }
+
+    const result = await judgeSubmission({
+      userId: user.id,
+      problemId: Number(body.problemId),
+      sourceCode: body.sourceCode,
+      language: body.language,
+    });
+
+    return c.json({
+      ...result,
+      mode: "submit",
+    });
+  } catch (error) {
+    console.error("Judge error:", error);
+
+    return c.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to execute submission",
+      },
+      500
+    );
+  }
+});
+
+// Alias for authoritative submission
+app.post("/submit", requireAuth, async (c) => {
+  try {
+    const user = c.get("user");
+    const body = await c.req.json();
+
+    if (!body.problemId) {
+      return c.json({ error: "problemId is required" }, 400);
+    }
+    if (!body.sourceCode) {
+      return c.json({ error: "sourceCode is required" }, 400);
+    }
     if (!body.language) {
       return c.json({ error: "language is required" }, 400);
     }
@@ -93,16 +184,18 @@ app.post("/execute", requireAuth, async (c) => {
       language: body.language,
     });
 
-    return c.json(result);
+    return c.json({
+      ...result,
+      mode: "submit",
+    });
   } catch (error) {
-    console.error("Judge error:", error);
-
+    console.error("Submit error:", error);
     return c.json(
       {
         error:
           error instanceof Error
             ? error.message
-            : "Failed to execute submission",
+            : "Failed to process submission",
       },
       500
     );

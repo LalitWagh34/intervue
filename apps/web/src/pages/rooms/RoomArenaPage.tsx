@@ -667,54 +667,78 @@ export default function RoomArenaPage() {
 
               {/* Bottom Test Execution Panel */}
               {judgeResult && (
-                <div className="h-44 border-t border-zinc-800 bg-[#090B0E] p-4 flex flex-col shrink-0 overflow-y-auto">
-                  <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80 mb-2">
-                    <div className="flex items-center gap-2">
+                <div className="h-48 border-t border-zinc-800 bg-[#090B0E] p-4 flex flex-col shrink-0 overflow-y-auto space-y-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-zinc-800/80">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Terminal className="w-3.5 h-3.5 text-zinc-400" />
                       <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                         Verdict:
                       </span>
                       <Badge
                         variant="outline"
-                        className={`text-xs font-semibold ${
+                        className={`text-xs font-bold ${
                           judgeResult.verdict === "ACCEPTED"
                             ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
-                            : "border-red-500/40 text-red-400 bg-red-500/10"
+                            : "border-rose-500/40 text-rose-400 bg-rose-500/10"
                         }`}
                       >
                         {judgeResult.verdict}
                       </Badge>
+
+                      {judgeResult.totalTestCases != null && (
+                        <span className="text-xs font-mono text-zinc-400 ml-1">
+                          ({judgeResult.passedCount ?? 0}/{judgeResult.totalTestCases} test cases passed)
+                        </span>
+                      )}
                     </div>
 
-                    <div className="text-xs font-mono text-zinc-500 flex gap-3">
-                      {judgeResult.runtime !== undefined && (
-                        <span>Runtime: {judgeResult.runtime}ms</span>
+                    <div className="text-xs font-mono text-zinc-400 flex items-center gap-3">
+                      {judgeResult.runtime != null && (
+                        <span className="bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
+                          ⚡ {judgeResult.runtime}ms
+                          {judgeResult.runtimePercentile && ` (Beats ${judgeResult.runtimePercentile}%)`}
+                        </span>
                       )}
-                      {judgeResult.memory !== undefined && (
-                        <span>Memory: {judgeResult.memory}KB</span>
+                      {judgeResult.memory != null && (
+                        <span className="bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
+                          💾 {judgeResult.memory}KB
+                        </span>
                       )}
                     </div>
                   </div>
 
-                  {judgeResult.compile_output && (
-                    <pre className="text-xs font-mono text-red-400 bg-black/40 p-2.5 rounded-lg border border-red-500/20 whitespace-pre-wrap">
-                      {judgeResult.compile_output}
+                  {/* Multi-Testcase Mini-Pills */}
+                  {judgeResult.results && judgeResult.results.length > 0 && (
+                    <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+                      {judgeResult.results.map((tc: any, i: number) => {
+                        const passed = tc.verdict === "ACCEPTED";
+                        return (
+                          <div
+                            key={i}
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono flex items-center gap-1 border ${
+                              passed
+                                ? "bg-emerald-950/40 border-emerald-800/40 text-emerald-400"
+                                : "bg-rose-950/40 border-rose-800/40 text-rose-400"
+                            }`}
+                          >
+                            <span>Case {i + 1}</span>
+                            <span>{passed ? "✓" : "✗"}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {judgeResult.compileOutput && (
+                    <pre className="text-xs font-mono text-rose-300 bg-rose-950/20 p-2.5 rounded-lg border border-rose-900/40 whitespace-pre-wrap max-h-28 overflow-y-auto">
+                      {judgeResult.compileOutput}
                     </pre>
                   )}
 
                   {judgeResult.stderr && (
-                    <pre className="text-xs font-mono text-red-300 bg-black/40 p-2.5 rounded-lg border border-red-500/20 whitespace-pre-wrap">
+                    <pre className="text-xs font-mono text-rose-300 bg-rose-950/20 p-2.5 rounded-lg border border-rose-900/40 whitespace-pre-wrap max-h-28 overflow-y-auto">
                       {judgeResult.stderr}
                     </pre>
-                  )}
-
-                  {judgeResult.stdout && (
-                    <div className="space-y-1">
-                      <span className="text-[11px] text-zinc-500 font-mono">Stdout:</span>
-                      <pre className="text-xs font-mono text-zinc-300 bg-black/40 p-2 rounded-lg border border-zinc-800 whitespace-pre-wrap">
-                        {judgeResult.stdout}
-                      </pre>
-                    </div>
                   )}
                 </div>
               )}

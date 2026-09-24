@@ -46,6 +46,10 @@ import {
   Code2,
   History,
   FileCode2,
+  Lock,
+  Zap,
+  Copy,
+  TrendingUp,
 } from "lucide-react";
 
 
@@ -278,6 +282,7 @@ export default function CodingPage() {
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [bottomTab, setBottomTab] = useState<"result" | "testcases">("testcases");
   const [selectedCaseIndex, setSelectedCaseIndex] = useState(0);
+  const [selectedResultCaseIdx, setSelectedResultCaseIdx] = useState(0);
   const [showBottomPanel, setShowBottomPanel] = useState(false);
   const [previewSubmission, setPreviewSubmission] = useState<any | null>(null);
 
@@ -619,33 +624,39 @@ export default function CodingPage() {
 
 
   // ==========================================================
-  // EDITOR MOUNT
+  // EDITOR MOUNT & SHORTCUTS
   // ==========================================================
 
   const handleEditorMount: OnMount = (editor) => {
     editorRef.current = editor;
     editor.focus();
 
-    // Ctrl + Enter / Cmd + Enter runs submission
+    // Ctrl + Enter / Cmd + Enter triggers official submission
     editor.addCommand(2048 + 3, () => {
-      if (!submitMutation.isPending && problem) {
+      if (!submitMutation.isPending && !runMutation.isPending && problem) {
         submitMutation.mutate();
+      }
+    });
+
+    // Ctrl + ' / Cmd + ' triggers sample run
+    editor.addCommand(2048 + 84, () => {
+      if (!runMutation.isPending && !submitMutation.isPending && problem) {
+        runMutation.mutate();
       }
     });
   };
 
 
   // ==========================================================
-  // SUBMIT / RUN MUTATION
+  // RUN SAMPLE MUTATION
   // ==========================================================
 
-  const submitMutation = useMutation({
+  const runMutation = useMutation({
     mutationFn: async () => {
       if (!problem) throw new Error("Problem not loaded");
 
-      const sourceCode = code;
-      const res = await api.post("/code/execute", {
-        sourceCode,
+      const res = await api.post("/code/run", {
+        sourceCode: code,
         language,
         languageId: LANGUAGE_MAP[language],
         problemId: problem.id,
@@ -659,23 +670,88 @@ export default function CodingPage() {
       setResults(data);
       setShowBottomPanel(true);
       setBottomTab("result");
+      setSelectedResultCaseIdx(0);
+      setAiFeedback("");
+      setShowFeedback(false);
+
+      if (data.verdict === "ACCEPTED") {
+        toast.success("Sample Tests Passed!", {
+          description: `All ${data.totalTestCases} sample test cases passed in ${data.runtime} ms`,
+        });
+      } else {
+        toast.error(`Sample Run: ${data.verdict}`, {
+          description: `${data.passedCount}/${data.totalTestCases} sample test cases passed`,
+        });
+      }
+    },
+
+    onError: (error: any) => {
+      console.error("Sample execution failed:", error);
+      setResults({
+        verdict: "JUDGE_ERROR",
+        mode: "run",
+        stderr:
+          error?.response?.data?.error ??
+          error?.message ??
+          "Failed to execute sample test cases",
+      });
+      setShowBottomPanel(true);
+      setBottomTab("result");
+    },
+  });
+
+
+  // ==========================================================
+  // AUTHORITATIVE SUBMISSION MUTATION
+  // ==========================================================
+
+  const submitMutation = useMutation({
+    mutationFn: async () => {
+      if (!problem) throw new Error("Problem not loaded");
+
+      const res = await api.post("/code/submit", {
+        sourceCode: code,
+        language,
+        languageId: LANGUAGE_MAP[language],
+        problemId: problem.id,
+        problemSlug: slug,
+      });
+
+      return res.data;
+    },
+
+    onSuccess: (data) => {
+      setResults(data);
+      setShowBottomPanel(true);
+      setBottomTab("result");
+      setSelectedResultCaseIdx(0);
 
       // Invalidate submissions query so new submission appears in Submissions tab
       queryClient.invalidateQueries({ queryKey: ["submissions", slug] });
 
-      // Clear previous AI feedback
       setAiFeedback("");
       setShowFeedback(false);
+
+      if (data.verdict === "ACCEPTED") {
+        toast.success("Accepted!", {
+          description: `All ${data.totalTestCases} test cases passed! Runtime: ${data.runtime} ms`,
+        });
+      } else {
+        toast.error(`Verdict: ${data.verdict}`, {
+          description: `${data.passedCount}/${data.totalTestCases} test cases passed`,
+        });
+      }
     },
 
     onError: (error: any) => {
-      console.error("Code execution failed:", error);
+      console.error("Code submission failed:", error);
       setResults({
         verdict: "JUDGE_ERROR",
+        mode: "submit",
         stderr:
           error?.response?.data?.error ??
           error?.message ??
-          "Failed to execute code",
+          "Failed to evaluate submission",
       });
       setShowBottomPanel(true);
       setBottomTab("result");
@@ -863,16 +939,31 @@ export default function CodingPage() {
             )}
           </Button>
 
-          {/* Run Code Button */}
-          <Button
-            size="sm"
-            onClick={() => submitMutation.mutate()}
-            disabled={submitMutation.isPending}
-            className="bg-[#22C55E] hover:bg-[#16A34A] text-white text-xs h-8 px-3.5 gap-1.5 font-medium shadow-sm cursor-pointer"
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            {submitMutation.isPending ? "Running..." : "Run code"}
-          </Button>
+          {/* Dual Action: Run & Submit Buttons */}
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => runMutation.mutate()}
+              disabled={runMutation.isPending || submitMutation.isPending}
+              className="border-[#272B33] bg-[#16181D] hover:bg-[#1E2128] text-zinc-200 hover:text-white text-xs h-8 px-3 gap-1.5 font-medium cursor-pointer transition-all"
+              title="Run sample test cases (Ctrl + ')"
+            >
+              <Play className={cn("w-3.5 h-3.5 text-zinc-300 fill-current", runMutation.isPending && "animate-pulse")} />
+              <span>{runMutation.isPending ? "Running..." : "Run"}</span>
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={() => submitMutation.mutate()}
+              disabled={runMutation.isPending || submitMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs h-8 px-4 gap-1.5 font-semibold shadow-md shadow-emerald-950/40 cursor-pointer transition-all active:scale-[0.98]"
+              title="Submit solution to all test cases (Ctrl + Enter)"
+            >
+              <CheckCircle2 className={cn("w-3.5 h-3.5", submitMutation.isPending && "animate-spin")} />
+              <span>{submitMutation.isPending ? "Submitting..." : "Submit"}</span>
+            </Button>
+          </div>
 
         </div>
       </div>
@@ -904,12 +995,22 @@ export default function CodingPage() {
             </Button>
             <Button
               size="sm"
-              onClick={() => submitMutation.mutate()}
-              disabled={submitMutation.isPending}
-              className="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] h-6 px-2.5 gap-1"
+              variant="outline"
+              onClick={() => runMutation.mutate()}
+              disabled={runMutation.isPending || submitMutation.isPending}
+              className="border-zinc-700 text-zinc-200 hover:bg-zinc-800 text-[11px] h-6 px-2.5 gap-1"
             >
               <Play className="w-3 h-3 fill-current" />
-              Run
+              {runMutation.isPending ? "Running..." : "Run"}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => submitMutation.mutate()}
+              disabled={runMutation.isPending || submitMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] h-6 px-3 gap-1 font-semibold"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+              {submitMutation.isPending ? "Submitting..." : "Submit"}
             </Button>
           </div>
         )}
@@ -1399,51 +1500,101 @@ export default function CodingPage() {
                   const VerdictIcon = config.icon;
                   const executedTestCases = results.results || [];
                   const totalCount = results.totalTestCases || executedTestCases.length;
-                  const passedCount = executedTestCases.filter((tc: any) => tc.verdict === "ACCEPTED").length;
+                  const passedCount = results.passedCount ?? executedTestCases.filter((tc: any) => tc.verdict === "ACCEPTED").length;
+                  const isAccepted = results.verdict === "ACCEPTED";
                   const isCompilationError = results.verdict === "COMPILATION_ERROR";
                   const isTLE = results.verdict === "TLE";
                   const isMLE = results.verdict === "MLE";
                   const isRuntimeError = results.verdict === "RUNTIME_ERROR";
-                  const isWrongAnswer = results.verdict === "WRONG_ANSWER";
+                  const isJudgeError = results.verdict === "JUDGE_ERROR";
+
+                  // Active test case for inspection
+                  const activeCase = executedTestCases[selectedResultCaseIdx] || executedTestCases[0];
 
                   return (
                     <div className="space-y-4">
                       {/* Result Header */}
-                      <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
-                        <div className="flex items-center gap-2.5">
+                      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                        <div className="flex items-center gap-2.5 flex-wrap">
                           <VerdictIcon className={cn("w-5 h-5 shrink-0", config.color)} />
-                          <span className={cn("text-base font-semibold", config.color)}>
+                          <span className={cn("text-base font-bold", config.color)}>
                             {config.label}
                           </span>
-                          {totalCount > 0 && !isCompilationError && (
-                            <span className="text-xs text-zinc-500 ml-1 font-mono">
+
+                          {/* Mode Badge */}
+                          {results.mode === "run" ? (
+                            <Badge variant="outline" className="border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-[10px] font-mono uppercase tracking-wider">
+                              Sample Run
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-[10px] font-mono uppercase tracking-wider">
+                              Official Submission
+                            </Badge>
+                          )}
+
+                          {totalCount > 0 && !isCompilationError && !isJudgeError && (
+                            <span className="text-xs text-zinc-400 font-mono">
                               ({passedCount}/{totalCount} test cases passed)
                             </span>
                           )}
                         </div>
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 text-zinc-300 text-xs h-7 gap-1.5"
-                          onClick={() => aiFeedbackMutation.mutate()}
-                          disabled={aiFeedbackMutation.isPending}
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                          {aiFeedbackMutation.isPending ? "Analyzing..." : "Get AI feedback"}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 text-zinc-300 text-xs h-7 gap-1.5"
+                            onClick={() => aiFeedbackMutation.mutate()}
+                            disabled={aiFeedbackMutation.isPending}
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                            {aiFeedbackMutation.isPending ? "Analyzing..." : "Get AI feedback"}
+                          </Button>
+                        </div>
                       </div>
+
+                      {/* Progress Bar */}
+                      {totalCount > 0 && !isCompilationError && !isJudgeError && (
+                        <div className="space-y-1">
+                          <div className="w-full h-1.5 bg-zinc-800/80 rounded-full overflow-hidden">
+                            <div
+                              className={cn(
+                                "h-full transition-all duration-500 rounded-full",
+                                isAccepted
+                                  ? "bg-emerald-500"
+                                  : passedCount > 0
+                                  ? "bg-amber-500"
+                                  : "bg-rose-500"
+                              )}
+                              style={{ width: `${Math.max(5, Math.round((passedCount / totalCount) * 100))}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
 
                       {/* Compilation Error Output */}
                       {isCompilationError && (
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-1.5 text-xs font-medium text-rose-400">
                             <Terminal className="w-3.5 h-3.5" />
-                            <span>Compiler Error</span>
+                            <span>Compilation Diagnostic</span>
                           </div>
-                          <pre className="p-3 bg-zinc-900/90 border border-rose-900/40 rounded-lg text-xs font-mono text-rose-300 overflow-x-auto whitespace-pre-wrap">
+                          <pre className="p-3 bg-zinc-950 border border-rose-900/40 rounded-lg text-xs font-mono text-rose-300 overflow-x-auto whitespace-pre-wrap max-h-56">
                             {results.compileOutput || results.stderr || "Compilation failed with unknown error."}
                           </pre>
+                        </div>
+                      )}
+
+                      {/* Judge Error Output */}
+                      {isJudgeError && (
+                        <div className="p-3.5 bg-zinc-900/80 border border-amber-900/40 rounded-lg text-xs space-y-2">
+                          <div className="flex items-center gap-2 text-amber-400 font-semibold">
+                            <AlertTriangle className="w-4 h-4 shrink-0" />
+                            <span>Execution Engine Notice</span>
+                          </div>
+                          <p className="text-zinc-300 leading-relaxed">
+                            {results.stderr || "The remote Judge0 execution engine did not respond in time. Please verify that Judge0 Docker container is active on port 2358."}
+                          </p>
                         </div>
                       )}
 
@@ -1451,7 +1602,7 @@ export default function CodingPage() {
                       {isTLE && (
                         <div className="p-3 bg-amber-950/20 border border-amber-900/40 rounded-lg text-xs flex items-center justify-between">
                           <span className="text-amber-300">
-                            Your solution exceeded the allowed execution time limit. Check for infinite loops or inefficient algorithms.
+                            Your solution exceeded the allowed execution time limit. Check for infinite loops, suboptimal complexity, or recursive depth.
                           </span>
                           <span className="font-mono text-amber-400 shrink-0 ml-3 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
                             Time limit: {problem?.timeLimit ?? 1000} ms
@@ -1463,7 +1614,7 @@ export default function CodingPage() {
                       {isMLE && (
                         <div className="p-3 bg-amber-950/20 border border-amber-900/40 rounded-lg text-xs flex items-center justify-between">
                           <span className="text-amber-300">
-                            Your solution exceeded the memory limit. Check for excessive memory allocations or recursion.
+                            Your solution exceeded the memory ceiling. Check for unbounded data structures or recursive call stacks.
                           </span>
                           <span className="font-mono text-amber-400 shrink-0 ml-3 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
                             Memory limit: {problem?.memoryLimit ?? 256} MB
@@ -1471,119 +1622,238 @@ export default function CodingPage() {
                         </div>
                       )}
 
-                      {/* Wrong Answer Note */}
-                      {isWrongAnswer && (
-                        <div className="p-2.5 bg-rose-950/20 border border-rose-900/30 rounded-lg text-xs text-rose-300">
-                          Your solution failed on a test case.
-                        </div>
-                      )}
-
                       {/* Runtime Error Stderr */}
                       {isRuntimeError && (
                         <div className="space-y-1.5">
                           <div className="p-2.5 bg-rose-950/20 border border-rose-900/30 rounded-lg text-xs text-rose-300">
-                            Your solution encountered a runtime error (e.g. segmentation fault, null pointer, or division by zero).
+                            Your solution encountered an unhandled runtime error (e.g. segmentation fault, null reference, or index out of bounds).
                           </div>
                           {results.stderr && (
-                            <pre className="p-3 bg-zinc-900/90 border border-rose-900/40 rounded-lg text-xs font-mono text-rose-300 overflow-x-auto whitespace-pre-wrap max-h-40">
+                            <pre className="p-3 bg-zinc-950 border border-rose-900/40 rounded-lg text-xs font-mono text-rose-300 overflow-x-auto whitespace-pre-wrap max-h-40">
                               {results.stderr}
                             </pre>
                           )}
                         </div>
                       )}
 
-                      {/* Test Cases List (When not a compilation error) */}
-                      {!isCompilationError && executedTestCases.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-xs font-medium text-zinc-400">
-                            Test Cases
-                          </p>
-
-                          <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
-                            {executedTestCases.map((tc: any, index: number) => {
-                              const tcPassed = tc.verdict === "ACCEPTED";
-                              const label = tc.isHidden
-                                ? `Hidden test case ${index + 1}`
-                                : `Test case ${index + 1}`;
-                              const tcTime = tc.time ? `${Math.round(Number(tc.time) * 1000)} ms` : null;
-
-                              return (
-                                <div
-                                  key={tc.testCaseId ?? index}
-                                  className={cn(
-                                    "flex items-center justify-between px-3 py-2 rounded-md border text-xs font-mono transition-colors",
-                                    tcPassed
-                                      ? "bg-zinc-900/60 border-zinc-800/80 text-zinc-300"
-                                      : "bg-rose-950/20 border-rose-900/40 text-rose-300"
-                                  )}
-                                >
-                                  <div className="flex items-center gap-2.5">
-                                    {tcPassed ? (
-                                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                                    ) : (
-                                      <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                                    )}
-                                    <span className={cn(tcPassed ? "text-zinc-300" : "text-rose-300 font-medium")}>
-                                      {label}
-                                    </span>
-                                    {!tcPassed && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-950/60 text-rose-400 border border-rose-800/40">
-                                        {tc.verdict}
-                                      </span>
-                                    )}
-                                  </div>
-
-                                  {tcTime && (
-                                    <span className="text-[11px] text-zinc-500 font-mono">{tcTime}</span>
-                                  )}
+                      {/* Runtime & Memory Summary Cards with Percentiles */}
+                      {(results.runtime != null || results.memory != null) && !isCompilationError && !isJudgeError && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                          {/* Runtime Card */}
+                          <div className="bg-[#0E1015] border border-zinc-800/90 rounded-xl p-3.5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                <Zap className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <div className="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">
+                                  Runtime
                                 </div>
-                              );
-                            })}
+                                <div className="text-base font-bold font-mono text-zinc-100">
+                                  {results.runtime != null ? `${results.runtime} ms` : "N/A"}
+                                </div>
+                              </div>
+                            </div>
+                            {results.runtimePercentile != null && (
+                              <div className="text-right">
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2 py-0.5 rounded-full">
+                                  <TrendingUp className="w-3 h-3" />
+                                  Beats {results.runtimePercentile}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
 
-                            {/* Remaining unreached test cases if failed early */}
-                            {totalCount > executedTestCases.length && (
-                              Array.from({ length: totalCount - executedTestCases.length }).map((_, i) => {
-                                const idx = executedTestCases.length + i;
-                                return (
-                                  <div
-                                    key={`unreached-${idx}`}
-                                    className="flex items-center justify-between px-3 py-2 rounded-md border border-zinc-800/40 bg-zinc-900/20 text-zinc-600 text-xs font-mono"
-                                  >
-                                    <div className="flex items-center gap-2.5">
-                                      <div className="w-3.5 h-3.5 rounded-full border border-zinc-700/60 shrink-0" />
-                                      <span>Test case {idx + 1}</span>
-                                    </div>
-                                    <span className="text-[10px] text-zinc-600">Not reached</span>
-                                  </div>
-                                );
-                              })
+                          {/* Memory Card */}
+                          <div className="bg-[#0E1015] border border-zinc-800/90 rounded-xl p-3.5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                                <Cpu className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <div className="text-[11px] text-zinc-400 uppercase tracking-wider font-semibold">
+                                  Memory
+                                </div>
+                                <div className="text-base font-bold font-mono text-zinc-100">
+                                  {formatMemory(results.memory)}
+                                </div>
+                              </div>
+                            </div>
+                            {results.memoryPercentile != null && (
+                              <div className="text-right">
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-400 bg-cyan-950/40 border border-cyan-800/40 px-2 py-0.5 rounded-full">
+                                  <TrendingUp className="w-3 h-3" />
+                                  Beats {results.memoryPercentile}%
+                                </span>
+                              </div>
                             )}
                           </div>
                         </div>
                       )}
 
-                      {/* Runtime & Memory Summary */}
-                      {(results.runtime != null || results.memory != null) && !isCompilationError && (
-                        <div className="grid grid-cols-2 gap-3 pt-1 border-t border-zinc-800/60">
-                          <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3.5 py-2.5 flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-zinc-400 text-xs">
-                              <Clock className="w-3.5 h-3.5 text-zinc-500" />
-                              <span>Runtime</span>
-                            </div>
-                            <span className="font-mono font-medium text-xs text-zinc-200">
-                              {results.runtime != null ? `${results.runtime} ms` : "N/A"}
+                      {/* Multi-Testcase Selector Tabs & Diff Viewer */}
+                      {!isCompilationError && executedTestCases.length > 0 && (
+                        <div className="space-y-3 pt-2">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                              Test Cases Evaluation
+                            </p>
+                            <span className="text-[11px] text-zinc-500">
+                              Click any testcase to inspect I/O & diff
                             </span>
                           </div>
 
-                          <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-lg px-3.5 py-2.5 flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-zinc-400 text-xs">
-                              <Cpu className="w-3.5 h-3.5 text-zinc-500" />
-                              <span>Memory</span>
-                            </div>
-                            <span className="font-mono font-medium text-xs text-zinc-200">
-                              {formatMemory(results.memory)}
-                            </span>
+                          {/* Testcase Pills */}
+                          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                            {executedTestCases.map((tc: any, index: number) => {
+                              const tcPassed = tc.verdict === "ACCEPTED";
+                              const isSelected = selectedResultCaseIdx === index;
+
+                              return (
+                                <button
+                                  key={tc.testCaseId ?? index}
+                                  onClick={() => setSelectedResultCaseIdx(index)}
+                                  className={cn(
+                                    "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-mono shrink-0 transition-all cursor-pointer",
+                                    isSelected
+                                      ? "bg-[#16181D] border-zinc-600 text-white shadow-sm ring-1 ring-zinc-500/30"
+                                      : "bg-[#0D0F12] border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-[#13151A]"
+                                  )}
+                                >
+                                  {tcPassed ? (
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                  ) : (
+                                    <XCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                                  )}
+                                  <span>
+                                    Case {index + 1}
+                                  </span>
+                                  {tc.isHidden && (
+                                    <Lock className="w-3 h-3 text-zinc-500 shrink-0" />
+                                  )}
+                                </button>
+                              );
+                            })}
                           </div>
+
+                          {/* Selected Test Case Detail & Diff Card */}
+                          {activeCase && (
+                            <div className="bg-[#090A0D] border border-zinc-800/90 rounded-xl p-4 space-y-3.5">
+                              {/* Case status bar */}
+                              <div className="flex items-center justify-between pb-2 border-b border-zinc-800/60 text-xs">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-zinc-200">
+                                    Case {selectedResultCaseIdx + 1}
+                                  </span>
+                                  <span
+                                    className={cn(
+                                      "px-2 py-0.5 rounded text-[10px] font-mono uppercase font-bold",
+                                      activeCase.verdict === "ACCEPTED"
+                                        ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/50"
+                                        : "bg-rose-950/60 text-rose-400 border border-rose-800/50"
+                                    )}
+                                  >
+                                    {activeCase.verdict}
+                                  </span>
+                                  {activeCase.isHidden && (
+                                    <span className="text-[10px] text-zinc-500 font-mono">
+                                      [Hidden Test Case]
+                                    </span>
+                                  )}
+                                </div>
+
+                                {activeCase.timeMs != null && (
+                                  <span className="text-zinc-500 font-mono text-[11px]">
+                                    Time: {activeCase.timeMs} ms
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Input Section */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-400">
+                                  <span>Input</span>
+                                  {!activeCase.isHidden && activeCase.input && (
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(activeCase.input);
+                                        toast.success("Input copied to clipboard");
+                                      }}
+                                      className="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300"
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                      Copy
+                                    </button>
+                                  )}
+                                </div>
+                                <pre className="p-3 bg-[#050608] border border-zinc-800/80 rounded-lg text-xs font-mono text-zinc-300 overflow-x-auto whitespace-pre-wrap">
+                                  {activeCase.input || "(Empty Input)"}
+                                </pre>
+                              </div>
+
+                              {/* Hidden Test Case Notice */}
+                              {activeCase.isHidden ? (
+                                <div className="p-3 bg-zinc-900/60 border border-zinc-800 rounded-lg text-xs flex items-center gap-2.5 text-zinc-400">
+                                  <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                                  <span>
+                                    Private test case: Expected output and stdout are confidential to prevent hardcoded solutions.
+                                  </span>
+                                </div>
+                              ) : (
+                                /* Diff: Expected Output vs Actual Output */
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                                  {/* Expected Output */}
+                                  <div className="space-y-1.5">
+                                    <span className="text-[11px] font-semibold text-zinc-400">
+                                      Expected Output
+                                    </span>
+                                    <pre className="p-3 bg-[#050608] border border-zinc-800/80 rounded-lg text-xs font-mono text-zinc-200 overflow-x-auto whitespace-pre-wrap">
+                                      {activeCase.expectedOutput || "(Empty Output)"}
+                                    </pre>
+                                  </div>
+
+                                  {/* Your Code Output */}
+                                  <div className="space-y-1.5">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[11px] font-semibold text-zinc-400">
+                                        Your Output
+                                      </span>
+                                      <span
+                                        className={cn(
+                                          "text-[10px] font-mono",
+                                          activeCase.verdict === "ACCEPTED" ? "text-emerald-400" : "text-rose-400"
+                                        )}
+                                      >
+                                        {activeCase.verdict === "ACCEPTED" ? "Matches Expected" : "Difference Detected"}
+                                      </span>
+                                    </div>
+                                    <pre
+                                      className={cn(
+                                        "p-3 rounded-lg text-xs font-mono overflow-x-auto whitespace-pre-wrap border",
+                                        activeCase.verdict === "ACCEPTED"
+                                          ? "bg-emerald-950/15 border-emerald-800/40 text-emerald-300"
+                                          : "bg-rose-950/15 border-rose-800/40 text-rose-300"
+                                      )}
+                                    >
+                                      {activeCase.actualOutput || "<no output produced>"}
+                                    </pre>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Error / Stderr for this specific test case */}
+                              {activeCase.stderr && (
+                                <div className="space-y-1.5 pt-1">
+                                  <span className="text-[11px] font-semibold text-rose-400">
+                                    Standard Error Output
+                                  </span>
+                                  <pre className="p-3 bg-zinc-950 border border-rose-900/40 rounded-lg text-xs font-mono text-rose-300 overflow-x-auto whitespace-pre-wrap">
+                                    {activeCase.stderr}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )}
 
