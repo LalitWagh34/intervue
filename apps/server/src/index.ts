@@ -42,7 +42,7 @@ app.use("*", async (c, next) => {
   const start = Date.now();
   await next();
   const duration = Date.now() - start;
-  httpRequestDurationMicroseconds.labels(c.req.method, c.req.path, c.res.status.toString()).observe(duration);
+  httpRequestDurationMicroseconds.labels(c.req.method, c.req.routePath, c.res.status.toString()).observe(duration);
 });
 
 // Middleware
