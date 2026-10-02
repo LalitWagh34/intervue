@@ -1,9 +1,20 @@
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth";
+import { contestSubmissionLimiter } from "../middleware/rateLimiter";
+import {
+  validateBody,
+  createRoomSchema,
+  joinRoomSchema,
+  roomSubmitCodeSchema,
+  roomSubmitMcqSchema,
+} from "../middleware/validator";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import { judgeSubmission } from "../services/judge";
 import { roomSocketManager } from "../services/roomSocket";
+import { requireRoomMember, requireRoomHost } from "../middleware/authorize";
+import { idempotency } from "../middleware/idempotency";
+import { judgeSemaphore } from "../lib/semaphore";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -57,23 +68,26 @@ app.get("/meta/topics", requireAuth, async (c) => {
 
 // ─── POST /api/rooms ─────────────────────────────────────────────────────
 // Create a new competitive room
-app.post("/", requireAuth, async (c) => {
+app.post("/", requireAuth, validateBody(createRoomSchema), async (c) => {
   try {
     const user = c.get("user");
-    const body = await c.req.json();
+    const body = (c as any).get("validatedBody") as {
+      title: string;
+      type: "CODING" | "APTITUDE" | "MIXED";
+      duration: number;
+      maxParticipants: number;
+      codingDifficulty?: "EASY" | "MEDIUM" | "HARD";
+      codingCount?: number;
+      codingTags?: string[];
+      assessmentCount?: number;
+      assessmentSubjects?: string[];
+      allowLateJoin: boolean;
+    };
 
-    const title = (body.title || "").trim();
-    if (!title) {
-      return c.json({ error: "Room title is required" }, 400);
-    }
-
-    const type = body.type || "CODING";
-    if (!["CODING", "APTITUDE", "MIXED"].includes(type)) {
-      return c.json({ error: "Invalid room type. Must be CODING, APTITUDE, or MIXED" }, 400);
-    }
-
-    const duration = Math.min(Math.max(Number(body.duration) || 30, 5), 180);
-    const maxParticipants = Math.min(Math.max(Number(body.maxParticipants) || 10, 2), 50);
+    const title = body.title;
+    const type = body.type;
+    const duration = body.duration;
+    const maxParticipants = body.maxParticipants;
 
     // Generate unique code with collision safety
     let code = "";
@@ -274,21 +288,14 @@ app.post("/", requireAuth, async (c) => {
 
 // ─── POST /api/rooms/join ────────────────────────────────────────────────
 // Join room by 6-character code
-app.post("/join", requireAuth, async (c) => {
+app.post("/join", requireAuth, validateBody(joinRoomSchema), async (c) => {
   try {
     const user = c.get("user");
-    const body = await c.req.json();
-    const code = (body.code || "").trim().toUpperCase();
-
-    if (!code) {
-      return c.json({ error: "Room code is required" }, 400);
-    }
+    const body = (c as any).get("validatedBody") as { code: string };
+    const code = body.code;
 
     const room = await db.room.findUnique({
       where: { code },
-      include: {
-        participants: true,
-      },
     });
 
     if (!room) {
@@ -307,7 +314,10 @@ app.post("/join", requireAuth, async (c) => {
     }
 
     // Check if user is already a participant
-    const existingParticipant = room.participants.find((p) => p.userId === user.id);
+    const existingParticipant = await db.roomParticipant.findFirst({
+      where: { roomId: room.id, userId: user.id }
+    });
+    
     if (existingParticipant) {
       return c.json({
         message: "Already joined room",
@@ -317,7 +327,11 @@ app.post("/join", requireAuth, async (c) => {
     }
 
     // Capacity check
-    if (room.participants.length >= room.maxParticipants) {
+    const participantCount = await db.roomParticipant.count({
+      where: { roomId: room.id }
+    });
+
+    if (participantCount >= room.maxParticipants) {
       return c.json({ error: "Room has reached maximum participant capacity" }, 400);
     }
 
@@ -571,7 +585,7 @@ app.get("/:code", requireAuth, async (c) => {
 
 // ─── POST /api/rooms/:code/start ─────────────────────────────────────────
 // Host starts contest (authoritative timer initiation)
-app.post("/:code/start", requireAuth, async (c) => {
+app.post("/:code/start", requireAuth, requireRoomHost, async (c) => {
   try {
     const user = c.get("user");
     const code = (c.req.param("code") || "").toUpperCase();
@@ -630,7 +644,7 @@ app.post("/:code/start", requireAuth, async (c) => {
 
 // ─── POST /api/rooms/:code/finish ────────────────────────────────────────
 // Individual participant finishes and submits their test early
-app.post("/:code/finish", requireAuth, async (c) => {
+app.post("/:code/finish", requireAuth, requireRoomMember, idempotency(), async (c) => {
   try {
     const user = c.get("user");
     const code = (c.req.param("code") || "").toUpperCase();
@@ -660,7 +674,7 @@ app.post("/:code/finish", requireAuth, async (c) => {
     });
 
     // Track finished participant count
-    const finishedCount = roomSocketManager.markUserFinished(code, user.id);
+    const finishedCount = await roomSocketManager.markUserFinished(code, user.id);
     const totalParticipants = room.participants.length;
     const allFinished = finishedCount >= totalParticipants && totalParticipants > 0;
 
@@ -683,7 +697,7 @@ app.post("/:code/finish", requireAuth, async (c) => {
 
 // ─── POST /api/rooms/:code/end ───────────────────────────────────────────
 // Host authoritatively ends contest early
-app.post("/:code/end", requireAuth, async (c) => {
+app.post("/:code/end", requireAuth, requireRoomHost, idempotency(), async (c) => {
   try {
     const user = c.get("user");
     const code = (c.req.param("code") || "").toUpperCase();
@@ -952,16 +966,12 @@ app.get("/:code/scorecard", requireAuth, async (c) => {
 
 // ─── POST /api/rooms/:code/mcq-answer ────────────────────────────────────
 // Submit an answer to an MCQ question
-app.post("/:code/mcq-answer", requireAuth, async (c) => {
+app.post("/:code/mcq-answer", requireAuth, requireRoomMember, contestSubmissionLimiter, validateBody(roomSubmitMcqSchema), async (c) => {
   try {
     const user = c.get("user");
     const code = (c.req.param("code") || "").toUpperCase();
-    const body = await c.req.json();
-
+    const body = (c as any).get("validatedBody") as { questionId: string; selectedOption: number };
     const { questionId, selectedOption } = body;
-    if (!questionId || selectedOption === undefined) {
-      return c.json({ error: "questionId and selectedOption are required" }, 400);
-    }
 
     const room = await db.room.findUnique({
       where: { code },
@@ -985,7 +995,7 @@ app.post("/:code/mcq-answer", requireAuth, async (c) => {
       return c.json({ error: "You are not a participant in this room" }, 403);
     }
 
-    if (roomSocketManager.isUserDisqualified(code, user.id)) {
+    if (await roomSocketManager.isUserDisqualified(code, user.id)) {
       return c.json({ error: "Disqualified: You have exceeded the maximum allowed anti-cheat warnings." }, 403);
     }
 
@@ -1081,16 +1091,12 @@ app.post("/:code/mcq-answer", requireAuth, async (c) => {
 
 // ─── POST /api/rooms/:code/submit-code ───────────────────────────────────
 // Execute and judge code submitted in a competitive room
-app.post("/:code/submit-code", requireAuth, async (c) => {
+app.post("/:code/submit-code", requireAuth, requireRoomMember, contestSubmissionLimiter, idempotency(), validateBody(roomSubmitCodeSchema), async (c) => {
   try {
     const user = c.get("user");
     const code = (c.req.param("code") || "").toUpperCase();
-    const body = await c.req.json();
-
+    const body = (c as any).get("validatedBody") as { problemId: number; sourceCode: string; language: string };
     const { problemId, sourceCode, language } = body;
-    if (!problemId || !sourceCode || !language) {
-      return c.json({ error: "problemId, sourceCode, and language are required" }, 400);
-    }
 
     const room = await db.room.findUnique({
       where: { code },
@@ -1117,7 +1123,7 @@ app.post("/:code/submit-code", requireAuth, async (c) => {
       return c.json({ error: "You are not a participant in this room" }, 403);
     }
 
-    if (roomSocketManager.isUserDisqualified(code, user.id)) {
+    if (await roomSocketManager.isUserDisqualified(code, user.id)) {
       return c.json({ error: "Disqualified: You have exceeded the maximum allowed anti-cheat warnings." }, 403);
     }
 
@@ -1127,11 +1133,13 @@ app.post("/:code/submit-code", requireAuth, async (c) => {
     }
 
     // Run Judge0
-    const judgeResult = await judgeSubmission({
-      userId: user.id,
-      problemId: Number(problemId),
-      sourceCode,
-      language,
+    const judgeResult = await judgeSemaphore.withPermit(async () => {
+      return await judgeSubmission({
+        userId: user.id,
+        problemId: Number(problemId),
+        sourceCode,
+        language,
+      });
     });
 
     const isAccepted = judgeResult.verdict === "ACCEPTED";
@@ -1205,7 +1213,7 @@ app.post("/:code/submit-code", requireAuth, async (c) => {
     });
 
     // Also update code snapshot for spectator inspection
-    roomSocketManager.updateCodeSnapshot(code, user.id, {
+    await roomSocketManager.updateCodeSnapshot(code, user.id, {
       problemId: Number(problemId),
       sourceCode,
       language,
@@ -1224,19 +1232,19 @@ app.post("/:code/submit-code", requireAuth, async (c) => {
 
 // ─── GET /api/rooms/:code/anticheat-logs ──────────────────────────────────
 // Returns all anti-cheat violation events for host & spectator inspection
-app.get("/:code/anticheat-logs", requireAuth, async (c) => {
+app.get("/:code/anticheat-logs", requireAuth, requireRoomMember, async (c) => {
   const code = (c.req.param("code") || "").toUpperCase();
-  const violations = roomSocketManager.getRoomViolations(code);
+  const violations = await roomSocketManager.getRoomViolations(code);
   return c.json({ violations });
 });
 
 // ─── GET /api/rooms/:code/participant-code/:userId ────────────────────────
 // Spectator inspects live code snapshot of a competitor
-app.get("/:code/participant-code/:userId", requireAuth, async (c) => {
+app.get("/:code/participant-code/:userId", requireAuth, requireRoomMember, async (c) => {
   const code = (c.req.param("code") || "").toUpperCase();
   const targetUserId = c.req.param("userId");
   if (!targetUserId) return c.json({ snapshot: null });
-  const snapshot = roomSocketManager.getCodeSnapshot(code, targetUserId);
+  const snapshot = await roomSocketManager.getCodeSnapshot(code, targetUserId);
   return c.json({ snapshot });
 });
 

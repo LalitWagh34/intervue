@@ -1,4 +1,6 @@
 import { db } from "@intervue/db";
+import { redis, redisSubscriber, isRedisConnected } from "../lib/redis.js";
+import crypto from "crypto";
 
 export interface ConnectedClient {
   ws: any;
@@ -61,8 +63,54 @@ class RoomSocketManager {
   // Finished participants tracking: roomCode -> Set of userIds
   private finishedUsers: Map<string, Set<string>> = new Map();
 
-  public markUserFinished(roomCode: string, userId: string): number {
+  private nodeId = crypto.randomUUID();
+
+  constructor() {
+    // Setup Redis Pub/Sub for horizontal scaling synchronization
+    redisSubscriber.subscribe("room_events", (err) => {
+      if (err) console.error("[Socket] Failed to subscribe to room_events:", err);
+      else console.log("[Socket] Subscribed to Redis room_events for distributed sync.");
+    });
+
+    redisSubscriber.on("message", (channel, message) => {
+      if (channel === "room_events") {
+        try {
+          const msg = JSON.parse(message);
+          if (msg.senderId === this.nodeId) return; // Ignore own messages
+
+          const code = msg.roomCode.toUpperCase();
+          
+          if (msg.action === "BROADCAST") {
+            const { event, data, excludeUserId } = msg.payload;
+
+            // Broadcast to local WebSockets
+            const roomSet = this.rooms.get(code);
+            if (roomSet && roomSet.size > 0) {
+              const payloadStr = JSON.stringify({ event, data, timestamp: Date.now() });
+              for (const ws of roomSet) {
+                if (excludeUserId && this.clients.get(ws)?.userId === excludeUserId) continue;
+                try {
+                  ws.send(payloadStr);
+                } catch (err) {}
+              }
+            }
+          }
+        } catch (err) {
+          console.error("[Socket] Failed to process Redis pubsub message:", err);
+        }
+      }
+    });
+  }
+
+  public async markUserFinished(roomCode: string, userId: string): Promise<number> {
     const code = roomCode.toUpperCase();
+    if (isRedisConnected) {
+      const key = `room:${code}:finishedUsers`;
+      await redis.sadd(key, userId);
+      redis.expire(key, 86400).catch(() => {});
+      return await redis.scard(key);
+    }
+
     if (!this.finishedUsers.has(code)) {
       this.finishedUsers.set(code, new Set());
     }
@@ -70,8 +118,12 @@ class RoomSocketManager {
     return this.finishedUsers.get(code)!.size;
   }
 
-  public getFinishedCount(roomCode: string): number {
-    return this.finishedUsers.get(roomCode.toUpperCase())?.size || 0;
+  public async getFinishedCount(roomCode: string): Promise<number> {
+    const code = roomCode.toUpperCase();
+    if (isRedisConnected) {
+      return await redis.scard(`room:${code}:finishedUsers`);
+    }
+    return this.finishedUsers.get(code)?.size || 0;
   }
 
   /**
@@ -209,8 +261,19 @@ class RoomSocketManager {
   /**
    * Broadcast an event and payload to all clients in a room
    */
-  public broadcastToRoom(roomCode: string, event: string, data: any) {
+  public broadcastToRoom(roomCode: string, event: string, data: any, isFromRedis = false) {
     const code = roomCode.toUpperCase();
+    
+    // Publish to Redis for other nodes
+    if (!isFromRedis && isRedisConnected) {
+      redis.publish("room_events", JSON.stringify({
+        senderId: this.nodeId,
+        roomCode: code,
+        action: "BROADCAST",
+        payload: { event, data }
+      })).catch(() => {});
+    }
+
     const roomSet = this.rooms.get(code);
     if (!roomSet || roomSet.size === 0) return;
 
@@ -232,8 +295,19 @@ class RoomSocketManager {
   /**
    * Broadcast an event to all clients in a room except the sender
    */
-  public broadcastToRoomExcept(roomCode: string, excludeWs: any, event: string, data: any) {
+  public broadcastToRoomExcept(roomCode: string, excludeWs: any, event: string, data: any, isFromRedis = false) {
     const code = roomCode.toUpperCase();
+    
+    if (!isFromRedis && isRedisConnected) {
+      const excludeUserId = this.clients.get(excludeWs)?.userId;
+      redis.publish("room_events", JSON.stringify({
+        senderId: this.nodeId,
+        roomCode: code,
+        action: "BROADCAST",
+        payload: { event, data, excludeUserId }
+      })).catch(() => {});
+    }
+
     const roomSet = this.rooms.get(code);
     if (!roomSet || roomSet.size === 0) return;
 
@@ -273,16 +347,25 @@ class RoomSocketManager {
   /**
    * Check if a user is disqualified in a room
    */
-  public isUserDisqualified(roomCode: string, userId: string): boolean {
-    const set = this.disqualifiedUsers.get(roomCode.toUpperCase());
+  public async isUserDisqualified(roomCode: string, userId: string): Promise<boolean> {
+    const code = roomCode.toUpperCase();
+    if (isRedisConnected) {
+      return (await redis.sismember(`room:${code}:disqualifiedUsers`, userId)) === 1;
+    }
+    const set = this.disqualifiedUsers.get(code);
     return set ? set.has(userId) : false;
   }
 
   /**
    * Get anti-cheat warning count for a user in a room
    */
-  public getUserWarningCount(roomCode: string, userId: string): number {
-    return this.participantWarnings.get(roomCode.toUpperCase())?.get(userId) || 0;
+  public async getUserWarningCount(roomCode: string, userId: string): Promise<number> {
+    const code = roomCode.toUpperCase();
+    if (isRedisConnected) {
+      const val = await redis.hget(`room:${code}:warnings`, userId);
+      return val ? parseInt(val, 10) : 0;
+    }
+    return this.participantWarnings.get(code)?.get(userId) || 0;
   }
 
   /**
@@ -293,22 +376,25 @@ class RoomSocketManager {
     userId: string,
     violationType: "TAB_SWITCH" | "WINDOW_BLUR" | "SUSPICIOUS_PASTE",
     details?: string
-  ) {
+  ): Promise<AntiCheatViolation> {
     const code = roomCode.toUpperCase();
 
-    if (!this.participantWarnings.has(code)) {
-      this.participantWarnings.set(code, new Map());
+    let currentWarnings = 0;
+    
+    if (isRedisConnected) {
+      currentWarnings = await redis.hincrby(`room:${code}:warnings`, userId, 1);
+      redis.expire(`room:${code}:warnings`, 86400).catch(() => {});
+    } else {
+      if (!this.participantWarnings.has(code)) {
+        this.participantWarnings.set(code, new Map());
+      }
+      const warningsMap = this.participantWarnings.get(code)!;
+      currentWarnings = (warningsMap.get(userId) || 0) + 1;
+      warningsMap.set(userId, currentWarnings);
     }
-    const warningsMap = this.participantWarnings.get(code)!;
-    const currentWarnings = (warningsMap.get(userId) || 0) + 1;
-    warningsMap.set(userId, currentWarnings);
 
     let penaltyAdded = 0;
     let isDisqualified = false;
-
-    if (!this.disqualifiedUsers.has(code)) {
-      this.disqualifiedUsers.set(code, new Set());
-    }
 
     const participant = await db.roomParticipant.findFirst({
       where: {
@@ -334,7 +420,15 @@ class RoomSocketManager {
     } else if (currentWarnings >= 3) {
       // Strike 3: Automatic disqualification
       isDisqualified = true;
-      this.disqualifiedUsers.get(code)!.add(userId);
+      if (isRedisConnected) {
+        await redis.sadd(`room:${code}:disqualifiedUsers`, userId);
+        redis.expire(`room:${code}:disqualifiedUsers`, 86400).catch(() => {});
+      } else {
+        if (!this.disqualifiedUsers.has(code)) {
+          this.disqualifiedUsers.set(code, new Set());
+        }
+        this.disqualifiedUsers.get(code)!.add(userId);
+      }
     }
 
     const violation: AntiCheatViolation = {
@@ -350,12 +444,18 @@ class RoomSocketManager {
       timestamp: Date.now(),
     };
 
-    if (!this.roomViolations.has(code)) {
-      this.roomViolations.set(code, []);
+    if (isRedisConnected) {
+      await redis.lpush(`room:${code}:violations`, JSON.stringify(violation));
+      await redis.ltrim(`room:${code}:violations`, 0, 49);
+      redis.expire(`room:${code}:violations`, 86400).catch(() => {});
+    } else {
+      if (!this.roomViolations.has(code)) {
+        this.roomViolations.set(code, []);
+      }
+      const violations = this.roomViolations.get(code)!;
+      violations.unshift(violation);
+      if (violations.length > 50) violations.pop();
     }
-    const violations = this.roomViolations.get(code)!;
-    violations.unshift(violation);
-    if (violations.length > 50) violations.pop();
 
     // Broadcast violation event to all clients in the room (including host and spectators)
     this.broadcastToRoom(code, "anticheat:violation", {
@@ -375,20 +475,26 @@ class RoomSocketManager {
   /**
    * Update live code snapshot for participant (used by Spectator Mode)
    */
-  public updateCodeSnapshot(
+  public async updateCodeSnapshot(
     roomCode: string,
     userId: string,
     data: { problemId: number; sourceCode: string; language: string }
-  ) {
+  ): Promise<void> {
     const code = roomCode.toUpperCase();
-    if (!this.codeSnapshots.has(code)) {
-      this.codeSnapshots.set(code, new Map());
-    }
     const snapshot: CodeSnapshot = {
       ...data,
       updatedAt: Date.now(),
     };
-    this.codeSnapshots.get(code)!.set(userId, snapshot);
+    
+    if (isRedisConnected) {
+      await redis.hset(`room:${code}:codeSnapshots`, userId, JSON.stringify(snapshot));
+      redis.expire(`room:${code}:codeSnapshots`, 86400).catch(() => {});
+    } else {
+      if (!this.codeSnapshots.has(code)) {
+        this.codeSnapshots.set(code, new Map());
+      }
+      this.codeSnapshots.get(code)!.set(userId, snapshot);
+    }
 
     // Broadcast live code update to room spectators
     this.broadcastToRoom(code, "code:stream_update", {
@@ -400,16 +506,25 @@ class RoomSocketManager {
   /**
    * Retrieve active code snapshot for a target participant
    */
-  public getCodeSnapshot(roomCode: string, targetUserId: string): CodeSnapshot | null {
+  public async getCodeSnapshot(roomCode: string, targetUserId: string): Promise<CodeSnapshot | null> {
     const code = roomCode.toUpperCase();
+    if (isRedisConnected) {
+      const val = await redis.hget(`room:${code}:codeSnapshots`, targetUserId);
+      return val ? JSON.parse(val) : null;
+    }
     return this.codeSnapshots.get(code)?.get(targetUserId) || null;
   }
 
   /**
    * Get all anti-cheat violations recorded for a room
    */
-  public getRoomViolations(roomCode: string): AntiCheatViolation[] {
-    return this.roomViolations.get(roomCode.toUpperCase()) || [];
+  public async getRoomViolations(roomCode: string): Promise<AntiCheatViolation[]> {
+    const code = roomCode.toUpperCase();
+    if (isRedisConnected) {
+      const vals = await redis.lrange(`room:${code}:violations`, 0, -1);
+      return vals.map((v) => JSON.parse(v));
+    }
+    return this.roomViolations.get(code) || [];
   }
 
   /**
@@ -437,7 +552,7 @@ class RoomSocketManager {
         ? Math.max(0, Math.floor((new Date(room.endTime).getTime() - Date.now()) / 1000))
         : room.duration * 60;
 
-      const participantsList = room.participants.map((p, idx) => ({
+      const participantsList = await Promise.all(room.participants.map(async (p, idx) => ({
         rank: idx + 1,
         participantId: p.id,
         userId: p.userId,
@@ -447,10 +562,12 @@ class RoomSocketManager {
         score: p.score,
         solvedCount: p.solvedCount,
         penaltyTime: p.penaltyTime,
-        warningsCount: this.getUserWarningCount(code, p.userId),
-        isDisqualified: this.isUserDisqualified(code, p.userId),
+        warningsCount: await this.getUserWarningCount(code, p.userId),
+        isDisqualified: await this.isUserDisqualified(code, p.userId),
         isSelf: client?.userId === p.userId,
-      }));
+      })));
+
+      const violations = await this.getRoomViolations(code);
 
       this.sendToClient(ws, "room:sync", {
         status: room.status,
@@ -458,7 +575,7 @@ class RoomSocketManager {
         endTime: room.endTime,
         remainingSeconds,
         participants: participantsList,
-        violations: this.getRoomViolations(code),
+        violations,
       });
     } catch (err) {
       console.error(`[Socket] Error sending room sync for ${roomCode}:`, err);
@@ -485,7 +602,7 @@ class RoomSocketManager {
 
       if (!room) return;
 
-      const leaderboard: LeaderboardEntry[] = room.participants.map((p, idx) => ({
+      const leaderboard: LeaderboardEntry[] = await Promise.all(room.participants.map(async (p, idx) => ({
         rank: idx + 1,
         participantId: p.id,
         userId: p.userId,
@@ -495,9 +612,9 @@ class RoomSocketManager {
         score: p.score,
         solvedCount: p.solvedCount,
         penaltyTime: p.penaltyTime,
-        warningsCount: this.getUserWarningCount(code, p.userId),
-        isDisqualified: this.isUserDisqualified(code, p.userId),
-      }));
+        warningsCount: await this.getUserWarningCount(code, p.userId),
+        isDisqualified: await this.isUserDisqualified(code, p.userId),
+      })));
 
       this.broadcastToRoom(code, "leaderboard:update", {
         status: room.status,
@@ -556,12 +673,23 @@ class RoomSocketManager {
    */
   public async handleContestEnd(roomCode: string) {
     const code = roomCode.toUpperCase();
-    console.log(`[Socket] Contest ended authoritatively for room ${code}`);
 
     if (this.roomTimers.has(code)) {
       clearTimeout(this.roomTimers.get(code));
       this.roomTimers.delete(code);
     }
+
+    if (isRedisConnected) {
+      const lockKey = `lock:contestEnd:${code}`;
+      // Acquire lock for 10 seconds. If we don't get it, another instance is already ending this contest.
+      const acquired = await redis.set(lockKey, this.nodeId, "NX", "PX", 10000);
+      if (!acquired) {
+        console.log(`[Socket] Contest end lock for ${code} already acquired by another node. Yielding.`);
+        return;
+      }
+    }
+
+    console.log(`[Socket] Contest ended authoritatively for room ${code}`);
 
     try {
       await db.room.update({
@@ -581,7 +709,7 @@ class RoomSocketManager {
         },
       });
 
-      const finalLeaderboard = (room?.participants || []).map((p, idx) => ({
+      const finalLeaderboard = await Promise.all((room?.participants || []).map(async (p, idx) => ({
         rank: idx + 1,
         participantId: p.id,
         userId: p.userId,
@@ -591,9 +719,9 @@ class RoomSocketManager {
         score: p.score,
         solvedCount: p.solvedCount,
         penaltyTime: p.penaltyTime,
-        warningsCount: this.getUserWarningCount(code, p.userId),
-        isDisqualified: this.isUserDisqualified(code, p.userId),
-      }));
+        warningsCount: await this.getUserWarningCount(code, p.userId),
+        isDisqualified: await this.isUserDisqualified(code, p.userId),
+      })));
 
       this.broadcastToRoom(code, "contest:ended", {
         status: "FINISHED",

@@ -1,9 +1,14 @@
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth";
+import { codeExecutionLimiter, aiReviewLimiter } from "../middleware/rateLimiter";
+import { validateBody, runCodeSchema, aiReviewSchema } from "../middleware/validator";
+import { idempotency } from "../middleware/idempotency";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import Groq from "groq-sdk";
 import { judgeSubmission, runSampleTestCases } from "../services/judge";
+import { judgeSemaphore } from "../lib/semaphore";
+import { executionQueue } from "../services/taskQueue";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -69,24 +74,16 @@ app.get("/problems/:slug/submissions", requireAuth, async (c) => {
 });
 
 // Run sample test cases (non-authoritative, does not save submission)
-app.post("/run", requireAuth, async (c) => {
+app.post("/run", requireAuth, codeExecutionLimiter, validateBody(runCodeSchema), async (c) => {
   try {
-    const body = await c.req.json();
+    const body = (c as any).get("validatedBody") as { problemId: number; sourceCode: string; language: string };
 
-    if (!body.problemId) {
-      return c.json({ error: "problemId is required" }, 400);
-    }
-    if (!body.sourceCode) {
-      return c.json({ error: "sourceCode is required" }, 400);
-    }
-    if (!body.language) {
-      return c.json({ error: "language is required" }, 400);
-    }
-
-    const result = await runSampleTestCases({
-      problemId: Number(body.problemId),
-      sourceCode: body.sourceCode,
-      language: body.language,
+    const result = await judgeSemaphore.withPermit(async () => {
+      return await runSampleTestCases({
+        problemId: body.problemId,
+        sourceCode: body.sourceCode,
+        language: body.language,
+      });
     });
 
     return c.json({
@@ -108,26 +105,18 @@ app.post("/run", requireAuth, async (c) => {
 });
 
 // Execute code (authoritative submission or sample run depending on mode)
-app.post("/execute", requireAuth, async (c) => {
+app.post("/execute", requireAuth, codeExecutionLimiter, idempotency(), validateBody(runCodeSchema), async (c) => {
   try {
     const user = c.get("user");
-    const body = await c.req.json();
-
-    if (!body.problemId) {
-      return c.json({ error: "problemId is required" }, 400);
-    }
-    if (!body.sourceCode) {
-      return c.json({ error: "sourceCode is required" }, 400);
-    }
-    if (!body.language) {
-      return c.json({ error: "language is required" }, 400);
-    }
+    const body = (c as any).get("validatedBody") as { problemId: number; sourceCode: string; language: string; mode?: string };
 
     if (body.mode === "run") {
-      const result = await runSampleTestCases({
-        problemId: Number(body.problemId),
-        sourceCode: body.sourceCode,
-        language: body.language,
+      const result = await judgeSemaphore.withPermit(async () => {
+        return await runSampleTestCases({
+          problemId: body.problemId,
+          sourceCode: body.sourceCode,
+          language: body.language,
+        });
       });
       return c.json({
         ...result,
@@ -135,11 +124,13 @@ app.post("/execute", requireAuth, async (c) => {
       });
     }
 
-    const result = await judgeSubmission({
-      userId: user.id,
-      problemId: Number(body.problemId),
-      sourceCode: body.sourceCode,
-      language: body.language,
+    const result = await judgeSemaphore.withPermit(async () => {
+      return await judgeSubmission({
+        userId: user.id,
+        problemId: body.problemId,
+        sourceCode: body.sourceCode,
+        language: body.language,
+      });
     });
 
     return c.json({
@@ -162,26 +153,18 @@ app.post("/execute", requireAuth, async (c) => {
 });
 
 // Alias for authoritative submission
-app.post("/submit", requireAuth, async (c) => {
+app.post("/submit", requireAuth, codeExecutionLimiter, validateBody(runCodeSchema), async (c) => {
   try {
     const user = c.get("user");
-    const body = await c.req.json();
+    const body = (c as any).get("validatedBody") as { problemId: number; sourceCode: string; language: string };
 
-    if (!body.problemId) {
-      return c.json({ error: "problemId is required" }, 400);
-    }
-    if (!body.sourceCode) {
-      return c.json({ error: "sourceCode is required" }, 400);
-    }
-    if (!body.language) {
-      return c.json({ error: "language is required" }, 400);
-    }
-
-    const result = await judgeSubmission({
-      userId: user.id,
-      problemId: Number(body.problemId),
-      sourceCode: body.sourceCode,
-      language: body.language,
+    const result = await judgeSemaphore.withPermit(async () => {
+      return await judgeSubmission({
+        userId: user.id,
+        problemId: body.problemId,
+        sourceCode: body.sourceCode,
+        language: body.language,
+      });
     });
 
     return c.json({
@@ -203,8 +186,8 @@ app.post("/submit", requireAuth, async (c) => {
 });
 
 // AI code evaluation
-app.post("/evaluate", requireAuth, async (c) => {
-  const body = await c.req.json();
+app.post("/evaluate", requireAuth, aiReviewLimiter, validateBody(aiReviewSchema), async (c) => {
+  const body = (c as any).get("validatedBody") as { problemTitle: string; problemDescription: string; language: string; sourceCode: string; verdict?: string };
 
   const prompt = `You are an expert code reviewer. Review this ${body.language} solution for the problem "${body.problemTitle}".
 
@@ -225,6 +208,102 @@ Give concise feedback in 3-4 sentences covering: time/space complexity, code qua
 
   const feedback = completion.choices[0]?.message?.content || "";
   return c.json({ feedback });
+});
+
+// ─── 2.2 Asynchronous Worker Pool & Task Queue Endpoints ─────────────────────
+
+// Producer: Submit code execution task asynchronously (returns HTTP 202 Accepted)
+app.post("/jobs", requireAuth, codeExecutionLimiter, idempotency(), validateBody(runCodeSchema), async (c) => {
+  const user = c.get("user");
+  const body = (c as any).get("validatedBody") as {
+    problemId: number;
+    sourceCode: string;
+    language: string;
+    mode?: "run" | "submit";
+    roomCode?: string;
+  };
+
+  const job = executionQueue.enqueue({
+    type: body.mode === "run" ? "RUN" : "SUBMIT",
+    userId: user.id,
+    problemId: body.problemId,
+    sourceCode: body.sourceCode,
+    language: body.language,
+    roomCode: body.roomCode,
+  });
+
+  return c.json(
+    {
+      jobId: job.id,
+      status: job.status,
+      type: job.type,
+      queuePosition: executionQueue.getQueuePosition(job.id),
+      pollUrl: `/api/code/jobs/${job.id}`,
+      createdAt: job.createdAt,
+      message: "Submission accepted and queued for asynchronous background execution.",
+    },
+    202
+  );
+});
+
+// Consumer Inspector: Poll status & result of an asynchronous execution job
+app.get("/jobs/:id", requireAuth, async (c) => {
+  const id = c.req.param("id");
+  if (!id) {
+    return c.json({ error: "Job ID parameter is required." }, 400);
+  }
+  const job = executionQueue.getJob(id);
+
+  if (!job) {
+    return c.json({ error: `Job with ID '${id}' was not found or has expired.` }, 404);
+  }
+
+  const queuePosition = job.status === "QUEUED" ? executionQueue.getQueuePosition(job.id) : 0;
+
+  return c.json({
+    id: job.id,
+    status: job.status,
+    type: job.type,
+    queuePosition,
+    createdAt: job.createdAt,
+    startedAt: job.startedAt,
+    completedAt: job.completedAt,
+    durationMs: job.durationMs,
+    result: job.result,
+    error: job.error,
+  });
+});
+
+// 2.4 Cancellation: Abort in-flight or queued background execution job
+app.delete("/jobs/:id", requireAuth, async (c) => {
+  const id = c.req.param("id");
+  if (!id) {
+    return c.json({ error: "Job ID parameter is required." }, 400);
+  }
+
+  const success = executionQueue.cancelJob(id, "Cancelled by user request");
+  if (!success) {
+    const job = executionQueue.getJob(id);
+    if (!job) {
+      return c.json({ error: `Job with ID '${id}' was not found.` }, 404);
+    }
+    return c.json({ message: `Job is already in status '${job.status}'.`, status: job.status }, 400);
+  }
+
+  return c.json({
+    message: "Execution job cancelled successfully.",
+    jobId: id,
+    status: "CANCELLED",
+  });
+});
+
+// Observability: Current Queue Depth and Semaphore Permit Statistics
+app.get("/queue-stats", requireAuth, async (c) => {
+  return c.json({
+    queue: executionQueue.getStats(),
+    semaphore: judgeSemaphore.getStats(),
+    timestamp: Date.now(),
+  });
 });
 
 export default app;

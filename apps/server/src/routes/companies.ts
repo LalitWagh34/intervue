@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
+import { redis, isRedisConnected } from "../lib/redis.js";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -83,14 +84,32 @@ app.get("/:company", requireAuth, async (c) => {
     };
 
     const fileName = fileMap[timeframe] || fileMap.thirtyDays;
-    const cacheKey = `${companyName}_${fileName}`;
+    const cacheKey = `company:${companyName}_${fileName}`;
 
     let parsedQuestions: any[] = [];
+    let isCached = false;
 
-    const cached = companyCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      parsedQuestions = cached.data;
-    } else {
+    if (isRedisConnected) {
+      try {
+        const redisData = await redis.get(cacheKey);
+        if (redisData) {
+          parsedQuestions = JSON.parse(redisData);
+          isCached = true;
+        }
+      } catch (e) {
+        console.error("Redis get error for company cache", e);
+      }
+    }
+
+    if (!isCached) {
+      const cached = companyCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        parsedQuestions = cached.data;
+        isCached = true;
+      }
+    }
+
+    if (!isCached) {
       const url = `https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/main/${encodeURIComponent(
         companyName
       )}/${fileName}`;
@@ -112,7 +131,16 @@ app.get("/:company", requireAuth, async (c) => {
         parsedQuestions = processCSV(text);
       }
 
-      companyCache.set(cacheKey, { data: parsedQuestions, timestamp: Date.now() });
+      if (isRedisConnected) {
+        try {
+          await redis.set(cacheKey, JSON.stringify(parsedQuestions), "EX", 3600);
+        } catch (e) {
+          console.error("Redis set error for company cache", e);
+          companyCache.set(cacheKey, { data: parsedQuestions, timestamp: Date.now() });
+        }
+      } else {
+        companyCache.set(cacheKey, { data: parsedQuestions, timestamp: Date.now() });
+      }
     }
 
     // Cross-reference with our database problems to see which can be solved natively

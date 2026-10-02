@@ -11,6 +11,25 @@ dist
 # code coverage
 coverage
 *.lcov
+docs
+SYSTEM_DESIGN_ROADMAP.md
+extracted_jsx.tsx
+extract_jsx.py
+tailwind_extracted.json
+UI_UX_SPEC_TUF_Style_Interview_Platform.md
+PROJECT_RULES.md
+PROJECT_DESIGN.md
+PROJECT_OVERVIEW.md
+GSD-STYLE.md
+project_context.md
+intervue.md
+.gsd
+.gemini
+.agent
+.agents
+adapters
+VERSION
+scripts
 
 # logs
 logs
@@ -31,7 +50,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # IntelliJ based IDEs
 .idea
-
 # Finder (MacOS) folder config
 .DS_Store
 

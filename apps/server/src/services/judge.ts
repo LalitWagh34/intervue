@@ -1,5 +1,7 @@
 import { db } from "@intervue/db";
 import { spawn } from "child_process";
+import { retryWithFullJitter } from "../lib/retry";
+import { createCircuitBreaker } from "../lib/circuitBreaker";
 
 export type SupportedLanguage =
   | "CPP"
@@ -307,6 +309,7 @@ export async function executeSingleTestCase({
   expectedOutput,
   timeLimit,
   memoryLimit,
+  signal,
 }: {
   sourceCode: string;
   language: SupportedLanguage;
@@ -314,34 +317,69 @@ export async function executeSingleTestCase({
   expectedOutput: string;
   timeLimit: number;
   memoryLimit: number;
+  signal?: AbortSignal;
 }): Promise<ExecutionOutcome> {
+  // Use Circuit Breaker for the actual external call
+  return await judge0CircuitBreaker.fire({ sourceCode, language, input, expectedOutput, timeLimit, memoryLimit, signal });
+}
+
+const judge0CircuitBreaker = createCircuitBreaker("Judge0Service", async ({
+  sourceCode,
+  language,
+  input,
+  expectedOutput,
+  timeLimit,
+  memoryLimit,
+  signal,
+}: {
+  sourceCode: string;
+  language: SupportedLanguage;
+  input: string;
+  expectedOutput: string;
+  timeLimit: number;
+  memoryLimit: number;
+  signal?: AbortSignal;
+}): Promise<ExecutionOutcome> => {
+  if (signal?.aborted) {
+    return { infraError: "Execution cancelled by client" };
+  }
+
   const languageId = LANGUAGE_IDS[language];
   const wallTimeLimitSeconds = Math.min(timeLimit / 1000 + 2, 20);
   const judgeApiUrl = process.env.JUDGE0_API_URL;
 
   if (judgeApiUrl) {
     try {
-      // Fast submit with 5s timeout guard
-      const submitResponse = await fetch(
-        `${judgeApiUrl}/submissions/?base64_encoded=false`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          signal: AbortSignal.timeout(5000),
-          body: JSON.stringify({
-            source_code: sourceCode,
-            language_id: languageId,
-            stdin: input,
-            expected_output: expectedOutput,
-            cpu_time_limit: timeLimit / 1000,
-            wall_time_limit: wallTimeLimitSeconds,
-            memory_limit: memoryLimit * 1024,
-            enable_network: false,
-            max_processes_and_or_threads: 20,
-          }),
-        }
+      // Submit with retry & full jitter resilience
+      const submitResponse = await retryWithFullJitter(
+        async () => {
+          if (signal?.aborted) throw new Error("Execution cancelled by client");
+          const timeoutSignal = AbortSignal.timeout(5000);
+          const effectiveSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
+
+          return await fetch(
+            `${judgeApiUrl}/submissions/?base64_encoded=false`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              signal: effectiveSignal,
+              body: JSON.stringify({
+                source_code: sourceCode,
+                language_id: languageId,
+                stdin: input,
+                expected_output: expectedOutput,
+                cpu_time_limit: timeLimit / 1000,
+                wall_time_limit: wallTimeLimitSeconds,
+                memory_limit: memoryLimit * 1024,
+                enable_network: false,
+                max_processes_and_or_threads: 20,
+              }),
+            }
+          );
+        },
+        { maxRetries: 2, baseDelayMs: 100, maxDelayMs: 1000 }
       );
 
       if (!submitResponse.ok) {
@@ -358,6 +396,10 @@ export async function executeSingleTestCase({
       const maxPollAttempts = 40; // 14s total ceiling
 
       for (let attempt = 0; attempt < maxPollAttempts; attempt++) {
+        if (signal?.aborted) {
+          return { infraError: "Execution cancelled by client" };
+        }
+
         await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
 
         const pollResponse = await fetch(
@@ -387,12 +429,13 @@ export async function executeSingleTestCase({
       };
     } catch (networkError: any) {
       console.warn(
-        `[Judge0] Remote API unreachable (${networkError.message}), attempting local sandbox fallback...`
+        `[Judge0] Remote API unreachable (${networkError.message})`
       );
+      throw networkError; // Throw so circuit breaker records the failure
     }
   }
 
-  // Fallback to local sandbox runner if Judge0 is unreachable or offline
+  // Fallback if judgeApiUrl isn't even configured
   return executeLocalSandbox({
     sourceCode,
     language,
@@ -400,7 +443,18 @@ export async function executeSingleTestCase({
     expectedOutput,
     timeLimit,
   });
-}
+});
+
+judge0CircuitBreaker.fallback((params, err) => {
+  console.warn(`[CircuitBreaker] Judge0 failed or OPEN. Falling back to Local Sandbox for ${params.language}`);
+  return executeLocalSandbox({
+    sourceCode: params.sourceCode,
+    language: params.language,
+    input: params.input,
+    expectedOutput: params.expectedOutput,
+    timeLimit: params.timeLimit,
+  });
+});
 
 /**
  * Runs ONLY public/sample test cases for non-authoritative local testing.
@@ -410,11 +464,16 @@ export async function runSampleTestCases({
   problemId,
   sourceCode,
   language,
+  signal,
 }: {
   problemId: number;
   sourceCode: string;
   language: string;
+  signal?: AbortSignal;
 }): Promise<JudgeExecutionSummary> {
+  if (signal?.aborted) {
+    throw new Error("Execution cancelled by client");
+  }
   validateSourceCode(sourceCode);
 
   if (!isSupportedLanguage(language)) {
@@ -479,6 +538,9 @@ export async function runSampleTestCases({
   const memoryLimitKb = problem.memoryLimit * 1024;
 
   for (let idx = 0; idx < casesToRun.length; idx++) {
+    if (signal?.aborted) {
+      throw new Error("Execution cancelled by client");
+    }
     const tc = casesToRun[idx];
     if (!tc) continue;
     const outcome = await executeSingleTestCase({
@@ -488,6 +550,7 @@ export async function runSampleTestCases({
       expectedOutput: tc.output,
       timeLimit: problem.timeLimit,
       memoryLimit: problem.memoryLimit,
+      signal,
     });
 
     if ("infraError" in outcome) {
@@ -567,17 +630,22 @@ export async function judgeSubmission({
   problemId,
   sourceCode,
   language,
+  signal,
 }: {
   userId: string;
   problemId: number;
   sourceCode: string;
   language: string;
+  signal?: AbortSignal;
 }): Promise<
   JudgeExecutionSummary & {
     submissionId: number;
     isAccepted: boolean;
   }
 > {
+  if (signal?.aborted) {
+    throw new Error("Execution cancelled by client");
+  }
   validateSourceCode(sourceCode);
 
   if (!isSupportedLanguage(language)) {
@@ -615,6 +683,9 @@ export async function judgeSubmission({
 
   try {
     for (const testCase of problem.testCases) {
+      if (signal?.aborted) {
+        throw new Error("Execution cancelled by client");
+      }
       const outcome = await executeSingleTestCase({
         sourceCode,
         language,
@@ -622,6 +693,7 @@ export async function judgeSubmission({
         expectedOutput: testCase.expectedOutput,
         timeLimit: problem.timeLimit,
         memoryLimit: problem.memoryLimit,
+        signal,
       });
 
       if ("infraError" in outcome) {

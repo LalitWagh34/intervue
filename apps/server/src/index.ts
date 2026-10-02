@@ -13,12 +13,43 @@ import voiceRoutes from "./routes/voice";
 import roomRoutes from "./routes/rooms";
 import companyRoutes from "./routes/companies";
 import { roomSocketManager } from "./services/roomSocket";
+import { register, httpRequestDurationMicroseconds } from "./lib/metrics";
+import { logger as pinoLogger } from "./lib/logger";
+
+import { AppError, InternalServerError } from "./lib/errors";
 
 const { upgradeWebSocket, websocket } = createBunWebSocket();
 const app = new Hono<{ Variables: AuthVariables }>();
 
+// Global RFC 7807 Problem Details Error Handler
+app.onError((err, c) => {
+  if (err instanceof AppError) {
+    if (err.details?.retryAfter) {
+      c.header("Retry-After", String(err.details.retryAfter));
+    }
+    return c.json(err.toJSON(c.req.path), (err.statusCode as any) || 500);
+  }
+
+  console.error("[Unhandled Server Error]", err);
+  const fallback = new InternalServerError(
+    process.env.NODE_ENV === "production" ? "Internal server error occurred" : err.message
+  );
+  return c.json(fallback.toJSON(c.req.path), 500);
+});
+
+// Metrics Middleware
+app.use("*", async (c, next) => {
+  const start = Date.now();
+  await next();
+  const duration = Date.now() - start;
+  httpRequestDurationMicroseconds.labels(c.req.method, c.req.path, c.res.status.toString()).observe(duration);
+});
 
 // Middleware
+app.use("*", async (c, next) => {
+  pinoLogger.info({ method: c.req.method, url: c.req.url, status: "incoming" });
+  await next();
+});
 app.use("*", logger());
 app.use(
   "*",
@@ -31,7 +62,7 @@ app.use(
       return "http://localhost:5173";
     },
     credentials: true,
-    allowHeaders: ["Content-Type", "Authorization"],
+    allowHeaders: ["Content-Type", "Authorization", "Idempotency-Key", "X-Idempotency-Key"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
@@ -51,6 +82,12 @@ app.route("/api/rooms", roomRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/companies", companyRoutes);
 
+// Metrics Endpoint
+app.get("/metrics", async (c) => {
+  c.header("Content-Type", register.contentType);
+  return c.body(await register.metrics());
+});
+
 // Real-Time Competitive Rooms WebSocket
 app.get(
   "/ws/rooms",
@@ -59,7 +96,7 @@ app.get(
       onOpen(event, ws) {
         console.log("[WS] Client connected to /ws/rooms");
       },
-      onMessage(event, ws) {
+      onMessage: async (event, ws) => {
         try {
           let raw: string;
           if (typeof event.data === "string") {
@@ -84,11 +121,11 @@ app.get(
             }
           } else if (eventName === "anticheat:violation") {
             if (data?.roomCode && data?.userId && data?.type) {
-              roomSocketManager.recordViolation(data.roomCode, data.userId, data.type, data.details);
+              await roomSocketManager.recordViolation(data.roomCode, data.userId, data.type, data.details);
             }
           } else if (eventName === "code:sync") {
             if (data?.roomCode && data?.userId && data?.sourceCode !== undefined) {
-              roomSocketManager.updateCodeSnapshot(data.roomCode, data.userId, {
+              await roomSocketManager.updateCodeSnapshot(data.roomCode, data.userId, {
                 problemId: data.problemId,
                 sourceCode: data.sourceCode,
                 language: data.language,
@@ -96,7 +133,7 @@ app.get(
             }
           } else if (eventName === "code:inspect") {
             if (data?.roomCode && data?.targetUserId) {
-              const snapshot = roomSocketManager.getCodeSnapshot(data.roomCode, data.targetUserId);
+              const snapshot = await roomSocketManager.getCodeSnapshot(data.roomCode, data.targetUserId);
               roomSocketManager.sendToClient(ws, "code:inspect_result", {
                 targetUserId: data.targetUserId,
                 snapshot,
@@ -119,12 +156,36 @@ app.get(
 );
 
 // Health check
+let isShuttingDown = false;
+
 app.get("/health", (c) => {
+  if (isShuttingDown) {
+    return c.json({ status: "shutting_down" }, 503);
+  }
   return c.json({ status: "ok", message: "Intervue server running" });
 });
 
-export default {
+export { app };
+
+const server = {
   port: process.env.PORT || 3000,
   fetch: app.fetch,
   websocket,
 };
+
+// Graceful Shutdown
+process.on("SIGINT", async () => {
+  pinoLogger.info("SIGINT received, starting graceful shutdown");
+  isShuttingDown = true;
+  // Let active requests finish
+  setTimeout(() => process.exit(0), 5000);
+});
+
+process.on("SIGTERM", async () => {
+  pinoLogger.info("SIGTERM received, starting graceful shutdown");
+  isShuttingDown = true;
+  // Let active requests finish
+  setTimeout(() => process.exit(0), 5000);
+});
+
+export default server;

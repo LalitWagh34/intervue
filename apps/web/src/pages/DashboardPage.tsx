@@ -1,357 +1,419 @@
-import { useState } from "react";
-import { useProfile, useProfileStats } from "@/hooks/useProfile";
-import { useInterviews } from "@/hooks/useInterviews";
-import { Link } from "react-router-dom";
-import {
-  Code2,
-  Flame,
-  ArrowRight,
-  Clock,
-  Swords,
-  Layers,
-  Sparkles,
-  CheckCircle2,
-  TrendingUp,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-
-interface DailyTask {
-  id: string;
-  label: string;
-  completed: boolean;
-  category: string;
-}
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useSession } from '../lib/auth';
 
 export default function DashboardPage() {
-  const { data: profile } = useProfile();
-  const { data: stats } = useProfileStats();
-  const { data: interviews, isLoading: interviewsLoading } = useInterviews();
-
-  // Daily Planner State
-  const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([
-    { id: "1", label: "Solve Two Sum & Valid Parentheses", completed: true, category: "Arrays & Stack" },
-    { id: "2", label: "Revise DBMS Normalization (1NF to BCNF)", completed: true, category: "Core CS" },
-    { id: "3", label: "Practice Kadane's Algorithm & Subarray Sum", completed: false, category: "Dynamic Programming" },
-    { id: "4", label: "Compete in a Quick Battle Arena match", completed: false, category: "Contest" },
-  ]);
-
-  const toggleTask = (id: string) => {
-    setDailyTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-    );
+  const { data: session } = useSession();
+  
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
   };
-
-  const totalSolved = stats?.dsaProgress?.totalSolved ?? 2;
-  const totalProblems = stats?.dsaProgress?.totalProblems ?? 21;
-  const progressPercent = Math.round((totalSolved / Math.max(totalProblems, 1)) * 100);
-  const currentStreak = stats?.consistency?.currentStreak ?? (profile?.streakCount || 7);
-
-  const firstName = profile?.fullName ? profile.fullName.split(" ")[0] : "Candidate";
+  
+  const firstName = session?.user?.name?.split(' ')[0] || 'Developer';
 
   return (
-    <div className="min-h-screen bg-[#07080B] text-[#EDEDED] font-sans p-6 sm:p-8 lg:p-10 space-y-8 max-w-[1400px] mx-auto">
-      {/* ─── 1. Dashboard TUF Hero ───────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#1B1F27]">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30">
-              Welcome back
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            Good morning, {firstName} 👋
-          </h1>
-          <p className="text-xs sm:text-sm text-[#8A909E] mt-1">
-            You're <span className="text-[#327CF6] font-semibold">{progressPercent}%</span> through your primary DSA roadmap. Keep the momentum going!
-          </p>
+    <div className="w-full flex flex-col items-center">
+      <main className="w-full pt-16 bg-surface-container-lowest min-h-screen"><div className="flex flex-col w-full">
+<div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 py-6 md:py-8 space-y-8">
+<header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+<div className="space-y-1.5">
+<div className="flex items-center gap-2">
+<span className="inline-flex items-center px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-tertiary bg-tertiary/10">Active Readiness Sprint</span>
+{/* <span className="font-metadata-sm text-metadata-sm text-text-muted">Target: Senior SDE (L5)</span> */}
+</div>
+<h1 className="font-headline-page text-headline-page text-text-primary tracking-tight">{getGreeting()}, {firstName}.</h1>
+<p className="font-body-base text-body-base text-text-secondary">Keep your interview preparation moving. Next mock evaluation scheduled in 2 days.</p>
+</div>
+<div className="flex items-center gap-3">
+<button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-elevated hover:bg-surface-hover text-text-primary font-body-bold text-body-bold transition-all shadow-sm">
+<span className="material-symbols-outlined text-[18px] text-text-secondary">code_blocks</span>
+<span>Practice Coding</span>
+</button>
+<button className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary-container hover:bg-primary-container/90 text-on-primary font-body-bold text-body-bold transition-all shadow-sm">
+<span className="material-symbols-outlined text-[18px]">play_arrow</span>
+<span>Start Interview</span>
+</button>
+</div>
+</header>
+<section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div className="bg-surface-elevated rounded-xl p-4 flex flex-col justify-between shadow-sm">
+<div className="flex items-center justify-between text-text-muted">
+<span className="font-metadata-sm text-metadata-sm uppercase tracking-wide">Interview Score</span>
+<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase text-primary bg-primary/10">L5 Benchmark</span>
+</div>
+<div className="my-3 flex items-baseline gap-2">
+<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">78</span>
+<span className="font-code-base text-code-base text-text-muted">/ 100</span>
+</div>
+<div className="flex items-center gap-1.5 font-metadata-sm text-metadata-sm text-status-success">
+<span className="material-symbols-outlined text-[16px]">trending_up</span>
+<span>+4% vs last week</span>
+</div>
+</div>
+<div className="bg-surface-elevated rounded-xl p-4 flex flex-col justify-between shadow-sm">
+<div className="flex items-center justify-between text-text-muted">
+<span className="font-metadata-sm text-metadata-sm uppercase tracking-wide">Practice Streak</span>
+<span className="material-symbols-outlined text-[18px] text-status-warning" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+</div>
+<div className="my-3 flex items-baseline gap-2">
+<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">7</span>
+<span className="font-metadata-sm text-metadata-sm text-text-secondary">consecutive days</span>
+</div>
+<div className="font-metadata-sm text-metadata-sm text-text-muted">
+          Next milestone: <span className="font-code-base text-text-primary">10 days</span>
+</div>
+</div>
+<div className="bg-surface-elevated rounded-xl p-4 flex flex-col justify-between shadow-sm">
+<div className="flex items-center justify-between text-text-muted">
+<span className="font-metadata-sm text-metadata-sm uppercase tracking-wide">Problems Solved</span>
+<span className="material-symbols-outlined text-[18px] text-tertiary">check_circle</span>
+</div>
+<div className="my-3 flex items-baseline gap-2">
+<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">142</span>
+<span className="font-code-base text-code-base text-text-muted">total</span>
+</div>
+<div className="font-metadata-sm text-metadata-sm text-text-secondary flex items-center gap-2">
+<span className="text-text-primary font-code-base">98</span> DSA <span className="text-text-muted">·</span> <span className="text-text-primary font-code-base">44</span> Architecture
         </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            to="/practice"
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-xs font-semibold shadow-md shadow-[#327CF6]/20 transition-all flex items-center gap-1.5"
-          >
-            <span>Continue Learning</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-          <Link
-            to="/rooms"
-            className="px-4 py-2.5 rounded-xl bg-[#0D0F14] hover:bg-[#14161B] border border-[#1B1F27] hover:border-[#272B33] text-xs font-semibold text-[#EDEDED] transition-all flex items-center gap-1.5"
-          >
-            <Swords className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Battle Arena</span>
-          </Link>
+</div>
+<div className="bg-surface-elevated rounded-xl p-4 flex flex-col justify-between shadow-sm">
+<div className="flex items-center justify-between text-text-muted">
+<span className="font-metadata-sm text-metadata-sm uppercase tracking-wide">Full Simulations</span>
+<span className="material-symbols-outlined text-[18px] text-secondary">psychology</span>
+</div>
+<div className="my-3 flex items-baseline gap-2">
+<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">18</span>
+<span className="font-code-base text-code-base text-text-muted">sessions</span>
+</div>
+<div className="font-metadata-sm text-metadata-sm text-text-secondary flex items-center gap-2">
+<span className="text-text-primary font-code-base">12</span> Voice/Chat <span className="text-text-muted">·</span> <span className="text-text-primary font-code-base">6</span> Timed Code
         </div>
-      </div>
-
-      {/* ─── 2. Compact Stat Cards (TUF Dark Cards) ──────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* DSA Progress */}
-        <div className="p-5 rounded-2xl bg-[#0D0F14] border border-[#1B1F27] hover:border-[#272B33] transition-colors shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-medium text-[#8A909E] uppercase tracking-wider">
-              DSA Progress
-            </span>
-            <Layers className="w-4 h-4 text-[#327CF6]" />
-          </div>
-          <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-mono">
-            {progressPercent}%
-          </p>
-          <p className="text-xs text-[#10B981] mt-1 font-medium flex items-center gap-1">
-            <TrendingUp className="w-3 h-3" /> +8% this week
-          </p>
-        </div>
-
-        {/* Problems Solved */}
-        <div className="p-5 rounded-2xl bg-[#0D0F14] border border-[#1B1F27] hover:border-[#272B33] transition-colors shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-medium text-[#8A909E] uppercase tracking-wider">
-              Problems Solved
-            </span>
-            <Code2 className="w-4 h-4 text-[#10B981]" />
-          </div>
-          <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-mono">
-            {totalSolved}
-          </p>
-          <p className="text-xs text-[#8A909E] mt-1 font-medium">
-            of {totalProblems} core problems
-          </p>
-        </div>
-
-        {/* Practice Streak */}
-        <div className="p-5 rounded-2xl bg-[#0D0F14] border border-[#1B1F27] hover:border-[#272B33] transition-colors shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-medium text-[#8A909E] uppercase tracking-wider">
-              Active Streak
-            </span>
-            <Flame className="w-4 h-4 text-[#F59E0B]" />
-          </div>
-          <p className="text-2xl sm:text-3xl font-bold text-[#F59E0B] tracking-tight flex items-baseline gap-1 font-mono">
-            {currentStreak} <span className="text-xs font-normal text-[#8A909E]">days</span>
-          </p>
-          <p className="text-xs text-[#8A909E] mt-1 font-medium">consistency bonus</p>
-        </div>
-
-        {/* Target Track */}
-        <div className="p-5 rounded-2xl bg-[#0D0F14] border border-[#1B1F27] hover:border-[#272B33] transition-colors shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-medium text-[#8A909E] uppercase tracking-wider">
-              Target Track
-            </span>
-            <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
-          </div>
-          <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight truncate">
-            {profile?.targetRole?.split(" ")[0] || "SDE"}
-          </p>
-          <p className="text-xs text-[#8A909E] mt-1 font-medium capitalize truncate">
-            {profile?.experienceLevel || "Mid-Level"}
-          </p>
-        </div>
-      </div>
-
-      {/* ─── 3. Grid: Continue Learning + Today's Plan (matching TUF) ──── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Continue Learning Card */}
-        <div className="p-6 rounded-2xl bg-[#0D0F14] border border-[#1B1F27] shadow-sm flex flex-col justify-between group">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-[#8A909E] uppercase tracking-wider">
-                Continue Learning
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30">
-                In Progress
-              </span>
-            </div>
-
-            <h2 className="text-lg font-bold text-white tracking-tight mb-1">
-              Step 3: Arrays & Sliding Window
-            </h2>
-            <p className="text-xs text-[#8A909E] mb-5">
-              Kadane's algorithm, prefix sums, and two-pointer interview patterns.
-            </p>
-
-            {/* Progress Bar */}
-            <div className="space-y-1.5 mb-6">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-[#8A909E] font-medium">Topic Completion</span>
-                <span className="font-mono text-white font-bold">78%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-[#1B1F27] overflow-hidden">
-                <div
-                  className="h-full bg-[#327CF6] rounded-full transition-all duration-500"
-                  style={{ width: "78%" }}
-                />
-              </div>
-              <span className="text-[11px] text-[#707784] font-mono block">23 of 30 problems completed</span>
-            </div>
-          </div>
-
-          <Link
-            to="/coding/maximum-subarray"
-            className="flex items-center justify-between p-3.5 rounded-xl bg-[#0A0C10] border border-[#1B1F27] hover:border-[#327CF6]/40 text-xs font-semibold text-white transition-all group-hover:bg-[#12151D]"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#10B981]" />
-              <span>Next: Maximum Subarray (Kadane's Algorithm)</span>
-            </div>
-            <div className="flex items-center gap-1 text-[#327CF6] group-hover:translate-x-1 transition-transform">
-              <span>Resume</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </div>
-          </Link>
-        </div>
-
-        {/* Planly Daily Planner (matching TUF planly.png) */}
-        <div className="p-6 rounded-2xl bg-[#0D0F14] border border-[#1B1F27] shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold text-[#8A909E] uppercase tracking-wider">
-                Planly Planner
-              </span>
-              <span className="text-xs font-mono text-[#8A909E]">
-                {dailyTasks.filter((t) => t.completed).length}/{dailyTasks.length} Completed
-              </span>
-            </div>
-
-            <h2 className="text-lg font-bold text-white tracking-tight mb-4">
-              Today's Task Checklist
-            </h2>
-
-            <div className="space-y-2.5">
-              {dailyTasks.map((task) => (
-                <div
-                  key={task.id}
-                  onClick={() => toggleTask(task.id)}
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer select-none",
-                    task.completed
-                      ? "bg-[#0A0C10]/60 border-[#1B1F27] opacity-60"
-                      : "bg-[#0A0C10] border-[#1B1F27] hover:border-[#327CF6]/30"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    {task.completed ? (
-                      <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
-                    ) : (
-                      <div className="w-4 h-4 rounded-md border border-[#707784] hover:border-[#327CF6] shrink-0" />
-                    )}
-                    <span
-                      className={cn(
-                        "text-xs font-medium",
-                        task.completed ? "line-through text-[#707784]" : "text-[#EDEDED]"
-                      )}
-                    >
-                      {task.label}
-                    </span>
-                  </div>
-
-                  <span className="text-[10px] font-mono text-[#707784] bg-[#07080B] px-2 py-0.5 rounded border border-[#1B1F27]">
-                    {task.category}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-[#1B1F27] flex items-center justify-between text-[11px] text-[#707784]">
-            <span>Click any item to toggle completion</span>
-            <Link to="/practice" className="text-[#327CF6] hover:underline font-semibold">
-              Browse More Tasks →
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 4. Quick Arena Challenge Banner ─────────────────────────── */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0D0F14] via-[#0E1526] to-[#0D0F14] border border-[#327CF6]/30 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#327CF6]/15 border border-[#327CF6]/30 flex items-center justify-center shrink-0">
-            <Swords className="w-6 h-6 text-[#327CF6]" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-white tracking-tight">
-                Competitive Battle Arena
-              </h3>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/30">
-                LIVE
-              </span>
-            </div>
-            <p className="text-xs text-[#8A909E] mt-0.5">
-              Host or join assessment rooms with real-time countdown timers and live leaderboards.
-            </p>
-          </div>
-        </div>
-
-        <Link
-          to="/rooms"
-          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-xs font-semibold shadow-md shadow-[#327CF6]/20 transition-all flex items-center justify-center gap-2 self-start md:self-auto shrink-0"
-        >
-          <Swords className="w-3.5 h-3.5 text-cyan-300" />
-          <span>Join a Battle Room</span>
-        </Link>
-      </div>
-
-      {/* ─── 5. Recent Sessions / Activity ───────────────────────────── */}
-      <div className="p-6 rounded-2xl bg-[#0D0F14] border border-[#1B1F27] shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#327CF6]" />
-            <span>Recent Sessions & Interview Logs</span>
-          </h3>
-          <Link to="/history" className="text-xs text-[#327CF6] hover:underline font-semibold">
-            View All History →
-          </Link>
-        </div>
-
-        {interviewsLoading ? (
-          <div className="py-8 flex justify-center">
-            <div className="w-6 h-6 rounded-full border-2 border-[#327CF6] border-t-transparent animate-spin" />
-          </div>
-        ) : !interviews?.length ? (
-          <div className="py-8 text-center text-xs text-[#707784]">
-            No interview sessions yet. Launch your first mock interview in the Prep Hub!
-          </div>
-        ) : (
-          <div className="divide-y divide-[#1B1F27]">
-            {interviews.slice(0, 4).map((item: any) => (
-              <div
-                key={item.id}
-                className="py-3 flex items-center justify-between text-xs hover:bg-[#12151D] px-2 rounded-xl transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={cn(
-                      "w-2 h-2 rounded-full",
-                      item.status === "completed" ? "bg-[#10B981]" : "bg-[#F59E0B]"
-                    )}
-                  />
-                  <div>
-                    <p className="font-semibold text-white">{item.role}</p>
-                    <p className="text-[10px] text-[#707784] font-mono capitalize">
-                      {item.difficulty} • {item.mode}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  {item.score !== null && item.score !== undefined && (
-                    <span className="font-mono text-xs font-bold text-[#10B981]">
-                      {item.score}/10
-                    </span>
-                  )}
-                  <Link
-                    to={item.status === "completed" ? `/results/${item.id}` : `/interview/${item.id}`}
-                    className="text-[#327CF6] hover:underline font-semibold"
-                  >
-                    {item.status === "completed" ? "Review →" : "Resume →"}
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+</div>
+</section>
+<section className="space-y-4">
+<div className="flex items-center justify-between">
+<div>
+<h2 className="font-headline-section text-headline-section text-text-primary tracking-tight">Continue where you left off</h2>
+</div>
+<Link className="font-metadata-sm text-metadata-sm text-primary hover:text-primary-fixed transition-colors flex items-center gap-1" to="#">
+<span>View All (4)</span>
+<span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+</Link>
+</div>
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-5 hover:bg-surface-hover transition-colors shadow-sm">
+<div className="space-y-3">
+<div className="flex items-center justify-between gap-2">
+<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-secondary bg-secondary/10">System Design</span>
+<span className="font-metadata-sm text-metadata-sm text-text-muted">2h ago</span>
+</div>
+<h3 className="font-title-card text-title-card text-text-primary leading-snug">Amazon Technical Track — Backend Architecture</h3>
+<div className="space-y-1.5 pt-1">
+<div className="flex justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-muted">Progress</span>
+<span className="text-text-primary font-code-base">75% complete</span>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-secondary h-full rounded-full w-3/4"></div>
+</div>
+</div>
+</div>
+<div className="flex items-center justify-between pt-3">
+<div className="flex items-baseline gap-1">
+<span className="font-metadata-sm text-metadata-sm text-text-muted">Score:</span>
+<span className="font-code-bold text-code-bold text-text-primary">78/100</span>
+</div>
+<button className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
+<span>Continue Simulation</span>
+<span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-5 hover:bg-surface-hover transition-colors shadow-sm">
+<div className="space-y-3">
+<div className="flex items-center justify-between gap-2">
+<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-primary bg-primary/10">Architecture</span>
+<span className="font-metadata-sm text-metadata-sm text-text-muted">Yesterday</span>
+</div>
+<h3 className="font-title-card text-title-card text-text-primary leading-snug">System Design — URL Shortener &amp; Analytics</h3>
+<div className="space-y-1.5 pt-1">
+<div className="flex justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-muted">Canvas Readiness</span>
+<span className="text-text-primary font-code-base">Drafting Cache Layer</span>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-primary-container h-full rounded-full w-3/5"></div>
+</div>
+</div>
+</div>
+<div className="flex items-center justify-between pt-3">
+<div className="flex items-baseline gap-1">
+<span className="font-metadata-sm text-metadata-sm text-text-muted">Score:</span>
+<span className="font-code-bold text-code-bold text-text-primary">72/100</span>
+</div>
+<button className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
+<span>Resume Workspace</span>
+<span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-5 hover:bg-surface-hover transition-colors shadow-sm">
+<div className="space-y-3">
+<div className="flex items-center justify-between gap-2">
+<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-status-success bg-status-success/10">Coding · Medium</span>
+<span className="font-metadata-sm text-metadata-sm text-text-muted">3 days ago</span>
+</div>
+<h3 className="font-title-card text-title-card text-text-primary leading-snug">LRU Cache &amp; Concurrency Primitives (C++)</h3>
+<div className="space-y-1.5 pt-1">
+<div className="flex justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-muted">Test Suites</span>
+<span className="text-status-success font-code-bold">18/18 Tests Passed</span>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-status-success h-full rounded-full w-full"></div>
+</div>
+</div>
+</div>
+<div className="flex items-center justify-between pt-3">
+<div className="flex items-center gap-1 font-metadata-sm text-metadata-sm text-text-muted">
+<span className="material-symbols-outlined text-[16px] text-status-success">verified</span>
+<span>Fully Validated</span>
+</div>
+<button className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
+<span>Review Code</span>
+<span className="material-symbols-outlined text-[14px]">code</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<section className="space-y-4">
+<div>
+<div className="flex items-center gap-2">
+<span className="material-symbols-outlined text-secondary text-[20px]">auto_awesome</span>
+<h2 className="font-headline-section text-headline-section text-text-primary tracking-tight">Recommended for you</h2>
+</div>
+<p className="font-body-base text-body-base text-text-secondary mt-1">Based on gaps detected in your recent interview performance (Failure recovery &amp; Cache invalidation).</p>
+</div>
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-4 hover:bg-surface-hover transition-colors shadow-sm">
+<div className="space-y-3">
+<div className="flex items-center justify-between">
+<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-status-warning bg-status-warning/10">Medium · DSA</span>
+<span className="material-symbols-outlined text-text-muted text-[18px]">account_tree</span>
+</div>
+<h3 className="font-title-card text-title-card text-text-primary">Graph Algorithms &amp; Topological Sort</h3>
+<div className="p-2.5 rounded-lg bg-surface-container text-xs text-text-secondary space-y-1">
+<div className="font-body-bold text-text-primary flex items-center gap-1">
+<span className="material-symbols-outlined text-status-warning text-[14px]">warning</span>
+<span>Insight Gap</span>
+</div>
+<p>Improves Problem Solving (-12% gap vs target level in recent coding run).</p>
+</div>
+</div>
+<button className="w-full py-2 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+<span>Start Drill (15m)</span>
+<span className="material-symbols-outlined text-[14px]">timer</span>
+</button>
+</div>
+<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-4 hover:bg-surface-hover transition-colors shadow-sm">
+<div className="space-y-3">
+<div className="flex items-center justify-between">
+<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-status-error bg-status-error/10">Hard · System Design</span>
+<span className="material-symbols-outlined text-text-muted text-[18px]">dns</span>
+</div>
+<h3 className="font-title-card text-title-card text-text-primary">Distributed Caching &amp; Cache-Aside Invalidation</h3>
+<div className="p-2.5 rounded-lg bg-surface-container text-xs text-text-secondary space-y-1">
+<div className="font-body-bold text-text-primary flex items-center gap-1">
+<span className="material-symbols-outlined text-status-error text-[14px]">error</span>
+<span>AI Diagnostic</span>
+</div>
+<p>Weak area detected in Amazon Mock: multi-region replication lag recovery.</p>
+</div>
+</div>
+<button className="w-full py-2 rounded-lg bg-primary-container hover:bg-primary-container/90 text-on-primary font-body-bold text-body-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+<span>Review Concept &amp; Drill</span>
+<span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-4 hover:bg-surface-hover transition-colors shadow-sm">
+<div className="space-y-3">
+<div className="flex items-center justify-between">
+<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-tertiary bg-tertiary/10">Core CS</span>
+<span className="material-symbols-outlined text-text-muted text-[18px]">memory</span>
+</div>
+<h3 className="font-title-card text-title-card text-text-primary">OS Virtual Memory &amp; Page Replacement</h3>
+<div className="p-2.5 rounded-lg bg-surface-container text-xs text-text-secondary space-y-1">
+<div className="font-body-bold text-text-primary flex items-center gap-1">
+<span className="material-symbols-outlined text-tertiary text-[14px]">info</span>
+<span>Spaced Repetition</span>
+</div>
+<p>Revision recommended: 14 days since last evaluation on page tables and TLB.</p>
+</div>
+</div>
+<button className="w-full py-2 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+<span>Quick Quiz (5 Qs)</span>
+<span className="material-symbols-outlined text-[14px]">quiz</span>
+</button>
+</div>
+</div>
+</section>
+<section className="space-y-4">
+<div>
+<h2 className="font-headline-section text-headline-section text-text-primary tracking-tight">Performance &amp; Skill Readiness Matrix</h2>
+<p className="font-body-base text-body-base text-text-secondary mt-1">Multi-dimensional evaluation against the Meta/Amazon Senior Software Engineer bar.</p>
+</div>
+<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div className="lg:col-span-7 bg-surface-elevated rounded-xl p-6 flex flex-col justify-between space-y-6 shadow-sm">
+<div className="flex items-center justify-between flex-wrap gap-2">
+<div>
+<span className="font-title-card text-title-card text-text-primary">Interview Performance Trend</span>
+<p className="font-metadata-sm text-metadata-sm text-text-muted">Calculated composite score over rolling 6-week window</p>
+</div>
+<div className="flex items-center gap-4 font-metadata-sm text-metadata-sm">
+<div className="flex items-center gap-1.5">
+<span className="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
+<span className="text-text-secondary">Your Score</span>
+</div>
+<div className="flex items-center gap-1.5">
+<span className="w-2.5 h-0.5 bg-status-warning"></span>
+<span className="text-text-muted">L5 Target (75)</span>
+</div>
+</div>
+</div>
+<div className="relative w-full h-56 flex flex-col justify-end pt-4">
+<div className="absolute inset-0 flex flex-col justify-between pointer-events-none text-text-muted text-[11px] font-code-base">
+<div className="border-b border-surface-container w-full flex justify-between pr-2"><span>100</span></div>
+<div className="border-b border-surface-container w-full flex justify-between pr-2"><span>80</span></div>
+<div className="border-b border-status-warning/40 border-dashed w-full flex justify-between pr-2 text-status-warning"><span>75 (Bar)</span></div>
+<div className="border-b border-surface-container w-full flex justify-between pr-2"><span>60</span></div>
+<div className="border-b border-surface-container w-full flex justify-between pr-2"><span>40</span></div>
+</div>
+<svg className="w-full h-44 overflow-visible z-10" preserveAspectRatio="none" viewBox="0 0 500 180">
+<defs>
+<linearGradient id="scoreTrendGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stopColor="#448ffd" stopOpacity="0.35"></stop>
+<stop offset="100%" stopColor="#448ffd" stopOpacity="0.0"></stop>
+</linearGradient>
+</defs>
+<line opacity="0.8" stroke="#F59E0B" strokeDasharray="4 4" strokeWidth="1.5" x1="0" x2="500" y1="75" y2="75"></line>
+<polygon fill="url(#scoreTrendGradient)" points="20,108 116,99 212,87 308,81 404,72 500,60 500,180 20,180"></polygon>
+<polyline fill="none" points="20,108 116,99 212,87 308,81 404,72 500,60" stroke="#448ffd" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></polyline>
+<circle className="fill-surface-elevated stroke-primary-container" cx="20" cy="108" r="4" strokeWidth="2"></circle>
+<circle className="fill-surface-elevated stroke-primary-container" cx="116" cy="99" r="4" strokeWidth="2"></circle>
+<circle className="fill-surface-elevated stroke-primary-container" cx="212" cy="87" r="4" strokeWidth="2"></circle>
+<circle className="fill-surface-elevated stroke-primary-container" cx="308" cy="81" r="4" strokeWidth="2"></circle>
+<circle className="fill-surface-elevated stroke-primary-container" cx="404" cy="72" r="4" strokeWidth="2"></circle>
+<circle className="fill-primary-container stroke-text-primary" cx="500" cy="60" r="5" strokeWidth="2"></circle>
+</svg>
+<div className="flex justify-between items-center text-text-muted font-code-base text-[11px] pt-2 z-10">
+<span>W-5 (64)</span>
+<span>W-4 (67)</span>
+<span>W-3 (71)</span>
+<span>W-2 (73)</span>
+<span>W-1 (76)</span>
+<span className="text-text-primary font-code-bold">Current (78)</span>
+</div>
+</div>
+<div className="bg-surface-container rounded-lg p-3 flex items-center justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-secondary">Summary Insight: Velocity pace qualifies for L5 mock sign-off.</span>
+<span className="font-code-bold text-status-success">+14 pts over sprint</span>
+</div>
+</div>
+<div className="lg:col-span-5 bg-surface-elevated rounded-xl p-6 flex flex-col justify-between space-y-5 shadow-sm">
+<div>
+<div className="flex items-center justify-between">
+<span className="font-title-card text-title-card text-text-primary">Skills Diagnostic Index</span>
+<span className="font-badge-caps text-badge-caps text-tertiary uppercase">Live Calibration</span>
+</div>
+<p className="font-metadata-sm text-metadata-sm text-text-muted mt-0.5">Aggregated from dynamic code, voice &amp; diagram ratings</p>
+</div>
+<div className="space-y-3.5">
+<div className="space-y-1">
+<div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-primary font-body-bold">DSA</span>
+<div className="flex items-center gap-2">
+<span className="font-code-bold text-text-primary">82 / 100</span>
+<span className="text-status-success font-badge-caps text-badge-caps uppercase">Proficient</span>
+</div>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-status-success h-full rounded-full w-[82%]"></div>
+</div>
+</div>
+<div className="space-y-1">
+<div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-primary font-body-bold">System Design</span>
+<div className="flex items-center gap-2">
+<span className="font-code-bold text-text-primary">71 / 100</span>
+<span className="text-status-warning font-badge-caps text-badge-caps uppercase">Needs Caching Drill</span>
+</div>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-status-warning h-full rounded-full w-[71%]"></div>
+</div>
+</div>
+<div className="space-y-1">
+<div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-primary font-body-bold">OS &amp; Concurrency</span>
+<div className="flex items-center gap-2">
+<span className="font-code-bold text-text-primary">76 / 100</span>
+<span className="text-tertiary font-badge-caps text-badge-caps uppercase">Solid</span>
+</div>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-tertiary h-full rounded-full w-[76%]"></div>
+</div>
+</div>
+<div className="space-y-1">
+<div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-primary font-body-bold">DBMS &amp; Storage</span>
+<div className="flex items-center gap-2">
+<span className="font-code-bold text-text-primary">80 / 100</span>
+<span className="text-status-success font-badge-caps text-badge-caps uppercase">Strong</span>
+</div>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-status-success h-full rounded-full w-[80%]"></div>
+</div>
+</div>
+<div className="space-y-1">
+<div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-primary font-body-bold">Computer Networks</span>
+<div className="flex items-center gap-2">
+<span className="font-code-bold text-text-primary">74 / 100</span>
+<span className="text-text-muted font-badge-caps text-badge-caps uppercase">Average</span>
+</div>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-text-secondary h-full rounded-full w-[74%]"></div>
+</div>
+</div>
+<div className="space-y-1">
+<div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
+<span className="text-text-primary font-body-bold">Behavioral &amp; Communication</span>
+<div className="flex items-center gap-2">
+<span className="font-code-bold text-text-primary">74 / 100</span>
+<span className="text-primary font-badge-caps text-badge-caps uppercase">Good</span>
+</div>
+</div>
+<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+<div className="bg-primary-container h-full rounded-full w-[74%]"></div>
+</div>
+</div>
+</div>
+<div className="pt-2 flex items-center justify-between text-xs text-text-muted">
+<span>Bar: Senior Software Engineer (L5)</span>
+<span className="text-text-secondary font-code-base">Threshold: 75 Avg</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div></main>
     </div>
   );
 }
