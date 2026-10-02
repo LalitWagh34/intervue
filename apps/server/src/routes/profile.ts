@@ -28,6 +28,48 @@ app.get("/", requireAuth, async (c) => {
   return c.json({ profile });
 });
 
+// ─── GET /api/profile/dashboard ────────────────────────────────────────
+app.get("/dashboard", requireAuth, async (c) => {
+  const user = c.get("user");
+
+  const profile = await db.profile.findUnique({
+    where: { userId: user.id },
+  });
+
+  const solvedCount = await db.submission.count({
+    where: { userId: user.id, isAccepted: true },
+  });
+
+  const simulationsCount = await db.interview.count({
+    where: { userId: user.id, status: "completed" },
+  });
+
+  const recentInterviews = await db.interview.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+  });
+
+  const recentCompleted = await db.interview.findMany({
+    where: { userId: user.id, status: "completed", score: { not: null } },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
+
+  const avgScore =
+    recentCompleted.length > 0
+      ? Math.round(recentCompleted.reduce((sum, int) => sum + (int.score || 0), 0) / recentCompleted.length)
+      : 0;
+
+  return c.json({
+    streakCount: profile?.streakCount || 0,
+    solvedCount,
+    simulationsCount,
+    recentInterviews,
+    avgScore,
+  });
+});
+
 // ─── POST /api/profile/setup ───────────────────────────────────────────
 app.post("/setup", requireAuth, async (c) => {
   const user = c.get("user");

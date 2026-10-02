@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSession } from '../lib/auth';
+import { api } from '@/lib/api';
+
+interface DashboardStats {
+  streakCount: number;
+  solvedCount: number;
+  simulationsCount: number;
+  recentInterviews: any[];
+  avgScore: number;
+}
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await api.get('/profile/dashboard');
+        setStats(res.data);
+      } catch (err) {
+        console.error("Failed to fetch dashboard stats", err);
+      }
+    };
+    fetchStats();
+  }, []);
   
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -42,15 +64,15 @@ export default function DashboardPage() {
 <div className="bg-surface-elevated rounded-xl p-4 flex flex-col justify-between shadow-sm">
 <div className="flex items-center justify-between text-text-muted">
 <span className="font-metadata-sm text-metadata-sm uppercase tracking-wide">Interview Score</span>
-<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase text-primary bg-primary/10">L5 Benchmark</span>
+<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase text-primary bg-primary/10">Avg Score</span>
 </div>
 <div className="my-3 flex items-baseline gap-2">
-<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">78</span>
+<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">{stats?.avgScore || 0}</span>
 <span className="font-code-base text-code-base text-text-muted">/ 100</span>
 </div>
 <div className="flex items-center gap-1.5 font-metadata-sm text-metadata-sm text-status-success">
 <span className="material-symbols-outlined text-[16px]">trending_up</span>
-<span>+4% vs last week</span>
+<span>Based on recent sessions</span>
 </div>
 </div>
 <div className="bg-surface-elevated rounded-xl p-4 flex flex-col justify-between shadow-sm">
@@ -59,11 +81,11 @@ export default function DashboardPage() {
 <span className="material-symbols-outlined text-[18px] text-status-warning" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
 </div>
 <div className="my-3 flex items-baseline gap-2">
-<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">7</span>
+<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">{stats?.streakCount || 0}</span>
 <span className="font-metadata-sm text-metadata-sm text-text-secondary">consecutive days</span>
 </div>
 <div className="font-metadata-sm text-metadata-sm text-text-muted">
-          Next milestone: <span className="font-code-base text-text-primary">10 days</span>
+          Keep it going!
 </div>
 </div>
 <div className="bg-surface-elevated rounded-xl p-4 flex flex-col justify-between shadow-sm">
@@ -72,11 +94,11 @@ export default function DashboardPage() {
 <span className="material-symbols-outlined text-[18px] text-tertiary">check_circle</span>
 </div>
 <div className="my-3 flex items-baseline gap-2">
-<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">142</span>
+<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">{stats?.solvedCount || 0}</span>
 <span className="font-code-base text-code-base text-text-muted">total</span>
 </div>
 <div className="font-metadata-sm text-metadata-sm text-text-secondary flex items-center gap-2">
-<span className="text-text-primary font-code-base">98</span> DSA <span className="text-text-muted">·</span> <span className="text-text-primary font-code-base">44</span> Architecture
+<span>Total accepted submissions</span>
         </div>
 </div>
 <div className="bg-surface-elevated rounded-xl p-4 flex flex-col justify-between shadow-sm">
@@ -85,7 +107,7 @@ export default function DashboardPage() {
 <span className="material-symbols-outlined text-[18px] text-secondary">psychology</span>
 </div>
 <div className="my-3 flex items-baseline gap-2">
-<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">18</span>
+<span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">{stats?.simulationsCount || 0}</span>
 <span className="font-code-base text-code-base text-text-muted">sessions</span>
 </div>
 <div className="font-metadata-sm text-metadata-sm text-text-secondary flex items-center gap-2">
@@ -96,98 +118,45 @@ export default function DashboardPage() {
 <section className="space-y-4">
 <div className="flex items-center justify-between">
 <div>
-<h2 className="font-headline-section text-headline-section text-text-primary tracking-tight">Continue where you left off</h2>
+<h2 className="font-headline-section text-headline-section text-text-primary tracking-tight">Recent Sessions</h2>
 </div>
 <Link className="font-metadata-sm text-metadata-sm text-primary hover:text-primary-fixed transition-colors flex items-center gap-1" to="#">
-<span>View All (4)</span>
+<span>View History</span>
 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
 </Link>
 </div>
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-5 hover:bg-surface-hover transition-colors shadow-sm">
-<div className="space-y-3">
-<div className="flex items-center justify-between gap-2">
-<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-secondary bg-secondary/10">System Design</span>
-<span className="font-metadata-sm text-metadata-sm text-text-muted">2h ago</span>
-</div>
-<h3 className="font-title-card text-title-card text-text-primary leading-snug">Amazon Technical Track — Backend Architecture</h3>
-<div className="space-y-1.5 pt-1">
-<div className="flex justify-between font-metadata-sm text-metadata-sm">
-<span className="text-text-muted">Progress</span>
-<span className="text-text-primary font-code-base">75% complete</span>
-</div>
-<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-secondary h-full rounded-full w-3/4"></div>
-</div>
-</div>
-</div>
-<div className="flex items-center justify-between pt-3">
-<div className="flex items-baseline gap-1">
-<span className="font-metadata-sm text-metadata-sm text-text-muted">Score:</span>
-<span className="font-code-bold text-code-bold text-text-primary">78/100</span>
-</div>
-<button className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
-<span>Continue Simulation</span>
-<span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-</button>
-</div>
-</div>
-<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-5 hover:bg-surface-hover transition-colors shadow-sm">
-<div className="space-y-3">
-<div className="flex items-center justify-between gap-2">
-<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-primary bg-primary/10">Architecture</span>
-<span className="font-metadata-sm text-metadata-sm text-text-muted">Yesterday</span>
-</div>
-<h3 className="font-title-card text-title-card text-text-primary leading-snug">System Design — URL Shortener &amp; Analytics</h3>
-<div className="space-y-1.5 pt-1">
-<div className="flex justify-between font-metadata-sm text-metadata-sm">
-<span className="text-text-muted">Canvas Readiness</span>
-<span className="text-text-primary font-code-base">Drafting Cache Layer</span>
-</div>
-<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-primary-container h-full rounded-full w-3/5"></div>
-</div>
-</div>
-</div>
-<div className="flex items-center justify-between pt-3">
-<div className="flex items-baseline gap-1">
-<span className="font-metadata-sm text-metadata-sm text-text-muted">Score:</span>
-<span className="font-code-bold text-code-bold text-text-primary">72/100</span>
-</div>
-<button className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
-<span>Resume Workspace</span>
-<span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-</button>
-</div>
-</div>
-<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-5 hover:bg-surface-hover transition-colors shadow-sm">
-<div className="space-y-3">
-<div className="flex items-center justify-between gap-2">
-<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-status-success bg-status-success/10">Coding · Medium</span>
-<span className="font-metadata-sm text-metadata-sm text-text-muted">3 days ago</span>
-</div>
-<h3 className="font-title-card text-title-card text-text-primary leading-snug">LRU Cache &amp; Concurrency Primitives (C++)</h3>
-<div className="space-y-1.5 pt-1">
-<div className="flex justify-between font-metadata-sm text-metadata-sm">
-<span className="text-text-muted">Test Suites</span>
-<span className="text-status-success font-code-bold">18/18 Tests Passed</span>
-</div>
-<div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-status-success h-full rounded-full w-full"></div>
-</div>
-</div>
-</div>
-<div className="flex items-center justify-between pt-3">
-<div className="flex items-center gap-1 font-metadata-sm text-metadata-sm text-text-muted">
-<span className="material-symbols-outlined text-[16px] text-status-success">verified</span>
-<span>Fully Validated</span>
-</div>
-<button className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
-<span>Review Code</span>
-<span className="material-symbols-outlined text-[14px]">code</span>
-</button>
-</div>
-</div>
+{stats?.recentInterviews && stats.recentInterviews.length > 0 ? (
+  stats.recentInterviews.map((interview: any) => (
+    <div key={interview.id} className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-5 hover:bg-surface-hover transition-colors shadow-sm">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-secondary bg-secondary/10">{interview.mode}</span>
+          <span className="font-metadata-sm text-metadata-sm text-text-muted">{new Date(interview.createdAt).toLocaleDateString()}</span>
+        </div>
+        <h3 className="font-title-card text-title-card text-text-primary leading-snug">{interview.role || "General Interview"}</h3>
+      </div>
+      <div className="flex items-center justify-between pt-3 border-t border-surface-container">
+        <div className="flex items-baseline gap-1">
+          <span className="font-metadata-sm text-metadata-sm text-text-muted">Status:</span>
+          <span className={`font-code-bold text-code-bold ${interview.status === 'completed' ? 'text-status-success' : 'text-text-primary'}`}>
+            {interview.status}
+          </span>
+        </div>
+        <button className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
+          <span>{interview.status === 'completed' ? 'View Details' : 'Continue'}</span>
+          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+  ))
+) : (
+  <div className="col-span-3 py-10 flex flex-col items-center justify-center text-text-muted bg-surface-elevated rounded-xl border border-dashed border-surface-container">
+    <span className="material-symbols-outlined text-4xl mb-2 opacity-50">history</span>
+    <p>No recent sessions found.</p>
+    <button className="mt-4 px-4 py-2 rounded-lg bg-primary-container text-on-primary font-body-bold text-sm">Start a new simulation</button>
+  </div>
+)}
 </div>
 </section>
 <section className="space-y-4">
