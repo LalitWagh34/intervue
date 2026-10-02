@@ -168,66 +168,28 @@ export default function DashboardPage() {
 <p className="font-body-base text-body-base text-text-secondary mt-1">Based on gaps detected in your recent interview performance (Failure recovery &amp; Cache invalidation).</p>
 </div>
 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-4 hover:bg-surface-hover transition-colors shadow-sm">
-<div className="space-y-3">
-<div className="flex items-center justify-between">
-<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-status-warning bg-status-warning/10">Medium · DSA</span>
-<span className="material-symbols-outlined text-text-muted text-[18px]">account_tree</span>
-</div>
-<h3 className="font-title-card text-title-card text-text-primary">Graph Algorithms &amp; Topological Sort</h3>
-<div className="p-2.5 rounded-lg bg-surface-container text-xs text-text-secondary space-y-1">
-<div className="font-body-bold text-text-primary flex items-center gap-1">
-<span className="material-symbols-outlined text-status-warning text-[14px]">warning</span>
-<span>Insight Gap</span>
-</div>
-<p>Improves Problem Solving (-12% gap vs target level in recent coding run).</p>
-</div>
-</div>
-<button className="w-full py-2 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center justify-center gap-1.5">
-<span>Start Drill (15m)</span>
-<span className="material-symbols-outlined text-[14px]">timer</span>
-</button>
-</div>
-<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-4 hover:bg-surface-hover transition-colors shadow-sm">
-<div className="space-y-3">
-<div className="flex items-center justify-between">
-<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-status-error bg-status-error/10">Hard · System Design</span>
-<span className="material-symbols-outlined text-text-muted text-[18px]">dns</span>
-</div>
-<h3 className="font-title-card text-title-card text-text-primary">Distributed Caching &amp; Cache-Aside Invalidation</h3>
-<div className="p-2.5 rounded-lg bg-surface-container text-xs text-text-secondary space-y-1">
-<div className="font-body-bold text-text-primary flex items-center gap-1">
-<span className="material-symbols-outlined text-status-error text-[14px]">error</span>
-<span>AI Diagnostic</span>
-</div>
-<p>Weak area detected in Amazon Mock: multi-region replication lag recovery.</p>
-</div>
-</div>
-<button className="w-full py-2 rounded-lg bg-primary-container hover:bg-primary-container/90 text-on-primary font-body-bold text-body-bold text-xs transition-colors flex items-center justify-center gap-1.5">
-<span>Review Concept &amp; Drill</span>
-<span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-</button>
-</div>
-<div className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-4 hover:bg-surface-hover transition-colors shadow-sm">
-<div className="space-y-3">
-<div className="flex items-center justify-between">
-<span className="px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider text-tertiary bg-tertiary/10">Core CS</span>
-<span className="material-symbols-outlined text-text-muted text-[18px]">memory</span>
-</div>
-<h3 className="font-title-card text-title-card text-text-primary">OS Virtual Memory &amp; Page Replacement</h3>
-<div className="p-2.5 rounded-lg bg-surface-container text-xs text-text-secondary space-y-1">
-<div className="font-body-bold text-text-primary flex items-center gap-1">
-<span className="material-symbols-outlined text-tertiary text-[14px]">info</span>
-<span>Spaced Repetition</span>
-</div>
-<p>Revision recommended: 14 days since last evaluation on page tables and TLB.</p>
-</div>
-</div>
-<button className="w-full py-2 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center justify-center gap-1.5">
-<span>Quick Quiz (5 Qs)</span>
-<span className="material-symbols-outlined text-[14px]">quiz</span>
-</button>
-</div>
+{stats?.recommendations?.map((rec: any) => (
+  <div key={rec.id} className="bg-surface-elevated rounded-xl p-5 flex flex-col justify-between space-y-4 hover:bg-surface-hover transition-colors shadow-sm">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className={`px-2 py-0.5 rounded font-badge-caps text-badge-caps uppercase tracking-wider ${rec.level === 'Hard' ? 'text-status-error bg-status-error/10' : rec.level === 'Medium' ? 'text-status-warning bg-status-warning/10' : 'text-tertiary bg-tertiary/10'}`}>
+          {rec.level} · {rec.type}
+        </span>
+        <span className="material-symbols-outlined text-text-muted text-[18px]">
+          {rec.type === 'DSA' ? 'account_tree' : rec.type === 'System Design' ? 'dns' : 'memory'}
+        </span>
+      </div>
+      <h3 className="font-title-card text-title-card text-text-primary">{rec.title}</h3>
+      <div className="p-2.5 rounded-lg bg-surface-container text-xs text-text-secondary space-y-1">
+        <p>{rec.description}</p>
+      </div>
+    </div>
+    <button className="w-full py-2 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center justify-center gap-1.5">
+      <span>{rec.action}</span>
+      <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+    </button>
+  </div>
+))}
 </div>
 </section>
 <section className="space-y-4">
@@ -279,12 +241,12 @@ export default function DashboardPage() {
 <circle className="fill-primary-container stroke-text-primary" cx="500" cy="60" r="5" strokeWidth="2"></circle>
 </svg>
 <div className="flex justify-between items-center text-text-muted font-code-base text-[11px] pt-2 z-10">
-<span>W-5 (64)</span>
-<span>W-4 (67)</span>
-<span>W-3 (71)</span>
-<span>W-2 (73)</span>
-<span>W-1 (76)</span>
-<span className="text-text-primary font-code-bold">Current (78)</span>
+<span>W-5 ({stats?.trend?.[0] || 0})</span>
+<span>W-4 ({stats?.trend?.[1] || 0})</span>
+<span>W-3 ({stats?.trend?.[2] || 0})</span>
+<span>W-2 ({stats?.trend?.[3] || 0})</span>
+<span>W-1 ({stats?.trend?.[4] || 0})</span>
+<span className="text-text-primary font-code-bold">Current ({stats?.trend?.[5] || 0})</span>
 </div>
 </div>
 <div className="bg-surface-container rounded-lg p-3 flex items-center justify-between font-metadata-sm text-metadata-sm">
@@ -305,72 +267,72 @@ export default function DashboardPage() {
 <div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
 <span className="text-text-primary font-body-bold">DSA</span>
 <div className="flex items-center gap-2">
-<span className="font-code-bold text-text-primary">82 / 100</span>
-<span className="text-status-success font-badge-caps text-badge-caps uppercase">Proficient</span>
+<span className="font-code-bold text-text-primary">{stats?.skills?.dsa || 0} / 100</span>
+<span className="text-status-success font-badge-caps text-badge-caps uppercase">{(stats?.skills?.dsa || 0) >= 75 ? 'Proficient' : 'Needs Practice'}</span>
 </div>
 </div>
 <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-status-success h-full rounded-full w-[82%]"></div>
+<div className="bg-status-success h-full rounded-full" style={{ width: `${stats?.skills?.dsa || 0}%` }}></div>
 </div>
 </div>
 <div className="space-y-1">
 <div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
 <span className="text-text-primary font-body-bold">System Design</span>
 <div className="flex items-center gap-2">
-<span className="font-code-bold text-text-primary">71 / 100</span>
-<span className="text-status-warning font-badge-caps text-badge-caps uppercase">Needs Caching Drill</span>
+<span className="font-code-bold text-text-primary">{stats?.skills?.systemDesign || 0} / 100</span>
+<span className="text-status-warning font-badge-caps text-badge-caps uppercase">{(stats?.skills?.systemDesign || 0) >= 75 ? 'Solid' : 'Needs Practice'}</span>
 </div>
 </div>
 <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-status-warning h-full rounded-full w-[71%]"></div>
+<div className="bg-status-warning h-full rounded-full" style={{ width: `${stats?.skills?.systemDesign || 0}%` }}></div>
 </div>
 </div>
 <div className="space-y-1">
 <div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
 <span className="text-text-primary font-body-bold">OS &amp; Concurrency</span>
 <div className="flex items-center gap-2">
-<span className="font-code-bold text-text-primary">76 / 100</span>
-<span className="text-tertiary font-badge-caps text-badge-caps uppercase">Solid</span>
+<span className="font-code-bold text-text-primary">{stats?.skills?.os || 0} / 100</span>
+<span className="text-tertiary font-badge-caps text-badge-caps uppercase">{(stats?.skills?.os || 0) >= 75 ? 'Solid' : 'Needs Practice'}</span>
 </div>
 </div>
 <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-tertiary h-full rounded-full w-[76%]"></div>
+<div className="bg-tertiary h-full rounded-full" style={{ width: `${stats?.skills?.os || 0}%` }}></div>
 </div>
 </div>
 <div className="space-y-1">
 <div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
 <span className="text-text-primary font-body-bold">DBMS &amp; Storage</span>
 <div className="flex items-center gap-2">
-<span className="font-code-bold text-text-primary">80 / 100</span>
-<span className="text-status-success font-badge-caps text-badge-caps uppercase">Strong</span>
+<span className="font-code-bold text-text-primary">{stats?.skills?.dbms || 0} / 100</span>
+<span className="text-status-success font-badge-caps text-badge-caps uppercase">{(stats?.skills?.dbms || 0) >= 75 ? 'Strong' : 'Needs Practice'}</span>
 </div>
 </div>
 <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-status-success h-full rounded-full w-[80%]"></div>
+<div className="bg-status-success h-full rounded-full" style={{ width: `${stats?.skills?.dbms || 0}%` }}></div>
 </div>
 </div>
 <div className="space-y-1">
 <div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
 <span className="text-text-primary font-body-bold">Computer Networks</span>
 <div className="flex items-center gap-2">
-<span className="font-code-bold text-text-primary">74 / 100</span>
-<span className="text-text-muted font-badge-caps text-badge-caps uppercase">Average</span>
+<span className="font-code-bold text-text-primary">{stats?.skills?.networks || 0} / 100</span>
+<span className="text-text-muted font-badge-caps text-badge-caps uppercase">{(stats?.skills?.networks || 0) >= 75 ? 'Good' : 'Average'}</span>
 </div>
 </div>
 <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-text-secondary h-full rounded-full w-[74%]"></div>
+<div className="bg-text-secondary h-full rounded-full" style={{ width: `${stats?.skills?.networks || 0}%` }}></div>
 </div>
 </div>
 <div className="space-y-1">
 <div className="flex items-center justify-between font-metadata-sm text-metadata-sm">
 <span className="text-text-primary font-body-bold">Behavioral &amp; Communication</span>
 <div className="flex items-center gap-2">
-<span className="font-code-bold text-text-primary">74 / 100</span>
-<span className="text-primary font-badge-caps text-badge-caps uppercase">Good</span>
+<span className="font-code-bold text-text-primary">{stats?.skills?.behavioral || 0} / 100</span>
+<span className="text-primary font-badge-caps text-badge-caps uppercase">{(stats?.skills?.behavioral || 0) >= 75 ? 'Good' : 'Average'}</span>
 </div>
 </div>
 <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
-<div className="bg-primary-container h-full rounded-full w-[74%]"></div>
+<div className="bg-primary-container h-full rounded-full" style={{ width: `${stats?.skills?.behavioral || 0}%` }}></div>
 </div>
 </div>
 </div>
