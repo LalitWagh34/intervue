@@ -172,6 +172,7 @@ model Profile {
   githubUrl       String?
   linkedinUrl     String?
   resumeUrl       String?
+  bio             String?  @db.Text
   skills          String[]
   githubData      Json?
   leetcodeHandle  String?

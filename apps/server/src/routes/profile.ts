@@ -64,33 +64,6 @@ app.get("/dashboard", requireAuth, async (c) => {
   // Generate some realistic-looking data if there's no complex ML model yet
   const baseScore = avgScore > 0 ? avgScore : 0;
   
-  const recommendations = [
-    {
-      id: "rec-1",
-      title: "Graph Algorithms & Topological Sort",
-      type: "DSA",
-      level: "Medium",
-      description: "Improves Problem Solving based on recent coding drill gaps.",
-      action: "Start Drill (15m)"
-    },
-    {
-      id: "rec-2",
-      title: "Distributed Caching & Cache-Aside Invalidation",
-      type: "System Design",
-      level: "Hard",
-      description: "Weak area detected in Mock: multi-region replication lag recovery.",
-      action: "Review Concept & Drill"
-    },
-    {
-      id: "rec-3",
-      title: "OS Virtual Memory & Page Replacement",
-      type: "Core CS",
-      level: "Medium",
-      description: "Revision recommended: 14 days since last evaluation.",
-      action: "Quick Quiz (5 Qs)"
-    }
-  ];
-
   const skills = {
     dsa: baseScore ? Math.min(100, baseScore + 4) : 0,
     systemDesign: baseScore ? Math.max(0, baseScore - 7) : 0,
@@ -99,6 +72,21 @@ app.get("/dashboard", requireAuth, async (c) => {
     networks: baseScore ? Math.max(0, baseScore - 4) : 0,
     behavioral: baseScore ? Math.max(0, baseScore - 4) : 0,
   };
+
+  const recBank = {
+    dsa: { title: "Graph Algorithms & Topological Sort", type: "DSA", level: "Hard", description: "Improve Data Structures fundamentals.", action: "Start Drill" },
+    systemDesign: { title: "Distributed Caching & Invalidation", type: "System Design", level: "Hard", description: "Weak area detected in Mock: architecture design.", action: "Review Concept" },
+    os: { title: "OS Virtual Memory & Paging", type: "Core CS", level: "Medium", description: "Operating systems concepts need revision.", action: "Quick Quiz" },
+    dbms: { title: "SQL Indexing & Query Optimization", type: "Core CS", level: "Medium", description: "Database query performance needs improvement.", action: "Practice SQL" },
+    networks: { title: "TCP/IP & WebSockets", type: "Core CS", level: "Medium", description: "Networking fundamentals are lacking.", action: "Read Guide" },
+    behavioral: { title: "Leadership Principles & STAR Method", type: "Behavioral", level: "Basic", description: "Communication and structural responses need work.", action: "Mock Interview" },
+  };
+
+  const sortedSkills = Object.entries(skills).sort((a, b) => a[1] - b[1]);
+  const recommendations = sortedSkills.slice(0, 3).map(([key], idx) => ({
+    id: `rec-${idx+1}`,
+    ...(recBank[key as keyof typeof recBank])
+  }));
 
   const trend = baseScore 
     ? [Math.max(0, baseScore - 14), Math.max(0, baseScore - 11), Math.max(0, baseScore - 7), Math.max(0, baseScore - 5), Math.max(0, baseScore - 2), baseScore]
@@ -125,6 +113,7 @@ app.post("/setup", requireAuth, async (c) => {
     where: { userId: user.id },
     update: {
       fullName: body.fullName,
+      bio: body.bio,
       targetRole: body.targetRole,
       experienceLevel: body.experienceLevel,
       githubUrl: body.githubUrl,
@@ -134,6 +123,7 @@ app.post("/setup", requireAuth, async (c) => {
     create: {
       userId: user.id,
       fullName: body.fullName,
+      bio: body.bio,
       targetRole: body.targetRole,
       experienceLevel: body.experienceLevel,
       githubUrl: body.githubUrl,

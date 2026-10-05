@@ -118,6 +118,7 @@ export default function RoomArenaPage() {
     if (isSpectatorMode && !inspectedParticipant && participants.length > 0) {
       const target = participants.find((p) => p.userId !== session?.user?.id) || participants[0];
       if (target) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setInspectedParticipant(target);
         inspectUserCode(target.userId);
       }
@@ -129,6 +130,7 @@ export default function RoomArenaPage() {
 
   useEffect(() => {
     if (socketRemaining !== null && socketRemaining !== undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSecondsLeft(socketRemaining);
     }
   }, [socketRemaining]);

@@ -39,6 +39,7 @@ export default function ProfileSetupPage() {
       const skills = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
       const res = await api.post("/profile/setup", {
         fullName,
+        bio,
         targetRole,
         experienceLevel,
         githubUrl,

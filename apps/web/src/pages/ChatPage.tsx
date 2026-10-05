@@ -56,7 +56,8 @@ export default function ChatPage() {
     setIsStreaming(true);
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
-    const res = await fetch(`http://localhost:3000/api/chats/${chatId}/message`, {
+    const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+    const res = await fetch(`${baseURL}/chats/${chatId}/message`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

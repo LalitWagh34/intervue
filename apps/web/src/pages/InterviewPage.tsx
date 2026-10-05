@@ -50,8 +50,9 @@ async function sendMessage() {
   setIsStreaming(true);
   setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
   const res = await fetch(
-    `http://localhost:3000/api/interviews/${interviewId}/message`,
+    `${baseURL}/interviews/${interviewId}/message`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -226,12 +226,12 @@ export default function ProfilePage() {
                 <h1 className="text-xl sm:text-2xl font-bold text-[#F5F7FA] tracking-tight">
                   {displayName}
                 </h1>
-                <span className="px-2 py-0.5 rounded bg-[#2F80ED]/10 text-[#3B9CFF] border border-[#2F80ED]/25 text-[11px] font-semibold">
-                  PRO
-                </span>
               </div>
               <p className="text-xs text-[#707784] font-mono mt-0.5">@{displayHandle}</p>
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
+              {profile?.bio && (
+                <p className="text-sm text-[#A1A7B3] mt-2 max-w-md leading-relaxed">{profile.bio}</p>
+              )}
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
                 <span className="text-xs text-[#A1A7B3] font-medium flex items-center gap-1.5 bg-[#101216] px-2.5 py-1 rounded-md border border-[#1E2229]">
                   <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
                   {profile?.targetRole || "Software Engineer"}

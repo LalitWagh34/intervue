@@ -72,7 +72,7 @@ export default function AppLayout() {
     navigate("/login");
   };
 
-  const currentStreak = stats?.consistency?.currentStreak ?? 7;
+  const currentStreak = stats?.consistency?.currentStreak ?? 0;
   const user = session?.user;
   const initials =
     user?.name
@@ -120,14 +120,7 @@ export default function AppLayout() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
             </Link> */}
 
-            {/* TUF Coins Balance */}
-            <div
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-semibold font-mono text-[#F59E0B]"
-              title="TUF Coin Balance"
-            >
-              <Coins className="w-3.5 h-3.5 text-[#F59E0B]" />
-              <span>20</span>
-            </div>
+            {/* TUF Coins Balance Removed (Fake Feature) */}
 
             {/* Streak Counter Pill */}
             <div
@@ -201,17 +194,10 @@ export default function AppLayout() {
 
                   {/* Badges / Stats Strip */}
                   <div className="grid grid-cols-2 gap-2 my-3">
-                    <div className="p-2 rounded-xl bg-[#0D0E12] border border-[#181A20] text-center">
+                    <div className="p-2 rounded-xl bg-[#0D0E12] border border-[#181A20] text-center col-span-2">
                       <span className="text-[10px] text-[#8B92A0] block">Streak</span>
                       <span className="text-xs font-bold text-[#F59E0B] font-mono flex items-center justify-center gap-1 mt-0.5">
                         <Flame className="w-3 h-3" /> {currentStreak} Days
-                      </span>
-                    </div>
-
-                    <div className="p-2 rounded-xl bg-[#0D0E12] border border-[#181A20] text-center">
-                      <span className="text-[10px] text-[#8B92A0] block">TUF Balance</span>
-                      <span className="text-xs font-bold text-[#327CF6] font-mono flex items-center justify-center gap-1 mt-0.5">
-                        <Coins className="w-3 h-3" /> 20 Coins
                       </span>
                     </div>
                   </div>

@@ -47,17 +47,17 @@ export default function DashboardPage() {
 {/* <span className="font-metadata-sm text-metadata-sm text-text-muted">Target: Senior SDE (L5)</span> */}
 </div>
 <h1 className="font-headline-page text-headline-page text-text-primary tracking-tight">{getGreeting()}, {firstName}.</h1>
-<p className="font-body-base text-body-base text-text-secondary">Keep your interview preparation moving. Next mock evaluation scheduled in 2 days.</p>
+<p className="font-body-base text-body-base text-text-secondary">Keep your interview preparation moving. Ready for your next challenge?</p>
 </div>
 <div className="flex items-center gap-3">
-<button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-elevated hover:bg-surface-hover text-text-primary font-body-bold text-body-bold transition-all shadow-sm">
+<Link to="/practice" className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-elevated hover:bg-surface-hover text-text-primary font-body-bold text-body-bold transition-all shadow-sm">
 <span className="material-symbols-outlined text-[18px] text-text-secondary">code_blocks</span>
 <span>Practice Coding</span>
-</button>
-<button className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary-container hover:bg-primary-container/90 text-on-primary font-body-bold text-body-bold transition-all shadow-sm">
+</Link>
+<Link to="/interview" className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary-container hover:bg-primary-container/90 text-on-primary font-body-bold text-body-bold transition-all shadow-sm">
 <span className="material-symbols-outlined text-[18px]">play_arrow</span>
 <span>Start Interview</span>
-</button>
+</Link>
 </div>
 </header>
 <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -111,7 +111,7 @@ export default function DashboardPage() {
 <span className="font-code-base text-code-base text-text-muted">sessions</span>
 </div>
 <div className="font-metadata-sm text-metadata-sm text-text-secondary flex items-center gap-2">
-<span className="text-text-primary font-code-base">12</span> Voice/Chat <span className="text-text-muted">·</span> <span className="text-text-primary font-code-base">6</span> Timed Code
+<span>Total simulations completed</span>
         </div>
 </div>
 </section>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
 <div>
 <h2 className="font-headline-section text-headline-section text-text-primary tracking-tight">Recent Sessions</h2>
 </div>
-<Link className="font-metadata-sm text-metadata-sm text-primary hover:text-primary-fixed transition-colors flex items-center gap-1" to="#">
+<Link className="font-metadata-sm text-metadata-sm text-primary hover:text-primary-fixed transition-colors flex items-center gap-1" to="/history">
 <span>View History</span>
 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
 </Link>
@@ -143,10 +143,10 @@ export default function DashboardPage() {
             {interview.status}
           </span>
         </div>
-        <button className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
+        <Link to={`/results/${interview.id}`} className="px-3.5 py-1.5 rounded-lg bg-surface-container hover:bg-surface-active text-text-primary font-body-bold text-body-bold text-xs transition-colors flex items-center gap-1.5">
           <span>{interview.status === 'completed' ? 'View Details' : 'Continue'}</span>
           <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-        </button>
+        </Link>
       </div>
     </div>
   ))
@@ -154,7 +154,7 @@ export default function DashboardPage() {
   <div className="col-span-3 py-10 flex flex-col items-center justify-center text-text-muted bg-surface-elevated rounded-xl border border-dashed border-surface-container">
     <span className="material-symbols-outlined text-4xl mb-2 opacity-50">history</span>
     <p>No recent sessions found.</p>
-    <button className="mt-4 px-4 py-2 rounded-lg bg-primary-container text-on-primary font-body-bold text-sm">Start a new simulation</button>
+    <Link to="/interview" className="mt-4 px-4 py-2 rounded-lg bg-primary-container text-on-primary font-body-bold text-sm">Start a new simulation</Link>
   </div>
 )}
 </div>
@@ -223,23 +223,40 @@ export default function DashboardPage() {
 <div className="border-b border-surface-container w-full flex justify-between pr-2"><span>60</span></div>
 <div className="border-b border-surface-container w-full flex justify-between pr-2"><span>40</span></div>
 </div>
-<svg className="w-full h-44 overflow-visible z-10" preserveAspectRatio="none" viewBox="0 0 500 180">
-<defs>
-<linearGradient id="scoreTrendGradient" x1="0%" x2="0%" y1="0%" y2="100%">
-<stop offset="0%" stopColor="#448ffd" stopOpacity="0.35"></stop>
-<stop offset="100%" stopColor="#448ffd" stopOpacity="0.0"></stop>
-</linearGradient>
-</defs>
-<line opacity="0.8" stroke="#F59E0B" strokeDasharray="4 4" strokeWidth="1.5" x1="0" x2="500" y1="75" y2="75"></line>
-<polygon fill="url(#scoreTrendGradient)" points="20,108 116,99 212,87 308,81 404,72 500,60 500,180 20,180"></polygon>
-<polyline fill="none" points="20,108 116,99 212,87 308,81 404,72 500,60" stroke="#448ffd" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></polyline>
-<circle className="fill-surface-elevated stroke-primary-container" cx="20" cy="108" r="4" strokeWidth="2"></circle>
-<circle className="fill-surface-elevated stroke-primary-container" cx="116" cy="99" r="4" strokeWidth="2"></circle>
-<circle className="fill-surface-elevated stroke-primary-container" cx="212" cy="87" r="4" strokeWidth="2"></circle>
-<circle className="fill-surface-elevated stroke-primary-container" cx="308" cy="81" r="4" strokeWidth="2"></circle>
-<circle className="fill-surface-elevated stroke-primary-container" cx="404" cy="72" r="4" strokeWidth="2"></circle>
-<circle className="fill-primary-container stroke-text-primary" cx="500" cy="60" r="5" strokeWidth="2"></circle>
-</svg>
+{(() => {
+  const getCy = (score: number) => Math.max(0, Math.min(180, (100 - score) * 3));
+  const trend = stats?.trend || [0, 0, 0, 0, 0, 0];
+  // Calculate CY for each week
+  const p1 = getCy(trend[0] || 0);
+  const p2 = getCy(trend[1] || 0);
+  const p3 = getCy(trend[2] || 0);
+  const p4 = getCy(trend[3] || 0);
+  const p5 = getCy(trend[4] || 0);
+  const p6 = getCy(trend[5] || 0);
+  
+  const polyPoints = `20,${p1} 116,${p2} 212,${p3} 308,${p4} 404,${p5} 500,${p6}`;
+  const fillPoints = `${polyPoints} 500,180 20,180`;
+  
+  return (
+    <svg className="w-full h-44 overflow-visible z-10" preserveAspectRatio="none" viewBox="0 0 500 180">
+    <defs>
+    <linearGradient id="scoreTrendGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+    <stop offset="0%" stopColor="#448ffd" stopOpacity="0.35"></stop>
+    <stop offset="100%" stopColor="#448ffd" stopOpacity="0.0"></stop>
+    </linearGradient>
+    </defs>
+    <line opacity="0.8" stroke="#F59E0B" strokeDasharray="4 4" strokeWidth="1.5" x1="0" x2="500" y1="75" y2="75"></line>
+    <polygon fill="url(#scoreTrendGradient)" points={fillPoints}></polygon>
+    <polyline fill="none" points={polyPoints} stroke="#448ffd" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5"></polyline>
+    <circle className="fill-surface-elevated stroke-primary-container" cx="20" cy={p1} r="4" strokeWidth="2"></circle>
+    <circle className="fill-surface-elevated stroke-primary-container" cx="116" cy={p2} r="4" strokeWidth="2"></circle>
+    <circle className="fill-surface-elevated stroke-primary-container" cx="212" cy={p3} r="4" strokeWidth="2"></circle>
+    <circle className="fill-surface-elevated stroke-primary-container" cx="308" cy={p4} r="4" strokeWidth="2"></circle>
+    <circle className="fill-surface-elevated stroke-primary-container" cx="404" cy={p5} r="4" strokeWidth="2"></circle>
+    <circle className="fill-primary-container stroke-text-primary" cx="500" cy={p6} r="5" strokeWidth="2"></circle>
+    </svg>
+  );
+})()}
 <div className="flex justify-between items-center text-text-muted font-code-base text-[11px] pt-2 z-10">
 <span>W-5 ({stats?.trend?.[0] || 0})</span>
 <span>W-4 ({stats?.trend?.[1] || 0})</span>
@@ -250,8 +267,26 @@ export default function DashboardPage() {
 </div>
 </div>
 <div className="bg-surface-container rounded-lg p-3 flex items-center justify-between font-metadata-sm text-metadata-sm">
-<span className="text-text-secondary">Summary Insight: Velocity pace qualifies for L5 mock sign-off.</span>
-<span className="font-code-bold text-status-success">+14 pts over sprint</span>
+{(() => {
+  const current = stats?.trend?.[5] || 0;
+  const prev = stats?.trend?.[4] || 0;
+  const diff = current - prev;
+  if (current >= 75) {
+    return (
+      <>
+        <span className="text-text-secondary">Summary Insight: Velocity pace qualifies for L5 mock sign-off.</span>
+        <span className="font-code-bold text-status-success">{diff >= 0 ? '+' : ''}{diff} pts over last sprint</span>
+      </>
+    );
+  } else {
+    return (
+      <>
+        <span className="text-text-secondary">Summary Insight: Keep practicing to reach the L5 target.</span>
+        <span className={`font-code-bold ${diff >= 0 ? 'text-status-success' : 'text-status-error'}`}>{diff >= 0 ? '+' : ''}{diff} pts over last sprint</span>
+      </>
+    );
+  }
+})()}
 </div>
 </div>
 <div className="lg:col-span-5 bg-surface-elevated rounded-xl p-6 flex flex-col justify-between space-y-5 shadow-sm">

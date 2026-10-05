@@ -119,7 +119,7 @@ export default function ResultsPage() {
                 </ul>
               </CardContent>
             </Card>
-          </div># add badges below if needed
+          </div>
         </>
       )}
 

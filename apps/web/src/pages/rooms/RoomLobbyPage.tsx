@@ -107,6 +107,7 @@ export default function RoomLobbyPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadRoom();
   }, [code, navigate]);
 
