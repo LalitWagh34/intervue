@@ -66,6 +66,60 @@ app.get("/meta/topics", requireAuth, async (c) => {
   }
 });
 
+// ─── GET /api/rooms/history ──────────────────────────────────────────────
+app.get("/history", requireAuth, async (c) => {
+  try {
+    const user = c.get("user");
+
+    const participations = await db.roomParticipant.findMany({
+      where: { userId: user.id },
+      include: {
+        room: {
+          include: {
+            questions: true,
+            participants: {
+              orderBy: [
+                { score: "desc" },
+                { penaltyTime: "asc" }
+              ]
+            }
+          }
+        }
+      },
+      orderBy: { joinedAt: "desc" }
+    });
+
+    const contests = participations.map((p) => {
+      const room = p.room;
+      const rank = room.participants.findIndex(rp => rp.userId === user.id) + 1;
+      
+      return {
+        id: room.id,
+        code: room.code,
+        title: room.title,
+        type: room.type,
+        status: room.status,
+        duration: room.duration,
+        startTime: room.startTime,
+        endTime: room.endTime,
+        createdAt: room.createdAt,
+        joinedAt: p.joinedAt,
+        role: p.role,
+        myScore: p.score,
+        mySolvedCount: p.solvedCount,
+        myRank: rank > 0 ? rank : 0,
+        totalParticipants: room.participants.length,
+        totalQuestions: room.questions.length
+      };
+    });
+
+    return c.json({ contests });
+  } catch (error) {
+    console.error("Error fetching room history:", error);
+    return c.json({ error: "Failed to fetch history" }, 500);
+  }
+});
+
 // ─── POST /api/rooms ─────────────────────────────────────────────────────
 // Create a new competitive room
 app.post("/", requireAuth, validateBody(createRoomSchema), async (c) => {
