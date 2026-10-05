@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFeaturedCompanies, useCompanyQuestions } from "@/hooks/useCompanies";
 import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import {
   Code2,
   BookOpen,
@@ -62,10 +63,8 @@ export interface SheetMeta {
 
 // We now fetch this dynamically from the backend
 const fetchSheets = async () => {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/sheets`);
-  if (!res.ok) throw new Error("Failed to fetch sheets");
-  const data = await res.json();
-  return data.sheets as SheetMeta[];
+  const res = await api.get('/sheets');
+  return res.data.sheets as SheetMeta[];
 };
 
 const TOP_COMPANIES_PRESET = [
@@ -146,15 +145,15 @@ export default function PracticeHubPage() {
   // Get active sheet metadata
   const currentSheet = useMemo(() => {
     return dynamicSheets.find((s) => s.id === selectedSheetId) || dynamicSheets[0];
-  }, [selectedSheetId]);
+  }, [selectedSheetId, dynamicSheets]);
 
   // Sheets belonging to current subject
   const currentSubjectSheets = useMemo(() => {
     return dynamicSheets.filter((s) => s.subjectId === selectedSubject);
-  }, [selectedSubject]);
+  }, [selectedSubject, dynamicSheets]);
 
   // Active sheet problem metrics
-  const activeSheetProblems = currentSheet.problems;
+  const activeSheetProblems = currentSheet?.problems || [];
   const sheetTotalCount = activeSheetProblems.length;
   const sheetSolvedCount = activeSheetProblems.filter((p) => solvedProblems[p.id]).length;
   const sheetProgressPercent = Math.round((sheetSolvedCount / Math.max(sheetTotalCount, 1)) * 100);
@@ -197,12 +196,19 @@ export default function PracticeHubPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Handler to open company-wise view directly
   const openCompanyWise = (companyName?: string) => {
     if (companyName) setSelectedCompany(companyName);
     setCurrentView("company_wise");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (isSheetsLoading || !currentSheet) {
+    return (
+      <div className="min-h-screen bg-[#060709] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#060709] text-[#F3F4F6] font-sans pb-16 px-4 sm:px-6 lg:px-8 pt-6 max-w-[1400px] mx-auto">
