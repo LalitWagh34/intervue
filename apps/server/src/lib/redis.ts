@@ -6,8 +6,9 @@ const redisOptions = {
   lazyConnect: true,
   maxRetriesPerRequest: 1,
   retryStrategy(times: number) {
-    if (times > 3) return null;
-    return Math.min(times * 100, 2000);
+    // Return null to stop retrying immediately if Redis is missing locally
+    if (times > 1) return null;
+    return 1000;
   },
 };
 

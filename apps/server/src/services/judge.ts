@@ -168,11 +168,7 @@ export function validateSourceCode(sourceCode: unknown): asserts sourceCode is s
  * Supports JAVASCRIPT and TYPESCRIPT execution safely with standard timeout.
  */
 async function executeLocalSandbox({
-  sourceCode,
   language,
-  input,
-  expectedOutput,
-  timeLimit,
 }: {
   sourceCode: string;
   language: SupportedLanguage;
@@ -180,122 +176,11 @@ async function executeLocalSandbox({
   expectedOutput: string;
   timeLimit: number;
 }): Promise<ExecutionOutcome> {
-  const startTime = Date.now();
-
-  return new Promise((resolve) => {
-    let child: any;
-    let stdoutData = "";
-    let stderrData = "";
-    let isTerminated = false;
-
-    const timeoutHandle = setTimeout(() => {
-      isTerminated = true;
-      try {
-        child?.kill("SIGKILL");
-      } catch {}
-      resolve({
-        result: {
-          stdout: stdoutData,
-          stderr: "Time limit exceeded",
-          compile_output: null,
-          message: null,
-          time: (timeLimit / 1000).toFixed(3),
-          memory: 32000,
-          status: { id: STATUS.TIME_LIMIT_EXCEEDED, description: "Time Limit Exceeded" },
-        },
-      });
-    }, timeLimit + 1000);
-
-    try {
-      if (language === "JAVASCRIPT" || language === "TYPESCRIPT") {
-        // Run with bun/node
-        child = spawn(process.execPath || "bun", ["-e", sourceCode], {
-          stdio: ["pipe", "pipe", "pipe"],
-          timeout: timeLimit + 1500,
-        });
-      } else if (language === "PYTHON") {
-        child = spawn("python", ["-c", sourceCode], {
-          stdio: ["pipe", "pipe", "pipe"],
-          timeout: timeLimit + 1500,
-        });
-      } else {
-        clearTimeout(timeoutHandle);
-        return resolve({
-          infraError: `Judge0 is offline and native compiled language (${language}) cannot be evaluated without Judge0 server.`,
-        });
-      }
-
-      if (input) {
-        child.stdin.write(input);
-        child.stdin.end();
-      } else {
-        child.stdin.end();
-      }
-
-      child.stdout.on("data", (chunk: Buffer) => {
-        stdoutData += chunk.toString("utf8");
-      });
-
-      child.stderr.on("data", (chunk: Buffer) => {
-        stderrData += chunk.toString("utf8");
-      });
-
-      child.on("error", (err: any) => {
-        clearTimeout(timeoutHandle);
-        if (isTerminated) return;
-        resolve({
-          infraError: `Local execution error: ${err.message}`,
-        });
-      });
-
-      child.on("close", (code: number | null) => {
-        clearTimeout(timeoutHandle);
-        if (isTerminated) return;
-
-        const durationMs = Date.now() - startTime;
-        const normalizedActual = normalizeOutput(stdoutData);
-        const normalizedExpected = normalizeOutput(expectedOutput);
-
-        if (code !== 0) {
-          const isCompileErr = stderrData.includes("SyntaxError") || stderrData.includes("compile");
-          return resolve({
-            result: {
-              stdout: stdoutData,
-              stderr: stderrData,
-              compile_output: isCompileErr ? stderrData : null,
-              message: null,
-              time: (durationMs / 1000).toFixed(3),
-              memory: 24000,
-              status: {
-                id: isCompileErr ? STATUS.COMPILATION_ERROR : STATUS.RUNTIME_ERROR_OTHER,
-                description: isCompileErr ? "Compilation Error" : "Runtime Error",
-              },
-            },
-          });
-        }
-
-        const isMatch = normalizedActual === normalizedExpected;
-
-        resolve({
-          result: {
-            stdout: stdoutData,
-            stderr: stderrData || null,
-            compile_output: null,
-            message: null,
-            time: (durationMs / 1000).toFixed(3),
-            memory: 24000,
-            status: {
-              id: isMatch ? STATUS.ACCEPTED : STATUS.WRONG_ANSWER,
-              description: isMatch ? "Accepted" : "Wrong Answer",
-            },
-          },
-        });
-      });
-    } catch (e: any) {
-      clearTimeout(timeoutHandle);
-      resolve({ infraError: `Sandbox invocation error: ${e.message}` });
-    }
-  });
+  // CRITICAL SECURITY FIX: Local sandbox via spawn() removed due to Remote Code Execution (RCE) vulnerability.
+  // Native/raw code execution must be containerized. Enforcing Judge0 API strictly.
+  return {
+    infraError: `Judge0 is offline. Local execution for ${language} is disabled for security reasons.`
+  };
 }
 
 /**

@@ -47,6 +47,7 @@ Evaluate the candidate's performance and respond with ONLY valid JSON in this ex
       model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.3,
+      response_format: { type: "json_object" },
     });
 
     const raw = completion.choices[0]?.message?.content || "{}";
