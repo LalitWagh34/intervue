@@ -264,6 +264,7 @@ model Problem {
   submissions     Submission[]
   roomQuestions   RoomQuestion[]
   roomSubmissions RoomSubmission[]
+  sheetProblems   DsaSheetProblem[]
   author          User?             @relation(fields: [authorId], references: [id])
 }
 
@@ -466,4 +467,29 @@ model RoomMcqAnswer {
 
   @@unique([roomId, userId, questionId])
   @@index([roomId, userId])
+}
+
+// ─── DSA Sheets Models ────────────────────────────
+model DsaSheet {
+  id             String            @id @default(cuid())
+  slug           String            @unique
+  title          String
+  subtitle       String
+  description    String            @db.Text
+  badge          String
+  badgeColor     String
+  estimatedHours String
+  problems       DsaSheetProblem[]
+}
+
+model DsaSheetProblem {
+  id         String   @id @default(cuid())
+  sheetId    String
+  problemId  Int
+  orderIndex Int
+
+  sheet      DsaSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  problem    Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([sheetId, problemId])
 }
