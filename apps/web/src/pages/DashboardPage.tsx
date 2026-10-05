@@ -9,6 +9,16 @@ interface DashboardStats {
   simulationsCount: number;
   recentInterviews: any[];
   avgScore: number;
+  trend?: number[];
+  skills?: {
+    dsa: number;
+    systemDesign: number;
+    os: number;
+    dbms: number;
+    networks: number;
+    behavioral: number;
+  };
+  recommendations?: any[];
 }
 
 export default function DashboardPage() {

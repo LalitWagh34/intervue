@@ -11,6 +11,7 @@ import chatRoutes from "./routes/chat";
 import adminRoutes from "./routes/admin";
 import voiceRoutes from "./routes/voice";
 import roomRoutes from "./routes/rooms";
+import { sheetsRouter } from "./routes/sheets";
 import companyRoutes from "./routes/companies";
 import { roomSocketManager } from "./services/roomSocket";
 import { register, httpRequestDurationMicroseconds } from "./lib/metrics";
@@ -80,6 +81,7 @@ app.route("/api/code",codeRoutes)
 app.route("/api/voice",voiceRoutes)
 app.route("/api/rooms", roomRoutes);
 app.route("/api/admin", adminRoutes);
+app.route("/api/sheets", sheetsRouter);
 app.route("/api/companies", companyRoutes);
 
 // Metrics Endpoint

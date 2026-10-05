@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFeaturedCompanies, useCompanyQuestions } from "@/hooks/useCompanies";
+import { useQuery } from "@tanstack/react-query";
 import {
   Code2,
   BookOpen,
@@ -59,150 +60,13 @@ export interface SheetMeta {
   problems: DsaProblem[];
 }
 
-const SHEETS_CATALOG: SheetMeta[] = [
-  // ─── DSA SHEETS ──────────────────────────────────────────
-  {
-    id: "striver_a2z",
-    subjectId: "dsa",
-    title: "Striver's A2Z DSA Sheet",
-    subtitle: "Zero to Hero Comprehensive Roadmap",
-    description: "Step-by-step master roadmap covering programming syntax, math, arrays, binary search, recursion, trees, graphs, and dynamic programming.",
-    badge: "Most Popular",
-    badgeColor: "blue",
-    problemCount: 455,
-    estimatedHours: "120 hrs",
-    problems: [
-      { id: "s1", index: 1, title: "Two Sum", slug: "two-sum", difficulty: "Basic", topic: "Hashing", moreTopics: 1, companies: ["Google", "Amazon"], isPotd: true },
-      { id: "s2", index: 2, title: "Valid Parentheses", slug: "valid-parentheses", difficulty: "Basic", topic: "Stack", companies: ["Meta", "Amazon"] },
-      { id: "s3", index: 3, title: "Best Time to Buy and Sell Stock", slug: "best-time-to-buy-and-sell-stock", difficulty: "Basic", topic: "Arrays", companies: ["Amazon", "Microsoft"] },
-      { id: "s4", index: 4, title: "Merge Sort Algorithm", slug: "merge-sort-algorithm", difficulty: "Core", topic: "Sorting", companies: ["Google", "Adobe"] },
-      { id: "s5", index: 5, title: "Maximum Subarray Sum (Kadane)", slug: "maximum-subarray-sum-kadane", difficulty: "Core", topic: "DP & Arrays", companies: ["Google", "Apple"] },
-      { id: "s6", index: 6, title: "3Sum", slug: "3sum", difficulty: "Core", topic: "Two Pointers", companies: ["Google", "Meta"] },
-      { id: "s7", index: 7, title: "Next Permutation", slug: "next-permutation", difficulty: "Hard", topic: "Arrays", companies: ["Google", "Uber"] },
-      { id: "s8", index: 8, title: "Trapping Rainwater", slug: "trapping-rainwater", difficulty: "Hard", topic: "Two Pointers", companies: ["Amazon", "Google"] },
-      { id: "s9", index: 9, title: "Binary Search on Sorted Array", slug: "binary-search-on-sorted-array", difficulty: "Basic", topic: "Binary Search", companies: ["Microsoft"] },
-      { id: "s10", index: 10, title: "Search in Rotated Sorted Array", slug: "search-in-rotated-sorted-array", difficulty: "Core", topic: "Binary Search", companies: ["Google", "Meta"] },
-      { id: "s11", index: 11, title: "Find Peak Element", slug: "find-peak-element", difficulty: "Core", topic: "Binary Search", companies: ["Amazon"] },
-      { id: "s12", index: 12, title: "Longest Substring Without Repeating", slug: "longest-substring-without-repeating", difficulty: "Core", topic: "Sliding Window", companies: ["Amazon", "Google"] },
-    ],
-  },
-  {
-    id: "neetcode_150",
-    subjectId: "dsa",
-    title: "NeetCode 150",
-    subtitle: "Pattern-Based FAANG Preparation",
-    description: "The global gold standard sheet grouping problems by algorithmic patterns: Sliding Window, Monotonic Stack, Backtracking, and 2D Dynamic Programming.",
-    badge: "Pattern Mastery",
-    badgeColor: "emerald",
-    problemCount: 150,
-    estimatedHours: "80 hrs",
-    problems: [
-      { id: "nc1", index: 1, title: "Contains Duplicate & Hash Set", slug: "contains-duplicate-hash-set", difficulty: "Basic", topic: "Arrays & Hashing", companies: ["Amazon", "Google"] },
-      { id: "nc2", index: 2, title: "Valid Anagram", slug: "valid-anagram", difficulty: "Basic", topic: "Arrays & Hashing", companies: ["Meta", "Uber"] },
-      { id: "nc3", index: 3, title: "Two Sum", slug: "two-sum", difficulty: "Basic", topic: "Arrays & Hashing", companies: ["Google", "Meta"], isPotd: true },
-      { id: "nc4", index: 4, title: "Group Anagrams", slug: "group-anagrams", difficulty: "Core", topic: "Arrays & Hashing", companies: ["Amazon", "Apple"] },
-      { id: "nc5", index: 5, title: "Top K Frequent Elements", slug: "top-k-frequent-elements", difficulty: "Core", topic: "Heaps", companies: ["Meta", "Amazon"] },
-      { id: "nc6", index: 6, title: "Valid Palindrome", slug: "valid-palindrome", difficulty: "Basic", topic: "Two Pointers", companies: ["Microsoft"] },
-      { id: "nc7", index: 7, title: "3Sum", slug: "3sum", difficulty: "Core", topic: "Two Pointers", companies: ["Google", "Meta"] },
-      { id: "nc8", index: 8, title: "Container With Most Water", slug: "container-with-most-water", difficulty: "Core", topic: "Two Pointers", companies: ["Google", "Amazon"] },
-      { id: "nc9", index: 9, title: "Trapping Rain Water", slug: "trapping-rain-water", difficulty: "Hard", topic: "Two Pointers", companies: ["Goldman Sachs", "Google"] },
-      { id: "nc10", index: 10, title: "Longest Substring Without Repeating", slug: "longest-substring-without-repeating", difficulty: "Core", topic: "Sliding Window", companies: ["Amazon", "Bloomberg"] },
-      { id: "nc11", index: 11, title: "Longest Repeating Character Replacement", slug: "longest-repeating-character-replacement", difficulty: "Core", topic: "Sliding Window", companies: ["Google"] },
-      { id: "nc12", index: 12, title: "Minimum Window Substring", slug: "minimum-window-substring", difficulty: "Hard", topic: "Sliding Window", companies: ["Meta", "Uber"] },
-    ],
-  },
-  {
-    id: "blind_75",
-    subjectId: "dsa",
-    title: "Blind 75",
-    subtitle: "Essential 75 High-ROI LeetCode Problems",
-    description: "The original curated list of 75 high-yield problems designed for rapid revision when you have 3 to 4 weeks before your technical interviews.",
-    badge: "Fast Track",
-    badgeColor: "amber",
-    problemCount: 75,
-    estimatedHours: "40 hrs",
-    problems: [
-      { id: "b1", index: 1, title: "Two Sum", slug: "two-sum", difficulty: "Basic", topic: "Hashing", companies: ["Google", "Amazon"], isPotd: true },
-      { id: "b2", index: 2, title: "Best Time to Buy and Sell Stock", slug: "best-time-to-buy-and-sell-stock", difficulty: "Basic", topic: "Arrays", companies: ["Amazon", "Meta"] },
-      { id: "b3", index: 3, title: "Contains Duplicate", slug: "contains-duplicate", difficulty: "Basic", topic: "Hashing", companies: ["Apple"] },
-      { id: "b4", index: 4, title: "Product of Array Except Self", slug: "product-of-array-except-self", difficulty: "Core", topic: "Arrays", companies: ["Amazon", "Meta"] },
-      { id: "b5", index: 5, title: "Maximum Subarray", slug: "maximum-subarray", difficulty: "Core", topic: "DP", companies: ["Google", "Microsoft"] },
-      { id: "b6", index: 6, title: "3Sum", slug: "3sum", difficulty: "Core", topic: "Two Pointers", companies: ["Google", "Uber"] },
-      { id: "b7", index: 7, title: "Reverse Linked List", slug: "reverse-linked-list", difficulty: "Basic", topic: "Linked List", companies: ["Amazon"] },
-      { id: "b8", index: 8, title: "Merge Two Sorted Lists", slug: "merge-two-sorted-lists", difficulty: "Basic", topic: "Linked List", companies: ["Microsoft"] },
-      { id: "b9", index: 9, title: "Valid Parentheses", slug: "valid-parentheses", difficulty: "Basic", topic: "Stack", companies: ["Meta"] },
-    ],
-  },
-  {
-    id: "striver_sde",
-    subjectId: "dsa",
-    title: "Striver's SDE Sheet",
-    subtitle: "Top 191 Interview Questions",
-    description: "The most tested 191 questions asked in technical interviews at Amazon, Microsoft, Google, Uber, Flipkart, and leading tech unicorns.",
-    badge: "Placement Core",
-    badgeColor: "purple",
-    problemCount: 191,
-    estimatedHours: "90 hrs",
-    problems: [
-      { id: "sd1", index: 1, title: "Set Matrix Zeroes", slug: "set-matrix-zeroes", difficulty: "Core", topic: "Arrays", companies: ["Amazon", "Microsoft"] },
-      { id: "sd2", index: 2, title: "Pascal's Triangle", slug: "pascal-s-triangle", difficulty: "Basic", topic: "Arrays", companies: ["Google", "Adobe"] },
-      { id: "sd3", index: 3, title: "Next Permutation", slug: "next-permutation", difficulty: "Core", topic: "Arrays", companies: ["Google", "Uber"] },
-      { id: "sd4", index: 4, title: "Kadane's Algorithm", slug: "kadane-s-algorithm", difficulty: "Core", topic: "Arrays", companies: ["Amazon", "Apple"] },
-      { id: "sd5", index: 5, title: "Sort an Array of 0s, 1s, and 2s", slug: "sort-an-array-of-0s-1s-and-2s", difficulty: "Core", topic: "Two Pointers", companies: ["Microsoft"] },
-      { id: "sd6", index: 6, title: "Stock Buy and Sell", slug: "stock-buy-and-sell", difficulty: "Basic", topic: "Arrays", companies: ["Amazon"] },
-    ],
-  },
-
-  // ─── CORE CS SHEETS ──────────────────────────────────────
-  {
-    id: "os_sheet",
-    subjectId: "core_cs",
-    title: "Operating Systems (OS) Sheet",
-    subtitle: "Core Architecture & Process Scheduling",
-    description: "Processes vs Threads, Concurrency & Deadlocks, Virtual Memory, Paging, and CPU Scheduling algorithms.",
-    badge: "High Yield",
-    badgeColor: "blue",
-    problemCount: 45,
-    estimatedHours: "20 hrs",
-    problems: [
-      { id: "os1", index: 1, title: "Process vs Thread Architecture", slug: "process-vs-thread-architecture", difficulty: "Basic", topic: "Concurrency", companies: ["Google", "Amazon"] },
-      { id: "os2", index: 2, title: "Deadlock Detection & Prevention (Banker's)", slug: "deadlock-detection-prevention-banker-s", difficulty: "Core", topic: "Deadlocks", companies: ["Microsoft"] },
-      { id: "os3", index: 3, title: "Virtual Memory & Page Replacement", slug: "virtual-memory-page-replacement", difficulty: "Core", topic: "Memory", companies: ["Apple"] },
-    ],
-  },
-  {
-    id: "dbms_sheet",
-    subjectId: "core_cs",
-    title: "Database Management (DBMS) Sheet",
-    subtitle: "Transactions, Indexing & Normalization",
-    description: "ACID Properties, Normalization (1NF to BCNF), Indexing (B-Trees), Transactions & SQL Query Optimizations.",
-    badge: "Must Master",
-    badgeColor: "amber",
-    problemCount: 40,
-    estimatedHours: "18 hrs",
-    problems: [
-      { id: "db1", index: 1, title: "ACID Properties & Isolation Levels", slug: "acid-properties-isolation-levels", difficulty: "Basic", topic: "Transactions", companies: ["Amazon", "Uber"] },
-      { id: "db2", index: 2, title: "B-Tree vs B+ Tree Indexing Mechanisms", slug: "b-tree-vs-b-tree-indexing-mechanisms", difficulty: "Core", topic: "Indexing", companies: ["Google", "Oracle"] },
-      { id: "db3", index: 3, title: "Normalization Forms (1NF through BCNF)", slug: "normalization-forms-1nf-through-bcnf", difficulty: "Core", topic: "Relational", companies: ["Microsoft"] },
-    ],
-  },
-  {
-    id: "cn_sheet",
-    subjectId: "core_cs",
-    title: "Computer Networks (CN) Sheet",
-    subtitle: "Protocols, OSI & Transport Layer",
-    description: "OSI Model, TCP/IP, 3-Way Handshake, DNS, HTTP/HTTPS, WebSockets, and IP Addressing.",
-    badge: "Essential",
-    badgeColor: "emerald",
-    problemCount: 38,
-    estimatedHours: "16 hrs",
-    problems: [
-      { id: "cn1", index: 1, title: "TCP 3-Way Handshake & Connection Teardown", slug: "tcp-3-way-handshake-connection-teardown", difficulty: "Basic", topic: "Transport", companies: ["Cisco", "Google"] },
-      { id: "cn2", index: 2, title: "HTTP/1.1 vs HTTP/2 vs HTTP/3 QUIC", slug: "http-1-1-vs-http-2-vs-http-3-quic", difficulty: "Core", topic: "Application", companies: ["Cloudflare", "Meta"] },
-      { id: "cn3", index: 3, title: "DNS Lookup Resolution Flow", slug: "dns-lookup-resolution-flow", difficulty: "Basic", topic: "Routing", companies: ["Amazon"] },
-    ],
-  },
-];
+// We now fetch this dynamically from the backend
+const fetchSheets = async () => {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/sheets`);
+  if (!res.ok) throw new Error("Failed to fetch sheets");
+  const data = await res.json();
+  return data.sheets as SheetMeta[];
+};
 
 const TOP_COMPANIES_PRESET = [
   { name: "Amazon", count: 443, global: true },
@@ -248,6 +112,11 @@ export default function PracticeHubPage() {
     selectedTimeframe
   );
 
+  const { data: dynamicSheets = [], isLoading: isSheetsLoading } = useQuery<SheetMeta[]>({
+    queryKey: ["sheets"],
+    queryFn: fetchSheets,
+  });
+
   // Solved state persisted in localStorage
   const [solvedProblems, setSolvedProblems] = useState<Record<string, boolean>>(() => {
     try {
@@ -276,12 +145,12 @@ export default function PracticeHubPage() {
 
   // Get active sheet metadata
   const currentSheet = useMemo(() => {
-    return SHEETS_CATALOG.find((s) => s.id === selectedSheetId) || SHEETS_CATALOG[0];
+    return dynamicSheets.find((s) => s.id === selectedSheetId) || dynamicSheets[0];
   }, [selectedSheetId]);
 
   // Sheets belonging to current subject
   const currentSubjectSheets = useMemo(() => {
-    return SHEETS_CATALOG.filter((s) => s.subjectId === selectedSubject);
+    return dynamicSheets.filter((s) => s.subjectId === selectedSubject);
   }, [selectedSubject]);
 
   // Active sheet problem metrics
@@ -315,7 +184,7 @@ export default function PracticeHubPage() {
   const openSubject = (subjectId: "dsa" | "core_cs") => {
     setSelectedSubject(subjectId);
     // select first sheet of that subject by default
-    const firstSheet = SHEETS_CATALOG.find((s) => s.subjectId === subjectId);
+    const firstSheet = dynamicSheets.find((s) => s.subjectId === subjectId);
     if (firstSheet) setSelectedSheetId(firstSheet.id);
     setCurrentView("sheets_catalog");
     window.scrollTo({ top: 0, behavior: "smooth" });
