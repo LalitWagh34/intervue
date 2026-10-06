@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFeaturedCompanies, useCompanyQuestions } from "@/hooks/useCompanies";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useProblemFilter } from "@/hooks/useProblemFilter";
+import { AdvancedFilterPopover } from "@/components/shared/AdvancedFilterPopover";
 import {
   Code2,
   BookOpen,
@@ -139,10 +141,6 @@ export default function PracticeHubPage() {
     });
   };
 
-  // Search in sheet
-  const [sheetSearchQuery, setSheetSearchQuery] = useState("");
-  const [difficultyFilter, setDifficultyFilter] = useState<string>("All");
-
   // Get active sheet metadata
   const currentSheet = useMemo(() => {
     return dynamicSheets.find((s) => s.id === selectedSheetId) || dynamicSheets[0];
@@ -168,21 +166,14 @@ export default function PracticeHubPage() {
   const hardSolved = activeSheetProblems.filter((p) => p.difficulty === "Hard" && solvedProblems[p.id]).length;
   const hardTotal = activeSheetProblems.filter((p) => p.difficulty === "Hard").length;
 
-  const filteredSheetProblems = useMemo(() => {
-    return activeSheetProblems.filter((p) => {
-      // 1. Difficulty Filter
-      if (difficultyFilter !== "All" && p.difficulty !== difficultyFilter) return false;
-
-      // 2. Search Filter
-      if (!sheetSearchQuery) return true;
-      const q = sheetSearchQuery.toLowerCase();
-      return (
-        (p.title?.toLowerCase() || "").includes(q) ||
-        (p.topic?.toLowerCase() || "").includes(q) ||
-        (p.companies || []).some((c) => c.toLowerCase().includes(q))
-      );
-    });
-  }, [activeSheetProblems, sheetSearchQuery, difficultyFilter]);
+  // Search and Filter in sheet
+  const { 
+    filters, 
+    updateFilter, 
+    clearFilters, 
+    filteredProblems: filteredSheetProblems, 
+    filterOptions 
+  } = useProblemFilter(activeSheetProblems, solvedProblems);
 
   // Handler to open a subject catalog
   const openSubject = (subjectId: "dsa" | "core_cs") => {
@@ -667,44 +658,14 @@ export default function PracticeHubPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-9 space-y-4">
               {/* Search & Counter Bar */}
-              <div className="flex items-center justify-between gap-3">
-                <div className="relative flex-1 max-w-sm">
-                  <Search className="w-3.5 h-3.5 text-[#525866] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder={`Search ${currentSheet.title}...`}
-                    value={sheetSearchQuery}
-                    onChange={(e) => setSheetSearchQuery(e.target.value)}
-                    className="w-full bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-[#525866] outline-none transition-all font-sans"
-                  />
-                </div>
-
-                <div className="flex items-center gap-3 text-xs text-[#7A808C]">
-                  <span className="font-mono">{filteredSheetProblems.length} questions in this sheet</span>
-                  <button
-                    onClick={() => {
-                      const states = ["All", "Basic", "Core", "Hard"];
-                      const next = states[(states.indexOf(difficultyFilter) + 1) % states.length];
-                      setDifficultyFilter(next);
-                    }}
-                    className={cn(
-                      "p-1.5 rounded-lg border transition-colors flex items-center gap-1.5",
-                      difficultyFilter === "All"
-                        ? "bg-[#0D0E12] border-[#181A20] hover:text-white"
-                        : difficultyFilter === "Basic"
-                        ? "bg-[#10B981]/10 border-[#10B981]/20 text-[#10B981]"
-                        : difficultyFilter === "Core"
-                        ? "bg-[#F59E0B]/10 border-[#F59E0B]/20 text-[#F59E0B]"
-                        : "bg-[#EF4444]/10 border-[#EF4444]/20 text-[#EF4444]"
-                    )}
-                  >
-                    <Filter className="w-3.5 h-3.5" />
-                    {difficultyFilter !== "All" && <span>{difficultyFilter}</span>}
-                  </button>
-                  <button className="p-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20] hover:text-white transition-colors">
-                    <Shuffle className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+              <div className="flex items-center justify-between gap-3 bg-[#0D0E12] p-2 rounded-xl border border-[#181A20]">
+                <AdvancedFilterPopover 
+                  filters={filters}
+                  updateFilter={updateFilter}
+                  clearFilters={clearFilters}
+                  options={filterOptions}
+                  resultCount={filteredSheetProblems.length}
+                />
               </div>
 
               {/* 48px Sleek Data Table */}
