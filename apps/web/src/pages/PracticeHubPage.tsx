@@ -141,6 +141,7 @@ export default function PracticeHubPage() {
 
   // Search in sheet
   const [sheetSearchQuery, setSheetSearchQuery] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("All");
 
   // Get active sheet metadata
   const currentSheet = useMemo(() => {
@@ -169,15 +170,19 @@ export default function PracticeHubPage() {
 
   const filteredSheetProblems = useMemo(() => {
     return activeSheetProblems.filter((p) => {
+      // 1. Difficulty Filter
+      if (difficultyFilter !== "All" && p.difficulty !== difficultyFilter) return false;
+
+      // 2. Search Filter
       if (!sheetSearchQuery) return true;
       const q = sheetSearchQuery.toLowerCase();
       return (
-        p.title.toLowerCase().includes(q) ||
-        p.topic.toLowerCase().includes(q) ||
-        p.companies.some((c) => c.toLowerCase().includes(q))
+        (p.title?.toLowerCase() || "").includes(q) ||
+        (p.topic?.toLowerCase() || "").includes(q) ||
+        (p.companies || []).some((c) => c.toLowerCase().includes(q))
       );
     });
-  }, [activeSheetProblems, sheetSearchQuery]);
+  }, [activeSheetProblems, sheetSearchQuery, difficultyFilter]);
 
   // Handler to open a subject catalog
   const openSubject = (subjectId: "dsa" | "core_cs") => {
@@ -676,8 +681,25 @@ export default function PracticeHubPage() {
 
                 <div className="flex items-center gap-3 text-xs text-[#7A808C]">
                   <span className="font-mono">{filteredSheetProblems.length} questions in this sheet</span>
-                  <button className="p-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20] hover:text-white transition-colors">
+                  <button
+                    onClick={() => {
+                      const states = ["All", "Basic", "Core", "Hard"];
+                      const next = states[(states.indexOf(difficultyFilter) + 1) % states.length];
+                      setDifficultyFilter(next);
+                    }}
+                    className={cn(
+                      "p-1.5 rounded-lg border transition-colors flex items-center gap-1.5",
+                      difficultyFilter === "All"
+                        ? "bg-[#0D0E12] border-[#181A20] hover:text-white"
+                        : difficultyFilter === "Basic"
+                        ? "bg-[#10B981]/10 border-[#10B981]/20 text-[#10B981]"
+                        : difficultyFilter === "Core"
+                        ? "bg-[#F59E0B]/10 border-[#F59E0B]/20 text-[#F59E0B]"
+                        : "bg-[#EF4444]/10 border-[#EF4444]/20 text-[#EF4444]"
+                    )}
+                  >
                     <Filter className="w-3.5 h-3.5" />
+                    {difficultyFilter !== "All" && <span>{difficultyFilter}</span>}
                   </button>
                   <button className="p-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20] hover:text-white transition-colors">
                     <Shuffle className="w-3.5 h-3.5" />
