@@ -40,7 +40,6 @@ app.get("/", async (c) => {
         select: {
           slug: true,
           title: true,
-          subjectId: true,
         },
         take: 3,
       }),

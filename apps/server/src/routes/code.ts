@@ -7,6 +7,7 @@ import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import Groq from "groq-sdk";
 import { judgeSubmission, runSampleTestCases } from "../services/judge";
+import { syncSolutionToGitHub } from "../services/githubSync";
 import { judgeSemaphore } from "../lib/semaphore";
 import { executionQueue } from "../services/taskQueue";
 
@@ -166,6 +167,23 @@ app.post("/submit", requireAuth, codeExecutionLimiter, validateBody(runCodeSchem
         language: body.language,
       });
     });
+
+    // If accepted, sync to GitHub in the background!
+    if (result.isAccepted) {
+      // Find problem title for the commit message
+      db.problem.findUnique({ where: { id: body.problemId }, select: { slug: true, title: true } })
+        .then(problem => {
+          if (problem) {
+            syncSolutionToGitHub(
+              user.id,
+              problem.slug,
+              problem.title,
+              body.language,
+              body.sourceCode
+            );
+          }
+        });
+    }
 
     return c.json({
       ...result,

@@ -66,7 +66,7 @@ export interface SheetMeta {
 // We now fetch this dynamically from the backend
 const fetchSheets = async () => {
   const res = await api.get('/sheets');
-  return res.data.sheets as SheetMeta[];
+  return res.data;
 };
 
 const TOP_COMPANIES_PRESET = [
@@ -113,10 +113,13 @@ export default function PracticeHubPage() {
     selectedTimeframe
   );
 
-  const { data: dynamicSheets = [], isLoading: isSheetsLoading } = useQuery<SheetMeta[]>({
+  const { data: sheetsData, isLoading: isSheetsLoading } = useQuery({
     queryKey: ["sheets"],
     queryFn: fetchSheets,
   });
+
+  const dynamicSheets: SheetMeta[] = sheetsData?.sheets || [];
+  const globalStats = sheetsData?.stats || { totalUsers: 0, curatedSubjects: 0, activeThisMonth: 0 };
 
   // Solved state persisted in localStorage
   const [solvedProblems, setSolvedProblems] = useState<Record<string, boolean>>(() => {
@@ -230,21 +233,21 @@ export default function PracticeHubPage() {
                   <div className="flex items-center gap-1.5 pr-3.5 border-r border-[#181A20]">
                     <Flame className="w-3.5 h-3.5 text-[#F59E0B]" />
                     <span>
-                      <strong className="text-white font-semibold">24.3K</strong> Active this month
+                      <strong className="text-white font-semibold">{(globalStats.activeThisMonth).toLocaleString()}</strong> Active this month
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1.5 px-3.5 border-r border-[#181A20]">
                     <Sparkles className="w-3.5 h-3.5 text-[#327CF6]" />
                     <span>
-                      <strong className="text-white font-semibold">1.8M</strong> Total Users
+                      <strong className="text-white font-semibold">{(globalStats.totalUsers).toLocaleString()}</strong> Total Users
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1.5 pl-3.5">
                     <BookOpen className="w-3.5 h-3.5 text-[#10B981]" />
                     <span>
-                      <strong className="text-white font-semibold">16</strong> Curated Subjects
+                      <strong className="text-white font-semibold">{globalStats.curatedSubjects}</strong> Curated Subjects
                     </span>
                   </div>
                 </div>

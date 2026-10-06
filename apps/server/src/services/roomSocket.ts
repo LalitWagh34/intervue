@@ -67,9 +67,15 @@ class RoomSocketManager {
 
   constructor() {
     // Setup Redis Pub/Sub for horizontal scaling synchronization
-    redisSubscriber.subscribe("room_events", (err) => {
-      if (err) console.error("[Socket] Failed to subscribe to room_events:", err);
-      else console.log("[Socket] Subscribed to Redis room_events for distributed sync.");
+    redisSubscriber.on("connect", () => {
+      try {
+        redisSubscriber.subscribe("room_events", (err) => {
+          if (err) console.error("[Socket] Failed to subscribe to room_events:", err);
+          else console.log("[Socket] Subscribed to Redis room_events for distributed sync.");
+        });
+      } catch (err) {
+        console.error("[Socket] Failed to subscribe to Redis:", err);
+      }
     });
 
     redisSubscriber.on("message", (channel, message) => {
