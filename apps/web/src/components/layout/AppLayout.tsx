@@ -3,6 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { authClient, useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
+import { useCommandPalette } from "@/hooks/useCommandPalette";
 import {
   Search,
   Bell,
@@ -23,6 +24,7 @@ import { cn } from "@/lib/utils";
 export default function AppLayout() {
   const { data: session } = useSession();
   const { data: stats } = useProfileStats();
+  const { setIsOpen } = useCommandPalette();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -98,7 +100,7 @@ export default function AppLayout() {
         <header className="h-16 px-6 md:px-8 border-b border-[#181A20] bg-[#0A0C10]/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between">
           {/* Global Search / Command Bar Trigger */}
           <div
-            onClick={() => navigate("/practice")}
+            onClick={() => setIsOpen(true)}
             className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 text-xs text-[#8B92A0] hover:text-[#F3F4F6] cursor-pointer transition-all w-64 md:w-80 group shadow-inner"
           >
             <Search className="w-3.5 h-3.5 text-[#525866] group-hover:text-[#327CF6] transition-colors" />

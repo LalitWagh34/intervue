@@ -13,6 +13,7 @@ import voiceRoutes from "./routes/voice";
 import roomRoutes from "./routes/rooms";
 import { sheetsRouter } from "./routes/sheets";
 import companyRoutes from "./routes/companies";
+import { searchRouter } from "./routes/search";
 import { roomSocketManager } from "./services/roomSocket";
 import { register, httpRequestDurationMicroseconds } from "./lib/metrics";
 import { logger as pinoLogger } from "./lib/logger";
@@ -83,6 +84,7 @@ app.route("/api/rooms", roomRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/sheets", sheetsRouter);
 app.route("/api/companies", companyRoutes);
+app.route("/api/search", searchRouter);
 
 // Metrics Endpoint
 app.get("/metrics", async (c) => {

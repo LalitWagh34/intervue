@@ -24,8 +24,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (isPending)
     return (
-      <div className="flex items-center justify-center h-screen bg-black text-white">
-        Loading...
+      <div className="flex items-center justify-center h-screen bg-[#060709] text-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   if (!session) return <Navigate to="/login" />;
@@ -33,14 +33,31 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Redirects logged-in users away from public pages (like Landing and Login)
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { data: session, isPending } = useSession();
+
+  if (isPending)
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#060709] text-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  if (session) return <Navigate to="/dashboard" />;
+
+  return <>{children}</>;
+}
+
 import { Toaster } from "@/components/ui/sonner";
+import { CommandPalette } from "@/components/shared/CommandPalette";
 
 export default function App() {
   return (
     <>
+      <CommandPalette />
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
 
         <Route
           path="/profile-setup"
