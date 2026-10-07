@@ -10,6 +10,15 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const errorParam = searchParams.get("error");
+  const refParam = searchParams.get("ref");
+
+  useEffect(() => {
+    if (refParam) {
+      try {
+        localStorage.setItem("intervue_referral_code", refParam);
+      } catch {}
+    }
+  }, [refParam]);
 
   useEffect(() => {
     if (errorParam === "state_mismatch") {

@@ -16,6 +16,9 @@ import RoomsPage from "./pages/rooms/RoomsPage";
 import RoomLobbyPage from "./pages/rooms/RoomLobbyPage";
 import RoomArenaPage from "./pages/rooms/RoomArenaPage";
 import RoomResultsPage from "./pages/rooms/RoomResultsPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import NotepadPage from "./pages/NotepadPage";
+import BookmarksPage from "./pages/BookmarksPage";
 import { useSession } from "@/lib/auth";
 // import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
@@ -84,12 +87,18 @@ export default function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/chat/:id" element={<ChatPage />} />
           <Route path="/admin" element={<AdminPage />} />        
-          <Route path="/coding" element={<CodingPage />} />
-          <Route path="/coding/:slug" element={<CodingPage />} />
+          <Route path="/notes" element={<NotepadPage />} />
+          <Route path="/bookmarks" element={<BookmarksPage />} />
+          {/* Coding Practice disabled for V1 */}
+          <Route path="/coding" element={<NotFoundPage />} />
+          <Route path="/coding/:slug" element={<NotFoundPage />} />
+          
           <Route path="/rooms" element={<RoomsPage />} />
           <Route path="/rooms/:code/lobby" element={<RoomLobbyPage />} />
           <Route path="/rooms/:code/results" element={<RoomResultsPage />} />
           {/* <Route path="/voice-interview" element={<VoiceInterviewPage />} /> */}
+          
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
 
         <Route

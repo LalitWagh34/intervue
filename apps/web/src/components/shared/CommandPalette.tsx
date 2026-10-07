@@ -122,6 +122,11 @@ export function CommandPalette() {
                       <span className="font-medium truncate group-aria-selected:text-[#327CF6] transition-colors">{prob.title}</span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      {prob.company && prob.company.length > 0 && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono border bg-[#14161C] border-[#1E2229] text-[#8B92A0]">
+                          {prob.company[0]}
+                        </span>
+                      )}
                       <span className={cn(
                         "px-2 py-0.5 rounded text-[10px] font-medium border",
                         prob.difficulty === "EASY" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
