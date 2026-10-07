@@ -115,7 +115,7 @@ export const createRoomSchema = z.object({
   codingCount: z
     .number()
     .int()
-    .min(1, "Must select at least 1 coding problem")
+    .min(0, "Coding problem count cannot be negative")
     .max(10, "Cannot select more than 10 coding problems")
     .optional(),
   codingTags: z
@@ -125,7 +125,7 @@ export const createRoomSchema = z.object({
   assessmentCount: z
     .number()
     .int()
-    .min(1, "Must select at least 1 MCQ question")
+    .min(0, "MCQ count cannot be negative")
     .max(50, "Cannot select more than 50 MCQ questions")
     .optional(),
   assessmentSubjects: z

@@ -139,7 +139,7 @@ app.post("/", requireAuth, validateBody(createRoomSchema), async (c) => {
     };
 
     const title = body.title;
-    const type = body.type;
+    const type = body.type || "APTITUDE";
     const duration = body.duration;
     const maxParticipants = body.maxParticipants;
 
