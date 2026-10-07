@@ -1,10 +1,13 @@
-import { useState, useMemo, useEffect } from "react";
+﻿import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFeaturedCompanies, useCompanyQuestions } from "@/hooks/useCompanies";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useProblemFilter } from "@/hooks/useProblemFilter";
 import { AdvancedFilterPopover } from "@/components/shared/AdvancedFilterPopover";
+import { QuestionNoteDrawer } from "@/components/shared/QuestionNoteDrawer";
+import { useBookmarkSlugs, useToggleBookmark } from "@/hooks/useBookmarks";
+import { toast } from "sonner";
 import {
   Code2,
   BookOpen,
@@ -31,6 +34,7 @@ import {
   TrendingUp,
   LayoutGrid,
   Zap,
+  NotebookPen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -106,6 +110,7 @@ export default function PracticeHubPage() {
   const [selectedCompany, setSelectedCompany] = useState<string>("Google");
   const [selectedTimeframe, setSelectedTimeframe] = useState<string>("thirtyDays");
   const [companySearchQuery, setCompanySearchQuery] = useState<string>("");
+  const [companyStatusFilter, setCompanyStatusFilter] = useState<"ALL" | "SOLVED" | "UNSOLVED">("ALL");
   const [companyTabFilter, setCompanyTabFilter] = useState<"global" | "indian">("global");
 
   const { data: companyQuestionsData, isLoading: isCompanyLoading } = useCompanyQuestions(
@@ -122,26 +127,87 @@ export default function PracticeHubPage() {
   const globalStats = sheetsData?.stats || { totalUsers: 0, curatedSubjects: 0, activeThisMonth: 0 };
 
   // Solved state persisted in localStorage
-  const [solvedProblems, setSolvedProblems] = useState<Record<string, boolean>>(() => {
-    try {
-      const saved = localStorage.getItem("tuf_solved_problems");
-      return saved ? JSON.parse(saved) : { s1: true, s2: true, nc3: true };
-    } catch {
-      return { s1: true, s2: true, nc3: true };
-    }
-  });
+  const [solvedProblems, setSolvedProblems] = useState<Record<string, boolean>>({});
 
-  const toggleSolved = (id: string, e: React.MouseEvent) => {
+  // Fetch solved problems from backend on mount
+  useEffect(() => {
+    const fetchSolved = async () => {
+      try {
+        const res = await api.get("/profile/solved-problems");
+        setSolvedProblems(res.data.solvedProblems || {});
+      } catch {
+        // fallback to localstorage if api fails
+        try {
+          const saved = localStorage.getItem("tuf_solved_problems");
+          if (saved) setSolvedProblems(JSON.parse(saved));
+        } catch {}
+      }
+    };
+    fetchSolved();
+  }, []);
+
+  const toggleSolved = async (id: string, e: React.MouseEvent, difficulty: string = "EASY", tags: string[] = []) => {
     e.stopPropagation();
+    
+    // Optimistic update
+    const isNowSolved = !solvedProblems[id];
     setSolvedProblems((prev) => {
-      const next = { ...prev, [id]: !prev[id] };
+      const next = { ...prev, [id]: isNowSolved };
       try {
         localStorage.setItem("tuf_solved_problems", JSON.stringify(next));
-      } catch {
-        // ignore
-      }
+      } catch {}
       return next;
     });
+
+    // API Sync
+    try {
+      await api.post("/profile/sync-solved", {
+        solvedKey: id,
+        isSolved: isNowSolved,
+        difficulty,
+        tags
+      });
+    } catch (err) {
+      console.error("Failed to sync solved problem:", err);
+      // We could revert optimistic update here, but for V1 it's fine
+    }
+  };
+
+  // Bookmarks & Notes state
+  const { data: bookmarkedSlugs = [] } = useBookmarkSlugs();
+  const toggleBookmark = useToggleBookmark();
+
+  const [activeNoteTarget, setActiveNoteTarget] = useState<{
+    isOpen: boolean;
+    slug: string;
+    title: string;
+  }>({
+    isOpen: false,
+    slug: "",
+    title: "",
+  });
+
+  const handleToggleBookmark = async (
+    problemSlug: string,
+    problemTitle: string,
+    difficulty: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    try {
+      const res = await toggleBookmark.mutateAsync({
+        problemSlug,
+        problemTitle,
+        difficulty,
+      });
+      if (res.bookmarked) {
+        toast.success(`Bookmarked "${problemTitle}" for revision`);
+      } else {
+        toast.info(`Removed "${problemTitle}" from bookmarks`);
+      }
+    } catch (err) {
+      const msg = (err as any)?.response?.data?.error || "Failed to update bookmark"; console.error("Bookmark error:", err); toast.error(msg);
+    }
   };
 
   // Get active sheet metadata
@@ -211,9 +277,9 @@ export default function PracticeHubPage() {
 
   return (
     <div className="min-h-screen bg-[#060709] text-[#F3F4F6] font-sans pb-16 px-4 sm:px-6 lg:px-8 pt-6 max-w-[1400px] mx-auto">
-      {/* ──────────────────────────────────────────────────────────────────────────
+      {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           LEVEL 1: PREP HUB ROOT OVERVIEW (tuf_ui/prep_hub.png)
-      ────────────────────────────────────────────────────────────────────────── */}
+      â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {currentView === "hub" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Main Left Section (8 of 12 cols) */}
@@ -440,16 +506,16 @@ export default function PracticeHubPage() {
                 onClick={() => openSheetPractice("striver_a2z")}
                 className="w-full py-2 rounded-xl bg-[#14161C] hover:bg-[#1A1D24] text-xs font-medium text-white border border-[#1E2229] transition-all cursor-pointer"
               >
-                View Today's Tasks →
+                View Today's Tasks â†’
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ──────────────────────────────────────────────────────────────────────────
+      {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           LEVEL 2: SHEETS CATALOG CARDS VIEW (Selecting between Striver A2Z, NeetCode 150, Blind 75, etc.)
-      ────────────────────────────────────────────────────────────────────────── */}
+      â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {currentView === "sheets_catalog" && (
         <div className="space-y-6">
           {/* Breadcrumb Header */}
@@ -482,7 +548,7 @@ export default function PracticeHubPage() {
               onClick={() => setCurrentView("hub")}
               className="px-3.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer"
             >
-              ← Back to Overview
+              â† Back to Overview
             </button>
           </div>
 
@@ -565,9 +631,9 @@ export default function PracticeHubPage() {
         </div>
       )}
 
-      {/* ──────────────────────────────────────────────────────────────────────────
+      {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           LEVEL 3: SHEET PRACTICE VIEW (Problem Table + Sheet Switcher Pill Bar)
-      ────────────────────────────────────────────────────────────────────────── */}
+      â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {currentView === "sheet_practice" && (
         <div className="space-y-6">
           {/* Breadcrumb & Sheet Header */}
@@ -631,7 +697,7 @@ export default function PracticeHubPage() {
                   onClick={() => setCurrentView("sheets_catalog")}
                   className="hover:text-white text-[11px] transition-colors"
                 >
-                  All sheets ↗
+                  All sheets â†—
                 </button>
               </div>
 
@@ -692,7 +758,10 @@ export default function PracticeHubPage() {
                         <div className="col-span-6 sm:col-span-5 flex items-center gap-3 min-w-0">
                           <button
                             type="button"
-                            onClick={(e) => toggleSolved(prob.id, e)}
+                            onClick={(e) => {
+                              const diff = prob.difficulty === "Basic" ? "EASY" : prob.difficulty === "Core" ? "MEDIUM" : "HARD";
+                              toggleSolved(prob.id, e, diff, [prob.topic]);
+                            }}
                             className={cn(
                               "w-4 h-4 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 border",
                               isSolved
@@ -750,14 +819,50 @@ export default function PracticeHubPage() {
                           </span>
                         </div>
 
-                        <div className="col-span-4 sm:col-span-1 flex items-center justify-end gap-2 text-[#7A808C]">
-                          <Link
-                            to={`/coding/${prob.slug}`}
-                            className="px-2.5 py-1 rounded-lg bg-[#327CF6]/15 hover:bg-[#327CF6] text-[#327CF6] hover:text-white border border-[#327CF6]/30 font-semibold text-xs transition-all flex items-center gap-1"
+                        <div className="col-span-4 sm:col-span-1 flex items-center justify-end gap-1.5 text-[#7A808C]">
+                          <button
+                            type="button"
+                            onClick={(e) => handleToggleBookmark(prob.slug, prob.title, prob.difficulty, e)}
+                            className={cn(
+                              "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
+                              bookmarkedSlugs.includes(prob.slug)
+                                ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
+                                : "bg-[#08090C] border-[#181A20] text-[#525866] hover:text-[#22C55E] hover:border-[#22C55E]/30"
+                            )}
+                            title={bookmarkedSlugs.includes(prob.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
                           >
-                            <span>Solve</span>
-                            <ChevronRight className="w-3 h-3" />
-                          </Link>
+                            <Bookmark
+                              className={cn(
+                                "w-3.5 h-3.5",
+                                bookmarkedSlugs.includes(prob.slug) && "fill-[#22C55E]"
+                              )}
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setActiveNoteTarget({
+                                isOpen: true,
+                                slug: prob.slug,
+                                title: prob.title,
+                              })
+                            }
+                            className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-[#525866] hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                            title="Notes & Hints Notepad"
+                          >
+                            <NotebookPen className="w-3.5 h-3.5" />
+                          </button>
+
+                          <a
+                            href={`https://leetcode.com/problems/${prob.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] flex items-center justify-center transition-colors shrink-0"
+                            title="Solve on LeetCode"
+                          >
+                            <img src="/leetcode.svg" alt="LeetCode" className="w-3.5 h-3.5 object-contain" />
+                          </a>
                         </div>
                       </div>
                     );
@@ -769,31 +874,41 @@ export default function PracticeHubPage() {
             {/* Right Sidebar: Top Companies */}
             <div className="lg:col-span-3 space-y-5">
               <div className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20]">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Company Practice
+                    Target Company Assessment Sets
                   </h3>
                   <button
                     type="button"
                     onClick={() => openCompanyWise()}
-                    className="text-[10px] text-[#327CF6] hover:underline"
+                    className="text-[10px] text-[#327CF6] hover:underline whitespace-nowrap"
                   >
-                    View 470+ ↗
+                    View 470+ â†—
                   </button>
                 </div>
+                
+                <p className="text-[#8B92A0] text-xs mb-4">
+                  Questions organized by company, recency, and interview ask rate.
+                </p>
 
-                <div className="grid grid-cols-2 gap-2">
-                  {TOP_COMPANIES_PRESET.slice(0, 10).map((comp) => (
+                <div className="flex flex-wrap gap-2">
+                  {TOP_COMPANIES_PRESET.slice(0, 20).map((comp) => (
                     <button
                       key={comp.name}
                       type="button"
                       onClick={() => openCompanyWise(comp.name)}
-                      className="p-2 rounded-xl bg-[#08090C] border border-[#181A20] hover:border-[#327CF6]/50 transition-colors flex items-center justify-between text-xs cursor-pointer group text-left"
+                      className={cn(
+                        "px-3 py-1.5 rounded-full border text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer",
+                        selectedCompany === comp.name
+                          ? "bg-[#327CF6] text-white border-[#327CF6]"
+                          : "bg-[#08090C] text-[#8B92A0] border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
+                      )}
                     >
-                      <span className="text-[#8B92A0] group-hover:text-white truncate">
-                        {comp.name}
-                      </span>
-                      <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-[#14161C] text-[#7A808C]">
+                      <span>{comp.name}</span>
+                      <span className={cn(
+                        "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
+                        selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-[#525866]"
+                      )}>
                         {comp.count}
                       </span>
                     </button>
@@ -805,9 +920,9 @@ export default function PracticeHubPage() {
         </div>
       )}
 
-      {/* ──────────────────────────────────────────────────────────────────────────
+      {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           SECTION 4: DEDICATED COMPANY-WISE QUESTION EXPLORER (470+ COMPANIES)
-      ────────────────────────────────────────────────────────────────────────── */}
+      â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {currentView === "company_wise" && (
         <div className="space-y-6">
           {/* Header & Breadcrumb */}
@@ -841,7 +956,7 @@ export default function PracticeHubPage() {
               onClick={() => setCurrentView("hub")}
               className="px-3.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer"
             >
-              ← Back to Prephub
+              â† Back to Prephub
             </button>
           </div>
 
@@ -857,21 +972,27 @@ export default function PracticeHubPage() {
               </span>
             </div>
 
-            {/* Horizontal Company Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {/* Wrap Company Pills */}
+            <div className="flex flex-wrap items-center gap-2 pb-2">
               {(featuredCompaniesData?.companies || []).map((comp) => (
                 <button
                   key={comp.slug}
                   onClick={() => setSelectedCompany(comp.name)}
                   className={cn(
-                    "px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 flex items-center gap-2 cursor-pointer",
+                    "px-3 py-1.5 rounded-full border text-[11px] font-medium transition-all flex items-center gap-1.5 cursor-pointer",
                     selectedCompany === comp.name
-                      ? "bg-[#327CF6] text-white shadow-sm font-semibold shadow-[#327CF6]/30"
-                      : "bg-[#08090C] text-[#8B92A0] hover:text-white hover:bg-[#14161C] border border-[#181A20]"
+                      ? "bg-[#327CF6] text-white border-[#327CF6] shadow-sm shadow-[#327CF6]/30"
+                      : "bg-[#08090C] text-[#8B92A0] border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
                   )}
                 >
                   <span className="font-mono text-[11px] opacity-75">{comp.icon}</span>
                   <span>{comp.name}</span>
+                  <span className={cn(
+                    "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
+                    selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-[#525866]"
+                  )}>
+                    {comp.totalProblems}
+                  </span>
                 </button>
               ))}
             </div>
@@ -881,7 +1002,7 @@ export default function PracticeHubPage() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-1 p-1 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs self-start sm:self-auto">
               {[
-                { id: "thirtyDays", label: "🔥 Last 30 Days" },
+                { id: "thirtyDays", label: "ðŸ”¥ Last 30 Days" },
                 { id: "threeMonths", label: "3 Months" },
                 { id: "sixMonths", label: "6 Months" },
                 { id: "all", label: "All Time" },
@@ -901,15 +1022,34 @@ export default function PracticeHubPage() {
               ))}
             </div>
 
-            <div className="relative w-full sm:w-72">
-              <Search className="w-4 h-4 text-[#525866] absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder={`Search ${selectedCompany} questions...`}
-                value={companySearchQuery}
-                onChange={(e) => setCompanySearchQuery(e.target.value)}
-                className="w-full bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-[#525866] outline-none transition-all"
-              />
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center p-1 rounded-xl bg-[#0D0E12] border border-[#181A20] self-start sm:self-auto">
+                {["ALL", "SOLVED", "UNSOLVED"].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setCompanyStatusFilter(status as any)}
+                    className={cn(
+                      "px-3 py-1 rounded-lg text-[10px] font-semibold transition-colors cursor-pointer",
+                      companyStatusFilter === status
+                        ? "bg-[#181A20] text-white shadow-sm"
+                        : "text-[#7A808C] hover:text-white"
+                    )}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+
+              <div className="relative flex-1 sm:flex-none sm:w-72">
+                <Search className="w-4 h-4 text-[#525866] absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder={`Search ${selectedCompany} questions...`}
+                  value={companySearchQuery}
+                  onChange={(e) => setCompanySearchQuery(e.target.value)}
+                  className="w-full bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-[#525866] outline-none transition-all"
+                />
+              </div>
             </div>
           </div>
 
@@ -938,6 +1078,12 @@ export default function PracticeHubPage() {
               <div className="divide-y divide-[#181A20]">
                 {(companyQuestionsData?.questions || [])
                   .filter((q) => {
+                    const solvedKey = q.nativeId ? String(q.nativeId) : q.slug;
+                    const isSolved = Boolean(solvedProblems[solvedKey]);
+                    
+                    if (companyStatusFilter === "SOLVED" && !isSolved) return false;
+                    if (companyStatusFilter === "UNSOLVED" && isSolved) return false;
+
                     if (!companySearchQuery) return true;
                     const qLower = companySearchQuery.toLowerCase();
                     return (
@@ -952,14 +1098,34 @@ export default function PracticeHubPage() {
                       key={idx}
                       className="px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#111318] transition-colors"
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-1 min-w-0 flex-1 pr-4">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-white text-xs sm:text-sm">
+                          {(() => {
+                            const solvedKey = q.nativeId ? String(q.nativeId) : q.slug;
+                            const isSolved = Boolean(solvedProblems[solvedKey]);
+                            return (
+                              <button
+                                onClick={(e) => toggleSolved(solvedKey, e, q.difficulty, q.topics)}
+                                className={cn(
+                                  "w-4 h-4 rounded border flex items-center justify-center transition-all cursor-pointer shrink-0",
+                                  isSolved
+                                    ? "bg-[#327CF6] border-[#327CF6] text-white"
+                                    : "border-[#272B33] text-transparent hover:border-[#327CF6]"
+                                )}
+                              >
+                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                              </button>
+                            );
+                          })()}
+                          <span className={cn(
+                            "font-medium text-xs sm:text-sm truncate",
+                            Boolean(solvedProblems[q.nativeId ? String(q.nativeId) : q.slug]) ? "text-[#7A808C] line-through" : "text-white"
+                          )}>
                             {q.title}
                           </span>
                           <span
                             className={cn(
-                              "px-2 py-0.5 rounded-full text-[10px] font-semibold",
+                              "px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0",
                               q.difficulty === "EASY"
                                 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                                 : q.difficulty === "MEDIUM"
@@ -969,11 +1135,6 @@ export default function PracticeHubPage() {
                           >
                             {q.difficulty}
                           </span>
-                          {q.isNative && (
-                            <span className="px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 text-[10px] font-semibold">
-                              ⚡ Native Runner
-                            </span>
-                          )}
                         </div>
 
                         <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
@@ -988,39 +1149,58 @@ export default function PracticeHubPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 self-end sm:self-auto shrink-0">
+                      <div className="flex items-center gap-4 self-end sm:self-auto shrink-0 pl-2">
                         {q.frequency > 0 && (
-                          <div className="text-right hidden sm:block">
-                            <span className="text-[10px] text-[#525866] font-mono block">Ask Rate</span>
-                            <span className="text-xs font-bold text-[#F59E0B] font-mono">
+                          <div className="text-right flex flex-col items-end">
+                            <span className="text-[9px] text-[#525866] font-mono block leading-none mb-1">Ask Rate</span>
+                            <span className="text-xs font-bold text-[#F59E0B] font-mono leading-none">
                               {q.frequency}%
                             </span>
                           </div>
                         )}
 
-                        {q.isNative ? (
-                          <Link
-                            to={`/coding/${q.slug}`}
-                            className="px-3 py-1.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white font-semibold text-xs shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <Code2 className="w-3.5 h-3.5" />
-                            <span>Solve on Intervue</span>
-                          </Link>
-                        ) : null}
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleBookmark(q.slug, q.title, q.difficulty, e)}
+                          className={cn(
+                            "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
+                            bookmarkedSlugs.includes(q.slug)
+                              ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
+                              : "bg-[#08090C] border-[#181A20] text-[#525866] hover:text-[#22C55E] hover:border-[#22C55E]/30"
+                          )}
+                          title={bookmarkedSlugs.includes(q.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
+                        >
+                          <Bookmark
+                            className={cn(
+                              "w-3.5 h-3.5",
+                              bookmarkedSlugs.includes(q.slug) && "fill-[#22C55E]"
+                            )}
+                          />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActiveNoteTarget({
+                              isOpen: true,
+                              slug: q.slug,
+                              title: q.title,
+                            })
+                          }
+                          className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-[#525866] hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                          title="Notes & Hints Notepad"
+                        >
+                          <NotebookPen className="w-3.5 h-3.5" />
+                        </button>
 
                         <a
                           href={q.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={cn(
-                            "px-3 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-1",
-                            q.isNative
-                              ? "bg-[#08090C] hover:bg-[#14161C] text-[#8B92A0] hover:text-white border border-[#181A20]"
-                              : "bg-[#327CF6] hover:bg-[#2563EB] text-white font-semibold shadow-sm"
-                          )}
+                          className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] flex items-center justify-center transition-colors shrink-0"
+                          title="Solve on LeetCode"
                         >
-                          <span>{q.isNative ? "LeetCode" : "Solve on LeetCode"}</span>
-                          <ExternalLink className="w-3 h-3" />
+                          <img src="/leetcode.svg" alt="LeetCode" className="w-4 h-4 object-contain" />
                         </a>
                       </div>
                     </div>
@@ -1030,6 +1210,16 @@ export default function PracticeHubPage() {
           </div>
         </div>
       )}
+
+      {/* Slide-over Question Notes Drawer */}
+      <QuestionNoteDrawer
+        isOpen={activeNoteTarget.isOpen}
+        onClose={() =>
+          setActiveNoteTarget((prev) => ({ ...prev, isOpen: false }))
+        }
+        problemSlug={activeNoteTarget.slug}
+        problemTitle={activeNoteTarget.title}
+      />
     </div>
   );
 }
