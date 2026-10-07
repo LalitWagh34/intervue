@@ -15,6 +15,8 @@ import {
   PanelLeftClose,
   PanelLeft,
   ExternalLink,
+  NotebookPen,
+  Bookmark,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
@@ -77,6 +79,23 @@ const NAV_SECTIONS: NavSection[] = [
         label: "AI Mentor",
         icon: MessageSquare,
         href: "/chat",
+      },
+    ],
+  },
+  {
+    title: "MY TOOLS",
+    items: [
+      {
+        label: "Notes & Hints",
+        icon: NotebookPen,
+        href: "/notes",
+        badge: "NEW",
+        badgeColor: "amber" as const,
+      },
+      {
+        label: "Bookmarks",
+        icon: Bookmark,
+        href: "/bookmarks",
       },
     ],
   },
@@ -226,6 +245,8 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                                 ? "bg-red-500/15 text-red-400 border-red-500/30"
                                 : item.badgeColor === "emerald"
                                 ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                : item.badgeColor === "amber"
+                                ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
                                 : "bg-[#327CF6]/15 text-[#327CF6] border-[#327CF6]/30"
                             )}
                           >

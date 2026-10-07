@@ -4,6 +4,8 @@ import Sidebar from "./Sidebar";
 import { authClient, useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
+import { useRewardsStatus } from "@/hooks/useRewards";
+import { DailyStreakClaim } from "@/components/shared/DailyStreakClaim";
 import {
   Search,
   Bell,
@@ -75,6 +77,7 @@ export default function AppLayout() {
   };
 
   const currentStreak = stats?.consistency?.currentStreak ?? 0;
+  const { data: rewardsStatus } = useRewardsStatus();
   const user = session?.user;
   const initials =
     user?.name
@@ -86,13 +89,15 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen bg-[#060709] text-[#F3F4F6] font-sans flex selection:bg-[#327CF6]/30">
+      {/* Daily Streak Auto-Claim (fires once per day silently) */}
+      <DailyStreakClaim />
       {/* Floating Inset Sidebar */}
       <Sidebar isCollapsed={isCollapsed} onToggle={toggleSidebar} />
 
       {/* Main Content Viewport Column */}
       <div
         className={cn(
-          "flex-1 min-h-screen flex flex-col bg-[#060709] transition-all duration-300 ease-in-out",
+          "flex-1 min-w-0 min-h-screen flex flex-col bg-[#060709] transition-all duration-300 ease-in-out overflow-x-hidden",
           isCollapsed ? "pl-[84px]" : "pl-[276px]"
         )}
       >
@@ -122,7 +127,16 @@ export default function AppLayout() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
             </Link> */}
 
-            {/* TUF Coins Balance Removed (Fake Feature) */}
+            {/* Points Balance Pill */}
+            {rewardsStatus && (
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-semibold font-mono text-[#22C55E] cursor-default"
+                title={`${rewardsStatus.points} Intervue points`}
+              >
+                <Coins className="w-3.5 h-3.5" />
+                <span>{rewardsStatus.points}</span>
+              </div>
+            )}
 
             {/* Streak Counter Pill */}
             <div
@@ -212,6 +226,22 @@ export default function AppLayout() {
                     >
                       <User className="w-4 h-4 text-[#327CF6]" />
                       <span>My Profile & Heatmap</span>
+                    </Link>
+
+                    <Link
+                      to="/notes"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#8B92A0] hover:text-white hover:bg-[#12141B] transition-colors"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-[#F59E0B]" />
+                      <span>My Notes & Hints</span>
+                    </Link>
+
+                    <Link
+                      to="/bookmarks"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#8B92A0] hover:text-white hover:bg-[#12141B] transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4 text-[#22C55E]" />
+                      <span>Revision Bookmarks</span>
                     </Link>
 
                     <Link
