@@ -11,6 +11,8 @@ app.get("/", async (c) => {
   }
 
   try {
+    const capitalizedQuery = query.charAt(0).toUpperCase() + query.slice(1).toLowerCase();
+    
     // Parallel search queries
     const [problems, sheets] = await Promise.all([
       db.problem.findMany({
@@ -18,7 +20,7 @@ app.get("/", async (c) => {
           OR: [
             { title: { contains: query, mode: "insensitive" } },
             { tags: { hasSome: [query.toLowerCase()] } },
-            { company: { hasSome: [query] } },
+            { company: { hasSome: [query, capitalizedQuery] } },
           ],
         },
         select: {
@@ -27,6 +29,7 @@ app.get("/", async (c) => {
           slug: true,
           difficulty: true,
           tags: true,
+          company: true,
         },
         take: 5,
       }),

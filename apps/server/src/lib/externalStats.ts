@@ -7,6 +7,7 @@ export interface LeetCodeStats {
   ranking: number;
   calendar: Record<string, number>; // unix timestamp seconds -> count
   lastSyncedAt: string;
+  topicStats?: Array<{ tag: string; count: number }>;
 }
 
 export interface CodeforcesStats {
@@ -18,6 +19,7 @@ export interface CodeforcesStats {
   solvedCount: number;
   calendar: Record<string, number>; // YYYY-MM-DD -> count
   lastSyncedAt: string;
+  topicStats?: Array<{ tag: string; count: number }>;
 }
 
 export interface GitHubStats {
@@ -51,6 +53,20 @@ export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStat
             }
           }
           submissionCalendar
+          tagProblemCounts {
+            advanced {
+              tagName
+              problemsSolved
+            }
+            intermediate {
+              tagName
+              problemsSolved
+            }
+            fundamental {
+              tagName
+              problemsSolved
+            }
+          }
         }
       }`,
       variables: { username: cleanUsername },
@@ -85,6 +101,22 @@ export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStat
     calendarMap = {};
   }
 
+  const topicStats: Array<{ tag: string; count: number }> = [];
+  try {
+    const tags = matchedUser.tagProblemCounts;
+    if (tags) {
+      const allTags = [
+        ...(tags.advanced || []),
+        ...(tags.intermediate || []),
+        ...(tags.fundamental || [])
+      ];
+      allTags.forEach((t: any) => {
+        topicStats.push({ tag: t.tagName, count: t.problemsSolved });
+      });
+      topicStats.sort((a, b) => b.count - a.count);
+    }
+  } catch (e) {}
+
   return {
     handle: matchedUser.username || cleanUsername,
     totalSolved: total,
@@ -94,6 +126,7 @@ export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStat
     ranking: matchedUser.profile?.ranking || 0,
     calendar: calendarMap,
     lastSyncedAt: new Date().toISOString(),
+    topicStats,
   };
 }
 
@@ -121,6 +154,7 @@ export async function fetchCodeforcesStats(username: string): Promise<Codeforces
 
   const calendar: Record<string, number> = {};
   const solvedProblemSet = new Set<string>();
+  const tagCounts = new Map<string, number>();
 
   if (statusRes.ok) {
     const statusData = (await statusRes.json()) as any;
@@ -139,11 +173,22 @@ export async function fetchCodeforcesStats(username: string): Promise<Codeforces
         // Distinct solved problem
         if (sub.verdict === "OK" && sub.problem) {
           const problemKey = `${sub.problem.contestId || 0}_${sub.problem.index || ""}_${sub.problem.name || ""}`;
-          solvedProblemSet.add(problemKey);
+          if (!solvedProblemSet.has(problemKey)) {
+            solvedProblemSet.add(problemKey);
+            if (Array.isArray(sub.problem.tags)) {
+              sub.problem.tags.forEach((t: string) => {
+                tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
+              });
+            }
+          }
         }
       });
     }
   }
+
+  const topicStats = Array.from(tagCounts.entries())
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count);
 
   return {
     handle: user.handle || cleanUsername,
@@ -154,6 +199,7 @@ export async function fetchCodeforcesStats(username: string): Promise<Codeforces
     solvedCount: solvedProblemSet.size,
     calendar,
     lastSyncedAt: new Date().toISOString(),
+    topicStats,
   };
 }
 

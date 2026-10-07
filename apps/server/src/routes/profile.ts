@@ -36,9 +36,15 @@ app.get("/dashboard", requireAuth, async (c) => {
     where: { userId: user.id },
   });
 
-  const solvedCount = await db.submission.count({
+  const nativeSolvedCount = await db.submission.count({
     where: { userId: user.id, isAccepted: true },
   });
+
+  const externalSolvedCount = await db.userSolvedProblem.count({
+    where: { userId: user.id },
+  });
+
+  const solvedCount = nativeSolvedCount + externalSolvedCount;
 
   const simulationsCount = await db.interview.count({
     where: { userId: user.id, status: "completed" },
@@ -399,12 +405,22 @@ app.get("/stats", requireAuth, async (c) => {
     });
 
     const solvedProblems = Array.from(solvedProblemsMap.values());
-    const solvedTotal = solvedProblems.length;
-    const solvedEasy = solvedProblems.filter((p) => p.difficulty === "EASY").length;
-    const solvedMedium = solvedProblems.filter((p) => p.difficulty === "MEDIUM").length;
-    const solvedHard = solvedProblems.filter((p) => p.difficulty === "HARD").length;
+    const externalSolved = await db.userSolvedProblem.findMany({
+      where: { userId: user.id },
+    });
+    
+    // Add external solved to total and difficulty buckets
+    const solvedTotal = solvedProblems.length + externalSolved.length;
+    let solvedEasy = solvedProblems.filter((p) => p.difficulty === "EASY").length;
+    let solvedMedium = solvedProblems.filter((p) => p.difficulty === "MEDIUM").length;
+    let solvedHard = solvedProblems.filter((p) => p.difficulty === "HARD").length;
 
-    // 4. Topic-wise solved counts based on question tags
+    externalSolved.forEach((ext) => {
+      if (ext.difficulty === "EASY") solvedEasy++;
+      else if (ext.difficulty === "MEDIUM") solvedMedium++;
+      else if (ext.difficulty === "HARD") solvedHard++;
+    });
+
     const tagCounts: Record<string, number> = {};
     solvedProblems.forEach((p) => {
       p.tags.forEach((tag) => {
@@ -413,6 +429,24 @@ app.get("/stats", requireAuth, async (c) => {
           tagCounts[formattedTag] = (tagCounts[formattedTag] || 0) + 1;
         }
       });
+    });
+
+    externalSolved.forEach((ext) => {
+      if (ext.tags) {
+        try {
+          const parsedTags = JSON.parse(ext.tags);
+          if (Array.isArray(parsedTags)) {
+            parsedTags.forEach((tag: string) => {
+              const formattedTag = tag.trim();
+              if (formattedTag) {
+                tagCounts[formattedTag] = (tagCounts[formattedTag] || 0) + 1;
+              }
+            });
+          }
+        } catch (e) {
+          // ignore parsing errors
+        }
+      }
     });
 
     // Collect all unique tags in the database
@@ -475,6 +509,11 @@ app.get("/stats", requireAuth, async (c) => {
       intervueDateCounts[key] = (intervueDateCounts[key] || 0) + 1;
       allDateCounts[key] = (allDateCounts[key] || 0) + 1;
     });
+    externalSolved.forEach((s) => {
+      const key = toDateKey(new Date(s.createdAt));
+      intervueDateCounts[key] = (intervueDateCounts[key] || 0) + 1;
+      allDateCounts[key] = (allDateCounts[key] || 0) + 1;
+    });
 
     // 5b. LeetCode Submissions from cached calendar
     const lcData = userRecord?.profile?.leetcodeData as LeetCodeStats | null;
@@ -500,9 +539,25 @@ app.get("/stats", requireAuth, async (c) => {
       });
     }
 
+    const yearParam = c.req.query("year");
     const now = new Date();
-    const oneYearAgo = new Date();
-    oneYearAgo.setUTCDate(now.getUTCDate() - 364); // 52 weeks (365 days)
+    let startDate: Date;
+    let endDate: Date;
+    let isCurrentYear = true;
+
+    if (yearParam && yearParam !== "Current") {
+      isCurrentYear = false;
+      const y = parseInt(yearParam, 10);
+      startDate = new Date(Date.UTC(y, 0, 1));
+      endDate = new Date(Date.UTC(y, 11, 31));
+      if (endDate > now) endDate = now; // Cap to today if it's the current year
+    } else {
+      endDate = new Date(now);
+      startDate = new Date(now);
+      startDate.setUTCDate(now.getUTCDate() - 364);
+    }
+
+    const totalDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
     // Helper to compute calendar grid and streak metrics for any dateCounts map
     function generateCalendarMetrics(countsMap: Record<string, number>) {
@@ -514,9 +569,17 @@ app.get("/stats", requireAuth, async (c) => {
 
       const calendarDays: Array<{ date: string; count: number; level: number }> = [];
 
-      for (let i = 0; i <= 364; i++) {
-        const d = new Date(oneYearAgo);
-        d.setUTCDate(oneYearAgo.getUTCDate() + i);
+      // Pad beginning to start on a Sunday
+      const startDayOfWeek = startDate.getUTCDay();
+      for (let j = 0; j < startDayOfWeek; j++) {
+        const d = new Date(startDate);
+        d.setUTCDate(startDate.getUTCDate() - (startDayOfWeek - j));
+        calendarDays.push({ date: toDateKey(d), count: 0, level: -1 });
+      }
+
+      for (let i = 0; i <= totalDays; i++) {
+        const d = new Date(startDate);
+        d.setUTCDate(startDate.getUTCDate() + i);
         const dateStr = toDateKey(d);
         const count = countsMap[dateStr] || 0;
 
@@ -536,6 +599,14 @@ app.get("/stats", requireAuth, async (c) => {
         } else {
           tempStreak = 0;
         }
+      }
+
+      // Pad end to finish on a Saturday
+      const endDayOfWeek = endDate.getUTCDay();
+      for (let j = endDayOfWeek + 1; j <= 6; j++) {
+        const d = new Date(endDate);
+        d.setUTCDate(endDate.getUTCDate() + (j - endDayOfWeek));
+        calendarDays.push({ date: toDateKey(d), count: 0, level: -1 });
       }
 
       // Calculate current streak backwards from today/yesterday
@@ -581,49 +652,139 @@ app.get("/stats", requireAuth, async (c) => {
     const combinedTotal =
       solvedTotal + (lcData?.totalSolved || 0) + (cfData?.solvedCount || 0);
 
-    return c.json({
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-      },
-      profile: userRecord?.profile,
-      // Default consistency maps to ALL (or Intervue if no external connected)
-      consistency: {
-        ...allMetrics,
-        totalContests,
-      },
-      // Multi-platform individual calendar views
-      calendars: {
-        ALL: { ...allMetrics, totalContests },
-        INTERVUE: { ...intervueMetrics, totalContests },
-        LEETCODE: { ...leetcodeMetrics, totalContests: 0 },
-        CODEFORCES: { ...codeforcesMetrics, totalContests: 0 },
-      },
-      dsaProgress: {
-        totalSolved: solvedTotal,
-        totalProblems: totalProblemsCount,
-        easy: { solved: solvedEasy, total: totalEasyCount },
-        medium: { solved: solvedMedium, total: totalMediumCount },
-        hard: { solved: solvedHard, total: totalHardCount },
-      },
-      combinedProgress: {
-        totalSolved: combinedTotal,
-        easy: { solved: solvedEasy + (lcData?.easySolved || 0) },
-        medium: { solved: solvedMedium + (lcData?.mediumSolved || 0) },
-        hard: { solved: solvedHard + (lcData?.hardSolved || 0) },
-        codeforces: { solved: cfData?.solvedCount || 0 },
-        intervue: { solved: solvedTotal },
-      },
-      leetcodeStats: lcData,
-      codeforcesStats: cfData,
-      githubStats: (userRecord?.profile?.githubData as GitHubStats | null) || null,
-      topicStats,
-    });
-  } catch (error) {
+      // Multi-platform topic stats
+      const allTopicCounts = new Map<string, number>();
+      topicStats.forEach(t => allTopicCounts.set(t.tag, t.count));
+      
+      if (lcData?.topicStats) {
+        lcData.topicStats.forEach((t: { tag: string; count: number }) => {
+          allTopicCounts.set(t.tag, (allTopicCounts.get(t.tag) || 0) + t.count);
+        });
+      }
+      
+      if (cfData?.topicStats) {
+        cfData.topicStats.forEach((t: { tag: string; count: number }) => {
+          allTopicCounts.set(t.tag, (allTopicCounts.get(t.tag) || 0) + t.count);
+        });
+      }
+      
+      const topicStatsALL = Array.from(allTopicCounts.entries())
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count);
+
+      return c.json({
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        },
+        profile: userRecord?.profile,
+        // Default consistency maps to ALL (or Intervue if no external connected)
+        consistency: {
+          ...allMetrics,
+          totalContests,
+        },
+        // Multi-platform individual calendar views
+        calendars: {
+          ALL: { ...allMetrics, totalContests },
+          INTERVUE: { ...intervueMetrics, totalContests },
+          LEETCODE: { ...leetcodeMetrics, totalContests: 0 },
+          CODEFORCES: { ...codeforcesMetrics, totalContests: 0 },
+        },
+        dsaProgress: {
+          totalSolved: solvedTotal,
+          totalProblems: totalProblemsCount,
+          easy: { solved: solvedEasy, total: totalEasyCount },
+          medium: { solved: solvedMedium, total: totalMediumCount },
+          hard: { solved: solvedHard, total: totalHardCount },
+        },
+        combinedProgress: {
+          totalSolved: combinedTotal,
+          easy: { solved: solvedEasy + (lcData?.easySolved || 0) },
+          medium: { solved: solvedMedium + (lcData?.mediumSolved || 0) },
+          hard: { solved: solvedHard + (lcData?.hardSolved || 0) },
+          codeforces: { solved: cfData?.solvedCount || 0 },
+          intervue: { solved: solvedTotal },
+        },
+        leetcodeStats: lcData,
+        codeforcesStats: cfData,
+        githubStats: (userRecord?.profile?.githubData as GitHubStats | null) || null,
+        topicStats: {
+          ALL: topicStatsALL,
+          INTERVUE: topicStats,
+          LEETCODE: lcData?.topicStats || [],
+          CODEFORCES: cfData?.topicStats || [],
+        },
+      });
+    } catch (error) {
     console.error("Error computing profile stats:", error);
     return c.json({ error: "Failed to compute profile statistics" }, 500);
+  }
+});
+
+// ─── POST /api/profile/sync-solved ─────────────────────────────────────
+app.post("/sync-solved", requireAuth, async (c) => {
+  const user = c.get("user");
+  try {
+    const body = await c.req.json();
+    const { solvedKey, isSolved, difficulty = "EASY", tags = [] } = body;
+
+    if (!solvedKey) {
+      return c.json({ error: "Missing solvedKey" }, 400);
+    }
+
+    if (isSolved) {
+      await db.userSolvedProblem.upsert({
+        where: {
+          userId_problemSlug: {
+            userId: user.id,
+            problemSlug: solvedKey,
+          },
+        },
+        create: {
+          userId: user.id,
+          problemSlug: solvedKey,
+          difficulty,
+          tags: JSON.stringify(tags),
+        },
+        update: {
+          difficulty,
+          tags: JSON.stringify(tags),
+        },
+      });
+    } else {
+      await db.userSolvedProblem.deleteMany({
+        where: {
+          userId: user.id,
+          problemSlug: solvedKey,
+        },
+      });
+    }
+
+    return c.json({ success: true, isSolved });
+  } catch (error) {
+    console.error("Failed to sync solved problem:", error);
+    return c.json({ error: "Failed to sync" }, 500);
+  }
+});
+
+// ─── GET /api/profile/solved-problems ──────────────────────────────────
+app.get("/solved-problems", requireAuth, async (c) => {
+  const user = c.get("user");
+  try {
+    const solved = await db.userSolvedProblem.findMany({
+      where: { userId: user.id },
+      select: { problemSlug: true },
+    });
+    const map = solved.reduce((acc, curr) => {
+      acc[curr.problemSlug] = true;
+      return acc;
+    }, {} as Record<string, boolean>);
+    
+    return c.json({ solvedProblems: map });
+  } catch (error) {
+    return c.json({ solvedProblems: {} });
   }
 });
 
