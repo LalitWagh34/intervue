@@ -155,6 +155,9 @@ model User {
   accounts    Account[]
   problems    Problem[]
   submissions Submission[]
+  solvedProblems UserSolvedProblem[]
+  questionNotes  UserQuestionNote[]
+  bookmarks      UserBookmark[]
 
   hostedRooms       Room[]            @relation("HostedRooms")
   roomParticipants  RoomParticipant[]
@@ -162,29 +165,50 @@ model User {
   roomMcqAnswers    RoomMcqAnswer[]
 }
 
+model UserSolvedProblem {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemSlug String
+  difficulty  String   @default("EASY")
+  tags        String?
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, problemSlug])
+}
+
 model Profile {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  fullName        String?
-  avatarUrl       String?
-  targetRole      String?
-  experienceLevel String?
-  githubUrl       String?
-  linkedinUrl     String?
-  resumeUrl       String?
-  bio             String?  @db.Text
-  skills          String[]
-  githubData      Json?
-  leetcodeHandle  String?
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  fullName         String?
+  avatarUrl        String?
+  targetRole       String?
+  experienceLevel  String?
+  githubUrl        String?
+  linkedinUrl      String?
+  resumeUrl        String?
+  bio              String?   @db.Text
+  skills           String[]
+  githubData       Json?
+  leetcodeHandle   String?
   codeforcesHandle String?
-  githubHandle    String?
-  leetcodeData    Json?
-  codeforcesData  Json?
-  lastSyncedAt    DateTime?
-  streakCount     Int      @default(0)
-  totalSessions   Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  githubHandle     String?
+  leetcodeData     Json?
+  codeforcesData   Json?
+  lastSyncedAt     DateTime?
+  streakCount      Int       @default(0)
+  totalSessions    Int       @default(0)
+  // ── Points & Gamification ──────────────────────
+  points              Int       @default(0)
+  lastDailyCheckInAt  DateTime?
+  // ── Target Company ────────────────────────────
+  targetCompany       String?
+  // ── Referral System ───────────────────────────
+  referralCode        String?   @unique
+  referredByUserId    String?
+  totalReferrals      Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -467,6 +491,36 @@ model RoomMcqAnswer {
 
   @@unique([roomId, userId, questionId])
   @@index([roomId, userId])
+}
+
+// ─── Question Notes & Bookmarks ──────────────────
+model UserQuestionNote {
+  id           String   @id @default(cuid())
+  userId       String
+  problemSlug  String
+  problemTitle String
+  content      String   @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemSlug])
+  @@index([userId])
+}
+
+model UserBookmark {
+  id           String   @id @default(cuid())
+  userId       String
+  problemSlug  String
+  problemTitle String
+  difficulty   String   @default("Core")
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemSlug])
+  @@index([userId])
 }
 
 // ─── DSA Sheets Models ────────────────────────────
