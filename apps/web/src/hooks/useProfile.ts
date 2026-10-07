@@ -96,11 +96,12 @@ export interface ProfileStatsResponse {
   leetcodeStats?: LeetCodeStats | null;
   codeforcesStats?: CodeforcesStats | null;
   githubStats?: GitHubStats | null;
-  topicStats: Array<{
-    tag: string;
-    rawTag: string;
-    count: number;
-  }>;
+  topicStats: {
+    ALL: Array<{ tag: string; count: number }>;
+    INTERVUE: Array<{ tag: string; count: number }>;
+    LEETCODE: Array<{ tag: string; count: number }>;
+    CODEFORCES: Array<{ tag: string; count: number }>;
+  };
 }
 
 export function useProfile() {
@@ -113,11 +114,12 @@ export function useProfile() {
   });
 }
 
-export function useProfileStats() {
+export function useProfileStats(year?: string) {
   return useQuery<ProfileStatsResponse>({
-    queryKey: ["profile-stats"],
+    queryKey: ["profile-stats", year],
     queryFn: async () => {
-      const res = await api.get("/profile/stats");
+      const url = year ? `/profile/stats?year=${year}` : "/profile/stats";
+      const res = await api.get(url);
       return res.data;
     },
   });

@@ -20,12 +20,55 @@ import {
   Plus,
   Unlink,
   X,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useReferral } from "@/hooks/useRewards";
+import { useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
+  const [selectedYear, setSelectedYear] = useState<string>("Current");
+  
   const { data: profile, isLoading: isProfileLoading } = useProfile();
-  const { data: stats, isLoading: isStatsLoading } = useProfileStats();
+  const { data: stats, isLoading: isStatsLoading } = useProfileStats(selectedYear === "Current" ? undefined : selectedYear);
+  const { data: referralData } = useReferral();
+  const [copiedReferral, setCopiedReferral] = useState(false);
+  const [claimInput, setClaimInput] = useState("");
+  const [isClaiming, setIsClaiming] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleCopyReferral = () => {
+    if (!referralData?.referralCode) return;
+    const url = `${window.location.origin}/login?ref=${referralData.referralCode}`;
+    navigator.clipboard.writeText(url);
+    setCopiedReferral(true);
+    toast.success("Referral link copied to clipboard!");
+    setTimeout(() => setCopiedReferral(false), 2000);
+  };
+
+  const handleClaimCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = claimInput.trim().toUpperCase();
+    if (!code) return;
+    setIsClaiming(true);
+    try {
+      await api.post("/rewards/referral/claim", { referralCode: code });
+      toast.success("Referral bonus applied! +50 Points awarded 🎉");
+      setClaimInput("");
+      queryClient.invalidateQueries({ queryKey: ["rewards-status"] });
+      queryClient.invalidateQueries({ queryKey: ["referral"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || "Failed to claim referral code");
+    } finally {
+      setIsClaiming(false);
+    }
+  };
 
   const connectPlatformMutation = useConnectPlatform();
   const syncAllMutation = useSyncAllPlatforms();
@@ -36,6 +79,8 @@ export default function ProfilePage() {
   >("ALL");
   const [wheelMode, setWheelMode] = useState<"INTERVUE" | "LEETCODE" | "COMBINED">("INTERVUE");
   const [hoveredDay, setHoveredDay] = useState<{ date: string; count: number } | null>(null);
+  const [showAllTopics, setShowAllTopics] = useState(false);
+  const [topicPlatform, setTopicPlatform] = useState<"ALL" | "INTERVUE" | "LEETCODE" | "CODEFORCES">("ALL");
 
   // Connect Handle Modal State
   const [connectModal, setConnectModal] = useState<{
@@ -58,43 +103,44 @@ export default function ProfilePage() {
     return stats?.consistency;
   }, [stats, activePlatform]);
 
-  // Group calendar days into 52 columns of 7 days
-  const calendarWeeks = useMemo(() => {
+  // Group calendar days by month, then by weeks (columns of 7)
+  const calendarMonths = useMemo(() => {
     if (!currentCalendar?.calendarDays) return [];
     const days = currentCalendar.calendarDays;
-    const weeks: Array<Array<{ date: string; count: number; level: number }>> = [];
-    let currentWeek: Array<{ date: string; count: number; level: number }> = [];
+    const monthsData: Array<{ monthStr: string; columns: Array<Array<{ date: string; count: number; level: number }>> }> = [];
+    
+    let currentMonthStr = "";
+    let currentColumn = new Array(7).fill({ date: "", count: 0, level: -1 });
 
     days.forEach((day, index) => {
-      currentWeek.push(day);
-      if (currentWeek.length === 7 || index === days.length - 1) {
-        weeks.push(currentWeek);
-        currentWeek = [];
+      if (!day.date) return;
+      
+      const dateObj = new Date(day.date);
+      const monthStr = dateObj.toLocaleString('default', { month: 'short' });
+      const dayOfWeek = dateObj.getUTCDay();
+
+      if (monthStr !== currentMonthStr) {
+        if (currentMonthStr && currentColumn.some(d => d.date !== "")) {
+          monthsData[monthsData.length - 1].columns.push(currentColumn);
+        }
+        currentMonthStr = monthStr;
+        currentColumn = new Array(7).fill({ date: "", count: 0, level: -1 });
+        monthsData.push({ monthStr, columns: [] });
+      }
+
+      currentColumn[dayOfWeek] = day;
+
+      if (dayOfWeek === 6 || index === days.length - 1) {
+        monthsData[monthsData.length - 1].columns.push(currentColumn);
+        currentColumn = new Array(7).fill({ date: "", count: 0, level: -1 });
       }
     });
-    return weeks;
+
+    return monthsData.filter(m => m.columns.some(col => col.some(d => d.level !== -1)));
   }, [currentCalendar?.calendarDays]);
 
-  // Extract month labels at regular column intervals
-  const monthLabels = useMemo(() => {
-    if (!calendarWeeks.length) return [];
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const labels: Array<{ month: string; colIndex: number }> = [];
-    let lastMonth = -1;
-
-    calendarWeeks.forEach((week, colIdx) => {
-      const firstDay = week[0];
-      if (firstDay) {
-        const d = new Date(firstDay.date);
-        const m = d.getMonth();
-        if (m !== lastMonth && colIdx % 4 === 0) {
-          labels.push({ month: months[m], colIndex: colIdx });
-          lastMonth = m;
-        }
-      }
-    });
-    return labels;
-  }, [calendarWeeks]);
+  const currentYear = new Date().getFullYear();
+  const yearOptions = ["Current", ...Array.from({ length: 3 }, (_, i) => (currentYear - i).toString())];
 
   if (isProfileLoading || isStatsLoading) {
     return (
@@ -156,7 +202,7 @@ export default function ProfilePage() {
 
   // Max count for topic bars normalization
   const maxTopicCount = Math.max(
-    ...(stats?.topicStats?.map((t) => t.count) || [1]),
+    ...(stats?.topicStats?.[topicPlatform]?.map((t) => t.count) || [1]),
     1
   );
 
@@ -194,49 +240,51 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto text-[#F5F7FA] font-sans">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto text-[#F3F4F6] font-sans">
       {/* ─── Profile Brief & Header ───────────────────────────────────── */}
-      <div className="rounded-xl border border-[#272B33] bg-[#14161B] overflow-hidden mb-8 shadow-sm">
+      <div className="rounded-2xl border border-[#181A20] bg-[#0D0E12] overflow-hidden mb-8 shadow-sm relative">
         {/* Cover Banner */}
-        <div className="h-28 sm:h-36 bg-gradient-to-r from-[#101216] via-[#1A2234] to-[#101216] relative border-b border-[#1E2229]">
-          <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#2F80ED_1px,transparent_1px)] [background-size:16px_16px]" />
+        <div className="h-28 sm:h-36 bg-gradient-to-r from-[#0A0C10] via-[#10192B] to-[#0A0C10] relative border-b border-[#181A20]">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#327CF6_1px,transparent_1px)] [background-size:16px_16px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0D0E12]" />
         </div>
 
         {/* Profile Card Body */}
-        <div className="px-6 pb-6 pt-0 relative flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 sm:-mt-14 relative z-10">
+        <div className="px-6 sm:px-8 pb-8 pt-0 relative flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-12 sm:-mt-14 relative z-10">
             {/* Avatar */}
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-[#101216] border-2 border-[#272B33] p-1 shadow-lg shrink-0 overflow-hidden">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#08090C] border border-[#181A20] p-1 shadow-lg shrink-0 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-[#327CF6]/20 to-transparent opacity-50"></div>
               {profile?.avatarUrl || stats?.user?.image ? (
                 <img
                   src={profile?.avatarUrl || stats?.user?.image || ""}
                   alt={displayName}
-                  className="w-full h-full object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-xl relative z-10"
                 />
               ) : (
-                <div className="w-full h-full rounded-lg bg-[#2F80ED] flex items-center justify-center text-3xl font-bold text-white">
+                <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#327CF6] to-[#1E3A8A] flex items-center justify-center text-4xl font-bold text-white shadow-inner relative z-10">
                   {displayName[0]?.toUpperCase()}
                 </div>
               )}
             </div>
 
             {/* User Meta */}
-            <div className="pt-2">
+            <div className="pt-2 sm:pb-1">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold text-[#F5F7FA] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
                   {displayName}
                 </h1>
               </div>
-              <p className="text-xs text-[#707784] font-mono mt-0.5">@{displayHandle}</p>
+              <p className="text-xs text-[#525866] font-mono mt-1">@{displayHandle}</p>
               {profile?.bio && (
-                <p className="text-sm text-[#A1A7B3] mt-2 max-w-md leading-relaxed">{profile.bio}</p>
+                <p className="text-sm text-[#8B92A0] mt-3 max-w-lg leading-relaxed">{profile.bio}</p>
               )}
-              <div className="flex items-center gap-2 mt-3 flex-wrap">
-                <span className="text-xs text-[#A1A7B3] font-medium flex items-center gap-1.5 bg-[#101216] px-2.5 py-1 rounded-md border border-[#1E2229]">
+              <div className="flex items-center gap-2 mt-4 flex-wrap">
+                <span className="text-[11px] text-[#F3F4F6] font-medium flex items-center gap-1.5 bg-[#14161C] px-3 py-1 rounded-full border border-[#1E2229] shadow-sm shadow-black/20">
                   <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
                   {profile?.targetRole || "Software Engineer"}
                 </span>
-                <span className="text-xs text-[#A1A7B3] bg-[#101216] px-2.5 py-1 rounded-md border border-[#1E2229] capitalize">
+                <span className="text-[11px] text-[#8B92A0] bg-[#14161C] px-3 py-1 rounded-full border border-[#1E2229] capitalize shadow-sm shadow-black/20">
                   {profile?.experienceLevel || "Mid-Level"}
                 </span>
               </div>
@@ -244,21 +292,21 @@ export default function ProfilePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 pt-2 sm:pt-0">
+          <div className="flex items-center gap-2.5 pt-4 sm:pt-0 pb-1">
             <button
               onClick={() => syncAllMutation.mutate()}
               disabled={syncAllMutation.isPending}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#101216] border border-[#272B33] hover:bg-[#191C22] text-xs font-medium text-[#A1A7B3] hover:text-[#F5F7FA] transition-colors cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#08090C] border border-[#181A20] hover:border-[#327CF6]/50 text-xs font-medium text-[#8B92A0] hover:text-white transition-all cursor-pointer disabled:opacity-50"
               title="Sync all connected platforms"
             >
               <RefreshCw
-                className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#2F80ED]")}
+                className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#327CF6]")}
               />
               <span>{syncAllMutation.isPending ? "Syncing..." : "Sync All"}</span>
             </button>
             <Link
               to="/profile-setup"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#2F80ED] hover:bg-[#3B9CFF] text-xs font-semibold text-white shadow-sm transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white shadow-sm shadow-[#327CF6]/20 transition-all cursor-pointer"
             >
               <Pencil className="w-3.5 h-3.5" />
               <span>Edit Profile</span>
@@ -283,69 +331,79 @@ export default function ProfilePage() {
               </div>
 
               {/* Platform Radio Filter Tabs */}
-              <div className="flex items-center gap-1 p-1 rounded-lg bg-[#101216] border border-[#1E2229] text-xs">
-                {(["ALL", "INTERVUE", "LEETCODE", "CODEFORCES"] as const).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setActivePlatform(p)}
-                    className={cn(
-                      "px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer",
-                      activePlatform === p
-                        ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
-                        : "text-[#A1A7B3] hover:text-[#F5F7FA]"
-                    )}
+              <div className="flex items-center gap-3">
+                <div className="relative group flex items-center">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="appearance-none bg-transparent text-[#A1A7B3] hover:text-[#F5F7FA] text-xs font-semibold py-1 pl-2 pr-6 cursor-pointer outline-none transition-colors"
                   >
-                    {p}
-                  </button>
-                ))}
+                    {yearOptions.map(y => <option key={y} value={y} className="bg-[#101216]">{y}</option>)}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#707784] absolute right-1 pointer-events-none group-hover:text-[#F5F7FA] transition-colors" />
+                </div>
+
+                <div className="flex items-center gap-1 p-1 rounded-lg bg-[#101216] border border-[#1E2229] text-xs">
+                  {(["ALL", "INTERVUE", "LEETCODE", "CODEFORCES"] as const).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setActivePlatform(p)}
+                      className={cn(
+                        "px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer",
+                        activePlatform === p
+                          ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
+                          : "text-[#A1A7B3] hover:text-[#F5F7FA]"
+                      )}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* The 52-Week Heatmap Grid Canvas */}
+            {/* The Heatmap Grid Canvas */}
             <div className="overflow-x-auto pb-2">
-              <div className="min-w-[650px]">
-                {/* Month Headers */}
-                <div className="flex text-[10px] text-[#707784] font-mono mb-2 pl-4">
-                  {monthLabels.map((lbl, i) => (
-                    <div
-                      key={i}
-                      style={{ marginLeft: i === 0 ? "0px" : "36px" }}
-                      className="font-medium"
-                    >
-                      {lbl.month}
-                    </div>
-                  ))}
-                </div>
+              <div className="min-w-max">
+                <div className="flex gap-3">
+                  {calendarMonths.map((monthGroup, mIdx) => (
+                    <div key={mIdx} className="flex flex-col gap-1.5">
+                      <div className="text-[10px] text-[#707784] font-medium font-mono pl-0.5">
+                        {monthGroup.monthStr}
+                      </div>
+                      <div className="flex gap-[3px]">
+                        {monthGroup.columns.map((week, wIdx) => (
+                          <div key={wIdx} className="flex flex-col gap-[3px]">
+                            {week.map((day, dIdx) => {
+                              // Level colors
+                              const levelBg = day.level === -1
+                                ? "opacity-0 cursor-default pointer-events-none"
+                                : day.level === 0
+                                ? "bg-[#101216] border border-[#1E2229]"
+                                : day.level === 1
+                                ? "bg-[#1D3557]"
+                                : day.level === 2
+                                ? "bg-[#1D4ED8]"
+                                : day.level === 3
+                                ? "bg-[#2F80ED]"
+                                : "bg-[#3B9CFF]";
 
-                {/* Weeks Grid */}
-                <div className="flex gap-[3px]">
-                  {calendarWeeks.map((week, wIdx) => (
-                    <div key={wIdx} className="flex flex-col gap-[3px]">
-                      {week.map((day, dIdx) => {
-                        // Level colors
-                        const levelBg =
-                          day.level === 0
-                            ? "bg-[#101216] border border-[#1E2229]"
-                            : day.level === 1
-                            ? "bg-[#1D3557]"
-                            : day.level === 2
-                            ? "bg-[#1D4ED8]"
-                            : day.level === 3
-                            ? "bg-[#2F80ED]"
-                            : "bg-[#3B9CFF]";
-
-                        return (
-                          <div
-                            key={dIdx}
-                            onMouseEnter={() => setHoveredDay({ date: day.date, count: day.count })}
-                            onMouseLeave={() => setHoveredDay(null)}
-                            className={cn(
-                              "w-[11px] h-[11px] rounded-[2px] transition-colors cursor-pointer",
-                              levelBg
-                            )}
-                          />
-                        );
-                      })}
+                              return (
+                                <div
+                                  key={dIdx}
+                                  onMouseEnter={() => day.date && day.level !== -1 && setHoveredDay({ date: day.date, count: day.count })}
+                                  onMouseLeave={() => setHoveredDay(null)}
+                                  className={cn(
+                                    "w-[11px] h-[11px] rounded-[2px] transition-colors",
+                                    day.date && day.level !== -1 && "cursor-pointer hover:ring-1 hover:ring-[#F5F7FA]/50 ring-offset-0 ring-offset-transparent",
+                                    levelBg
+                                  )}
+                                />
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -606,47 +664,92 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* 3. Topic-wise Solved Breakdown */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] shadow-sm">
-            <div className="flex items-center justify-between mb-6">
+          {/* 3. DSA Topic Analysis */}
+          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] shadow-sm flex flex-col">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#2F80ED]" />
-                <h2 className="text-base font-semibold text-[#F5F7FA] tracking-tight">
-                  Topic-Wise Solved Breakdown
+                <h2 className="text-xl font-bold text-[#A1A7B3] tracking-tight">
+                  DSA Topic Analysis
                 </h2>
+                <Info className="w-4 h-4 text-[#707784] cursor-pointer hover:text-[#A1A7B3] transition-colors" />
               </div>
-              <span className="text-xs text-[#707784] font-mono">
-                {stats?.topicStats?.filter((t) => t.count > 0).length || 0} active topics
-              </span>
+
+              <div className="flex items-center p-1 rounded-lg bg-[#101216] border border-[#1E2229] text-[11px] font-semibold w-full sm:w-auto overflow-x-auto hide-scrollbar">
+                {(["ALL", "INTERVUE", "LEETCODE", "CODEFORCES"] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setTopicPlatform(p)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-md transition-all whitespace-nowrap",
+                      topicPlatform === p
+                        ? "bg-[#2F80ED] text-white shadow-sm"
+                        : "text-[#707784] hover:text-[#A1A7B3] hover:bg-[#1E2229]/50"
+                    )}
+                  >
+                    {p === "ALL" ? "All Platforms" : p === "INTERVUE" ? "Intervue" : p === "LEETCODE" ? "LeetCode" : "Codeforces"}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {stats?.topicStats?.slice(0, 10).map((topic, i) => {
-                const percent = Math.round((topic.count / maxTopicCount) * 100);
+            <div className="flex flex-col gap-2.5">
+              {(showAllTopics 
+                ? stats?.topicStats?.[topicPlatform]?.filter((t) => t.count > 0)
+                : stats?.topicStats?.[topicPlatform]?.filter((t) => t.count > 0).slice(0, 10)
+              )?.map((topic, i) => {
+                const percent = Math.max((topic.count / maxTopicCount) * 100, 2);
+                
+                // Cycle through some nice blue shades
+                const barColors = [
+                  "bg-[#1D4ED8]",
+                  "bg-[#2563EB]",
+                  "bg-[#3B82F6]",
+                  "bg-[#60A5FA]"
+                ];
+                const color = barColors[i % barColors.length];
+
                 return (
-                  <div
-                    key={i}
-                    className="p-3 rounded-lg bg-[#101216] border border-[#1E2229] hover:border-[#272B33] transition-colors"
-                  >
-                    <div className="flex items-center justify-between text-xs mb-2">
-                      <span className="font-medium text-[#F5F7FA]">{topic.tag}</span>
-                      <span className="font-mono text-xs text-[#707784]">
-                        <strong className="text-[#F5F7FA]">{topic.count}</strong> solved
+                  <div key={i} className="flex items-center gap-4 w-full">
+                    {/* Label */}
+                    <div className="w-36 text-right shrink-0">
+                      <span className="text-[13px] text-[#A1A7B3] font-medium leading-tight">
+                        {topic.tag}
                       </span>
                     </div>
-                    <div className="w-full h-1.5 rounded-full bg-[#14161B] overflow-hidden">
+
+                    {/* Bar Area */}
+                    <div className="flex-1 h-[22px] relative flex items-center">
                       <div
-                        className={cn(
-                          "h-full rounded-full transition-all duration-500",
-                          topic.count > 0 ? "bg-[#2F80ED]" : "bg-transparent"
+                        className={cn("h-full transition-all duration-1000 ease-out flex items-center justify-center", color)}
+                        style={{ width: `${percent}%` }}
+                      >
+                        {topic.count > 0 && (
+                          <span className="text-[11px] font-bold text-white tracking-wide">
+                            {topic.count}
+                          </span>
                         )}
-                        style={{ width: `${Math.max(percent, topic.count > 0 ? 5 : 0)}%` }}
-                      />
+                      </div>
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            {/* Expand / Collapse Button */}
+            {(stats?.topicStats?.[topicPlatform]?.filter((t) => t.count > 0).length || 0) > 10 && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={() => setShowAllTopics(!showAllTopics)}
+                  className="p-1 text-[#707784] hover:text-[#A1A7B3] transition-colors cursor-pointer"
+                >
+                  {showAllTopics ? (
+                    <ChevronUp className="w-5 h-5" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -893,6 +996,72 @@ export default function ProfilePage() {
                   <ExternalLink className="w-3.5 h-3.5 text-[#707784]" />
                 </a>
               ) : null}
+            </div>
+          </div>
+
+          {/* Refer & Earn Card */}
+          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#F59E0B]" />
+                <h3 className="text-sm font-semibold text-[#F5F7FA]">Refer & Earn</h3>
+              </div>
+              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/30">
+                +50 Pts
+              </span>
+            </div>
+
+            <p className="text-xs text-[#8B92A0] leading-relaxed mb-4">
+              Invite friends to practice on Intervue. When they join, you both get <span className="text-white font-semibold">50 points</span>!
+            </p>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#101216] border border-[#1E2229]">
+                <div>
+                  <span className="text-[10px] text-[#525866] uppercase tracking-wider font-mono block">Your Code</span>
+                  <span className="text-base font-bold font-mono text-[#F5F7FA] tracking-wider">
+                    {referralData?.referralCode || "..."}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopyReferral}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white transition-all cursor-pointer"
+                >
+                  {copiedReferral ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedReferral ? "Copied!" : "Copy Link"}</span>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-[#8B92A0] pt-1 px-1">
+                <span>Friends Referred</span>
+                <span className="font-mono font-bold text-[#F5F7FA]">
+                  {referralData?.totalReferrals ?? 0}
+                </span>
+              </div>
+
+              {/* Redeem Friend Code Section */}
+              <div className="pt-3 border-t border-[#1E2229]">
+                <span className="text-[10px] text-[#525866] uppercase tracking-wider font-mono block mb-1.5">
+                  Have an invite code?
+                </span>
+                <form onSubmit={handleClaimCode} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={claimInput}
+                    onChange={(e) => setClaimInput(e.target.value.toUpperCase())}
+                    placeholder="ENTER CODE"
+                    className="flex-1 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#1E2229] focus:border-[#327CF6]/50 text-xs font-mono text-white placeholder:text-[#525866] outline-none uppercase"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isClaiming || !claimInput.trim()}
+                    className="px-3 py-1.5 rounded-lg bg-[#22C55E]/15 hover:bg-[#22C55E]/25 text-[#22C55E] border border-[#22C55E]/30 text-xs font-semibold transition-all disabled:opacity-40 cursor-pointer"
+                  >
+                    {isClaiming ? "Claiming..." : "Redeem"}
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
