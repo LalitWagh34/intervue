@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSession } from '../lib/auth';
 import { api } from '@/lib/api';
+import { TargetCompanyTracker } from "@/components/shared/TargetCompanyTracker";
+import { RecentActivityFeed } from "@/components/shared/RecentActivityFeed";
 
 interface DashboardStats {
   streakCount: number;
@@ -116,13 +118,24 @@ export default function DashboardPage() {
 <span className="font-code-bold text-3xl font-bold tracking-tight text-text-primary">{stats?.simulationsCount || 0}</span>
 <span className="font-code-base text-code-base text-text-muted">sessions</span>
 </div>
-<div className="font-metadata-sm text-metadata-sm text-text-secondary flex items-center gap-2">
-<span>Total simulations completed</span>
-        </div>
-</div>
-</section>
-</div>
-</div></main>
+            <span className="font-metadata-sm text-metadata-sm text-text-secondary flex items-center gap-2">
+              <span>Total simulations completed</span>
+            </span>
+          </div>
+        </section>
+
+        {/* Target Company Readiness Tracker */}
+        <section className="pt-2">
+          <TargetCompanyTracker />
+        </section>
+
+        {/* Live Recent Activity Feed */}
+        <section className="pt-2">
+          <RecentActivityFeed />
+        </section>
+      </div>
     </div>
+  </main>
+</div>
   );
 }

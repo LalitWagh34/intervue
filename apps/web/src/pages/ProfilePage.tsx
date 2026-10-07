@@ -30,6 +30,8 @@ import { useReferral } from "@/hooks/useRewards";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { TargetCompanyTracker } from "@/components/shared/TargetCompanyTracker";
+import { RecentActivityFeed } from "@/components/shared/RecentActivityFeed";
 
 export default function ProfilePage() {
   const [selectedYear, setSelectedYear] = useState<string>("Current");
@@ -751,6 +753,12 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
+
+          {/* Target Company Readiness Tracker */}
+          <TargetCompanyTracker />
+
+          {/* Live Recent Activity Feed */}
+          <RecentActivityFeed />
         </div>
 
         {/* Right 1 Column: Dedicated External Platform Counters & Social Links */}
