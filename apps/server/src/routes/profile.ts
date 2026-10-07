@@ -788,4 +788,183 @@ app.get("/solved-problems", requireAuth, async (c) => {
   }
 });
 
+// ─── TARGET COMPANIES LIST ─────────────────────────────────────────────
+const TARGET_COMPANIES = [
+  { name: "Google", slug: "google", icon: "G", color: "#4285F4" },
+  { name: "Amazon", slug: "amazon", icon: "A", color: "#FF9900" },
+  { name: "Microsoft", slug: "microsoft", icon: "MS", color: "#00A4EF" },
+  { name: "Meta", slug: "meta", altNames: ["Facebook", "Meta"], icon: "M", color: "#0668E1" },
+  { name: "Apple", slug: "apple", icon: "🍎", color: "#A2AAAD" },
+  { name: "Uber", slug: "uber", icon: "U", color: "#000000" },
+  { name: "Netflix", slug: "netflix", icon: "N", color: "#E50914" },
+  { name: "Bloomberg", slug: "bloomberg", icon: "BB", color: "#FF6600" },
+  { name: "Goldman Sachs", slug: "goldman-sachs", icon: "GS", color: "#7399C6" },
+  { name: "Adobe", slug: "adobe", icon: "AD", color: "#FF0000" },
+  { name: "Nvidia", slug: "nvidia", icon: "NV", color: "#76B900" },
+  { name: "Salesforce", slug: "salesforce", icon: "SF", color: "#00A1E0" },
+];
+
+// ─── GET /api/profile/target-company/readiness ─────────────────────────
+app.get("/target-company/readiness", requireAuth, async (c) => {
+  const user = c.get("user");
+  try {
+    const profile = await db.profile.findUnique({
+      where: { userId: user.id },
+      select: { targetCompany: true },
+    });
+
+    const targetCompanyName = profile?.targetCompany || "Google";
+    const companyObj =
+      TARGET_COMPANIES.find(
+        (comp) =>
+          comp.name.toLowerCase() === targetCompanyName.toLowerCase() ||
+          comp.slug === targetCompanyName.toLowerCase()
+      ) ?? TARGET_COMPANIES[0]!;
+
+    const searchNames = (companyObj as any).altNames || [companyObj.name];
+
+    // Find all problems in DB tagged with this company
+    const problems = await db.problem.findMany({
+      where: {
+        company: { hasSome: searchNames },
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        difficulty: true,
+        tags: true,
+      },
+      orderBy: { id: "asc" },
+    });
+
+    // Find all solved problems by this user
+    const solved = await db.userSolvedProblem.findMany({
+      where: { userId: user.id },
+      select: { problemSlug: true },
+    });
+    const solvedSlugs = new Set(solved.map((s) => s.problemSlug));
+
+    const totalCount = problems.length;
+    let solvedCount = 0;
+    const breakdown = {
+      easy: { solved: 0, total: 0 },
+      medium: { solved: 0, total: 0 },
+      hard: { solved: 0, total: 0 },
+    };
+
+    let nextRecommended: any = null;
+
+    for (const prob of problems) {
+      const isSolved = solvedSlugs.has(prob.slug);
+      if (isSolved) solvedCount++;
+
+      const diffKey = prob.difficulty.toLowerCase() as "easy" | "medium" | "hard";
+      if (breakdown[diffKey]) {
+        breakdown[diffKey].total++;
+        if (isSolved) breakdown[diffKey].solved++;
+      }
+
+      if (!isSolved && !nextRecommended) {
+        nextRecommended = {
+          title: prob.title,
+          slug: prob.slug,
+          difficulty: prob.difficulty,
+          tags: prob.tags,
+        };
+      }
+    }
+
+    const readinessPercentage = totalCount > 0 ? Math.round((solvedCount / totalCount) * 100) : 0;
+
+    return c.json({
+      targetCompany: companyObj.name,
+      readinessPercentage,
+      solvedCount,
+      totalCount,
+      breakdown,
+      nextRecommended,
+      availableCompanies: TARGET_COMPANIES.map((tc) => ({
+        name: tc.name,
+        slug: tc.slug,
+        icon: tc.icon,
+        color: tc.color,
+      })),
+    });
+  } catch (err) {
+    console.error("Failed to compute target company readiness:", err);
+    return c.json({ error: "Failed to compute readiness" }, 500);
+  }
+});
+
+// ─── PUT /api/profile/target-company ───────────────────────────────────
+app.put("/target-company", requireAuth, async (c) => {
+  const user = c.get("user");
+  try {
+    const { targetCompany } = await c.req.json();
+    if (!targetCompany || typeof targetCompany !== "string") {
+      return c.json({ error: "Invalid targetCompany" }, 400);
+    }
+
+    await db.profile.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        targetCompany,
+      },
+      update: {
+        targetCompany,
+      },
+    });
+
+    return c.json({ success: true, targetCompany });
+  } catch (err) {
+    console.error("Failed to update target company:", err);
+    return c.json({ error: "Failed to update target company" }, 500);
+  }
+});
+
+// ─── GET /api/profile/recent-activity ──────────────────────────────────
+app.get("/recent-activity", requireAuth, async (c) => {
+  const user = c.get("user");
+  try {
+    const recentSolved = await db.userSolvedProblem.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: 15,
+    });
+
+    const slugs = recentSolved.map((s) => s.problemSlug);
+    const problems = await db.problem.findMany({
+      where: { slug: { in: slugs } },
+      select: { slug: true, title: true, difficulty: true },
+    });
+    const problemMap = new Map(problems.map((p) => [p.slug, p]));
+
+    const activity = recentSolved.map((item) => {
+      const p = problemMap.get(item.problemSlug);
+      const formattedTitle =
+        p?.title ||
+        item.problemSlug
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
+
+      return {
+        id: `solved-${item.id}`,
+        slug: item.problemSlug,
+        title: formattedTitle,
+        difficulty: p?.difficulty || item.difficulty || "MEDIUM",
+        platform: "INTERVUE",
+        solvedAt: item.createdAt,
+      };
+    });
+
+    return c.json({ activity });
+  } catch (err) {
+    console.error("Failed to fetch recent activity:", err);
+    return c.json({ activity: [] });
+  }
+});
+
 export default app;
