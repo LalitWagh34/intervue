@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,44 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "@/lib/utils";
 
 type AdminTab = "overview" | "users" | "problems" | "mcqs" | "rooms";
+
+const PANELS: Array<{
+  id: AdminTab;
+  label: string;
+  description: string;
+  icon: any;
+}> = [
+  {
+    id: "overview",
+    label: "Overview",
+    description: "System KPIs & runtime health",
+    icon: BarChart3,
+  },
+  {
+    id: "users",
+    label: "Candidates & Roles",
+    description: "Candidate directory & permissions",
+    icon: Users,
+  },
+  {
+    id: "problems",
+    label: "Coding Bank",
+    description: "Question repo, testcases & AI",
+    icon: Code2,
+  },
+  {
+    id: "mcqs",
+    label: "MCQ Bank",
+    description: "Assessment questions & subjects",
+    icon: Brain,
+  },
+  {
+    id: "rooms",
+    label: "Contest Rooms",
+    description: "Live multiplayer battle surveillance",
+    icon: Swords,
+  },
+];
 
 const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
 const LANGUAGES = ["JAVASCRIPT", "PYTHON", "CPP", "JAVA", "TYPESCRIPT"];
@@ -63,7 +102,17 @@ function defaultTemplates() {
 
 export default function AdminPage() {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<AdminTab>("overview");
+  const { panel } = useParams<{ panel?: string }>();
+  const navigate = useNavigate();
+
+  const VALID_TABS: AdminTab[] = ["overview", "users", "problems", "mcqs", "rooms"];
+  const activeTab: AdminTab = VALID_TABS.includes(panel as AdminTab)
+    ? (panel as AdminTab)
+    : "overview";
+
+  const switchTab = (tab: AdminTab) => {
+    navigate(`/admin/${tab}`);
+  };
 
   // ─── OVERVIEW PANEL ──────────────────────────────────────────────────
   const { data: statsData, isLoading: isStatsLoading, refetch: refetchStats } = useQuery({
@@ -289,98 +338,106 @@ export default function AdminPage() {
     },
   });
 
+  const currentPanelMeta = PANELS.find((p) => p.id === activeTab) || PANELS[0];
+
   return (
-    <div className="min-h-screen bg-[#08090C] text-zinc-100 flex flex-col font-sans">
+    <div className="min-h-[calc(100vh-4.5rem)] bg-[#08090C] text-zinc-100 flex flex-col font-sans">
       {/* ─── Top Admin Bar ───────────────────────────────────────────── */}
-      <header className="border-b border-zinc-800/80 bg-[#0C0E13] px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+      <header className="border-b border-zinc-800/80 bg-[#0A0C11] px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
+          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300">
             <Shield className="w-4 h-4 text-blue-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-bold text-white tracking-tight">Admin Console</h1>
-              <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] font-mono">
-                Management CMS
+              <span className="text-xs font-semibold text-zinc-400">Admin CMS</span>
+              <span className="text-zinc-600">/</span>
+              <h1 className="text-sm font-bold text-white tracking-tight">
+                {currentPanelMeta.label}
+              </h1>
+              <Badge variant="outline" className="border-zinc-800 bg-zinc-900/60 text-zinc-400 text-[10px] font-mono ml-1">
+                Internal
               </Badge>
             </div>
-            <p className="text-xs text-zinc-400">
-              Manage platform health, questions, users, and contest rooms
+            <p className="text-[11px] text-zinc-400">
+              {currentPanelMeta.description}
             </p>
           </div>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-black/40 border border-zinc-800 overflow-x-auto custom-scrollbar">
-          <button
-            type="button"
-            onClick={() => setActiveTab("overview")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeTab === "overview"
-                ? "bg-zinc-800 text-white shadow-sm font-semibold"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
-            }`}
-          >
-            <BarChart3 className="w-3.5 h-3.5" />
-            <span>Overview</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("users")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeTab === "users"
-                ? "bg-zinc-800 text-white shadow-sm font-semibold"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Users</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("problems")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeTab === "problems"
-                ? "bg-zinc-800 text-white shadow-sm font-semibold"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
-            }`}
-          >
-            <Code2 className="w-3.5 h-3.5" />
-            <span>Coding Bank</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("mcqs")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeTab === "mcqs"
-                ? "bg-zinc-800 text-white shadow-sm font-semibold"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
-            }`}
-          >
-            <Brain className="w-3.5 h-3.5" />
-            <span>MCQ Bank</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("rooms")}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              activeTab === "rooms"
-                ? "bg-zinc-800 text-white shadow-sm font-semibold"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
-            }`}
-          >
-            <Swords className="w-3.5 h-3.5" />
-            <span>Contest Rooms</span>
-          </button>
+        {/* Mobile Horizontal Module Switcher */}
+        <div className="flex md:hidden items-center gap-1 p-1 rounded-xl bg-black/40 border border-zinc-800 overflow-x-auto custom-scrollbar">
+          {PANELS.map((p) => {
+            const Icon = p.icon;
+            const isSelected = activeTab === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => switchTab(p.id)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                  isSelected
+                    ? "bg-zinc-800 text-white font-semibold shadow-sm"
+                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{p.label}</span>
+              </button>
+            );
+          })}
         </div>
       </header>
 
-      {/* ─── Main Panel Body (Only Active Panel is Shown) ─────────────── */}
-      <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto custom-scrollbar">
+      {/* ─── Multi-Panel Body (Sub-panel rail + Active workspace) ────── */}
+      <div className="flex-1 flex min-h-0">
+        {/* Left Sub-Panel Navigation Rail (Desktop) */}
+        <aside className="w-64 shrink-0 border-r border-zinc-800/80 bg-[#0A0C11] p-3 hidden md:flex flex-col justify-between select-none">
+          <div className="space-y-1">
+            <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-bold">
+              CMS Panels
+            </div>
+            {PANELS.map((p) => {
+              const Icon = p.icon;
+              const isSelected = activeTab === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => switchTab(p.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all text-left group ${
+                    isSelected
+                      ? "bg-zinc-800 text-white font-semibold border border-zinc-700/60 shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850/50 border border-transparent"
+                  }`}
+                >
+                  <Icon
+                    className={`w-4 h-4 shrink-0 transition-colors ${
+                      isSelected ? "text-blue-400" : "text-zinc-500 group-hover:text-zinc-300"
+                    }`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-medium">{p.label}</div>
+                    <div className="text-[10px] text-zinc-500 truncate font-normal">
+                      {p.description}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 text-[11px] text-zinc-400 font-mono">
+            <div className="text-zinc-300 font-semibold text-xs">Role: Administrator</div>
+            <div className="text-emerald-400 text-[10px] mt-0.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Surveillance Online
+            </div>
+          </div>
+        </aside>
+
+        {/* Right Active Panel Workspace */}
+        <main className="flex-1 min-w-0 p-5 md:p-8 overflow-y-auto custom-scrollbar">
         {/* 1. OVERVIEW PANEL */}
         {activeTab === "overview" && (
           <div className="space-y-6">
@@ -1117,5 +1174,6 @@ export default function AdminPage() {
         )}
       </main>
     </div>
+  </div>
   );
 }

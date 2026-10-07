@@ -87,6 +87,7 @@ export default function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/chat/:id" element={<ChatPage />} />
           <Route path="/admin" element={<AdminPage />} />        
+          <Route path="/admin/:panel" element={<AdminPage />} />        
           <Route path="/notes" element={<NotepadPage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
           {/* Coding Practice disabled for V1 */}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -12,24 +13,37 @@ import {
   Brain,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   PanelLeftClose,
   PanelLeft,
   ExternalLink,
   NotebookPen,
   Bookmark,
+  Shield,
+  BarChart3,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
 
+interface NavSubItem {
+  label: string;
+  icon: any;
+  href: string;
+}
+
+interface NavItem {
+  label: string;
+  icon: any;
+  href: string;
+  badge?: string;
+  badgeColor?: "red" | "blue" | "amber" | "emerald";
+  subItems?: NavSubItem[];
+}
+
 interface NavSection {
   title?: string;
-  items: Array<{
-    label: string;
-    icon: any;
-    href: string;
-    badge?: string;
-    badgeColor?: "red" | "blue" | "amber" | "emerald";
-  }>;
+  items: NavItem[];
 }
 
 const NAV_SECTIONS: NavSection[] = [
@@ -109,8 +123,15 @@ const NAV_SECTIONS: NavSection[] = [
       },
       {
         label: "Admin CMS",
-        icon: Settings,
+        icon: Shield,
         href: "/admin",
+        subItems: [
+          { label: "Overview", icon: BarChart3, href: "/admin/overview" },
+          { label: "Users & Roles", icon: Users, href: "/admin/users" },
+          { label: "Coding Bank", icon: Code2, href: "/admin/problems" },
+          { label: "MCQ Bank", icon: Brain, href: "/admin/mcqs" },
+          { label: "Contest Rooms", icon: Swords, href: "/admin/rooms" },
+        ],
       },
     ],
   },
@@ -125,6 +146,16 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const location = useLocation();
   const { data: session } = useSession();
   const navigate = useNavigate();
+
+  const [adminExpanded, setAdminExpanded] = useState<boolean>(() =>
+    location.pathname.startsWith("/admin")
+  );
+
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin")) {
+      setAdminExpanded(true);
+    }
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await authClient.signOut();
@@ -204,58 +235,108 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
             <div className="space-y-1">
               {section.items.map((item, iIdx) => {
+                const hasSubItems = Boolean(item.subItems && item.subItems.length > 0);
+                const isSubOpen = hasSubItems && (adminExpanded || location.pathname.startsWith(item.href));
                 const isActive =
                   location.pathname === item.href ||
                   (item.href !== "/" && item.href !== "/dashboard" && location.pathname.startsWith(item.href));
                 const Icon = item.icon;
 
                 return (
-                  <Link
-                    key={iIdx}
-                    to={item.href}
-                    title={isCollapsed ? item.label : undefined}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all group relative cursor-pointer",
-                      isActive
-                        ? "bg-[#327CF6]/15 text-[#327CF6] font-semibold border border-[#327CF6]/30 shadow-sm"
-                        : "text-[#8B92A0] hover:text-white hover:bg-[#12141B] border border-transparent"
-                    )}
-                  >
-                    {/* Active Left Indicator Bar (TUF style) */}
-                    {isActive && (
-                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#327CF6] shadow-[0_0_10px_#327CF6]" />
-                    )}
-
-                    <Icon
+                  <div key={iIdx} className="space-y-1">
+                    <Link
+                      to={hasSubItems ? (isCollapsed ? "/admin" : (isSubOpen ? item.href : "/admin/overview")) : item.href}
+                      onClick={() => {
+                        if (hasSubItems && !isCollapsed) {
+                          setAdminExpanded((prev) => !prev);
+                        }
+                      }}
+                      title={isCollapsed ? item.label : undefined}
                       className={cn(
-                        "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
-                        isActive ? "text-[#327CF6]" : "text-[#8B92A0] group-hover:text-white",
-                        isCollapsed && "mx-auto"
+                        "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all group relative cursor-pointer",
+                        isActive
+                          ? "bg-[#327CF6]/15 text-[#327CF6] font-semibold border border-[#327CF6]/30 shadow-sm"
+                          : "text-[#8B92A0] hover:text-white hover:bg-[#12141B] border border-transparent"
                       )}
-                    />
+                    >
+                      {/* Active Left Indicator Bar (TUF style) */}
+                      {isActive && (
+                        <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#327CF6] shadow-[0_0_10px_#327CF6]" />
+                      )}
 
-                    {!isCollapsed && (
-                      <div className="flex items-center justify-between flex-1 min-w-0">
-                        <span className="truncate">{item.label}</span>
-                        {item.badge && (
-                          <span
-                            className={cn(
-                              "px-1.5 py-0.2 rounded text-[9px] font-mono font-bold tracking-wider uppercase border",
-                              item.badgeColor === "red"
-                                ? "bg-red-500/15 text-red-400 border-red-500/30"
-                                : item.badgeColor === "emerald"
-                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                                : item.badgeColor === "amber"
-                                ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
-                                : "bg-[#327CF6]/15 text-[#327CF6] border-[#327CF6]/30"
-                            )}
-                          >
-                            {item.badge}
-                          </span>
+                      <Icon
+                        className={cn(
+                          "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
+                          isActive ? "text-[#327CF6]" : "text-[#8B92A0] group-hover:text-white",
+                          isCollapsed && "mx-auto"
                         )}
+                      />
+
+                      {!isCollapsed && (
+                        <div className="flex items-center justify-between flex-1 min-w-0">
+                          <span className="truncate">{item.label}</span>
+                          <div className="flex items-center gap-1.5">
+                            {item.badge && (
+                              <span
+                                className={cn(
+                                  "px-1.5 py-0.2 rounded text-[9px] font-mono font-bold tracking-wider uppercase border",
+                                  item.badgeColor === "red"
+                                    ? "bg-red-500/15 text-red-400 border-red-500/30"
+                                    : item.badgeColor === "emerald"
+                                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                                    : item.badgeColor === "amber"
+                                    ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                                    : "bg-[#327CF6]/15 text-[#327CF6] border-[#327CF6]/30"
+                                )}
+                              >
+                                {item.badge}
+                              </span>
+                            )}
+                            {hasSubItems && (
+                              <ChevronDown
+                                className={cn(
+                                  "w-3.5 h-3.5 text-zinc-500 transition-transform duration-200",
+                                  isSubOpen && "rotate-180 text-zinc-300"
+                                )}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </Link>
+
+                    {/* Indented Sub-panel Links */}
+                    {hasSubItems && isSubOpen && !isCollapsed && item.subItems && (
+                      <div className="ml-5 pl-2.5 border-l border-[#1F2430] space-y-1 py-1">
+                        {item.subItems.map((sub, sIdx) => {
+                          const isSubActive =
+                            location.pathname === sub.href ||
+                            (sub.href === "/admin/overview" && location.pathname === "/admin");
+                          const SubIcon = sub.icon;
+                          return (
+                            <Link
+                              key={sIdx}
+                              to={sub.href}
+                              className={cn(
+                                "flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all group",
+                                isSubActive
+                                  ? "bg-zinc-800 text-white font-semibold shadow-sm"
+                                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                              )}
+                            >
+                              <SubIcon
+                                className={cn(
+                                  "w-3.5 h-3.5 shrink-0 transition-colors",
+                                  isSubActive ? "text-[#327CF6]" : "text-zinc-500 group-hover:text-zinc-300"
+                                )}
+                              />
+                              <span className="truncate">{sub.label}</span>
+                            </Link>
+                          );
+                        })}
                       </div>
                     )}
-                  </Link>
+                  </div>
                 );
               })}
             </div>
