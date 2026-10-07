@@ -18,6 +18,9 @@ import {
   Play,
   Send,
   ChevronRight,
+  ChevronLeft,
+  LayoutGrid,
+  Check,
   Terminal,
   X,
   Sparkles,
@@ -67,6 +70,7 @@ export default function RoomArenaPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
+  const [isQuestionNavOpen, setIsQuestionNavOpen] = useState(true);
 
   // Coding State
   const [language, setLanguage] = useState("CPP");
@@ -319,6 +323,11 @@ export default function RoomArenaPage() {
       } else {
         toast.error("Incorrect (-1 point penalty)");
       }
+
+      // Auto-advance to next question if not at the end
+      if (activeQuestionIndex < (room?.questions?.length || 0) - 1) {
+        setActiveQuestionIndex((prev) => prev + 1);
+      }
     } catch (err: any) {
       toast.error(err?.response?.data?.error || "Failed to submit answer");
     } finally {
@@ -442,63 +451,43 @@ export default function RoomArenaPage() {
     <div className="h-screen bg-[#07080B] text-zinc-100 flex flex-col overflow-hidden font-sans selection:bg-blue-600/30">
       {/* ─── TOP ARENA HUD ───────────────────────────────────────────── */}
       <header className="h-14 border-b border-zinc-800/90 bg-[#0C0E13]/95 backdrop-blur px-4 flex items-center justify-between shrink-0 select-none z-20">
-        {/* Left: Room Title & Question Matrix Tabs */}
+        {/* Left: Question Palette Toggle & Contest Title */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex items-center gap-2.5 pr-3 border-r border-zinc-800 shrink-0">
-            <span className="font-bold text-sm tracking-tight text-white truncate max-w-[150px] sm:max-w-[200px]">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsQuestionNavOpen(!isQuestionNavOpen)}
+            className={`text-xs h-8.5 px-3 border-zinc-800 flex items-center gap-2 rounded-xl transition-all shrink-0 ${
+              isQuestionNavOpen
+                ? "bg-blue-600/20 text-blue-300 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.2)]"
+                : "bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            }`}
+            title={isQuestionNavOpen ? "Hide Questions Panel" : "Show Questions Panel"}
+          >
+            <LayoutGrid className="w-3.5 h-3.5 text-blue-400" />
+            <span className="font-semibold hidden sm:inline">Questions</span>
+            <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-black/40 text-zinc-300 border border-zinc-800/80">
+              {activeQuestionIndex + 1}/{totalQuestions}
+            </span>
+          </Button>
+
+          <div className="flex items-center gap-2.5 pl-2 border-l border-zinc-800/80 shrink-0">
+            <span className="font-bold text-sm tracking-tight text-white truncate max-w-[140px] sm:max-w-[200px] md:max-w-[280px]">
               {room.title}
             </span>
             <Badge variant="outline" className="text-[10px] border-zinc-800 bg-black/40 font-mono text-zinc-400">
               {room.code}
             </Badge>
           </div>
-
-          {/* Question Matrix Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto py-1 no-scrollbar">
-            {room.questions.map((q: any, idx: number) => {
-              const isSolved =
-                (q.problem && solvedProblemIds.has(q.problem.id)) ||
-                (q.assessmentQuestion && submittedMcqs.has(q.assessmentQuestion.id));
-              const isActive = idx === activeQuestionIndex;
-
-              return (
-                <button
-                  key={q.id}
-                  onClick={() => setActiveQuestionIndex(idx)}
-                  className={`relative px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shrink-0 ${
-                    isActive
-                      ? "bg-blue-600/20 text-blue-300 border border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-                      : isSolved
-                      ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/20"
-                      : "bg-[#11141A] text-zinc-400 hover:text-zinc-200 border border-zinc-800/80 hover:border-zinc-700"
-                  }`}
-                >
-                  {isSolved ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  ) : q.type === "CODING" ? (
-                    <Code2 className="w-3 h-3 text-zinc-400" />
-                  ) : (
-                    <Brain className="w-3 h-3 text-zinc-400" />
-                  )}
-                  <span>
-                    {q.type === "CODING" ? `Q${idx + 1}` : `MCQ${idx + 1}`}
-                  </span>
-                  <span className="text-[10px] text-zinc-400 font-mono font-normal">
-                    {q.points}p
-                  </span>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
         {/* Center: Authoritative Countdown Timer */}
         <div className="flex items-center gap-3">
           <div
-            className={`px-4 py-1 rounded-full border flex items-center gap-2 font-mono text-xs font-bold tracking-wider transition-all duration-300 ${
+            className={`px-4 py-1.5 rounded-full border flex items-center gap-2 font-mono text-xs font-bold tracking-wider transition-all duration-300 shadow-sm ${
               (secondsLeft ?? 100) < 300
                 ? "bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse"
-                : "bg-black/50 border-zinc-800 text-zinc-200"
+                : "bg-black/60 border-zinc-800 text-zinc-200"
             }`}
           >
             <Clock className="w-3.5 h-3.5 text-blue-400" />
@@ -605,6 +594,116 @@ export default function RoomArenaPage() {
 
       {/* ─── MAIN ARENA WORKSPACE ────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden relative">
+        {/* ─── COLLAPSIBLE QUESTION NAVIGATOR SIDEBAR ────────────────── */}
+        <AnimatePresence>
+          {isQuestionNavOpen && !isSpectatorMode && (
+            <motion.aside
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 260, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="border-r border-zinc-800/80 bg-[#0A0C11] flex flex-col shrink-0 overflow-hidden z-10 select-none"
+            >
+              {/* Palette Header */}
+              <div className="p-3.5 border-b border-zinc-800/80">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <LayoutGrid className="w-4 h-4 text-blue-400" />
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                      Question Palette
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setIsQuestionNavOpen(false)}
+                    className="p-1 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                    title="Collapse Palette"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Progress bar */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                    <span>Progress</span>
+                    <span className="text-zinc-200 font-medium">
+                      {completedCount} / {totalQuestions} answered
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${totalQuestions > 0 ? (completedCount / totalQuestions) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Question Grid List */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+                <div className="grid grid-cols-4 gap-2">
+                  {room.questions.map((q: any, idx: number) => {
+                    const isSolved =
+                      (q.problem && solvedProblemIds.has(q.problem.id)) ||
+                      (q.assessmentQuestion && submittedMcqs.has(q.assessmentQuestion.id));
+                    const isActive = idx === activeQuestionIndex;
+
+                    return (
+                      <button
+                        key={q.id || idx}
+                        onClick={() => setActiveQuestionIndex(idx)}
+                        className={`group relative aspect-square rounded-xl flex flex-col items-center justify-center transition-all text-xs font-bold ${
+                          isActive
+                            ? "bg-blue-600/25 text-blue-300 border-2 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500/50"
+                            : isSolved
+                            ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/25"
+                            : "bg-[#10131A] text-zinc-400 border border-zinc-800 hover:border-zinc-700 hover:text-zinc-200 hover:bg-zinc-800/60"
+                        }`}
+                        title={`Question ${idx + 1}: ${q.type} (${q.points} pts)`}
+                      >
+                        <span className="font-mono text-sm leading-none">{idx + 1}</span>
+                        <span className="text-[9px] font-normal text-zinc-500 mt-1 leading-none font-mono">
+                          {q.type === "CODING" ? "code" : `${q.points}p`}
+                        </span>
+
+                        {/* Solved checkmark badge */}
+                        {isSolved && (
+                          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Palette Legend */}
+              <div className="p-3 border-t border-zinc-800/80 bg-black/30 text-[11px] font-mono text-zinc-400 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400" /> Answered
+                  </span>
+                  <span className="text-zinc-300 font-semibold">{completedCount}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-400" /> Current
+                  </span>
+                  <span className="text-zinc-300 font-semibold">Q{activeQuestionIndex + 1}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-zinc-600" /> Pending
+                  </span>
+                  <span className="text-zinc-300 font-semibold">{remainingCount}</span>
+                </div>
+              </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
         {/* Workspace Body */}
         {isSpectatorMode ? (
           <div className="flex-1 flex overflow-hidden bg-[#07090D]">
@@ -905,21 +1004,51 @@ export default function RoomArenaPage() {
             <div className="h-full overflow-y-auto p-6 space-y-6 bg-[#090B0E] custom-scrollbar">
               <div>
                 <div className="flex items-center justify-between gap-4 mb-2">
-                  <h2 className="text-xl font-bold text-white tracking-tight">
-                    {activeQuestion.problem.title}
-                  </h2>
-                  <Badge
-                    variant="outline"
-                    className={`text-xs font-semibold px-2.5 py-0.5 rounded-md border ${
-                      activeQuestion.problem.difficulty === "EASY"
-                        ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
-                        : activeQuestion.problem.difficulty === "MEDIUM"
-                        ? "border-amber-500/30 text-amber-400 bg-amber-500/10"
-                        : "border-red-500/30 text-red-400 bg-red-500/10"
-                    }`}
-                  >
-                    {activeQuestion.problem.difficulty}
-                  </Badge>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider font-mono px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30 shrink-0">
+                      Q{activeQuestionIndex + 1}
+                    </span>
+                    <h2 className="text-xl font-bold text-white tracking-tight">
+                      {activeQuestion.problem.title}
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={activeQuestionIndex === 0}
+                      onClick={() => setActiveQuestionIndex((prev) => Math.max(0, prev - 1))}
+                      className="h-7 w-7 p-0 text-zinc-400 hover:text-white disabled:opacity-30"
+                      title="Previous Question"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <span className="text-xs font-mono text-zinc-400">
+                      {activeQuestionIndex + 1}/{totalQuestions}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={activeQuestionIndex === totalQuestions - 1}
+                      onClick={() => setActiveQuestionIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
+                      className="h-7 w-7 p-0 text-zinc-400 hover:text-white disabled:opacity-30"
+                      title="Next Question"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                    <Badge
+                      variant="outline"
+                      className={`text-xs font-semibold px-2.5 py-0.5 rounded-md border ${
+                        activeQuestion.problem.difficulty === "EASY"
+                          ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+                          : activeQuestion.problem.difficulty === "MEDIUM"
+                          ? "border-amber-500/30 text-amber-400 bg-amber-500/10"
+                          : "border-red-500/30 text-red-400 bg-red-500/10"
+                      }`}
+                    >
+                      {activeQuestion.problem.difficulty}
+                    </Badge>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3 text-xs text-zinc-400 font-mono">
@@ -1109,31 +1238,36 @@ export default function RoomArenaPage() {
           </div>
         ) : activeQuestion?.assessmentQuestion ? (
           // ─── MCQ CARD VIEW ──────────────────────────────────────────
-          <div className="flex-1 overflow-y-auto p-6 md:p-10 flex justify-center items-start bg-[#07080B]">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 flex justify-center items-start bg-[#07080B]">
             <motion.div
               key={activeQuestion.assessmentQuestion.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
-              className="max-w-2xl w-full rounded-2xl bg-[#0D0F14] border border-zinc-800/90 p-8 space-y-7 shadow-2xl"
+              className="max-w-3xl w-full rounded-2xl bg-[#0D0F14] border border-zinc-800/90 p-6 sm:p-8 space-y-7 shadow-2xl"
             >
               {/* Card Header */}
-              <div className="flex items-center justify-between border-b border-zinc-800/80 pb-4">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-4 gap-3">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="text-xs font-bold font-mono px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                    Question {activeQuestionIndex + 1} of {totalQuestions}
+                  </span>
+                  <Badge variant="outline" className="border-zinc-700 bg-zinc-800/60 text-zinc-300 text-xs">
                     {activeQuestion.assessmentQuestion.category || "MCQ"}
                   </Badge>
-                  <span className="text-xs font-medium text-zinc-400">
+                  <span className="text-xs text-zinc-400">
                     {activeQuestion.assessmentQuestion.subject} • {activeQuestion.assessmentQuestion.topic}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold font-mono">
-                  +{activeQuestion.points} points
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold font-mono px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    +{activeQuestion.points} points
+                  </div>
                 </div>
               </div>
 
               {/* Question Text */}
-              <p className="text-lg font-medium text-white leading-relaxed">
+              <p className="text-lg sm:text-xl font-medium text-white leading-relaxed">
                 {activeQuestion.assessmentQuestion.question}
               </p>
 
@@ -1151,7 +1285,7 @@ export default function RoomArenaPage() {
                       onClick={() => setSelectedOptions((prev) => ({ ...prev, [qId]: optIdx }))}
                       className={`w-full p-4 rounded-xl border text-left text-sm transition-all duration-200 flex items-center justify-between ${
                         isSelected
-                          ? "bg-blue-600/15 border-blue-500/60 text-white shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                          ? "bg-blue-600/15 border-blue-500/60 text-white shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-blue-500/30"
                           : "bg-black/30 border-zinc-800/90 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900/40"
                       }`}
                     >
@@ -1165,33 +1299,52 @@ export default function RoomArenaPage() {
                         >
                           {letter}
                         </span>
-                        <span className="font-normal">{optionText}</span>
+                        <span className="font-normal text-zinc-200">{optionText}</span>
                       </div>
-                      {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-400" />}
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />}
                     </button>
                   );
                 })}
               </div>
 
               {/* Submit & Navigation Bar */}
-              <div className="pt-5 border-t border-zinc-800/80 flex items-center justify-between">
-                <div className="text-xs text-zinc-400 flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-zinc-800/80 border border-zinc-700 text-[10px] font-mono text-zinc-300">
-                    Hotkeys: A, B, C, D • Enter
-                  </span>
-                  {submittedMcqs.has(activeQuestion.assessmentQuestion.id) && (
-                    <span className="text-emerald-400 font-medium">✓ Recorded</span>
-                  )}
+              <div className="pt-5 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+                {/* Left: Previous Button & Hotkeys Guide */}
+                <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-start">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={activeQuestionIndex === 0}
+                    onClick={() => setActiveQuestionIndex((prev) => Math.max(0, prev - 1))}
+                    className="h-9 px-3 rounded-xl border-zinc-800 bg-[#11141A] text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-30 flex items-center gap-1.5 text-xs"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Previous</span>
+                  </Button>
+
+                  <div className="hidden md:flex items-center gap-2 text-xs text-zinc-400">
+                    <span className="px-2 py-0.5 rounded bg-zinc-800/80 border border-zinc-700 text-[10px] font-mono text-zinc-300">
+                      Hotkeys: A, B, C, D • Enter
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* Right: Recorded Indicator, Confirm Answer, and Next Button */}
+                <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                  {submittedMcqs.has(activeQuestion.assessmentQuestion.id) && (
+                    <span className="text-xs text-emerald-400 font-medium flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                      <Check className="w-3.5 h-3.5" /> Answer Recorded
+                    </span>
+                  )}
+
                   <Button
                     onClick={() => handleSubmitMcq(activeQuestion.assessmentQuestion!.id)}
                     disabled={
                       selectedOptions[activeQuestion.assessmentQuestion.id] === undefined ||
                       isSubmittingMcq
                     }
-                    className="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.25)] transition-all disabled:opacity-40"
+                    className="h-9 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.25)] transition-all disabled:opacity-40 text-xs"
                   >
                     {isSubmittingMcq ? (
                       <span className="flex items-center gap-2">
@@ -1201,6 +1354,18 @@ export default function RoomArenaPage() {
                     ) : (
                       "Confirm Answer"
                     )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={activeQuestionIndex === totalQuestions - 1}
+                    onClick={() => setActiveQuestionIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
+                    className="h-9 px-3 rounded-xl border-zinc-800 bg-[#11141A] text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-30 flex items-center gap-1.5 text-xs"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
               </div>

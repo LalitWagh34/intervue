@@ -52,7 +52,7 @@ export default function RoomsPage() {
 
   // Form state
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<RoomType>("CODING");
+  const [type, setType] = useState<RoomType>("APTITUDE"); // V1 defaults to MCQ
   const [duration, setDuration] = useState(45);
   const [maxParticipants, setMaxParticipants] = useState(10);
   const [codingCount, setCodingCount] = useState(2);
@@ -102,23 +102,34 @@ export default function RoomsPage() {
 
     setIsCreating(true);
     try {
-      const payload = {
+      const payload: any = {
         title: title.trim(),
         type,
-        duration,
-        maxParticipants,
-        codingCount: type !== "APTITUDE" ? codingCount : 0,
-        assessmentCount: type !== "CODING" ? assessmentCount : 0,
-        codingTags: selectedCodingTags,
-        assessmentSubjects: selectedSubjects,
+        duration: Number(duration),
+        maxParticipants: Number(maxParticipants),
+        allowLateJoin: true,
       };
+
+      if (type === "CODING" || type === "MIXED") {
+        payload.codingCount = Number(codingCount) || 2;
+        if (selectedCodingTags.length > 0) payload.codingTags = selectedCodingTags;
+      }
+
+      if (type === "APTITUDE" || type === "MIXED") {
+        payload.assessmentCount = Number(assessmentCount) || 10;
+        if (selectedSubjects.length > 0) payload.assessmentSubjects = selectedSubjects;
+      }
 
       const res = await api.post("/rooms", payload);
       toast.success("Room created successfully!");
       setIsCreateOpen(false);
       navigate(`/rooms/${res.data.room.code}/lobby`);
     } catch (err: any) {
-      toast.error(err?.response?.data?.error || "Failed to create room");
+      const errMsg =
+        err?.response?.data?.details?.[0]?.message ||
+        err?.response?.data?.error ||
+        "Failed to create room";
+      toast.error(errMsg);
     } finally {
       setIsCreating(false);
     }
@@ -408,59 +419,15 @@ export default function RoomsPage() {
                   <label className="text-xs font-semibold uppercase tracking-wider text-zinc-300">
                     Assessment Format
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setType("CODING")}
-                      className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all ${
-                        type === "CODING"
-                          ? "bg-blue-500/10 border-blue-500/50 text-white shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                          : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700"
-                      }`}
-                    >
-                      <Code2
-                        className={`w-5 h-5 mb-2 ${
-                          type === "CODING" ? "text-blue-400" : "text-zinc-400"
-                        }`}
-                      />
-                      <span className="text-xs font-medium">Coding Only</span>
-                      <span className="text-[10px] text-zinc-500 mt-0.5">DSA Problems</span>
-                    </button>
-
+                  <div className="grid grid-cols-1 gap-3">
                     <button
                       type="button"
                       onClick={() => setType("APTITUDE")}
-                      className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all ${
-                        type === "APTITUDE"
-                          ? "bg-cyan-500/10 border-cyan-500/50 text-white shadow-[0_0_15px_rgba(6,182,212,0.15)]"
-                          : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700"
-                      }`}
+                      className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all bg-cyan-500/10 border-cyan-500/50 text-white shadow-[0_0_15px_rgba(6,182,212,0.15)]`}
                     >
-                      <Brain
-                        className={`w-5 h-5 mb-2 ${
-                          type === "APTITUDE" ? "text-cyan-400" : "text-zinc-400"
-                        }`}
-                      />
-                      <span className="text-xs font-medium">Core CS / Apti</span>
-                      <span className="text-[10px] text-zinc-500 mt-0.5">MCQ Assessment</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setType("MIXED")}
-                      className={`flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all ${
-                        type === "MIXED"
-                          ? "bg-indigo-500/10 border-indigo-500/50 text-white shadow-[0_0_15px_rgba(99,102,241,0.15)]"
-                          : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700"
-                      }`}
-                    >
-                      <Layers
-                        className={`w-5 h-5 mb-2 ${
-                          type === "MIXED" ? "text-indigo-400" : "text-zinc-400"
-                        }`}
-                      />
-                      <span className="text-xs font-medium">Full Mixed</span>
-                      <span className="text-[10px] text-zinc-500 mt-0.5">Coding + MCQs</span>
+                      <Brain className="w-5 h-5 mb-2 text-cyan-400" />
+                      <span className="text-xs font-medium">MCQ Battles</span>
+                      <span className="text-[10px] text-cyan-400 mt-0.5">Core CS & Aptitude</span>
                     </button>
                   </div>
                 </div>
