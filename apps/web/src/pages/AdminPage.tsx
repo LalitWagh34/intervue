@@ -4,25 +4,45 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Sparkles, Pencil, Trash2, Eye } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  BarChart3,
+  Users,
+  Code2,
+  Brain,
+  Swords,
+  Search,
+  Plus,
+  Trash2,
+  Eye,
+  Shield,
+  ShieldAlert,
+  Sparkles,
+  Database,
+  Server,
+  RefreshCw,
+  X,
+  ExternalLink,
+} from "lucide-react";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "@/lib/utils";
+
+type AdminTab = "overview" | "users" | "problems" | "mcqs" | "rooms";
 
 const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
 const LANGUAGES = ["JAVASCRIPT", "PYTHON", "CPP", "JAVA", "TYPESCRIPT"];
 
 const DIFFICULTY_COLORS: Record<string, string> = {
-  EASY: "text-green-400 border-green-900",
-  MEDIUM: "text-amber-400 border-amber-900",
-  HARD: "text-red-400 border-red-900",
+  EASY: "text-emerald-400 border-emerald-900 bg-emerald-950/20",
+  MEDIUM: "text-amber-400 border-amber-900 bg-amber-950/20",
+  HARD: "text-rose-400 border-rose-900 bg-rose-950/20",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: "text-zinc-400 border-zinc-700",
-  published: "text-green-400 border-green-900",
-  archived: "text-red-400 border-red-900",
+  draft: "text-zinc-400 border-zinc-700 bg-zinc-800/20",
+  published: "text-emerald-400 border-emerald-900 bg-emerald-950/20",
+  archived: "text-rose-400 border-rose-900 bg-rose-950/20",
 };
 
 function defaultTemplates() {
@@ -43,11 +63,47 @@ function defaultTemplates() {
 
 export default function AdminPage() {
   const queryClient = useQueryClient();
-  const [view, setView] = useState<"list" | "create" | "edit">("list");
-  const [editId, setEditId] = useState<number | null>(null);
-  const [generating, setGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState<AdminTab>("overview");
 
-  // Form state
+  // ─── OVERVIEW PANEL ──────────────────────────────────────────────────
+  const { data: statsData, isLoading: isStatsLoading, refetch: refetchStats } = useQuery({
+    queryKey: ["admin-stats"],
+    queryFn: async () => {
+      const res = await api.get("/admin/stats");
+      return res.data.stats;
+    },
+    enabled: activeTab === "overview",
+  });
+
+  // ─── USERS PANEL ─────────────────────────────────────────────────────
+  const [userSearch, setUserSearch] = useState("");
+  const { data: usersData, isLoading: isUsersLoading, refetch: refetchUsers } = useQuery({
+    queryKey: ["admin-users", userSearch],
+    queryFn: async () => {
+      const res = await api.get(`/admin/users${userSearch ? `?search=${encodeURIComponent(userSearch)}` : ""}`);
+      return res.data.users;
+    },
+    enabled: activeTab === "users",
+  });
+
+  const toggleUserRole = useMutation({
+    mutationFn: async ({ id, newRole }: { id: string; newRole: string }) => {
+      await api.put(`/admin/users/${id}/role`, { role: newRole });
+    },
+    onSuccess: () => {
+      toast.success("User role updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: () => toast.error("Failed to update user role"),
+  });
+
+  // ─── CODING PROBLEMS PANEL ───────────────────────────────────────────
+  const [problemView, setProblemView] = useState<"list" | "create" | "edit">("list");
+  const [problemSearch, setProblemSearch] = useState("");
+  const [problemFilterDiff, setProblemFilterDiff] = useState("ALL");
+  const [generatingProblem, setGeneratingProblem] = useState(false);
+
+  // Problem Form state
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [difficulty, setDifficulty] = useState("EASY");
@@ -64,27 +120,27 @@ export default function AdminPage() {
   const [generateTopic, setGenerateTopic] = useState("");
   const [generateTags, setGenerateTags] = useState("");
 
-  const { data: problems, isLoading } = useQuery({
+  const { data: problems, isLoading: isProblemsLoading } = useQuery({
     queryKey: ["admin-problems"],
     queryFn: async () => {
       const res = await api.get("/admin/problems");
       return res.data.problems;
     },
+    enabled: activeTab === "problems",
   });
 
-  function resetForm() {
+  function resetProblemForm() {
     setTitle(""); setSlug(""); setDifficulty("EASY"); setDescription("");
     setConstraints(""); setInputFormat(""); setOutputFormat("");
     setTags(""); setCompany(""); setHints("");
     setExamples([{ input: "", output: "", explanation: "" }]);
     setTestCases([{ input: "", expectedOutput: "", isHidden: false }]);
     setTemplates(defaultTemplates());
-    setEditId(null);
   }
 
   async function generateWithAI() {
     if (!generateTopic || !difficulty) return;
-    setGenerating(true);
+    setGeneratingProblem(true);
     try {
       const res = await api.post("/admin/problems/generate", {
         topic: generateTopic,
@@ -102,21 +158,15 @@ export default function AdminPage() {
       setHints((g.hints || []).join("\n"));
       setExamples(g.examples?.length ? g.examples : [{ input: "", output: "", explanation: "" }]);
       setTestCases(g.testCases?.length ? g.testCases : [{ input: "", expectedOutput: "", isHidden: false }]);
-      if (g.templates?.length) {
-  const generated = g.templates;
-  const merged = defaultTemplates().map((def) => {
-    const found = generated.find((t: any) => t.language === def.language);
-    return found || def;
-  });
-  setTemplates(merged);
-}
-    } catch (err) {
-      console.error(err);
+      toast.success("Problem draft generated from AI!");
+    } catch {
+      toast.error("Failed to generate AI problem");
+    } finally {
+      setGeneratingProblem(false);
     }
-    setGenerating(false);
   }
 
-  const createMutation = useMutation({
+  const createProblemMutation = useMutation({
     mutationFn: async () => {
       await api.post("/admin/problems", {
         title, slug: slug || title.toLowerCase().replace(/\s+/g, "-"),
@@ -128,310 +178,944 @@ export default function AdminPage() {
       });
     },
     onSuccess: () => {
+      toast.success("Problem saved to question bank!");
       queryClient.invalidateQueries({ queryKey: ["admin-problems"] });
-      resetForm();
-      setView("list");
+      resetProblemForm();
+      setProblemView("list");
     },
+    onError: () => toast.error("Failed to create problem"),
   });
 
-  const publishMutation = useMutation({
+  const publishProblemMutation = useMutation({
     mutationFn: async (id: number) => {
       await api.post(`/admin/problems/${id}/publish`);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-problems"] }),
+    onSuccess: () => {
+      toast.success("Problem published live!");
+      queryClient.invalidateQueries({ queryKey: ["admin-problems"] });
+    },
   });
 
-  const deleteMutation = useMutation({
+  const deleteProblemMutation = useMutation({
     mutationFn: async (id: number) => {
       await api.delete(`/admin/problems/${id}`);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-problems"] }),
+    onSuccess: () => {
+      toast.info("Problem removed");
+      queryClient.invalidateQueries({ queryKey: ["admin-problems"] });
+    },
   });
 
-  if (view === "list") {
-    return (
-      <div className="p-8 max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-semibold text-white">Problem setter</h1>
-            <p className="text-zinc-400 text-sm mt-1">Manage the coding problem bank</p>
+  // ─── MCQ BANK PANEL ──────────────────────────────────────────────────
+  const [mcqCategoryFilter, setMcqCategoryFilter] = useState("ALL");
+  const [mcqSubjectFilter, setMcqSubjectFilter] = useState("ALL");
+  const [mcqSearch, setMcqSearch] = useState("");
+  const [isNewMcqModalOpen, setIsNewMcqModalOpen] = useState(false);
+
+  // New MCQ state
+  const [newMcqCategory, setNewMcqCategory] = useState("CORE_CS");
+  const [newMcqSubject, setNewMcqSubject] = useState("DBMS");
+  const [newMcqTopic, setNewMcqTopic] = useState("");
+  const [newMcqDifficulty, setNewMcqDifficulty] = useState("MEDIUM");
+  const [newMcqQuestion, setNewMcqQuestion] = useState("");
+  const [newMcqOptions, setNewMcqOptions] = useState(["", "", "", ""]);
+  const [newMcqCorrect, setNewMcqCorrect] = useState(0);
+  const [newMcqExplanation, setNewMcqExplanation] = useState("");
+
+  const { data: mcqsData, isLoading: isMcqsLoading } = useQuery({
+    queryKey: ["admin-mcqs", mcqCategoryFilter, mcqSubjectFilter, mcqSearch],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (mcqCategoryFilter !== "ALL") params.append("category", mcqCategoryFilter);
+      if (mcqSubjectFilter !== "ALL") params.append("subject", mcqSubjectFilter);
+      if (mcqSearch) params.append("search", mcqSearch);
+      const res = await api.get(`/admin/mcqs?${params.toString()}`);
+      return res.data.mcqs;
+    },
+    enabled: activeTab === "mcqs",
+  });
+
+  const createMcqMutation = useMutation({
+    mutationFn: async () => {
+      await api.post("/admin/mcqs", {
+        category: newMcqCategory,
+        subject: newMcqSubject,
+        topic: newMcqTopic || "General",
+        difficulty: newMcqDifficulty,
+        question: newMcqQuestion,
+        options: newMcqOptions,
+        correctOption: newMcqCorrect,
+        explanation: newMcqExplanation,
+      });
+    },
+    onSuccess: () => {
+      toast.success("MCQ question added to assessment bank!");
+      queryClient.invalidateQueries({ queryKey: ["admin-mcqs"] });
+      setIsNewMcqModalOpen(false);
+      setNewMcqQuestion("");
+      setNewMcqOptions(["", "", "", ""]);
+      setNewMcqExplanation("");
+    },
+    onError: () => toast.error("Failed to add MCQ question"),
+  });
+
+  const deleteMcqMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/mcqs/${id}`);
+    },
+    onSuccess: () => {
+      toast.info("MCQ removed");
+      queryClient.invalidateQueries({ queryKey: ["admin-mcqs"] });
+    },
+  });
+
+  // ─── ROOMS MONITOR PANEL ─────────────────────────────────────────────
+  const { data: roomsData, isLoading: isRoomsLoading } = useQuery({
+    queryKey: ["admin-rooms"],
+    queryFn: async () => {
+      const res = await api.get("/admin/rooms");
+      return res.data.rooms;
+    },
+    enabled: activeTab === "rooms",
+  });
+
+  const terminateRoomMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.post(`/admin/rooms/${id}/terminate`);
+    },
+    onSuccess: () => {
+      toast.success("Contest room terminated");
+      queryClient.invalidateQueries({ queryKey: ["admin-rooms"] });
+    },
+  });
+
+  return (
+    <div className="min-h-screen bg-[#08090C] text-zinc-100 flex flex-col font-sans">
+      {/* ─── Top Admin Bar ───────────────────────────────────────────── */}
+      <header className="border-b border-zinc-800/80 bg-[#0C0E13] px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
+            <Shield className="w-4 h-4 text-blue-400" />
           </div>
-          <Button
-            onClick={() => { resetForm(); setView("create"); }}
-            className="bg-white text-black hover:bg-zinc-200"
-          >
-            <Plus className="w-4 h-4 mr-2" /> New problem
-          </Button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-bold text-white tracking-tight">Admin Console</h1>
+              <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] font-mono">
+                Management CMS
+              </Badge>
+            </div>
+            <p className="text-xs text-zinc-400">
+              Manage platform health, questions, users, and contest rooms
+            </p>
+          </div>
         </div>
 
-        {isLoading && <p className="text-zinc-500">Loading...</p>}
+        {/* Tab Switcher */}
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-black/40 border border-zinc-800 overflow-x-auto custom-scrollbar">
+          <button
+            type="button"
+            onClick={() => setActiveTab("overview")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeTab === "overview"
+                ? "bg-zinc-800 text-white shadow-sm font-semibold"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Overview</span>
+          </button>
 
-        <div className="space-y-3">
-          {problems?.map((p: any) => (
-            <Card key={p.id} className="bg-zinc-900 border-zinc-800">
-              <CardContent className="py-4 flex items-center justify-between">
-                <div>
-                  <p className="text-white font-medium">{p.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="outline" className={DIFFICULTY_COLORS[p.difficulty]}>
-                      {p.difficulty}
-                    </Badge>
-                    <Badge variant="outline" className={STATUS_COLORS[p.status]}>
-                      {p.status}
-                    </Badge>
-                    {p.tags?.slice(0, 3).map((t: string) => (
-                      <Badge key={t} variant="outline" className="text-zinc-500 border-zinc-800 text-xs">
-                        {t}
-                      </Badge>
-                    ))}
+          <button
+            type="button"
+            onClick={() => setActiveTab("users")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeTab === "users"
+                ? "bg-zinc-800 text-white shadow-sm font-semibold"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Users</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("problems")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeTab === "problems"
+                ? "bg-zinc-800 text-white shadow-sm font-semibold"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+            }`}
+          >
+            <Code2 className="w-3.5 h-3.5" />
+            <span>Coding Bank</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("mcqs")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeTab === "mcqs"
+                ? "bg-zinc-800 text-white shadow-sm font-semibold"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+            }`}
+          >
+            <Brain className="w-3.5 h-3.5" />
+            <span>MCQ Bank</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("rooms")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              activeTab === "rooms"
+                ? "bg-zinc-800 text-white shadow-sm font-semibold"
+                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+            }`}
+          >
+            <Swords className="w-3.5 h-3.5" />
+            <span>Contest Rooms</span>
+          </button>
+        </div>
+      </header>
+
+      {/* ─── Main Panel Body (Only Active Panel is Shown) ─────────────── */}
+      <main className="flex-1 p-6 md:p-8 max-w-7xl mx-auto w-full overflow-y-auto custom-scrollbar">
+        {/* 1. OVERVIEW PANEL */}
+        {activeTab === "overview" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">System Overview</h2>
+                <p className="text-xs text-zinc-400">Live platform totals and infrastructure metrics</p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => refetchStats()}
+                className="h-8 border-zinc-800 bg-[#12151D] text-zinc-300 text-xs flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3 h-3" /> Refresh
+              </Button>
+            </div>
+
+            {isStatsLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-24 bg-zinc-900/60 rounded-xl border border-zinc-800/60" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Total Users</span>
+                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                      {statsData?.totalUsers ?? 0}
+                    </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Coding Problems</span>
+                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                      {statsData?.totalProblems ?? 0}
+                    </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Assessment MCQs</span>
+                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                      {statsData?.totalMcqs ?? 0}
+                    </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Total Rooms</span>
+                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                      {statsData?.totalRooms ?? 0}
+                    </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Active Contests</span>
+                    <span className="text-2xl font-bold font-mono text-emerald-400 mt-1 block">
+                      {statsData?.activeRooms ?? 0}
+                    </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Submissions</span>
+                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                      {statsData?.totalSubmissions ?? 0}
+                    </span>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Service Infrastructure Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Database className="w-5 h-5 text-blue-400" />
+                  <div>
+                    <h4 className="text-xs font-semibold text-white">Database Cluster</h4>
+                    <p className="text-[11px] text-zinc-400">PostgreSQL Prisma Client</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {p.status === "draft" && (
+                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
+                  Online
+                </Badge>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Server className="w-5 h-5 text-purple-400" />
+                  <div>
+                    <h4 className="text-xs font-semibold text-white">Bun Runtime Uptime</h4>
+                    <p className="text-[11px] text-zinc-400 font-mono">
+                      {statsData?.uptimeSeconds ? `${Math.floor(statsData.uptimeSeconds / 60)} minutes` : "--"}
+                    </p>
+                  </div>
+                </div>
+                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-[10px]">
+                  Healthy
+                </Badge>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <BarChart3 className="w-5 h-5 text-amber-400" />
+                  <div>
+                    <h4 className="text-xs font-semibold text-white">Server Memory (RSS)</h4>
+                    <p className="text-[11px] text-zinc-400 font-mono">{statsData?.memoryRssMb ?? 0} MB</p>
+                  </div>
+                </div>
+                <Badge className="bg-zinc-800 text-zinc-300 border-zinc-700 text-[10px]">
+                  Optimal
+                </Badge>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 2. USERS PANEL */}
+        {activeTab === "users" && (
+          <div className="space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">Candidate User Management</h2>
+                <p className="text-xs text-zinc-400">Inspect registered users, streaks, points, and administrative roles</p>
+              </div>
+
+              <div className="relative w-full sm:w-72">
+                <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Search user name or email..."
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#111319] border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-700"
+                />
+              </div>
+            </div>
+
+            {isUsersLoading ? (
+              <p className="text-xs text-zinc-500 py-8 text-center">Loading users...</p>
+            ) : (
+              <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-[#0C0E14]">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#10131B] border-b border-zinc-800 text-zinc-400 font-mono text-[11px]">
+                    <tr>
+                      <th className="p-3">User</th>
+                      <th className="p-3">Role</th>
+                      <th className="p-3">Points</th>
+                      <th className="p-3">Streak</th>
+                      <th className="p-3">Handles</th>
+                      <th className="p-3">Joined</th>
+                      <th className="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/60">
+                    {(usersData || []).map((u: any) => (
+                      <tr key={u.id} className="hover:bg-zinc-800/20 transition-colors">
+                        <td className="p-3">
+                          <div className="font-semibold text-white">{u.name || "Anonymous"}</div>
+                          <div className="text-[11px] text-zinc-400 font-mono">{u.email}</div>
+                        </td>
+                        <td className="p-3">
+                          <Badge
+                            className={
+                              u.role === "admin"
+                                ? "bg-purple-500/10 text-purple-300 border-purple-500/30 text-[10px]"
+                                : "bg-zinc-800 text-zinc-400 border-zinc-700 text-[10px]"
+                            }
+                          >
+                            {u.role}
+                          </Badge>
+                        </td>
+                        <td className="p-3 font-mono font-bold text-amber-300">
+                          {u.profile?.points ?? 0}
+                        </td>
+                        <td className="p-3 font-mono text-zinc-300">
+                          {u.profile?.streakCount ?? 0}d
+                        </td>
+                        <td className="p-3 text-[11px] font-mono text-zinc-400">
+                          {u.profile?.leetcodeHandle && <div>LC: {u.profile.leetcodeHandle}</div>}
+                          {u.profile?.codeforcesHandle && <div>CF: {u.profile.codeforcesHandle}</div>}
+                          {!u.profile?.leetcodeHandle && !u.profile?.codeforcesHandle && "--"}
+                        </td>
+                        <td className="p-3 text-zinc-500 text-[11px] font-mono">
+                          {formatDistanceToNow(new Date(u.createdAt), { addSuffix: true })}
+                        </td>
+                        <td className="p-3 text-right">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              toggleUserRole.mutate({
+                                id: u.id,
+                                newRole: u.role === "admin" ? "user" : "admin",
+                              })
+                            }
+                            className="h-7 text-[11px] border-zinc-800 text-zinc-300 hover:text-white"
+                          >
+                            {u.role === "admin" ? "Demote" : "Make Admin"}
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 3. CODING PROBLEMS PANEL */}
+        {activeTab === "problems" && (
+          <div className="space-y-6">
+            {problemView === "list" ? (
+              <div className="space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-white tracking-tight">Coding Problem Bank</h2>
+                    <p className="text-xs text-zinc-400">Curate programming challenges and test suites</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        resetProblemForm();
+                        setProblemView("create");
+                      }}
+                      className="bg-blue-600 hover:bg-blue-500 text-white text-xs h-8"
+                    >
+                      <Plus className="w-3.5 h-3.5 mr-1" /> New Problem
+                    </Button>
+                  </div>
+                </div>
+
+                {isProblemsLoading ? (
+                  <p className="text-xs text-zinc-500 py-8 text-center">Loading problem bank...</p>
+                ) : (
+                  <div className="space-y-2.5">
+                    {(problems || []).map((p: any) => (
+                      <div
+                        key={p.id}
+                        className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 flex items-center justify-between gap-3 hover:border-zinc-700 transition-colors"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-semibold text-white truncate">{p.title}</h4>
+                            <Badge variant="outline" className={DIFFICULTY_COLORS[p.difficulty]}>
+                              {p.difficulty}
+                            </Badge>
+                            <Badge variant="outline" className={STATUS_COLORS[p.status]}>
+                              {p.status}
+                            </Badge>
+                          </div>
+                          <div className="text-[11px] text-zinc-500 font-mono mt-1 flex items-center gap-2">
+                            <span>Slug: {p.slug}</span>
+                            <span>•</span>
+                            <span>Test cases: {p._count?.testCases || 0}</span>
+                            <span>•</span>
+                            <span>Submissions: {p._count?.submissions || 0}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          {p.status === "draft" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => publishProblemMutation.mutate(p.id)}
+                              className="h-8 text-xs border-emerald-900 text-emerald-400 hover:bg-emerald-950/20"
+                            >
+                              <Eye className="w-3.5 h-3.5 mr-1" /> Publish
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteProblemMutation.mutate(p.id)}
+                            className="h-8 w-8 p-0 border-zinc-800 text-zinc-400 hover:text-rose-400 hover:border-rose-900"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Create Problem Form */
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                  <div className="flex items-center gap-3">
                     <Button
                       size="sm"
                       variant="outline"
-                      className="border-zinc-700 text-zinc-300 hover:text-white text-xs"
-                      onClick={() => publishMutation.mutate(p.id)}
+                      onClick={() => setProblemView("list")}
+                      className="h-8 text-xs border-zinc-800"
                     >
-                      <Eye className="w-3 h-3 mr-1" /> Publish
+                      ← Back to Problems
                     </Button>
-                  )}
+                    <h2 className="text-base font-bold text-white">Create New Problem</h2>
+                  </div>
+                </div>
+
+                {/* AI Problem Generator Card */}
+                <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950/20 to-purple-950/20 border border-blue-500/20 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-blue-400" />
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                      AI Auto-Generate Problem (Groq Llama-3.3)
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="md:col-span-2">
+                      <Input
+                        value={generateTopic}
+                        onChange={(e) => setGenerateTopic(e.target.value)}
+                        placeholder="e.g. Find Kth Smallest Element in a Matrix"
+                        className="bg-black/40 border-zinc-800 text-xs text-white"
+                      />
+                    </div>
+                    <div>
+                      <Button
+                        size="sm"
+                        disabled={generatingProblem || !generateTopic.trim()}
+                        onClick={generateWithAI}
+                        className="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs h-9"
+                      >
+                        {generatingProblem ? "Generating..." : "Generate Draft"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Problem Inputs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs text-zinc-300">Problem Title</Label>
+                    <Input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Two Sum"
+                      className="bg-[#111319] border-zinc-800 text-xs text-white mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs text-zinc-300">Difficulty</Label>
+                    <select
+                      value={difficulty}
+                      onChange={(e) => setDifficulty(e.target.value)}
+                      className="w-full h-9 rounded-lg bg-[#111319] border border-zinc-800 text-xs text-white px-3 mt-1 outline-none"
+                    >
+                      <option value="EASY">EASY</option>
+                      <option value="MEDIUM">MEDIUM</option>
+                      <option value="HARD">HARD</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs text-zinc-300">Description</Label>
+                  <textarea
+                    rows={5}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Problem description and statement..."
+                    className="w-full rounded-lg bg-[#111319] border border-zinc-800 text-xs text-white p-3 mt-1 outline-none font-sans"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs text-zinc-300">Constraints</Label>
+                    <textarea
+                      rows={3}
+                      value={constraints}
+                      onChange={(e) => setConstraints(e.target.value)}
+                      placeholder="1 <= nums.length <= 10^5"
+                      className="w-full rounded-lg bg-[#111319] border border-zinc-800 text-xs text-white p-3 mt-1 outline-none font-mono"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-zinc-300">Company Tags (comma separated)</Label>
+                    <Input
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      placeholder="Google, Amazon, Meta"
+                      className="bg-[#111319] border-zinc-800 text-xs text-white mt-1"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-zinc-800">
                   <Button
-                    size="sm"
                     variant="outline"
-                    className="border-zinc-700 text-zinc-300 hover:text-white"
-                    onClick={() => deleteMutation.mutate(p.id)}
+                    onClick={() => setProblemView("list")}
+                    className="border-zinc-800 text-xs"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => createProblemMutation.mutate()}
+                    disabled={!title.trim() || !description.trim()}
+                    className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-6"
+                  >
+                    Save Problem
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
+              </div>
+            )}
+          </div>
+        )}
 
-  return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <button onClick={() => { resetForm(); setView("list"); }} className="text-zinc-400 hover:text-white text-sm">
-          ← Back
-        </button>
-        <h1 className="text-2xl font-semibold text-white">
-          {view === "create" ? "New problem" : "Edit problem"}
-        </h1>
-      </div>
+        {/* 4. MCQ QUESTION BANK PANEL */}
+        {activeTab === "mcqs" && (
+          <div className="space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">Assessment MCQ Bank</h2>
+                <p className="text-xs text-zinc-400">Questions used in Competitive Arena and Aptitude Rounds</p>
+              </div>
 
-      {/* AI Generate */}
-      <Card className="bg-zinc-900 border-zinc-800 mb-8">
-        <CardHeader>
-          <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" /> Generate with AI
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => setIsNewMcqModalOpen(true)}
+                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs h-8"
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add New MCQ
+                </Button>
+              </div>
+            </div>
+
+            {/* Category & Subject Filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={mcqCategoryFilter}
+                onChange={(e) => setMcqCategoryFilter(e.target.value)}
+                className="h-8 px-2.5 rounded-lg bg-[#12151E] border border-zinc-800 text-xs text-zinc-300 outline-none"
+              >
+                <option value="ALL">All Categories</option>
+                <option value="CORE_CS">CORE_CS</option>
+                <option value="APTITUDE">APTITUDE</option>
+              </select>
+
+              <select
+                value={mcqSubjectFilter}
+                onChange={(e) => setMcqSubjectFilter(e.target.value)}
+                className="h-8 px-2.5 rounded-lg bg-[#12151E] border border-zinc-800 text-xs text-zinc-300 outline-none"
+              >
+                <option value="ALL">All Subjects</option>
+                <option value="DBMS">DBMS</option>
+                <option value="OS">Operating Systems</option>
+                <option value="CN">Computer Networks</option>
+                <option value="OOP">Object Oriented Programming</option>
+                <option value="QUANT">Quantitative Aptitude</option>
+                <option value="LOGICAL">Logical Reasoning</option>
+                <option value="VERBAL">Verbal Ability</option>
+              </select>
+
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
+                <input
+                  type="text"
+                  value={mcqSearch}
+                  onChange={(e) => setMcqSearch(e.target.value)}
+                  placeholder="Filter by question text..."
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#12151E] border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {isMcqsLoading ? (
+              <p className="text-xs text-zinc-500 py-8 text-center">Loading MCQ bank...</p>
+            ) : (
+              <div className="space-y-3">
+                {(mcqsData || []).map((mcq: any) => (
+                  <div
+                    key={mcq.id}
+                    className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/25 text-[10px]">
+                            {mcq.category}
+                          </Badge>
+                          <span className="text-xs font-semibold text-zinc-300">
+                            {mcq.subject} • {mcq.topic}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-white">{mcq.question}</p>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteMcqMutation.mutate(mcq.id)}
+                        className="h-8 w-8 p-0 border-zinc-800 text-zinc-400 hover:text-rose-400 hover:border-rose-900 shrink-0"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+
+                    {/* Options Preview */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                      {((mcq.options as string[]) || []).map((opt, optIdx) => (
+                        <div
+                          key={optIdx}
+                          className={`p-2 rounded-lg border text-xs flex items-center gap-2 ${
+                            optIdx === mcq.correctOption
+                              ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-300 font-semibold"
+                              : "bg-black/30 border-zinc-800 text-zinc-400"
+                          }`}
+                        >
+                          <span className="font-mono text-[10px] w-4 text-center">
+                            {String.fromCharCode(65 + optIdx)}
+                          </span>
+                          <span className="truncate">{opt}</span>
+                          {optIdx === mcq.correctOption && <span className="ml-auto text-[10px]">✓ Correct</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Modal: Add New MCQ */}
+            {isNewMcqModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+                <div className="w-full max-w-xl rounded-xl bg-[#12151F] border border-zinc-800 p-6 space-y-4 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                    <h3 className="text-sm font-bold text-white">Create Assessment MCQ</h3>
+                    <button
+                      onClick={() => setIsNewMcqModalOpen(false)}
+                      className="text-zinc-500 hover:text-white"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs text-zinc-400">Category</Label>
+                      <select
+                        value={newMcqCategory}
+                        onChange={(e) => setNewMcqCategory(e.target.value)}
+                        className="w-full h-8 rounded-lg bg-[#0C0E14] border border-zinc-800 text-xs text-white px-2 mt-1"
+                      >
+                        <option value="CORE_CS">CORE_CS</option>
+                        <option value="APTITUDE">APTITUDE</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-zinc-400">Subject</Label>
+                      <select
+                        value={newMcqSubject}
+                        onChange={(e) => setNewMcqSubject(e.target.value)}
+                        className="w-full h-8 rounded-lg bg-[#0C0E14] border border-zinc-800 text-xs text-white px-2 mt-1"
+                      >
+                        <option value="DBMS">DBMS</option>
+                        <option value="OS">OS</option>
+                        <option value="CN">CN</option>
+                        <option value="OOP">OOP</option>
+                        <option value="QUANT">QUANT</option>
+                        <option value="LOGICAL">LOGICAL</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-xs text-zinc-400">Question Text</Label>
+                    <textarea
+                      rows={3}
+                      value={newMcqQuestion}
+                      onChange={(e) => setNewMcqQuestion(e.target.value)}
+                      placeholder="What is the time complexity of building a heap from an array of N elements?"
+                      className="w-full rounded-lg bg-[#0C0E14] border border-zinc-800 text-xs text-white p-2.5 mt-1 outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs text-zinc-400">Options (Select radio for correct answer)</Label>
+                    {[0, 1, 2, 3].map((optIdx) => (
+                      <div key={optIdx} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="correctMcq"
+                          checked={newMcqCorrect === optIdx}
+                          onChange={() => setNewMcqCorrect(optIdx)}
+                          className="accent-blue-500"
+                        />
+                        <span className="font-mono text-xs text-zinc-400 w-4">
+                          {String.fromCharCode(65 + optIdx)}
+                        </span>
+                        <Input
+                          value={newMcqOptions[optIdx]}
+                          onChange={(e) => {
+                            const updated = [...newMcqOptions];
+                            updated[optIdx] = e.target.value;
+                            setNewMcqOptions(updated);
+                          }}
+                          placeholder={`Option ${String.fromCharCode(65 + optIdx)}`}
+                          className="bg-[#0C0E14] border-zinc-800 text-xs text-white h-8"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div>
+                    <Label className="text-xs text-zinc-400">Explanation (Optional)</Label>
+                    <Input
+                      value={newMcqExplanation}
+                      onChange={(e) => setNewMcqExplanation(e.target.value)}
+                      placeholder="Bottom-up heap construction runs in O(N) linear time."
+                      className="bg-[#0C0E14] border-zinc-800 text-xs text-white h-8 mt-1"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-3 border-t border-zinc-800">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsNewMcqModalOpen(false)}
+                      className="text-xs border-zinc-800"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => createMcqMutation.mutate()}
+                      disabled={!newMcqQuestion.trim() || newMcqOptions.some((o) => !o.trim())}
+                      className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-5"
+                    >
+                      Save Question
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 5. CONTEST ROOMS MONITOR PANEL */}
+        {activeTab === "rooms" && (
+          <div className="space-y-5">
             <div>
-              <Label className="text-zinc-300 text-xs mb-1 block">Topic / concept</Label>
-              <Input
-                value={generateTopic}
-                onChange={(e) => setGenerateTopic(e.target.value)}
-                placeholder="e.g. binary search on rotated array"
-                className="bg-zinc-800 border-zinc-700 text-white text-sm"
-              />
+              <h2 className="text-lg font-bold text-white tracking-tight">Active Contest Rooms</h2>
+              <p className="text-xs text-zinc-400">Surveillance over multiplayer coding battles and live sessions</p>
             </div>
-            <div>
-              <Label className="text-zinc-300 text-xs mb-1 block">Tags (optional)</Label>
-              <Input
-                value={generateTags}
-                onChange={(e) => setGenerateTags(e.target.value)}
-                placeholder="array, dp, graphs"
-                className="bg-zinc-800 border-zinc-700 text-white text-sm"
-              />
-            </div>
-          </div>
-          <Button
-            onClick={generateWithAI}
-            disabled={!generateTopic || generating}
-            className="bg-amber-500 text-black hover:bg-amber-400 text-sm"
-          >
-            {generating ? "Generating..." : "Generate and fill form"}
-          </Button>
-        </CardContent>
-      </Card>
 
-      {/* Form */}
-      <div className="space-y-5">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label className="text-zinc-300 mb-1 block">Title <span className="text-red-500">*</span></Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)}
-              className="bg-zinc-900 border-zinc-800 text-white" />
-          </div>
-          <div>
-            <Label className="text-zinc-300 mb-1 block">Slug</Label>
-            <Input value={slug} onChange={(e) => setSlug(e.target.value)}
-              placeholder="auto-generated from title"
-              className="bg-zinc-900 border-zinc-800 text-white" />
-          </div>
-        </div>
-
-        <div>
-          <Label className="text-zinc-300 mb-2 block">Difficulty</Label>
-          <div className="flex gap-2">
-            {DIFFICULTIES.map((d) => (
-              <button key={d} onClick={() => setDifficulty(d)}
-                className={cn("px-3 py-1.5 rounded-lg text-sm border transition-colors",
-                  difficulty === d ? "bg-white text-black border-white"
-                    : "bg-zinc-900 text-zinc-300 border-zinc-800 hover:border-zinc-700")}>
-                {d}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <Label className="text-zinc-300 mb-1 block">Description <span className="text-red-500">*</span></Label>
-          <Textarea value={description} onChange={(e) => setDescription(e.target.value)}
-            rows={6} className="bg-zinc-900 border-zinc-800 text-white font-mono text-sm" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label className="text-zinc-300 mb-1 block">Input format</Label>
-            <Textarea value={inputFormat} onChange={(e) => setInputFormat(e.target.value)}
-              rows={3} className="bg-zinc-900 border-zinc-800 text-white text-sm" />
-          </div>
-          <div>
-            <Label className="text-zinc-300 mb-1 block">Output format</Label>
-            <Textarea value={outputFormat} onChange={(e) => setOutputFormat(e.target.value)}
-              rows={3} className="bg-zinc-900 border-zinc-800 text-white text-sm" />
-          </div>
-        </div>
-
-        <div>
-          <Label className="text-zinc-300 mb-1 block">Constraints</Label>
-          <Textarea value={constraints} onChange={(e) => setConstraints(e.target.value)}
-            rows={3} className="bg-zinc-900 border-zinc-800 text-white text-sm font-mono" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label className="text-zinc-300 mb-1 block">Tags (comma separated)</Label>
-            <Input value={tags} onChange={(e) => setTags(e.target.value)}
-              placeholder="array, dp, graphs"
-              className="bg-zinc-900 border-zinc-800 text-white" />
-          </div>
-          <div>
-            <Label className="text-zinc-300 mb-1 block">Companies (comma separated)</Label>
-            <Input value={company} onChange={(e) => setCompany(e.target.value)}
-              placeholder="Google, Meta, Amazon"
-              className="bg-zinc-900 border-zinc-800 text-white" />
-          </div>
-        </div>
-
-        <div>
-          <Label className="text-zinc-300 mb-1 block">Hints (one per line)</Label>
-          <Textarea value={hints} onChange={(e) => setHints(e.target.value)}
-            rows={3} placeholder="Hint 1&#10;Hint 2"
-            className="bg-zinc-900 border-zinc-800 text-white text-sm" />
-        </div>
-
-        {/* Examples */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <Label className="text-zinc-300">Examples</Label>
-            <button onClick={() => setExamples([...examples, { input: "", output: "", explanation: "" }])}
-              className="text-zinc-400 hover:text-white text-xs">+ Add example</button>
-          </div>
-          {examples.map((ex, i) => (
-            <div key={i} className="grid grid-cols-3 gap-3 mb-3">
-              <div>
-                <Label className="text-zinc-500 text-xs mb-1 block">Input</Label>
-                <Textarea value={ex.input} rows={2}
-                  onChange={(e) => { const u = [...examples]; u[i].input = e.target.value; setExamples(u); }}
-                  className="bg-zinc-900 border-zinc-800 text-white text-xs font-mono" />
+            {isRoomsLoading ? (
+              <p className="text-xs text-zinc-500 py-8 text-center">Loading active rooms...</p>
+            ) : (
+              <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-[#0C0E14]">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#10131B] border-b border-zinc-800 text-zinc-400 font-mono text-[11px]">
+                    <tr>
+                      <th className="p-3">Room Code</th>
+                      <th className="p-3">Title & Host</th>
+                      <th className="p-3">Type</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3">Participants</th>
+                      <th className="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/60">
+                    {(roomsData || []).map((r: any) => (
+                      <tr key={r.id} className="hover:bg-zinc-800/20 transition-colors">
+                        <td className="p-3">
+                          <span className="font-mono font-bold text-white px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700">
+                            {r.code}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <div className="font-semibold text-white">{r.title}</div>
+                          <div className="text-[11px] text-zinc-400">
+                            Host: {r.host?.name || "Host"} ({r.host?.email})
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <Badge variant="outline" className="border-zinc-700 text-zinc-300 text-[10px]">
+                            {r.type}
+                          </Badge>
+                        </td>
+                        <td className="p-3">
+                          <Badge
+                            className={
+                              r.status === "ACTIVE"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
+                                : r.status === "WAITING"
+                                ? "bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px]"
+                                : "bg-zinc-800 text-zinc-500 border-zinc-700 text-[10px]"
+                            }
+                          >
+                            {r.status}
+                          </Badge>
+                        </td>
+                        <td className="p-3 font-mono text-zinc-300">
+                          {r._count?.participants || 0} / {r.maxParticipants || 10}
+                        </td>
+                        <td className="p-3 text-right">
+                          {r.status !== "FINISHED" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => terminateRoomMutation.mutate(r.id)}
+                              className="h-7 text-[11px] border-rose-900 text-rose-400 hover:bg-rose-950/20"
+                            >
+                              Terminate
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div>
-                <Label className="text-zinc-500 text-xs mb-1 block">Output</Label>
-                <Textarea value={ex.output} rows={2}
-                  onChange={(e) => { const u = [...examples]; u[i].output = e.target.value; setExamples(u); }}
-                  className="bg-zinc-900 border-zinc-800 text-white text-xs font-mono" />
-              </div>
-              <div>
-                <Label className="text-zinc-500 text-xs mb-1 block">Explanation</Label>
-                <Textarea value={ex.explanation} rows={2}
-                  onChange={(e) => { const u = [...examples]; u[i].explanation = e.target.value; setExamples(u); }}
-                  className="bg-zinc-900 border-zinc-800 text-white text-xs" />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Test cases */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <Label className="text-zinc-300">Test cases</Label>
-            <button onClick={() => setTestCases([...testCases, { input: "", expectedOutput: "", isHidden: true }])}
-              className="text-zinc-400 hover:text-white text-xs">+ Add test case</button>
+            )}
           </div>
-          {testCases.map((tc, i) => (
-            <div key={i} className="grid grid-cols-3 gap-3 mb-3 items-start">
-              <div>
-                <Label className="text-zinc-500 text-xs mb-1 block">Input</Label>
-                <Textarea value={tc.input} rows={2}
-                  onChange={(e) => { const u = [...testCases]; u[i].input = e.target.value; setTestCases(u); }}
-                  className="bg-zinc-900 border-zinc-800 text-white text-xs font-mono" />
-              </div>
-              <div>
-                <Label className="text-zinc-500 text-xs mb-1 block">Expected output</Label>
-                <Textarea value={tc.expectedOutput} rows={2}
-                  onChange={(e) => { const u = [...testCases]; u[i].expectedOutput = e.target.value; setTestCases(u); }}
-                  className="bg-zinc-900 border-zinc-800 text-white text-xs font-mono" />
-              </div>
-              <div className="pt-5">
-                <label className="flex items-center gap-2 text-zinc-400 text-xs cursor-pointer">
-                  <input type="checkbox" checked={tc.isHidden}
-                    onChange={(e) => { const u = [...testCases]; u[i].isHidden = e.target.checked; setTestCases(u); }} />
-                  Hidden
-                </label>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Templates */}
-        <div>
-          <Label className="text-zinc-300 mb-2 block">Starter code templates</Label>
-          <div className="space-y-3">
-            {templates.map((t, i) => (
-              <div key={t.language}>
-                <Label className="text-zinc-500 text-xs mb-1 block">{t.language}</Label>
-                <Textarea value={t.code} rows={4}
-                  onChange={(e) => { const u = [...templates]; u[i].code = e.target.value; setTemplates(u); }}
-                  className="bg-zinc-900 border-zinc-800 text-white text-xs font-mono" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-zinc-800 flex gap-3">
-          <Button
-            onClick={() => createMutation.mutate()}
-            disabled={!title || !description || createMutation.isPending}
-            className="bg-white text-black hover:bg-zinc-200"
-          >
-            {createMutation.isPending ? "Saving..." : "Save problem"}
-          </Button>
-          <Button variant="outline" className="border-zinc-700 text-zinc-300"
-            onClick={() => { resetForm(); setView("list"); }}>
-            Cancel
-          </Button>
-        </div>
-      </div>
+        )}
+      </main>
     </div>
   );
 }

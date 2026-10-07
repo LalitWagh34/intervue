@@ -206,4 +206,175 @@ try {
 }
 });
 
+// ─── Platform Overview Stats ───────────────────────────────────────────
+app.get("/stats", async (c) => {
+  const [totalUsers, totalProblems, totalMcqs, totalRooms, totalSubmissions, totalInterviews] =
+    await Promise.all([
+      db.user.count(),
+      db.problem.count(),
+      db.assessmentQuestion.count(),
+      db.room.count(),
+      db.submission.count(),
+      db.interview.count(),
+    ]);
+
+  const activeRooms = await db.room.count({ where: { status: "ACTIVE" } });
+  const memoryUsage = process.memoryUsage();
+
+  return c.json({
+    stats: {
+      totalUsers,
+      totalProblems,
+      totalMcqs,
+      totalRooms,
+      activeRooms,
+      totalSubmissions,
+      totalInterviews,
+      uptimeSeconds: Math.floor(process.uptime()),
+      memoryRssMb: Math.round(memoryUsage.rss / 1024 / 1024),
+    },
+  });
+});
+
+// ─── User Management ───────────────────────────────────────────────────
+app.get("/users", async (c) => {
+  const query = c.req.query("search")?.trim() || "";
+  const users = await db.user.findMany({
+    where: query
+      ? {
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+          ],
+        }
+      : undefined,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+      profile: {
+        select: {
+          points: true,
+          streakCount: true,
+          totalReferrals: true,
+          referralCode: true,
+          targetCompany: true,
+          leetcodeHandle: true,
+          codeforcesHandle: true,
+        },
+      },
+      _count: {
+        select: {
+          solvedProblems: true,
+          submissions: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  return c.json({ users });
+});
+
+app.put("/users/:id/role", async (c) => {
+  const id = c.req.param("id");
+  const { role } = await c.req.json();
+  if (role !== "admin" && role !== "user") {
+    return c.json({ error: "Invalid role" }, 400);
+  }
+  const updated = await db.user.update({
+    where: { id },
+    data: { role },
+    select: { id: true, role: true },
+  });
+  return c.json({ success: true, user: updated });
+});
+
+app.put("/users/:id/points", async (c) => {
+  const id = c.req.param("id");
+  const { points, streakCount } = await c.req.json();
+  const data: any = {};
+  if (typeof points === "number") data.points = Math.max(0, points);
+  if (typeof streakCount === "number") data.streakCount = Math.max(0, streakCount);
+
+  await db.profile.upsert({
+    where: { userId: id },
+    create: { userId: id, ...data },
+    update: data,
+  });
+  return c.json({ success: true });
+});
+
+// ─── MCQ Assessment Question Bank ──────────────────────────────────────
+app.get("/mcqs", async (c) => {
+  const category = c.req.query("category");
+  const subject = c.req.query("subject");
+  const search = c.req.query("search")?.trim();
+
+  const where: any = {};
+  if (category && category !== "ALL") where.category = category;
+  if (subject && subject !== "ALL") where.subject = subject;
+  if (search) where.question = { contains: search, mode: "insensitive" };
+
+  const mcqs = await db.assessmentQuestion.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: 60,
+  });
+
+  return c.json({ mcqs });
+});
+
+app.post("/mcqs", async (c) => {
+  const body = await c.req.json();
+  const { category, subject, topic, difficulty, question, options, correctOption, explanation } = body;
+
+  const mcq = await db.assessmentQuestion.create({
+    data: {
+      category: category || "CORE_CS",
+      subject: subject || "DBMS",
+      topic: topic || "General",
+      difficulty: difficulty || "MEDIUM",
+      question,
+      options: options || [],
+      correctOption: parseInt(correctOption ?? 0),
+      explanation: explanation || "",
+    },
+  });
+
+  return c.json({ mcq });
+});
+
+app.delete("/mcqs/:id", async (c) => {
+  const id = c.req.param("id");
+  await db.assessmentQuestion.delete({ where: { id } });
+  return c.json({ success: true });
+});
+
+// ─── Contest Rooms Monitor ─────────────────────────────────────────────
+app.get("/rooms", async (c) => {
+  const rooms = await db.room.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      host: { select: { id: true, name: true, email: true } },
+      _count: { select: { participants: true, questions: true } },
+    },
+    take: 30,
+  });
+
+  return c.json({ rooms });
+});
+
+app.post("/rooms/:id/terminate", async (c) => {
+  const id = c.req.param("id");
+  await db.room.update({
+    where: { id },
+    data: { status: "FINISHED" },
+  });
+  return c.json({ success: true });
+});
+
 export default app;
