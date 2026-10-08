@@ -1,6 +1,7 @@
-﻿import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useFeaturedCompanies, useCompanyQuestions } from "@/hooks/useCompanies";
+import { getCompanyLogo } from "@/lib/companyLogos";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useProblemFilter } from "@/hooks/useProblemFilter";
@@ -892,27 +893,37 @@ export default function PracticeHubPage() {
                 </p>
 
                 <div className="flex flex-wrap gap-2">
-                  {TOP_COMPANIES_PRESET.slice(0, 20).map((comp) => (
-                    <button
-                      key={comp.name}
-                      type="button"
-                      onClick={() => openCompanyWise(comp.name)}
-                      className={cn(
-                        "px-3 py-1.5 rounded-full border text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer",
-                        selectedCompany === comp.name
-                          ? "bg-[#327CF6] text-white border-[#327CF6]"
-                          : "bg-[#08090C] text-[#8B92A0] border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
-                      )}
-                    >
-                      <span>{comp.name}</span>
-                      <span className={cn(
-                        "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
-                        selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-[#525866]"
-                      )}>
-                        {comp.count}
-                      </span>
-                    </button>
-                  ))}
+                  {TOP_COMPANIES_PRESET.slice(0, 20).map((comp) => {
+                    const logo = getCompanyLogo(comp.name);
+                    return (
+                      <button
+                        key={comp.name}
+                        type="button"
+                        onClick={() => openCompanyWise(comp.name)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full border text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer",
+                          selectedCompany === comp.name
+                            ? "bg-[#327CF6] text-white border-[#327CF6]"
+                            : "bg-[#08090C] text-[#8B92A0] border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
+                        )}
+                      >
+                        {logo && (
+                          <img
+                            src={logo}
+                            alt=""
+                            className="w-3.5 h-3.5 object-contain shrink-0"
+                          />
+                        )}
+                        <span>{comp.name}</span>
+                        <span className={cn(
+                          "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
+                          selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-[#525866]"
+                        )}>
+                          {comp.count}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -964,7 +975,15 @@ export default function PracticeHubPage() {
           <div className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-semibold text-[#8B92A0] uppercase tracking-wider flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#327CF6]" />
+                {getCompanyLogo(selectedCompany) ? (
+                  <img
+                    src={getCompanyLogo(selectedCompany)!}
+                    alt=""
+                    className="w-4 h-4 object-contain shrink-0"
+                  />
+                ) : (
+                  <Building2 className="w-4 h-4 text-[#327CF6]" />
+                )}
                 Target Company: <strong className="text-white font-bold">{selectedCompany}</strong>
               </span>
               <span className="text-xs text-[#525866] font-mono">
@@ -974,27 +993,38 @@ export default function PracticeHubPage() {
 
             {/* Wrap Company Pills */}
             <div className="flex flex-wrap items-center gap-2 pb-2">
-              {(featuredCompaniesData?.companies || []).map((comp) => (
-                <button
-                  key={comp.slug}
-                  onClick={() => setSelectedCompany(comp.name)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full border text-[11px] font-medium transition-all flex items-center gap-1.5 cursor-pointer",
-                    selectedCompany === comp.name
-                      ? "bg-[#327CF6] text-white border-[#327CF6] shadow-sm shadow-[#327CF6]/30"
-                      : "bg-[#08090C] text-[#8B92A0] border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
-                  )}
-                >
-                  <span className="font-mono text-[11px] opacity-75">{comp.icon}</span>
-                  <span>{comp.name}</span>
-                  <span className={cn(
-                    "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
-                    selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-[#525866]"
-                  )}>
-                    {comp.totalProblems}
-                  </span>
-                </button>
-              ))}
+              {(featuredCompaniesData?.companies || []).map((comp) => {
+                const logo = getCompanyLogo(comp.name) || getCompanyLogo(comp.slug);
+                return (
+                  <button
+                    key={comp.slug}
+                    onClick={() => setSelectedCompany(comp.name)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full border text-[11px] font-medium transition-all flex items-center gap-1.5 cursor-pointer",
+                      selectedCompany === comp.name
+                        ? "bg-[#327CF6] text-white border-[#327CF6] shadow-sm shadow-[#327CF6]/30"
+                        : "bg-[#08090C] text-[#8B92A0] border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
+                    )}
+                  >
+                    {logo ? (
+                      <img
+                        src={logo}
+                        alt=""
+                        className="w-3.5 h-3.5 object-contain shrink-0"
+                      />
+                    ) : (
+                      <span className="font-mono text-[11px] opacity-75">{comp.icon}</span>
+                    )}
+                    <span>{comp.name}</span>
+                    <span className={cn(
+                      "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
+                      selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-[#525866]"
+                    )}>
+                      {comp.totalProblems}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

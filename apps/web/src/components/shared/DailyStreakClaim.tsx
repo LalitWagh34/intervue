@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDailyCheckIn, useRewardsStatus } from "@/hooks/useRewards";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -52,7 +52,7 @@ export function DailyStreakClaim() {
         toast.custom(() => (
           <div className="flex items-center gap-3 bg-[#0D0E12] border border-[#272B33] rounded-xl px-4 py-3 shadow-2xl min-w-[280px]">
             <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/30 flex items-center justify-center shrink-0">
-              <Flame className="w-5 h-5 text-[#F59E0B] fill-[#F59E0B]/30" />
+              <img src="/fire.png" alt="Streak" className="w-6 h-6 object-contain" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-[#F5F7FA]">

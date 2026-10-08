@@ -8,6 +8,7 @@ import {
   Search,
 } from "lucide-react";
 import { useCompanyReadiness, useSetTargetCompany } from "@/hooks/useReadiness";
+import { getCompanyLogo } from "@/lib/companyLogos";
 import { toast } from "sonner";
 
 export function TargetCompanyTracker() {
@@ -56,6 +57,7 @@ export function TargetCompanyTracker() {
   }
 
   const currentCompany = data?.targetCompany || "Google";
+  const currentLogo = getCompanyLogo(currentCompany);
   const percentage = data?.readinessPercentage || 0;
   const solved = data?.solvedCount || 0;
   const total = data?.totalCount || 0;
@@ -74,16 +76,24 @@ export function TargetCompanyTracker() {
     <div className="p-5 md:p-6 rounded-xl bg-[#0C0E14] border border-zinc-800/80 shadow-sm space-y-5">
       {/* Header with Title and Refined Dropdown */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800/60 pb-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center text-zinc-300">
-            <Building2 className="w-4 h-4" />
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[#12151E] border border-zinc-700/60 flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-inner">
+            {currentLogo ? (
+              <img
+                src={currentLogo}
+                alt={currentCompany}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <Building2 className="w-4 h-4 text-zinc-400" />
+            )}
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-zinc-100 tracking-tight">
-              Target Company Readiness
+            <h3 className="text-sm font-semibold text-zinc-100 tracking-tight flex items-center gap-1.5">
+              <span>{currentCompany} Interview Readiness</span>
             </h3>
             <p className="text-xs text-zinc-400">
-              Coverage for questions asked in technical interview loops
+              Coverage for questions asked in target interview loops
             </p>
           </div>
         </div>
@@ -93,16 +103,23 @@ export function TargetCompanyTracker() {
           <button
             type="button"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#12151D] border border-zinc-700/70 hover:border-zinc-600 text-xs text-zinc-200 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#12151D] border border-zinc-700/70 hover:border-zinc-600 text-xs text-zinc-200 transition-colors cursor-pointer"
           >
-            <span className="text-zinc-400">Company:</span>
+            {currentLogo && (
+              <img
+                src={currentLogo}
+                alt=""
+                className="w-3.5 h-3.5 object-contain shrink-0"
+              />
+            )}
+            <span className="text-zinc-400">Target:</span>
             <span className="font-semibold text-white">{currentCompany}</span>
             <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-1.5 w-60 rounded-xl bg-[#12151E] border border-zinc-700/80 shadow-2xl p-2 z-50 space-y-1.5">
-              {/* Search input if multiple companies */}
+            <div className="absolute right-0 mt-1.5 w-64 rounded-xl bg-[#12151E] border border-zinc-700/80 shadow-2xl p-2 z-50 space-y-1.5 animate-in fade-in zoom-in-95 duration-100">
+              {/* Search input */}
               <div className="relative px-1">
                 <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
                 <input
@@ -124,24 +141,33 @@ export function TargetCompanyTracker() {
                   filteredCompanies.map((comp) => {
                     const isSelected =
                       comp.name.toLowerCase() === currentCompany.toLowerCase();
+                    const logo = getCompanyLogo(comp.name) || getCompanyLogo(comp.slug);
                     return (
                       <button
                         key={comp.slug}
                         type="button"
                         onClick={() => handleSelectCompany(comp.name)}
-                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
+                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
                           isSelected
                             ? "bg-zinc-800/90 text-white font-medium"
                             : "text-zinc-300 hover:bg-zinc-800/50 hover:text-white"
                         }`}
                       >
-                        <span className="flex items-center gap-2">
-                          <span className="w-5 text-center text-zinc-400 font-mono text-[10px]">
-                            {comp.icon}
-                          </span>
-                          <span>{comp.name}</span>
+                        <span className="flex items-center gap-2.5 min-w-0">
+                          {logo ? (
+                            <img
+                              src={logo}
+                              alt={comp.name}
+                              className="w-4 h-4 object-contain shrink-0"
+                            />
+                          ) : (
+                            <span className="w-4 text-center text-zinc-400 font-mono text-[10px] shrink-0">
+                              {comp.icon || comp.name.slice(0, 1)}
+                            </span>
+                          )}
+                          <span className="truncate">{comp.name}</span>
                         </span>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-zinc-300" />}
+                        {isSelected && <Check className="w-3.5 h-3.5 text-blue-400 shrink-0 ml-1" />}
                       </button>
                     );
                   })

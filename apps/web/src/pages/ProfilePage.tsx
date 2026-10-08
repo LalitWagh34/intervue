@@ -443,8 +443,8 @@ export default function ProfilePage() {
               </div>
               <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
                 <p className="text-[11px] text-[#A1A7B3] font-medium">Current Streak</p>
-                <p className="text-lg font-bold text-[#F59E0B] mt-0.5 flex items-center gap-1">
-                  <Flame className="w-4 h-4 fill-[#F59E0B]/20" />
+                <p className="text-lg font-bold text-[#F59E0B] mt-0.5 flex items-center gap-1.5">
+                  <img src="/fire.png" alt="Streak" className="w-4 h-4 object-contain" />
                   {currentStreak} <span className="text-xs font-normal text-[#707784]">days</span>
                 </p>
               </div>
@@ -767,8 +767,8 @@ export default function ProfilePage() {
           <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] relative overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/10 border border-[#F59E0B]/25 flex items-center justify-center text-[#F59E0B] font-bold text-xs font-mono">
-                  LC
+                <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/10 border border-[#F59E0B]/25 flex items-center justify-center p-1.5 shrink-0">
+                  <img src="/leetcode.svg" alt="LeetCode" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-[#F5F7FA]">LeetCode</h3>
@@ -850,8 +850,8 @@ export default function ProfilePage() {
           <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] relative overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#2F80ED]/10 border border-[#2F80ED]/25 flex items-center justify-center text-[#3B9CFF] font-bold text-xs font-mono">
-                  CF
+                <div className="w-8 h-8 rounded-lg bg-[#2F80ED]/10 border border-[#2F80ED]/25 flex items-center justify-center p-1.5 shrink-0">
+                  <img src="/icons8-codeforces-24.png" alt="Codeforces" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-[#F5F7FA]">Codeforces</h3>

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Filter, Search, ChevronDown, Check, X, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getCompanyLogo } from "@/lib/companyLogos";
 import type { FilterState } from "@/hooks/useProblemFilter";
 
 interface AdvancedFilterProps {
@@ -170,6 +171,36 @@ export function AdvancedFilterPopover({
                           {t}
                         </button>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Companies */}
+                {options.companies.length > 0 && (
+                  <div>
+                    <h4 className="text-[11px] font-semibold text-[#525866] mb-2 uppercase tracking-wider">Companies</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {options.companies.map((c) => {
+                        const logo = getCompanyLogo(c);
+                        return (
+                          <button
+                            key={c}
+                            onClick={() => toggleArrayItem("companies", c)}
+                            className={cn(
+                              "px-2.5 py-1 rounded-md border text-[11px] transition-colors flex items-center gap-1.5",
+                              filters.companies.includes(c)
+                                ? "bg-[#327CF6]/15 border-[#327CF6]/40 text-[#327CF6]"
+                                : "bg-[#060709] border-[#181A20] text-[#8B92A0] hover:border-[#262933]"
+                            )}
+                          >
+                            {logo && (
+                              <img src={logo} alt="" className="w-3.5 h-3.5 object-contain shrink-0" />
+                            )}
+                            {filters.companies.includes(c) && <Check className="w-3 h-3 text-blue-400" />}
+                            <span>{c}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

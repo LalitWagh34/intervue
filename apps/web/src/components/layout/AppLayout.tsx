@@ -143,7 +143,7 @@ export default function AppLayout() {
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-semibold font-mono text-[#F59E0B]"
               title="Consecutive practice streak"
             >
-              <Flame className="w-3.5 h-3.5 fill-[#F59E0B]/20 text-[#F59E0B]" />
+              <img src="/fire.png" alt="Streak" className="w-4 h-4 object-contain" />
               <span>{currentStreak}d</span>
             </div>
 
@@ -212,8 +212,9 @@ export default function AppLayout() {
                   <div className="grid grid-cols-2 gap-2 my-3">
                     <div className="p-2 rounded-xl bg-[#0D0E12] border border-[#181A20] text-center col-span-2">
                       <span className="text-[10px] text-[#8B92A0] block">Streak</span>
-                      <span className="text-xs font-bold text-[#F59E0B] font-mono flex items-center justify-center gap-1 mt-0.5">
-                        <Flame className="w-3 h-3" /> {currentStreak} Days
+                      <span className="text-xs font-bold text-[#F59E0B] font-mono flex items-center justify-center gap-1.5 mt-0.5">
+                        <img src="/fire.png" alt="Streak" className="w-4 h-4 object-contain inline" />
+                        <span>{currentStreak} Days</span>
                       </span>
                     </div>
                   </div>
