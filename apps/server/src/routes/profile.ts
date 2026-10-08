@@ -14,19 +14,120 @@ import { getCuratedProblemsForCompanies } from "../services/companyService";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
-// ─── GET /api/profile ──────────────────────────────────────────────────
-app.get("/", requireAuth, async (c) => {
-  const user = c.get("user");
-
-  const profile = await db.profile.findUnique({
-    where: { userId: user.id },
+// Helper to get or auto-create profile with Google avatar
+async function getOrCreateProfile(userId: string, defaultName?: string | null, defaultImage?: string | null) {
+  let profile = await db.profile.findUnique({
+    where: { userId },
     include: { user: true },
   });
+
   if (!profile) {
-    return c.json({ error: "Profile not found" }, 400);
+    profile = await db.profile.create({
+      data: {
+        userId,
+        fullName: defaultName || "Candidate",
+        avatarUrl: defaultImage || null,
+      },
+      include: { user: true },
+    });
+  } else if (!profile.avatarUrl && defaultImage) {
+    // Backfill avatarUrl from Google user image if missing
+    profile = await db.profile.update({
+      where: { userId },
+      data: { avatarUrl: defaultImage },
+      include: { user: true },
+    });
   }
 
+  return profile;
+}
+
+// ─── GET /api/profile or /api/profile/me ─────────────────────────────────
+app.get("/", requireAuth, async (c) => {
+  const user = c.get("user");
+  const profile = await getOrCreateProfile(user.id, user.name, user.image);
   return c.json({ profile });
+});
+
+app.get("/me", requireAuth, async (c) => {
+  const user = c.get("user");
+  const profile = await getOrCreateProfile(user.id, user.name, user.image);
+  return c.json({ profile });
+});
+
+// ─── PATCH /api/profile/avatar ──────────────────────────────────────────
+app.patch("/avatar", requireAuth, async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json();
+  const { avatarUrl } = body;
+
+  let finalUrl = avatarUrl;
+  if (!finalUrl || finalUrl === "reset") {
+    const dbUser = await db.user.findUnique({
+      where: { id: user.id },
+      select: { image: true },
+    });
+    finalUrl = dbUser?.image || null;
+  }
+
+  const profile = await db.profile.upsert({
+    where: { userId: user.id },
+    update: {
+      avatarUrl: finalUrl,
+    },
+    create: {
+      userId: user.id,
+      fullName: user.name || "Candidate",
+      avatarUrl: finalUrl,
+    },
+    include: { user: true },
+  });
+
+  if (finalUrl) {
+    await db.user.update({
+      where: { id: user.id },
+      data: { image: finalUrl },
+    });
+  }
+
+  return c.json({ success: true, avatarUrl: finalUrl, profile });
+});
+
+app.put("/avatar", requireAuth, async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json();
+  const { avatarUrl } = body;
+
+  let finalUrl = avatarUrl;
+  if (!finalUrl || finalUrl === "reset") {
+    const dbUser = await db.user.findUnique({
+      where: { id: user.id },
+      select: { image: true },
+    });
+    finalUrl = dbUser?.image || null;
+  }
+
+  const profile = await db.profile.upsert({
+    where: { userId: user.id },
+    update: {
+      avatarUrl: finalUrl,
+    },
+    create: {
+      userId: user.id,
+      fullName: user.name || "Candidate",
+      avatarUrl: finalUrl,
+    },
+    include: { user: true },
+  });
+
+  if (finalUrl) {
+    await db.user.update({
+      where: { id: user.id },
+      data: { image: finalUrl },
+    });
+  }
+
+  return c.json({ success: true, avatarUrl: finalUrl, profile });
 });
 
 // ─── GET /api/profile/dashboard ────────────────────────────────────────
@@ -120,6 +221,7 @@ app.post("/setup", requireAuth, async (c) => {
     where: { userId: user.id },
     update: {
       fullName: body.fullName,
+      avatarUrl: body.avatarUrl !== undefined ? body.avatarUrl : undefined,
       bio: body.bio,
       targetRole: body.targetRole,
       experienceLevel: body.experienceLevel,
@@ -130,6 +232,7 @@ app.post("/setup", requireAuth, async (c) => {
     create: {
       userId: user.id,
       fullName: body.fullName,
+      avatarUrl: body.avatarUrl || user.image || null,
       bio: body.bio,
       targetRole: body.targetRole,
       experienceLevel: body.experienceLevel,
@@ -137,7 +240,16 @@ app.post("/setup", requireAuth, async (c) => {
       linkedinUrl: body.linkedinUrl,
       skills: body.skills || [],
     },
+    include: { user: true },
   });
+
+  if (body.avatarUrl) {
+    await db.user.update({
+      where: { id: user.id },
+      data: { image: body.avatarUrl },
+    });
+  }
+
   return c.json({ profile });
 });
 
@@ -678,7 +790,7 @@ app.get("/stats", requireAuth, async (c) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          image: user.image,
+          image: userRecord?.profile?.avatarUrl || user.image,
           role: userRecord?.role || "user",
         },
         profile: userRecord?.profile,

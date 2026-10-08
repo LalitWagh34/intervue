@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { User, Briefcase, Link2, Sparkles } from "lucide-react";
+import { User, Briefcase, Link2, Sparkles, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AvatarEditModal } from "@/components/profile/AvatarEditModal";
 
 const SECTIONS = [
   { id: "basic", label: "Basic Info", icon: User },
@@ -27,6 +28,8 @@ export default function ProfileSetupPage() {
 
   const [activeSection, setActiveSection] = useState("basic");
   const [fullName, setFullName] = useState(session?.user?.name || "");
+  const [avatarUrl, setAvatarUrl] = useState(session?.user?.image || "");
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [bio, setBio] = useState("");
   const [targetRole, setTargetRole] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
@@ -39,6 +42,7 @@ export default function ProfileSetupPage() {
       const skills = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
       const res = await api.post("/profile/setup", {
         fullName,
+        avatarUrl: avatarUrl || undefined,
         bio,
         targetRole,
         experienceLevel,
@@ -50,6 +54,7 @@ export default function ProfileSetupPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["profile-stats"] });
       navigate("/dashboard");
     },
   });
@@ -97,18 +102,35 @@ export default function ProfileSetupPage() {
                   <p className="text-[#8B92A0] text-sm">Tell us a bit about yourself to personalize your experience.</p>
                 </div>
 
-                <div className="flex items-center gap-5 mb-8 p-4 rounded-2xl bg-[#08090C] border border-[#181A20]">
-                  {session?.user?.image ? (
-                    <img src={session.user.image} className="w-16 h-16 rounded-full ring-2 ring-[#181A20]" />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-[#14161C] border border-[#1E2229] flex items-center justify-center text-xl font-bold text-white shadow-inner">
-                      {fullName?.[0] || "U"}
+                <div className="flex items-center justify-between gap-5 mb-8 p-4 rounded-2xl bg-[#08090C] border border-[#181A20]">
+                  <div className="flex items-center gap-4">
+                    <div className="relative group">
+                      {avatarUrl || session?.user?.image ? (
+                        <img
+                          src={avatarUrl || session?.user?.image || ""}
+                          alt=""
+                          className="w-16 h-16 rounded-2xl object-cover ring-2 ring-[#181A20]"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-2xl bg-[#14161C] border border-[#1E2229] flex items-center justify-center text-xl font-bold text-white shadow-inner">
+                          {fullName?.[0] || "U"}
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <div>
-                    <p className="text-[#525866] text-xs font-mono mb-0.5">Logged in as</p>
-                    <p className="text-white font-medium text-sm">{session?.user?.email}</p>
+                    <div>
+                      <p className="text-[#525866] text-xs font-mono mb-0.5">Logged in as</p>
+                      <p className="text-white font-medium text-sm">{session?.user?.email}</p>
+                    </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsAvatarModalOpen(true)}
+                    className="px-3.5 py-1.5 rounded-xl bg-[#14161C] border border-[#1E2229] hover:border-blue-500/50 text-xs font-medium text-white transition-all flex items-center gap-1.5 cursor-pointer hover:bg-[#1A1D24]"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Change Photo</span>
+                  </button>
                 </div>
 
                 <div className="space-y-6 max-w-md">
@@ -273,6 +295,15 @@ export default function ProfileSetupPage() {
           </div>
         </div>
       </div>
+
+      {/* ─── Avatar Edit Modal ────────────────────────────────────────── */}
+      <AvatarEditModal
+        isOpen={isAvatarModalOpen}
+        onClose={() => setIsAvatarModalOpen(false)}
+        currentAvatar={avatarUrl || session?.user?.image}
+        googleAvatar={session?.user?.image}
+        userName={fullName || "Candidate"}
+      />
     </div>
   );
 }

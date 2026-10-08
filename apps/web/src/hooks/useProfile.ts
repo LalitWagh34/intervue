@@ -177,3 +177,17 @@ export function useDisconnectPlatform() {
     },
   });
 }
+
+export function useUpdateAvatar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (avatarUrl: string | null) => {
+      const res = await api.patch("/profile/avatar", { avatarUrl });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["profile-stats"] });
+    },
+  });
+}
