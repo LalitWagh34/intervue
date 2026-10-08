@@ -22,6 +22,7 @@ import {
   Shield,
   BarChart3,
   Users,
+  FileCode2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
@@ -55,14 +56,14 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Prep Hub",
         icon: BookOpen,
         href: "/practice",
-        badge: "TUF",
+        // badge: "TUF",
         badgeColor: "blue",
       },
       {
         label: "Battle Arena",
         icon: Swords,
         href: "/rooms",
-        badge: "LIVE",
+        // badge: "LIVE",
         badgeColor: "red",
       },
       {
@@ -104,7 +105,7 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Notes & Hints",
         icon: NotebookPen,
         href: "/notes",
-        badge: "NEW",
+        // badge: "NEW",
         badgeColor: "amber" as const,
       },
       {
@@ -131,6 +132,8 @@ const NAV_SECTIONS: NavSection[] = [
           { label: "Users & Roles", icon: Users, href: "/admin/users" },
           { label: "Coding Bank", icon: Code2, href: "/admin/problems" },
           { label: "MCQ Bank", icon: Brain, href: "/admin/mcqs" },
+          { label: "Mock Interviews", icon: MessageSquare, href: "/admin/interviews" },
+          { label: "Code Submissions", icon: FileCode2, href: "/admin/submissions" },
           { label: "Contest Rooms", icon: Swords, href: "/admin/rooms" },
         ],
       },

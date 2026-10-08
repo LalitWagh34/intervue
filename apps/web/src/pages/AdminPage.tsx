@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
@@ -27,11 +27,27 @@ import {
   RefreshCw,
   X,
   ExternalLink,
+  MessageSquare,
+  FileCode2,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  FileText,
+  ArrowUpRight,
+  Copy,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "@/lib/utils";
 
-type AdminTab = "overview" | "users" | "problems" | "mcqs" | "rooms";
+type AdminTab =
+  | "overview"
+  | "users"
+  | "problems"
+  | "mcqs"
+  | "interviews"
+  | "submissions"
+  | "rooms";
 
 const PANELS: Array<{
   id: AdminTab;
@@ -42,7 +58,7 @@ const PANELS: Array<{
   {
     id: "overview",
     label: "Overview",
-    description: "System KPIs & runtime health",
+    description: "System KPIs, runtime & health",
     icon: BarChart3,
   },
   {
@@ -62,6 +78,18 @@ const PANELS: Array<{
     label: "MCQ Bank",
     description: "Assessment questions & subjects",
     icon: Brain,
+  },
+  {
+    id: "interviews",
+    label: "Mock Interviews",
+    description: "Surveillance of AI simulations & scores",
+    icon: MessageSquare,
+  },
+  {
+    id: "submissions",
+    label: "Code Submissions",
+    description: "Platform judge log & verdicts",
+    icon: FileCode2,
   },
   {
     id: "rooms",
@@ -86,6 +114,45 @@ const STATUS_COLORS: Record<string, string> = {
   archived: "text-rose-400 border-rose-900 bg-rose-950/20",
 };
 
+const RECOMMENDATION_STYLES: Record<string, string> = {
+  STRONG_HIRE: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+  HIRE: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+  LEAN_HIRE: "bg-blue-500/10 text-blue-300 border-blue-500/30",
+  LEAN_NO_HIRE: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+  NO_HIRE: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+};
+
+const VERDICT_STYLES: Record<string, { label: string; badge: string }> = {
+  ACCEPTED: {
+    label: "Accepted",
+    badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+  },
+  WRONG_ANSWER: {
+    label: "Wrong Answer",
+    badge: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+  },
+  TIME_LIMIT_EXCEEDED: {
+    label: "TLE",
+    badge: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+  },
+  MEMORY_LIMIT_EXCEEDED: {
+    label: "MLE",
+    badge: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+  },
+  RUNTIME_ERROR: {
+    label: "Runtime Error",
+    badge: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+  },
+  COMPILATION_ERROR: {
+    label: "Compile Error",
+    badge: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+  },
+  PENDING: {
+    label: "Pending",
+    badge: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+  },
+};
+
 function defaultTemplates() {
   return LANGUAGES.map((lang) => ({
     language: lang,
@@ -107,7 +174,15 @@ export default function AdminPage() {
   const { panel } = useParams<{ panel?: string }>();
   const navigate = useNavigate();
 
-  const VALID_TABS: AdminTab[] = ["overview", "users", "problems", "mcqs", "rooms"];
+  const VALID_TABS: AdminTab[] = [
+    "overview",
+    "users",
+    "problems",
+    "mcqs",
+    "interviews",
+    "submissions",
+    "rooms",
+  ];
   const activeTab: AdminTab = VALID_TABS.includes(panel as AdminTab)
     ? (panel as AdminTab)
     : "overview";
@@ -132,6 +207,10 @@ export default function AdminPage() {
 
   // ─── USERS PANEL ─────────────────────────────────────────────────────
   const [userSearch, setUserSearch] = useState("");
+  const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [userPointsInput, setUserPointsInput] = useState<number>(0);
+  const [userStreakInput, setUserStreakInput] = useState<number>(0);
+
   const { data: usersData, isLoading: isUsersLoading, refetch: refetchUsers } = useQuery({
     queryKey: ["admin-users", userSearch],
     queryFn: async () => {
@@ -150,6 +229,29 @@ export default function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: () => toast.error("Failed to update user role"),
+  });
+
+  const saveUserPointsMutation = useMutation({
+    mutationFn: async ({ id, points, streakCount }: { id: string; points: number; streakCount: number }) => {
+      await api.put(`/admin/users/${id}/points`, { points, streakCount });
+    },
+    onSuccess: () => {
+      toast.success("User points and streak updated!");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setEditingUser(null);
+    },
+    onError: () => toast.error("Failed to update user points"),
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/users/${id}`);
+    },
+    onSuccess: () => {
+      toast.success("Candidate account removed");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (err: any) => toast.error(err?.response?.data?.error || "Failed to delete user"),
   });
 
   // ─── CODING PROBLEMS PANEL ───────────────────────────────────────────
@@ -344,6 +446,46 @@ export default function AdminPage() {
     },
   });
 
+  // ─── MOCK INTERVIEWS PANEL ───────────────────────────────────────────
+  const [interviewSearch, setInterviewSearch] = useState("");
+  const [inspectingInterview, setInspectingInterview] = useState<any | null>(null);
+  const { data: interviewsData, isLoading: isInterviewsLoading } = useQuery({
+    queryKey: ["admin-interviews", interviewSearch],
+    queryFn: async () => {
+      const res = await api.get(
+        `/admin/interviews${interviewSearch ? `?search=${encodeURIComponent(interviewSearch)}` : ""}`
+      );
+      return res.data.interviews;
+    },
+    enabled: Boolean(isAdmin && activeTab === "interviews"),
+  });
+
+  const deleteInterviewMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`/admin/interviews/${id}`);
+    },
+    onSuccess: () => {
+      toast.info("Mock interview record removed");
+      queryClient.invalidateQueries({ queryKey: ["admin-interviews"] });
+    },
+  });
+
+  // ─── CODE SUBMISSIONS PANEL ──────────────────────────────────────────
+  const [submissionVerdictFilter, setSubmissionVerdictFilter] = useState("ALL");
+  const [viewingSubmissionCode, setViewingSubmissionCode] = useState<any | null>(null);
+  const [copiedSubmissionCode, setCopiedSubmissionCode] = useState(false);
+
+  const { data: submissionsData, isLoading: isSubmissionsLoading } = useQuery({
+    queryKey: ["admin-submissions", submissionVerdictFilter],
+    queryFn: async () => {
+      const res = await api.get(
+        `/admin/submissions${submissionVerdictFilter !== "ALL" ? `?verdict=${submissionVerdictFilter}` : ""}`
+      );
+      return res.data.submissions;
+    },
+    enabled: Boolean(isAdmin && activeTab === "submissions"),
+  });
+
   if (!isSessionPending && !isProfileStatsLoading && !isAdmin) {
     return (
       <div className="min-h-[calc(100vh-4.5rem)] flex items-center justify-center bg-[#08090C] text-zinc-100 p-6 font-sans">
@@ -419,6 +561,67 @@ export default function AdminPage() {
         </div>
       </header>
 
+      {/* ─── Platform Global Quick Access Bar ────────────────────────── */}
+      <div className="bg-[#090B10] border-b border-zinc-800/80 px-5 py-2 flex items-center justify-between gap-4 overflow-x-auto text-[11px] font-medium custom-scrollbar shrink-0 select-none">
+        <div className="flex items-center gap-2 text-zinc-400 shrink-0">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="font-mono text-[10px] uppercase tracking-wider font-bold text-zinc-400">
+            Platform Hubs:
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Link
+            to="/practice"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+          >
+            <span>Practice Hub</span>
+            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+          </Link>
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+          >
+            <span>Dashboard</span>
+            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+          </Link>
+          <Link
+            to="/interview"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+          >
+            <span>AI Interview</span>
+            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+          </Link>
+          <Link
+            to="/rooms"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+          >
+            <span>Battle Arena</span>
+            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+          </Link>
+          <Link
+            to="/notes"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+          >
+            <span>Notes Hub</span>
+            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+          </Link>
+          <Link
+            to="/bookmarks"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+          >
+            <span>Bookmarks</span>
+            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+          </Link>
+          <Link
+            to="/profile"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+          >
+            <span>Candidate Profile</span>
+            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+          </Link>
+        </div>
+      </div>
+
       {/* ─── Multi-Panel Body (Sub-panel rail + Active workspace) ────── */}
       <div className="flex-1 flex min-h-0">
         {/* Left Sub-Panel Navigation Rail (Desktop) */}
@@ -493,7 +696,7 @@ export default function AdminPage() {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3">
                 <Card className="bg-[#0D0F14] border-zinc-800/80">
                   <CardContent className="p-4">
                     <span className="text-[11px] font-mono text-zinc-400 block uppercase">Total Users</span>
@@ -523,27 +726,45 @@ export default function AdminPage() {
 
                 <Card className="bg-[#0D0F14] border-zinc-800/80">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Total Rooms</span>
-                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
-                      {statsData?.totalRooms ?? 0}
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">AI Mock Interviews</span>
+                    <span className="text-2xl font-bold font-mono text-blue-400 mt-1 block">
+                      {statsData?.totalInterviews ?? 0}
                     </span>
                   </CardContent>
                 </Card>
 
                 <Card className="bg-[#0D0F14] border-zinc-800/80">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Active Contests</span>
-                    <span className="text-2xl font-bold font-mono text-emerald-400 mt-1 block">
-                      {statsData?.activeRooms ?? 0}
-                    </span>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
-                  <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Submissions</span>
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Code Submissions</span>
                     <span className="text-2xl font-bold font-mono text-white mt-1 block">
                       {statsData?.totalSubmissions ?? 0}
+                    </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Contest Rooms</span>
+                    <span className="text-2xl font-bold font-mono text-emerald-400 mt-1 block">
+                      {statsData?.activeRooms ?? 0} <span className="text-xs text-zinc-500 font-normal">/ {statsData?.totalRooms ?? 0}</span>
+                    </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Candidate Notes</span>
+                    <span className="text-2xl font-bold font-mono text-amber-400 mt-1 block">
+                      {statsData?.totalNotes ?? 0}
+                    </span>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                  <CardContent className="p-4">
+                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Revision Bookmarks</span>
+                    <span className="text-2xl font-bold font-mono text-purple-400 mt-1 block">
+                      {statsData?.totalBookmarks ?? 0}
                     </span>
                   </CardContent>
                 </Card>
@@ -666,24 +887,120 @@ export default function AdminPage() {
                           {formatDistanceToNow(new Date(u.createdAt), { addSuffix: true })}
                         </td>
                         <td className="p-3 text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              toggleUserRole.mutate({
-                                id: u.id,
-                                newRole: u.role === "admin" ? "user" : "admin",
-                              })
-                            }
-                            className="h-7 text-[11px] border-zinc-800 text-zinc-300 hover:text-white"
-                          >
-                            {u.role === "admin" ? "Demote" : "Make Admin"}
-                          </Button>
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingUser(u);
+                                setUserPointsInput(u.profile?.points ?? 0);
+                                setUserStreakInput(u.profile?.streakCount ?? 0);
+                              }}
+                              className="h-7 text-[11px] border-zinc-800 text-amber-300/90 hover:text-amber-200 hover:bg-amber-500/10"
+                              title="Edit points & streak"
+                            >
+                              Balance
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                toggleUserRole.mutate({
+                                  id: u.id,
+                                  newRole: u.role === "admin" ? "user" : "admin",
+                                })
+                              }
+                              className="h-7 text-[11px] border-zinc-800 text-zinc-300 hover:text-white"
+                            >
+                              {u.role === "admin" ? "Demote" : "Make Admin"}
+                            </Button>
+                            {u.role !== "admin" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  if (confirm(`Are you sure you want to delete user "${u.email}"? This permanently purges their account, submissions, and records.`)) {
+                                    deleteUserMutation.mutate(u.id);
+                                  }
+                                }}
+                                className="h-7 text-[11px] border-zinc-800 text-rose-400 hover:bg-rose-950/20"
+                                title="Delete candidate account"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* Modal: Adjust User Balance */}
+            {editingUser && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                <div className="w-full max-w-md bg-[#0F1117] border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+                    <div>
+                      <h3 className="text-sm font-bold text-white">Adjust Candidate Balance</h3>
+                      <p className="text-[11px] text-zinc-400 font-mono">{editingUser.email}</p>
+                    </div>
+                    <button
+                      onClick={() => setEditingUser(null)}
+                      className="text-zinc-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-xs text-zinc-400">Intervue Points (XP)</Label>
+                      <Input
+                        type="number"
+                        value={userPointsInput}
+                        onChange={(e) => setUserPointsInput(parseInt(e.target.value) || 0)}
+                        className="bg-[#0C0E14] border-zinc-800 text-xs text-white h-8 mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-zinc-400">Current Streak (Days)</Label>
+                      <Input
+                        type="number"
+                        value={userStreakInput}
+                        onChange={(e) => setUserStreakInput(parseInt(e.target.value) || 0)}
+                        className="bg-[#0C0E14] border-zinc-800 text-xs text-white h-8 mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-3 border-t border-zinc-800">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditingUser(null)}
+                      className="text-xs border-zinc-800 text-zinc-400"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={saveUserPointsMutation.isPending}
+                      onClick={() =>
+                        saveUserPointsMutation.mutate({
+                          id: editingUser.id,
+                          points: userPointsInput,
+                          streakCount: userStreakInput,
+                        })
+                      }
+                      className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4"
+                    >
+                      {saveUserPointsMutation.isPending ? "Saving..." : "Save Balance"}
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -1116,6 +1433,443 @@ export default function AdminPage() {
                       className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-5"
                     >
                       Save Question
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 5. MOCK INTERVIEWS SURVEILLANCE PANEL */}
+        {activeTab === "interviews" && (
+          <div className="space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">AI Mock Interviews Surveillance</h2>
+                <p className="text-xs text-zinc-400">
+                  Inspect candidate simulation runs, conversation depth, and AI scorecard evaluations
+                </p>
+              </div>
+              <div className="relative w-full sm:w-64">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
+                <Input
+                  placeholder="Search candidate or role..."
+                  value={interviewSearch}
+                  onChange={(e) => setInterviewSearch(e.target.value)}
+                  className="pl-8 h-8 text-xs bg-[#0C0E14] border-zinc-800 text-zinc-200"
+                />
+              </div>
+            </div>
+
+            {isInterviewsLoading ? (
+              <p className="text-xs text-zinc-500 py-8 text-center">Loading interview simulation logs...</p>
+            ) : (interviewsData || []).length === 0 ? (
+              <div className="p-8 text-center rounded-xl bg-[#0C0E14] border border-zinc-800 text-zinc-400 text-xs">
+                No mock interviews recorded matching your query.
+              </div>
+            ) : (
+              <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-[#0C0E14]">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#10131B] border-b border-zinc-800 text-zinc-400 font-mono text-[11px]">
+                    <tr>
+                      <th className="p-3">Candidate</th>
+                      <th className="p-3">Role & Tech Stack</th>
+                      <th className="p-3">Level & Mode</th>
+                      <th className="p-3">Score & Outcome</th>
+                      <th className="p-3">Messages</th>
+                      <th className="p-3">Conducted</th>
+                      <th className="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/60">
+                    {(interviewsData || []).map((iv: any) => (
+                      <tr key={iv.id} className="hover:bg-zinc-800/20 transition-colors">
+                        <td className="p-3">
+                          <div className="font-semibold text-white">{iv.user?.name || "Candidate"}</div>
+                          <div className="text-[11px] text-zinc-400 font-mono">{iv.user?.email}</div>
+                        </td>
+                        <td className="p-3">
+                          <div className="font-medium text-white">{iv.role}</div>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {(iv.techStack || []).map((t: string) => (
+                              <span
+                                key={t}
+                                className="px-1.5 py-0.5 rounded bg-zinc-800/80 text-[10px] font-mono text-zinc-300"
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex items-center gap-1.5">
+                            <Badge variant="outline" className="border-zinc-700 text-zinc-300 text-[10px]">
+                              {iv.difficulty || iv.level || "mid"}
+                            </Badge>
+                            <Badge variant="outline" className="border-zinc-800 text-zinc-400 text-[10px]">
+                              {iv.mode || iv.type || "technical"}
+                            </Badge>
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          {iv.evaluation || iv.score != null ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono font-bold text-emerald-400">
+                                  {iv.evaluation?.score ?? iv.score ?? "--"}/100
+                                </span>
+                                {iv.evaluation?.feedback && (
+                                  <Badge className="text-[9px] px-1.5 py-0 bg-blue-500/10 text-blue-300 border-blue-500/30">
+                                    Evaluated
+                                  </Badge>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => setInspectingInterview(iv)}
+                                className="text-[10px] text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                              >
+                                View Scorecard
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-zinc-500 italic">In progress / pending</span>
+                          )}
+                        </td>
+                        <td className="p-3 font-mono text-zinc-300">
+                          {iv._count?.messages || 0} msgs
+                        </td>
+                        <td className="p-3 text-zinc-500 text-[11px] font-mono">
+                          {formatDistanceToNow(new Date(iv.createdAt), { addSuffix: true })}
+                        </td>
+                        <td className="p-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {iv.evaluation && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setInspectingInterview(iv)}
+                                className="h-7 text-[11px] border-zinc-800 text-zinc-300 hover:text-white"
+                              >
+                                Details
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                if (confirm("Delete this mock interview simulation?")) {
+                                  deleteInterviewMutation.mutate(iv.id);
+                                }
+                              }}
+                              className="h-7 text-[11px] border-zinc-800 text-rose-400 hover:bg-rose-950/20"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Modal: View Interview Scorecard Details */}
+            {inspectingInterview && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                <div className="w-full max-w-xl bg-[#0F1117] border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+                    <div>
+                      <h3 className="text-sm font-bold text-white">AI Evaluation Scorecard</h3>
+                      <p className="text-[11px] text-zinc-400">
+                        {inspectingInterview.user?.name} • {inspectingInterview.role} ({inspectingInterview.level})
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setInspectingInterview(null)}
+                      className="text-zinc-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-[#0C0E14] border border-zinc-800">
+                      <div>
+                        <span className="text-zinc-400 block text-[11px]">Overall Score</span>
+                        <span className="text-lg font-mono font-bold text-emerald-400">
+                          {inspectingInterview.evaluation?.score ?? inspectingInterview.score ?? "--"}/100
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-zinc-400 block text-[11px]">Status</span>
+                        <Badge className="text-xs bg-zinc-800 text-zinc-300">
+                          {inspectingInterview.status || "COMPLETED"}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {inspectingInterview.evaluation?.feedback && (
+                      <div className="p-3 rounded-xl bg-[#0C0E14] border border-zinc-800">
+                        <span className="text-[11px] font-bold text-zinc-400 block mb-1 uppercase tracking-wider">
+                          Executive Feedback
+                        </span>
+                        <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                          {inspectingInterview.evaluation.feedback}
+                        </p>
+                      </div>
+                    )}
+
+                    {inspectingInterview.evaluation?.strengths?.length > 0 && (
+                      <div className="p-3 rounded-xl bg-emerald-950/10 border border-emerald-900/30">
+                        <span className="text-[11px] font-bold text-emerald-400 block mb-1.5 uppercase tracking-wider">
+                          Key Strengths
+                        </span>
+                        <ul className="list-disc list-inside space-y-1 text-zinc-300">
+                          {inspectingInterview.evaluation.strengths.map((s: string, idx: number) => (
+                            <li key={idx}>{s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {(inspectingInterview.evaluation?.improvements?.length > 0 || inspectingInterview.evaluation?.weaknesses?.length > 0) && (
+                      <div className="p-3 rounded-xl bg-rose-950/10 border border-rose-900/30">
+                        <span className="text-[11px] font-bold text-rose-400 block mb-1.5 uppercase tracking-wider">
+                          Areas For Improvement
+                        </span>
+                        <ul className="list-disc list-inside space-y-1 text-zinc-300">
+                          {(inspectingInterview.evaluation?.improvements || inspectingInterview.evaluation?.weaknesses || []).map((w: string, idx: number) => (
+                            <li key={idx}>{w}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end pt-3 border-t border-zinc-800">
+                    <Button
+                      size="sm"
+                      onClick={() => setInspectingInterview(null)}
+                      className="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-4"
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 6. CODE SUBMISSIONS PANEL */}
+        {activeTab === "submissions" && (
+          <div className="space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">Code Submissions & Judge Log</h2>
+                <p className="text-xs text-zinc-400">
+                  Live surveillance over testcase judge evaluations, runtimes, memory usage, and code submissions
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  value={submissionVerdictFilter}
+                  onChange={(e) => setSubmissionVerdictFilter(e.target.value)}
+                  className="h-8 rounded-lg bg-[#0C0E14] border border-zinc-800 text-xs text-white px-2.5 outline-none font-mono"
+                >
+                  <option value="ALL">All Verdicts</option>
+                  <option value="ACCEPTED">ACCEPTED</option>
+                  <option value="WRONG_ANSWER">WRONG_ANSWER</option>
+                  <option value="TIME_LIMIT_EXCEEDED">TIME_LIMIT_EXCEEDED</option>
+                  <option value="MEMORY_LIMIT_EXCEEDED">MEMORY_LIMIT_EXCEEDED</option>
+                  <option value="RUNTIME_ERROR">RUNTIME_ERROR</option>
+                  <option value="COMPILATION_ERROR">COMPILATION_ERROR</option>
+                  <option value="PENDING">PENDING</option>
+                </select>
+              </div>
+            </div>
+
+            {isSubmissionsLoading ? (
+              <p className="text-xs text-zinc-500 py-8 text-center">Loading code submission logs...</p>
+            ) : (submissionsData || []).length === 0 ? (
+              <div className="p-8 text-center rounded-xl bg-[#0C0E14] border border-zinc-800 text-zinc-400 text-xs">
+                No code submissions found matching the selected filter.
+              </div>
+            ) : (
+              <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-[#0C0E14]">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#10131B] border-b border-zinc-800 text-zinc-400 font-mono text-[11px]">
+                    <tr>
+                      <th className="p-3">Candidate</th>
+                      <th className="p-3">Problem</th>
+                      <th className="p-3">Verdict</th>
+                      <th className="p-3">Language</th>
+                      <th className="p-3">Runtime & Memory</th>
+                      <th className="p-3">Test Cases</th>
+                      <th className="p-3">Submitted</th>
+                      <th className="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/60">
+                    {(submissionsData || []).map((sub: any) => {
+                      const verdictStyle =
+                        VERDICT_STYLES[sub.verdict] || {
+                          label: sub.verdict,
+                          badge: "bg-zinc-800 text-zinc-400 border-zinc-700",
+                        };
+
+                      return (
+                        <tr key={sub.id} className="hover:bg-zinc-800/20 transition-colors">
+                          <td className="p-3">
+                            <div className="font-semibold text-white">{sub.user?.name || "Candidate"}</div>
+                            <div className="text-[11px] text-zinc-400 font-mono">{sub.user?.email}</div>
+                          </td>
+                          <td className="p-3">
+                            <div className="font-medium text-white flex items-center gap-1.5">
+                              <span>{sub.problem?.title || "Problem"}</span>
+                              {sub.problem?.difficulty && (
+                                <Badge
+                                  variant="outline"
+                                  className={`text-[9px] px-1 py-0 ${
+                                    DIFFICULTY_COLORS[sub.problem.difficulty] || ""
+                                  }`}
+                                >
+                                  {sub.problem.difficulty}
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-zinc-500 font-mono">{sub.problem?.slug}</div>
+                          </td>
+                          <td className="p-3">
+                            <Badge className={`text-[10px] font-mono ${verdictStyle.badge}`}>
+                              {verdictStyle.label}
+                            </Badge>
+                          </td>
+                          <td className="p-3">
+                            <Badge variant="outline" className="border-zinc-800 text-zinc-300 font-mono text-[10px]">
+                              {sub.language}
+                            </Badge>
+                          </td>
+                          <td className="p-3 font-mono text-[11px] text-zinc-400">
+                            <div>{sub.runtime != null ? `${sub.runtime} ms` : "--"}</div>
+                            <div>{sub.memory != null ? `${(sub.memory / 1024).toFixed(1)} MB` : "--"}</div>
+                          </td>
+                          <td className="p-3 font-mono text-zinc-300">
+                            {sub.testCasesPassed != null && sub.totalTestCases != null ? (
+                              <span>
+                                {sub.testCasesPassed}/{sub.totalTestCases}
+                              </span>
+                            ) : (
+                              "--"
+                            )}
+                          </td>
+                          <td className="p-3 text-zinc-500 text-[11px] font-mono">
+                            {formatDistanceToNow(new Date(sub.createdAt), { addSuffix: true })}
+                          </td>
+                          <td className="p-3 text-right">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setViewingSubmissionCode(sub)}
+                              className="h-7 text-[11px] border-zinc-800 text-blue-400 hover:text-white hover:bg-blue-600/10"
+                            >
+                              <Eye className="w-3 h-3 mr-1" /> View Code
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Modal: View Submission Code */}
+            {viewingSubmissionCode && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+                <div className="w-full max-w-2xl bg-[#0F1117] border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-white">
+                          {viewingSubmissionCode.problem?.title || "Submission Code"}
+                        </h3>
+                        <Badge
+                          className={`text-[10px] font-mono ${
+                            VERDICT_STYLES[viewingSubmissionCode.verdict]?.badge || "bg-zinc-800 text-zinc-400"
+                          }`}
+                        >
+                          {viewingSubmissionCode.verdict}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 mt-0.5">
+                        Candidate: {viewingSubmissionCode.user?.name} ({viewingSubmissionCode.user?.email}) • Language: {viewingSubmissionCode.language}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setViewingSubmissionCode(null)}
+                      className="text-zinc-400 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {viewingSubmissionCode.error && (
+                    <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/40 text-rose-300 text-xs font-mono whitespace-pre-wrap max-h-32 overflow-y-auto">
+                      {viewingSubmissionCode.error}
+                    </div>
+                  )}
+
+                  <div className="relative">
+                    <div className="flex items-center justify-between px-3 py-1.5 bg-[#08090C] border-t border-l border-r border-zinc-800 rounded-t-lg text-[11px] text-zinc-400 font-mono">
+                      <span>Source Code ({viewingSubmissionCode.language})</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(viewingSubmissionCode.code);
+                          setCopiedSubmissionCode(true);
+                          setTimeout(() => setCopiedSubmissionCode(false), 2000);
+                        }}
+                        className="flex items-center gap-1 hover:text-white transition-colors"
+                      >
+                        {copiedSubmissionCode ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <pre className="p-4 bg-[#050608] border border-zinc-800 rounded-b-lg font-mono text-xs text-zinc-200 overflow-x-auto max-h-[400px] leading-relaxed">
+                      <code>{viewingSubmissionCode.code}</code>
+                    </pre>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-800 text-xs text-zinc-400">
+                    <div className="flex items-center gap-3 font-mono text-[11px]">
+                      <span>Runtime: {viewingSubmissionCode.runtime != null ? `${viewingSubmissionCode.runtime} ms` : "--"}</span>
+                      <span>•</span>
+                      <span>Memory: {viewingSubmissionCode.memory != null ? `${(viewingSubmissionCode.memory / 1024).toFixed(1)} MB` : "--"}</span>
+                      <span>•</span>
+                      <span>
+                        Cases:{" "}
+                        {viewingSubmissionCode.testCasesPassed != null
+                          ? `${viewingSubmissionCode.testCasesPassed}/${viewingSubmissionCode.totalTestCases}`
+                          : "--"}
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => setViewingSubmissionCode(null)}
+                      className="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-4"
+                    >
+                      Close
                     </Button>
                   </div>
                 </div>

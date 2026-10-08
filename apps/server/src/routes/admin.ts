@@ -208,15 +208,25 @@ try {
 
 // ─── Platform Overview Stats ───────────────────────────────────────────
 app.get("/stats", async (c) => {
-  const [totalUsers, totalProblems, totalMcqs, totalRooms, totalSubmissions, totalInterviews] =
-    await Promise.all([
-      db.user.count(),
-      db.problem.count(),
-      db.assessmentQuestion.count(),
-      db.room.count(),
-      db.submission.count(),
-      db.interview.count(),
-    ]);
+  const [
+    totalUsers,
+    totalProblems,
+    totalMcqs,
+    totalRooms,
+    totalSubmissions,
+    totalInterviews,
+    totalNotes,
+    totalBookmarks,
+  ] = await Promise.all([
+    db.user.count(),
+    db.problem.count(),
+    db.assessmentQuestion.count(),
+    db.room.count(),
+    db.submission.count(),
+    db.interview.count(),
+    db.userQuestionNote.count(),
+    db.userBookmark.count(),
+  ]);
 
   const activeRooms = await db.room.count({ where: { status: "ACTIVE" } });
   const memoryUsage = process.memoryUsage();
@@ -230,6 +240,8 @@ app.get("/stats", async (c) => {
       activeRooms,
       totalSubmissions,
       totalInterviews,
+      totalNotes,
+      totalBookmarks,
       uptimeSeconds: Math.floor(process.uptime()),
       memoryRssMb: Math.round(memoryUsage.rss / 1024 / 1024),
     },
@@ -308,6 +320,16 @@ app.put("/users/:id/points", async (c) => {
   return c.json({ success: true });
 });
 
+app.delete("/users/:id", async (c) => {
+  const id = c.req.param("id");
+  const user = c.get("user");
+  if (id === user.id) {
+    return c.json({ error: "Cannot delete your own admin account" }, 400);
+  }
+  await db.user.delete({ where: { id } });
+  return c.json({ success: true });
+});
+
 // ─── MCQ Assessment Question Bank ──────────────────────────────────────
 app.get("/mcqs", async (c) => {
   const category = c.req.query("category");
@@ -362,7 +384,7 @@ app.get("/rooms", async (c) => {
       host: { select: { id: true, name: true, email: true } },
       _count: { select: { participants: true, questions: true } },
     },
-    take: 30,
+    take: 40,
   });
 
   return c.json({ rooms });
@@ -375,6 +397,59 @@ app.post("/rooms/:id/terminate", async (c) => {
     data: { status: "FINISHED" },
   });
   return c.json({ success: true });
+});
+
+// ─── Mock Interviews Surveillance ──────────────────────────────────────
+app.get("/interviews", async (c) => {
+  const search = c.req.query("search")?.trim();
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { user: { name: { contains: search, mode: "insensitive" } } },
+      { user: { email: { contains: search, mode: "insensitive" } } },
+      { role: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  const interviews = await db.interview.findMany({
+    where,
+    include: {
+      user: { select: { id: true, name: true, email: true, image: true } },
+      evaluation: { select: { score: true, feedback: true, strengths: true, improvements: true } },
+      _count: { select: { messages: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  return c.json({ interviews });
+});
+
+app.delete("/interviews/:id", async (c) => {
+  const id = c.req.param("id");
+  await db.interview.delete({ where: { id } });
+  return c.json({ success: true });
+});
+
+// ─── Code Submissions & Judge Log ──────────────────────────────────────
+app.get("/submissions", async (c) => {
+  const verdict = c.req.query("verdict");
+  const where: any = {};
+  if (verdict && verdict !== "ALL") {
+    where.verdict = verdict;
+  }
+
+  const submissions = await db.submission.findMany({
+    where,
+    include: {
+      user: { select: { id: true, name: true, email: true } },
+      problem: { select: { id: true, title: true, slug: true, difficulty: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 60,
+  });
+
+  return c.json({ submissions });
 });
 
 export default app;
