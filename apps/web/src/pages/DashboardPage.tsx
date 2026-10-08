@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useSession } from '../lib/auth';
 import { api } from '@/lib/api';
 import { TargetCompanyTracker } from "@/components/shared/TargetCompanyTracker";
-import { RecentActivityFeed } from "@/components/shared/RecentActivityFeed";
 
 interface DashboardStats {
   streakCount: number;
@@ -127,11 +126,6 @@ export default function DashboardPage() {
         {/* Target Company Readiness Tracker */}
         <section className="pt-2">
           <TargetCompanyTracker />
-        </section>
-
-        {/* Live Recent Activity Feed */}
-        <section className="pt-2">
-          <RecentActivityFeed />
         </section>
       </div>
     </div>
