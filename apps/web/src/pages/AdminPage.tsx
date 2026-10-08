@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "@/lib/auth";
+import { useProfileStats } from "@/hooks/useProfile";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,6 +112,10 @@ export default function AdminPage() {
     ? (panel as AdminTab)
     : "overview";
 
+  const { data: session, isPending: isSessionPending } = useSession();
+  const { data: profileStats, isLoading: isProfileStatsLoading } = useProfileStats();
+  const isAdmin = (session?.user as any)?.role === "admin" || profileStats?.user?.role === "admin";
+
   const switchTab = (tab: AdminTab) => {
     navigate(`/admin/${tab}`);
   };
@@ -121,7 +127,7 @@ export default function AdminPage() {
       const res = await api.get("/admin/stats");
       return res.data.stats;
     },
-    enabled: activeTab === "overview",
+    enabled: Boolean(isAdmin && activeTab === "overview"),
   });
 
   // ─── USERS PANEL ─────────────────────────────────────────────────────
@@ -132,7 +138,7 @@ export default function AdminPage() {
       const res = await api.get(`/admin/users${userSearch ? `?search=${encodeURIComponent(userSearch)}` : ""}`);
       return res.data.users;
     },
-    enabled: activeTab === "users",
+    enabled: Boolean(isAdmin && activeTab === "users"),
   });
 
   const toggleUserRole = useMutation({
@@ -175,7 +181,7 @@ export default function AdminPage() {
       const res = await api.get("/admin/problems");
       return res.data.problems;
     },
-    enabled: activeTab === "problems",
+    enabled: Boolean(isAdmin && activeTab === "problems"),
   });
 
   function resetProblemForm() {
@@ -281,7 +287,7 @@ export default function AdminPage() {
       const res = await api.get(`/admin/mcqs?${params.toString()}`);
       return res.data.mcqs;
     },
-    enabled: activeTab === "mcqs",
+    enabled: Boolean(isAdmin && activeTab === "mcqs"),
   });
 
   const createMcqMutation = useMutation({
@@ -325,7 +331,7 @@ export default function AdminPage() {
       const res = await api.get("/admin/rooms");
       return res.data.rooms;
     },
-    enabled: activeTab === "rooms",
+    enabled: Boolean(isAdmin && activeTab === "rooms"),
   });
 
   const terminateRoomMutation = useMutation({
@@ -337,6 +343,30 @@ export default function AdminPage() {
       queryClient.invalidateQueries({ queryKey: ["admin-rooms"] });
     },
   });
+
+  if (!isSessionPending && !isProfileStatsLoading && !isAdmin) {
+    return (
+      <div className="min-h-[calc(100vh-4.5rem)] flex items-center justify-center bg-[#08090C] text-zinc-100 p-6 font-sans">
+        <div className="max-w-md w-full p-6 rounded-2xl bg-[#0D0F14] border border-zinc-800 text-center space-y-4 shadow-2xl">
+          <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 mx-auto flex items-center justify-center">
+            <ShieldAlert className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-white tracking-tight">Access Denied</h2>
+            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+              This area is restricted to administrators only. Your current candidate account does not have management CMS permissions.
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate("/dashboard")}
+            className="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs h-9"
+          >
+            Return to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const currentPanelMeta = PANELS.find((p) => p.id === activeTab) || PANELS[0];
 

@@ -53,6 +53,7 @@ export interface ProfileStatsResponse {
     name: string | null;
     email: string | null;
     image: string | null;
+    role?: string;
   };
   profile: {
     id: string;

@@ -678,6 +678,7 @@ app.get("/stats", requireAuth, async (c) => {
           name: user.name,
           email: user.email,
           image: user.image,
+          role: userRecord?.role || "user",
         },
         profile: userRecord?.profile,
         // Default consistency maps to ALL (or Intervue if no external connected)

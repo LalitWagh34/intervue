@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
+import { useProfileStats } from "@/hooks/useProfile";
 
 interface NavSubItem {
   label: string;
@@ -145,6 +146,8 @@ interface SidebarProps {
 export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const location = useLocation();
   const { data: session } = useSession();
+  const { data: profileStats } = useProfileStats();
+  const isAdmin = (session?.user as any)?.role === "admin" || profileStats?.user?.role === "admin";
   const navigate = useNavigate();
 
   const [adminExpanded, setAdminExpanded] = useState<boolean>(() =>
@@ -225,16 +228,23 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
 
       {/* Navigation Sections */}
       <nav className="flex-1 px-2.5 py-4 space-y-5 overflow-y-auto scrollbar-none">
-        {NAV_SECTIONS.map((section, sIdx) => (
-          <div key={sIdx}>
-            {!isCollapsed && section.title && (
-              <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[#525866] mb-1.5 font-mono">
-                {section.title}
-              </p>
-            )}
+        {NAV_SECTIONS.map((section, sIdx) => {
+          const visibleItems = section.items.filter((item) => {
+            if (item.href === "/admin" && !isAdmin) return false;
+            return true;
+          });
+          if (visibleItems.length === 0) return null;
 
-            <div className="space-y-1">
-              {section.items.map((item, iIdx) => {
+          return (
+            <div key={sIdx}>
+              {!isCollapsed && section.title && (
+                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[#525866] mb-1.5 font-mono">
+                  {section.title}
+                </p>
+              )}
+
+              <div className="space-y-1">
+                {visibleItems.map((item, iIdx) => {
                 const hasSubItems = Boolean(item.subItems && item.subItems.length > 0);
                 const isSubOpen = hasSubItems && (adminExpanded || location.pathname.startsWith(item.href));
                 const isActive =
@@ -341,7 +351,8 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               })}
             </div>
           </div>
-        ))}
+        );
+      })}
       </nav>
 
       {/* Footer Profile / Quick Status */}
