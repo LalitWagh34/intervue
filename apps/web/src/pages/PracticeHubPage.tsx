@@ -401,9 +401,9 @@ export default function PracticeHubPage() {
                       <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
                         DSA Sheets
                       </h3>
-                      <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30">
+                      {/* <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30">
                         4 Major Sheets
-                      </span>
+                      </span> */}
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#7A808C] mt-0.5 line-clamp-1">
                       Striver A2Z, NeetCode 150, Blind 75 & Striver's SDE Sheet.
@@ -431,10 +431,10 @@ export default function PracticeHubPage() {
                       <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
                         Target Company Practice Kits
                       </h3>
-                      <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1 font-mono">
+                      {/* <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1 font-mono">
                         <Sparkles className="w-2.5 h-2.5" />
                         <span>Loop Kits & Pattern Donuts</span>
-                      </span>
+                      </span> */}
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#8B92A0] mt-0.5 line-clamp-1">
                       Targeted interview problem sets for Google, Amazon, Meta, Microsoft, Apple, Uber & Netflix with interactive topic donuts and round breakdowns.
@@ -1362,13 +1362,17 @@ export default function PracticeHubPage() {
                         </button>
 
                         <a
-                          href={q.link}
+                          href={q.link || (q.slug ? `https://leetcode.com/problems/${q.slug}` : "#")}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] flex items-center justify-center transition-colors shrink-0"
+                          className="w-8 h-8 rounded-xl bg-[#141620] hover:bg-[#FFA116]/15 border border-[#232736] hover:border-[#FFA116]/50 text-[#FFA116] flex items-center justify-center transition-all shrink-0 group/lc cursor-pointer shadow-sm"
                           title="Solve on LeetCode"
                         >
-                          <img src="/leetcode.svg" alt="LeetCode" className="w-4 h-4 object-contain" />
+                          <img
+                            src="/leetcode.svg"
+                            alt="LeetCode"
+                            className="w-4 h-4 object-contain opacity-80 group-hover/lc:opacity-100 group-hover/lc:scale-115 transition-all"
+                          />
                         </a>
                       </div>
                     </div>

@@ -70,17 +70,27 @@ export function CompanyKitWorkspace({
   const [selectedTopic, setSelectedTopic] = useState<string>("ALL");
   const [selectedPopularity, setSelectedPopularity] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<"ALL" | "SOLVED" | "UNSOLVED">("ALL");
+  const [scopeMode, setScopeMode] = useState<"TOP_200" | "ALL">("TOP_200");
+  const HIGH_YIELD_CAP = 200;
 
   const rawQuestions = questionsData?.questions || [];
+
+  // If questions are more than 200, cut short to top 200 high-yield questions by default
+  const curatedQuestions = useMemo(() => {
+    if (scopeMode === "ALL" || rawQuestions.length <= HIGH_YIELD_CAP) {
+      return rawQuestions;
+    }
+    return rawQuestions.slice(0, HIGH_YIELD_CAP);
+  }, [rawQuestions, scopeMode]);
 
   // Extract unique topics from the dataset
   const availableTopics = useMemo(() => {
     const set = new Set<string>();
-    rawQuestions.forEach((q) => {
+    curatedQuestions.forEach((q) => {
       (q.topics || []).forEach((t) => set.add(t));
     });
     return Array.from(set).sort();
-  }, [rawQuestions]);
+  }, [curatedQuestions]);
 
   // Compute solved counts per difficulty
   const counts = useMemo(() => {
@@ -91,7 +101,7 @@ export function CompanyKitWorkspace({
     let hardTotal = 0;
     let hardSolved = 0;
 
-    rawQuestions.forEach((q) => {
+    curatedQuestions.forEach((q) => {
       const isSolved = Boolean(solvedProblems[q.slug] || (q.nativeId && solvedProblems[String(q.nativeId)]));
       if (q.difficulty === "EASY") {
         easyTotal++;
@@ -110,11 +120,11 @@ export function CompanyKitWorkspace({
       medium: { total: medTotal || kit.difficultySplit.medium, solved: medSolved },
       hard: { total: hardTotal || kit.difficultySplit.hard, solved: hardSolved },
     };
-  }, [rawQuestions, solvedProblems, kit]);
+  }, [curatedQuestions, solvedProblems, kit]);
 
   // Filtered problem rows
   const filteredQuestions = useMemo(() => {
-    return rawQuestions.filter((q) => {
+    return curatedQuestions.filter((q) => {
       const isSolved = Boolean(solvedProblems[q.slug] || (q.nativeId && solvedProblems[String(q.nativeId)]));
 
       if (search.trim()) {
@@ -144,7 +154,7 @@ export function CompanyKitWorkspace({
 
       return true;
     });
-  }, [rawQuestions, search, selectedDifficulty, selectedTopic, selectedPopularity, selectedStatus, solvedProblems]);
+  }, [curatedQuestions, search, selectedDifficulty, selectedTopic, selectedPopularity, selectedStatus, solvedProblems]);
 
   const handleSetTarget = async () => {
     try {
@@ -259,7 +269,7 @@ export function CompanyKitWorkspace({
           totalQuestions={kit.totalQuestions}
         />
         <DifficultyDistributionGauge
-          total={rawQuestions.length || kit.totalQuestions}
+          total={curatedQuestions.length || kit.totalQuestions}
           easy={counts.easy}
           medium={counts.medium}
           hard={counts.hard}
@@ -269,6 +279,42 @@ export function CompanyKitWorkspace({
 
       {/* ─── Curated Assessment Matrix Table ─────────────────────────── */}
       <div className="space-y-4 pt-2">
+        {/* Scope Selector: Top 200 High-Yield (default) vs All Questions */}
+        {rawQuestions.length > HIGH_YIELD_CAP && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-zinc-400 font-mono">Curated Scope:</span>
+              <div className="flex items-center p-0.5 rounded-lg bg-[#0D0E12] border border-[#181A20] text-xs">
+                <button
+                  type="button"
+                  onClick={() => setScopeMode("TOP_200")}
+                  className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${
+                    scopeMode === "TOP_200"
+                      ? "bg-[#FFA116]/15 text-[#FFA116] border border-[#FFA116]/30 font-semibold shadow-sm"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  ⭐ Top 200 High-Yield (Recommended)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScopeMode("ALL")}
+                  className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${
+                    scopeMode === "ALL"
+                      ? "bg-zinc-800 text-white font-semibold shadow-sm"
+                      : "text-zinc-400 hover:text-white"
+                  }`}
+                >
+                  All {rawQuestions.length} Questions
+                </button>
+              </div>
+            </div>
+            <span className="text-[10px] text-zinc-500 font-mono">
+              Filtered by frequency & ask-rate popularity
+            </span>
+          </div>
+        )}
+
         {/* Table Filters Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
           {/* Search bar */}
@@ -371,7 +417,7 @@ export function CompanyKitWorkspace({
                 <tr>
                   <th className="p-3.5 w-10 text-center">Status</th>
                   <th className="p-3.5">Problem Title</th>
-                  <th className="p-3.5 w-24">Platform</th>
+                  <th className="p-3.5 w-16 text-center">Platform</th>
                   <th className="p-3.5 w-24">Difficulty</th>
                   <th className="p-3.5 w-28">Ask Rate</th>
                   <th className="p-3.5 w-28 text-right">Actions</th>
@@ -383,6 +429,8 @@ export function CompanyKitWorkspace({
                     solvedProblems[q.slug] || (q.nativeId && solvedProblems[String(q.nativeId)])
                   );
                   const isSaved = isBookmarked(q.slug);
+                  const leetcodeUrl =
+                    q.link || (q.slug ? `https://leetcode.com/problems/${q.slug}` : "#");
 
                   // Popularity tag based on frequency
                   const isVeryHot = q.frequency >= 2.5;
@@ -414,19 +462,13 @@ export function CompanyKitWorkspace({
                       <td className="p-3.5">
                         <div className="flex items-center gap-2">
                           <a
-                            href={
-                              q.isNative && q.nativeId
-                                ? `/coding/${q.slug}`
-                                : q.link || `https://leetcode.com/problems/${q.slug}`
-                            }
-                            target={q.isNative ? "_self" : "_blank"}
+                            href={leetcodeUrl}
+                            target="_blank"
                             rel="noopener noreferrer"
-                            className="font-medium text-white hover:text-blue-400 transition-colors flex items-center gap-1.5 group"
+                            className="font-medium text-white hover:text-[#FFA116] transition-colors flex items-center gap-1.5 group"
                           >
                             <span>{q.title}</span>
-                            {!q.isNative && (
-                              <ExternalLink className="w-3 h-3 text-zinc-500 group-hover:text-blue-400" />
-                            )}
+                            <ExternalLink className="w-3 h-3 text-zinc-500 opacity-60 group-hover:opacity-100 group-hover:text-[#FFA116] transition-all" />
                           </a>
                         </div>
                         <div className="flex flex-wrap gap-1 mt-1">
@@ -441,18 +483,21 @@ export function CompanyKitWorkspace({
                         </div>
                       </td>
 
-                      {/* Platform */}
-                      <td className="p-3.5">
-                        {q.isNative ? (
-                          <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px] font-mono">
-                            Intervue IDE
-                          </Badge>
-                        ) : (
-                          <div className="flex items-center gap-1.5 text-zinc-400 font-mono text-[11px]">
-                            <img src="/leetcode.svg" alt="" className="w-3.5 h-3.5 object-contain" />
-                            <span>LeetCode</span>
-                          </div>
-                        )}
+                      {/* Sleek LeetCode Icon Pill (No text, clickable, visually appealing) */}
+                      <td className="p-3.5 text-center">
+                        <a
+                          href={leetcodeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[#141620] hover:bg-[#FFA116]/15 border border-[#232736] hover:border-[#FFA116]/50 transition-all shadow-sm group/lc cursor-pointer"
+                          title="Open problem on LeetCode"
+                        >
+                          <img
+                            src="/leetcode.svg"
+                            alt="LeetCode"
+                            className="w-4 h-4 object-contain opacity-75 group-hover/lc:opacity-100 group-hover/lc:scale-115 transition-all"
+                          />
+                        </a>
                       </td>
 
                       {/* Difficulty */}
@@ -494,8 +539,8 @@ export function CompanyKitWorkspace({
                           <button
                             type="button"
                             onClick={() => onOpenNotes({ slug: q.slug, title: q.title })}
-                            className="p-1.5 rounded-lg border border-[#181A20] text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
-                            title="Notes"
+                            className="p-1.5 rounded-lg border border-[#181A20] text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors cursor-pointer"
+                            title="Notes & Hints"
                           >
                             <NotebookPen className="w-3.5 h-3.5" />
                           </button>
@@ -504,29 +549,26 @@ export function CompanyKitWorkspace({
                           <button
                             type="button"
                             onClick={() => onToggleBookmark(q.slug)}
-                            className={`p-1.5 rounded-lg border transition-colors ${
+                            className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                               isSaved
                                 ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
                                 : "border-[#181A20] text-zinc-400 hover:text-white hover:border-zinc-700"
                             }`}
-                            title="Bookmark"
+                            title="Bookmark for Revision"
                           >
                             <Bookmark className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* Solve CTA */}
+                          {/* Solve CTA -> Opens LeetCode */}
                           <a
-                            href={
-                              q.isNative && q.nativeId
-                                ? `/coding/${q.slug}`
-                                : q.link || `https://leetcode.com/problems/${q.slug}`
-                            }
-                            target={q.isNative ? "_self" : "_blank"}
+                            href={leetcodeUrl}
+                            target="_blank"
                             rel="noopener noreferrer"
-                            className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-semibold transition-colors flex items-center gap-1"
+                            className="px-2.5 py-1.5 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 border border-[#FFA116]/30 hover:border-[#FFA116]/50 text-[#FFA116] text-[11px] font-semibold transition-all flex items-center gap-1.5 shadow-sm shadow-[#FFA116]/5 group cursor-pointer"
+                            title="Solve on LeetCode"
                           >
                             <span>Solve</span>
-                            <ArrowRight className="w-3 h-3" />
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                           </a>
                         </div>
                       </td>

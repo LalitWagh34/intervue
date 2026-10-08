@@ -42,9 +42,7 @@ export function InterviewPatternDonut({ patterns, totalQuestions }: PatternDonut
           <h3 className="text-sm font-bold text-white tracking-tight">Interview Pattern Distribution</h3>
           <p className="text-[11px] text-[#7A808C]">Core topic frequencies asked in technical loops</p>
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-          Telemetry Driven
-        </span>
+
       </div>
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 py-4">
