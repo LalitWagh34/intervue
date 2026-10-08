@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Building2,
   ChevronDown,
@@ -98,24 +99,34 @@ export function TargetCompanyTracker() {
           </div>
         </div>
 
-        {/* Clean, Non-flashy Dropdown */}
-        <div className="relative" ref={dropdownRef}>
-          <button
-            type="button"
-            onClick={() => setIsDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#12151D] border border-zinc-700/70 hover:border-zinc-600 text-xs text-zinc-200 transition-colors cursor-pointer"
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/practice?view=company_kit&company=${encodeURIComponent(currentCompany)}`}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 border border-blue-500/30 text-xs font-semibold transition-colors cursor-pointer"
+            title={`Open ${currentCompany} Dedicated Prep Kit with Pattern Distribution`}
           >
-            {currentLogo && (
-              <img
-                src={currentLogo}
-                alt=""
-                className="w-3.5 h-3.5 object-contain shrink-0"
-              />
-            )}
-            <span className="text-zinc-400">Target:</span>
-            <span className="font-semibold text-white">{currentCompany}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
-          </button>
+            <span>Prep Kit</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+
+          {/* Clean, Non-flashy Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#12151D] border border-zinc-700/70 hover:border-zinc-600 text-xs text-zinc-200 transition-colors cursor-pointer"
+            >
+              {currentLogo && (
+                <img
+                  src={currentLogo}
+                  alt=""
+                  className="w-3.5 h-3.5 object-contain shrink-0"
+                />
+              )}
+              <span className="text-zinc-400">Target:</span>
+              <span className="font-semibold text-white">{currentCompany}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+            </button>
 
           {isDropdownOpen && (
             <div className="absolute right-0 mt-1.5 w-64 rounded-xl bg-[#12151E] border border-zinc-700/80 shadow-2xl p-2 z-50 space-y-1.5 animate-in fade-in zoom-in-95 duration-100">
@@ -177,6 +188,7 @@ export function TargetCompanyTracker() {
           )}
         </div>
       </div>
+    </div>
 
       {/* Progress & Stats Row */}
       <div className="space-y-3">
@@ -269,6 +281,14 @@ export function TargetCompanyTracker() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to={`/practice?view=company_kit&company=${encodeURIComponent(currentCompany)}`}
+              className="px-3 py-1.5 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 text-xs font-semibold flex items-center gap-1.5 transition-colors border border-blue-500/30"
+            >
+              <span>Explore Kit</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+
             <a
               href={`https://leetcode.com/problems/${nextQ.slug}`}
               target="_blank"

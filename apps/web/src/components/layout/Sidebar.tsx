@@ -23,6 +23,7 @@ import {
   BarChart3,
   Users,
   FileCode2,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
@@ -58,6 +59,13 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/practice",
         // badge: "TUF",
         badgeColor: "blue",
+      },
+      {
+        label: "Company Kits",
+        icon: Building2,
+        href: "/practice?view=company_kits",
+        badge: "HOT",
+        badgeColor: "amber",
       },
       {
         label: "Battle Arena",

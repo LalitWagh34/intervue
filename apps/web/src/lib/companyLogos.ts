@@ -29,6 +29,9 @@ export const COMPANY_LOGOS: Record<string, string> = {
   visa: "/visa.png",
   walmart: "/walmart.png",
   "walmart-labs": "/walmart.png",
+  cisco: "/cisco.svg",
+  phonepe: "/phonepe-icon.webp",
+  tiktok: "/tiktok.svg",
 };
 
 export function getCompanyLogo(company?: string | null): string | null {
@@ -72,6 +75,10 @@ export function getCompanyLogo(company?: string | null): string | null {
   if (compact.includes("infosys")) return "/infosys_light.svg";
   if (compact.includes("tcs") || compact.includes("tata")) return "/tcs_light.svg";
   if (compact.includes("ibm")) return "/ibm_light.svg";
+  if (compact.includes("cisco")) return "/cisco.svg";
+  if (compact.includes("phonepe")) return "/phonepe-icon.webp";
+
+
 
   return null;
 }

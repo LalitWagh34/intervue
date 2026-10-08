@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useFeaturedCompanies, useCompanyQuestions } from "@/hooks/useCompanies";
 import { getCompanyLogo } from "@/lib/companyLogos";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +8,9 @@ import { useProblemFilter } from "@/hooks/useProblemFilter";
 import { AdvancedFilterPopover } from "@/components/shared/AdvancedFilterPopover";
 import { QuestionNoteDrawer } from "@/components/shared/QuestionNoteDrawer";
 import { useBookmarkSlugs, useToggleBookmark } from "@/hooks/useBookmarks";
+import { useCompanyReadiness } from "@/hooks/useReadiness";
+import { CompanyKitsCatalog } from "@/components/company/CompanyKitsCatalog";
+import { CompanyKitWorkspace } from "@/components/company/CompanyKitWorkspace";
 import { toast } from "sonner";
 import {
   Code2,
@@ -92,13 +95,26 @@ const TOP_COMPANIES_PRESET = [
 
 export default function PracticeHubPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Target Company Readiness
+  const { data: readinessData } = useCompanyReadiness();
 
   // Navigation View State:
   // - "hub": The root Prephub overview with Explore Subjects list
   // - "sheets_catalog": Multiple sheets view for a subject (DSA / Core CS)
   // - "sheet_practice": The problem set table for a specific sheet
   // - "company_wise": The dedicated 470+ company question explorer
-  const [currentView, setCurrentView] = useState<"hub" | "sheets_catalog" | "sheet_practice" | "company_wise">("hub");
+  // - "company_kits_catalog": Curated company sheets catalog with cards & filters
+  // - "company_kit_workspace": Deep Codolio-style workspace with pattern donuts & rounds
+  const [currentView, setCurrentView] = useState<
+    | "hub"
+    | "sheets_catalog"
+    | "sheet_practice"
+    | "company_wise"
+    | "company_kits_catalog"
+    | "company_kit_workspace"
+  >("hub");
 
   // Selected Subject ("dsa" | "core_cs")
   const [selectedSubject, setSelectedSubject] = useState<"dsa" | "core_cs">("dsa");
@@ -113,6 +129,22 @@ export default function PracticeHubPage() {
   const [companySearchQuery, setCompanySearchQuery] = useState<string>("");
   const [companyStatusFilter, setCompanyStatusFilter] = useState<"ALL" | "SOLVED" | "UNSOLVED">("ALL");
   const [companyTabFilter, setCompanyTabFilter] = useState<"global" | "indian">("global");
+
+  // Deep linking and URL synchronization
+  useEffect(() => {
+    const viewParam = searchParams.get("view");
+    const companyParam = searchParams.get("company");
+
+    if (viewParam === "company_kit" && companyParam) {
+      setSelectedCompany(companyParam);
+      setCurrentView("company_kit_workspace");
+    } else if (viewParam === "company_kits" || viewParam === "company_kits_catalog") {
+      setCurrentView("company_kits_catalog");
+    } else if (viewParam === "company_wise") {
+      if (companyParam) setSelectedCompany(companyParam);
+      setCurrentView("company_wise");
+    }
+  }, [searchParams]);
 
   const { data: companyQuestionsData, isLoading: isCompanyLoading } = useCompanyQuestions(
     selectedCompany,
@@ -192,9 +224,9 @@ export default function PracticeHubPage() {
     problemSlug: string,
     problemTitle: string,
     difficulty: string,
-    e: React.MouseEvent
+    e?: React.MouseEvent
   ) => {
-    e.stopPropagation();
+    e?.stopPropagation();
     try {
       const res = await toggleBookmark.mutateAsync({
         problemSlug,
@@ -252,6 +284,7 @@ export default function PracticeHubPage() {
     const firstSheet = dynamicSheets.find((s) => s.subjectId === subjectId);
     if (firstSheet) setSelectedSheetId(firstSheet.id);
     setCurrentView("sheets_catalog");
+    setSearchParams({ view: "sheets_catalog", subject: subjectId });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -259,12 +292,28 @@ export default function PracticeHubPage() {
   const openSheetPractice = (sheetId: string) => {
     setSelectedSheetId(sheetId);
     setCurrentView("sheet_practice");
+    setSearchParams({ view: "sheet_practice", sheet: sheetId });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const openCompanyWise = (companyName?: string) => {
     if (companyName) setSelectedCompany(companyName);
     setCurrentView("company_wise");
+    setSearchParams({ view: "company_wise", ...(companyName ? { company: companyName } : {}) });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Codolio-style curated company kits navigation
+  const openCompanyKitsCatalog = () => {
+    setCurrentView("company_kits_catalog");
+    setSearchParams({ view: "company_kits" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const openCompanyKit = (companyName: string) => {
+    setSelectedCompany(companyName);
+    setCurrentView("company_kit_workspace");
+    setSearchParams({ view: "company_kit", company: companyName });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -368,19 +417,50 @@ export default function PracticeHubPage() {
                 </div>
               </div>
 
-              {/* Subject 2: Company-Wise (Dedicated 470+ company question system) */}
+              {/* Subject 2: Target Company Practice Kits (Codolio-Inspired with Pattern Donut & Interview Loops) */}
               <div
-                onClick={() => openCompanyWise()}
-                className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
+                onClick={() => openCompanyKitsCatalog()}
+                className="p-5 rounded-2xl bg-gradient-to-r from-[#0D0E12] via-[#0F131D] to-[#0D0E12] border border-blue-500/25 hover:border-blue-500/50 hover:bg-[#111522] transition-all cursor-pointer flex items-center justify-between group shadow-lg shadow-blue-950/10"
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-105 transition-transform shadow-inner">
                     <Building2 className="w-6 h-6" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
-                        Company-Wise Sheets
+                        Target Company Practice Kits
+                      </h3>
+                      <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1 font-mono">
+                        <Sparkles className="w-2.5 h-2.5" />
+                        <span>Loop Kits & Pattern Donuts</span>
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-[13px] text-[#8B92A0] mt-0.5 line-clamp-1">
+                      Targeted interview problem sets for Google, Amazon, Meta, Microsoft, Apple, Uber & Netflix with interactive topic donuts and round breakdowns.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs font-medium text-blue-400 group-hover:text-white shrink-0 pl-4">
+                  <span>Explore Kits</span>
+                  <ChevronRight className="w-4 h-4 text-blue-400/70 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+
+              {/* Subject 3: Company-Wise (Dedicated 470+ company question system) */}
+              <div
+                onClick={() => openCompanyWise()}
+                className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
+              >
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
+                    <Layers className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
+                        Company-Wise Sheets Archive
                       </h3>
                       <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
                         470+ Companies
@@ -507,7 +587,65 @@ export default function PracticeHubPage() {
                 onClick={() => openSheetPractice("striver_a2z")}
                 className="w-full py-2 rounded-xl bg-[#14161C] hover:bg-[#1A1D24] text-xs font-medium text-white border border-[#1E2229] transition-all cursor-pointer"
               >
-                View Today's Tasks â†’
+                View Today's Tasks →
+              </button>
+            </div>
+
+            {/* Target Company Loops Quick Card */}
+            <div className="p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  <h3 className="text-sm font-bold text-white">Target Company Kits</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => openCompanyKitsCatalog()}
+                  className="text-[11px] text-blue-400 hover:text-blue-300 font-mono transition-colors cursor-pointer"
+                >
+                  View All Kits →
+                </button>
+              </div>
+              <p className="text-xs text-[#8B92A0]">
+                Targeting a specific loop? Jump straight to interview question sets with real ask frequencies.
+              </p>
+
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                {TOP_COMPANIES_PRESET.slice(0, 8).map((comp) => {
+                  const logo = getCompanyLogo(comp.name);
+                  const isTarget = readinessData?.targetCompany?.toLowerCase() === comp.name.toLowerCase();
+                  return (
+                    <button
+                      key={comp.name}
+                      type="button"
+                      onClick={() => openCompanyKit(comp.name)}
+                      className={cn(
+                        "flex items-center gap-2 p-2 rounded-xl border text-xs font-medium transition-all text-left group cursor-pointer",
+                        isTarget
+                          ? "bg-blue-600/10 border-blue-500/40 text-blue-400"
+                          : "bg-[#12151D] border-[#181A20] hover:border-zinc-700 text-zinc-300 hover:text-white"
+                      )}
+                    >
+                      <div className="w-5 h-5 rounded-lg bg-[#08090C] border border-[#1E2229] p-0.5 flex items-center justify-center shrink-0">
+                        {logo ? (
+                          <img src={logo} alt="" className="w-full h-full object-contain" />
+                        ) : (
+                          <Building2 className="w-3 h-3 text-zinc-400" />
+                        )}
+                      </div>
+                      <span className="truncate flex-1">{comp.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => openCompanyKitsCatalog()}
+                className="w-full py-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-xs font-semibold text-blue-400 border border-blue-500/30 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>Explore 18+ Curated Kits</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -1239,6 +1377,47 @@ export default function PracticeHubPage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* ──────────────────────────────────────────────────────────────────
+          LEVEL 4: CODOLIO-INSPIRED TARGET COMPANY KITS CATALOG
+      ────────────────────────────────────────────────────────────────── */}
+      {currentView === "company_kits_catalog" && (
+        <CompanyKitsCatalog
+          onSelectCompany={openCompanyKit}
+          onBack={() => {
+            setCurrentView("hub");
+            setSearchParams({});
+          }}
+          activeTargetCompany={readinessData?.targetCompany}
+        />
+      )}
+
+      {/* ──────────────────────────────────────────────────────────────────
+          LEVEL 5: DEEP COMPANY TARGET WORKSPACE WITH PATTERN DONUT & ROUNDS
+      ────────────────────────────────────────────────────────────────── */}
+      {currentView === "company_kit_workspace" && (
+        <CompanyKitWorkspace
+          companyName={selectedCompany}
+          onBack={() => {
+            setCurrentView("company_kits_catalog");
+            setSearchParams({ view: "company_kits" });
+          }}
+          activeTargetCompany={readinessData?.targetCompany}
+          solvedProblems={solvedProblems}
+          onToggleSolved={toggleSolved}
+          isBookmarked={(slug) => bookmarkedSlugs.includes(slug)}
+          onToggleBookmark={(slug) =>
+            handleToggleBookmark(slug, slug, "MEDIUM")
+          }
+          onOpenNotes={(problem) =>
+            setActiveNoteTarget({
+              isOpen: true,
+              slug: problem.slug,
+              title: problem.title,
+            })
+          }
+        />
       )}
 
       {/* Slide-over Question Notes Drawer */}
