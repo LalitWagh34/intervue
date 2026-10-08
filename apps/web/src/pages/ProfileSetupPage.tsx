@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useSession } from "@/lib/auth";
+import { useProfile } from "@/hooks/useProfile";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { User, Briefcase, Link2, Sparkles, Camera } from "lucide-react";
+import { User, Briefcase, Link2, Sparkles, Upload, RotateCcw, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AvatarEditModal } from "@/components/profile/AvatarEditModal";
+import { toast } from "sonner";
 
 const SECTIONS = [
   { id: "basic", label: "Basic Info", icon: User },
@@ -25,17 +26,78 @@ export default function ProfileSetupPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: session } = useSession();
+  const { data: profile } = useProfile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [activeSection, setActiveSection] = useState("basic");
-  const [fullName, setFullName] = useState(session?.user?.name || "");
-  const [avatarUrl, setAvatarUrl] = useState(session?.user?.image || "");
-  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [bio, setBio] = useState("");
   const [targetRole, setTargetRole] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [skillsInput, setSkillsInput] = useState("");
+
+  // Populate from existing profile or session
+  useEffect(() => {
+    if (profile) {
+      if (profile.fullName) setFullName(profile.fullName);
+      if (profile.avatarUrl) setAvatarUrl(profile.avatarUrl);
+      else if (session?.user?.image) setAvatarUrl(session.user.image);
+      if (profile.bio) setBio(profile.bio);
+      if (profile.targetRole) setTargetRole(profile.targetRole);
+      if (profile.experienceLevel) setExperienceLevel(profile.experienceLevel);
+      if (profile.githubUrl) setGithubUrl(profile.githubUrl);
+      if (profile.linkedinUrl) setLinkedinUrl(profile.linkedinUrl);
+      if (profile.skills && Array.isArray(profile.skills)) {
+        setSkillsInput(profile.skills.join(", "));
+      }
+    } else if (session?.user) {
+      if (session.user.name && !fullName) setFullName(session.user.name);
+      if (session.user.image && !avatarUrl) setAvatarUrl(session.user.image);
+    }
+  }, [profile, session]);
+
+  // Clean image compression into data URI
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file (PNG, JPG, WEBP)");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image file should be smaller than 5MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const size = 256;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const minDim = Math.min(img.width, img.height);
+        const startX = (img.width - minDim) / 2;
+        const startY = (img.height - minDim) / 2;
+
+        ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
+        const dataUrl = canvas.toDataURL("image/webp", 0.88);
+        setAvatarUrl(dataUrl);
+        toast.success("Photo uploaded! Click 'Save Profile' to apply.");
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -55,6 +117,7 @@ export default function ProfileSetupPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       queryClient.invalidateQueries({ queryKey: ["profile-stats"] });
+      toast.success("Profile saved successfully!");
       navigate("/dashboard");
     },
   });
@@ -102,35 +165,80 @@ export default function ProfileSetupPage() {
                   <p className="text-[#8B92A0] text-sm">Tell us a bit about yourself to personalize your experience.</p>
                 </div>
 
-                <div className="flex items-center justify-between gap-5 mb-8 p-4 rounded-2xl bg-[#08090C] border border-[#181A20]">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 p-4 rounded-2xl bg-[#08090C] border border-[#181A20]">
                   <div className="flex items-center gap-4">
-                    <div className="relative group">
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#14161C] border border-[#1E2229] shrink-0">
                       {avatarUrl || session?.user?.image ? (
                         <img
                           src={avatarUrl || session?.user?.image || ""}
                           alt=""
-                          className="w-16 h-16 rounded-2xl object-cover ring-2 ring-[#181A20]"
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-16 h-16 rounded-2xl bg-[#14161C] border border-[#1E2229] flex items-center justify-center text-xl font-bold text-white shadow-inner">
-                          {fullName?.[0] || "U"}
+                        <div className="w-full h-full flex items-center justify-center text-xl font-bold text-white bg-gradient-to-br from-[#327CF6] to-[#1E3A8A]">
+                          {fullName?.[0] || "C"}
                         </div>
                       )}
                     </div>
                     <div>
-                      <p className="text-[#525866] text-xs font-mono mb-0.5">Logged in as</p>
-                      <p className="text-white font-medium text-sm">{session?.user?.email}</p>
+                      <p className="text-white font-medium text-sm">{fullName || session?.user?.name || "Candidate"}</p>
+                      <p className="text-[#525866] text-xs font-mono">{session?.user?.email}</p>
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setIsAvatarModalOpen(true)}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#14161C] border border-[#1E2229] hover:border-blue-500/50 text-xs font-medium text-white transition-all flex items-center gap-1.5 cursor-pointer hover:bg-[#1A1D24]"
-                  >
-                    <Camera className="w-3.5 h-3.5 text-blue-400" />
-                    <span>Change Photo</span>
-                  </button>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="bg-[#14161C] border-[#1E2229] hover:bg-[#1C2028] text-xs text-white h-8 px-3 rounded-xl cursor-pointer"
+                    >
+                      <Upload className="w-3.5 h-3.5 mr-1.5 text-[#327CF6]" />
+                      Upload Photo
+                    </Button>
+
+                    {session?.user?.image && avatarUrl !== session.user.image && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setAvatarUrl(session.user.image || "");
+                          toast.info("Restored Google profile photo");
+                        }}
+                        className="text-xs text-[#8B92A0] hover:text-white h-8 px-2.5 rounded-xl cursor-pointer font-mono"
+                        title="Use Google account picture"
+                      >
+                        <RotateCcw className="w-3 h-3 mr-1" />
+                        Use Google Photo
+                      </Button>
+                    )}
+
+                    {avatarUrl && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setAvatarUrl("");
+                          toast.info("Photo removed");
+                        }}
+                        className="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 h-8 px-2 rounded-xl cursor-pointer"
+                        title="Remove photo"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-6 max-w-md">
@@ -295,15 +403,6 @@ export default function ProfileSetupPage() {
           </div>
         </div>
       </div>
-
-      {/* ─── Avatar Edit Modal ────────────────────────────────────────── */}
-      <AvatarEditModal
-        isOpen={isAvatarModalOpen}
-        onClose={() => setIsAvatarModalOpen(false)}
-        currentAvatar={avatarUrl || session?.user?.image}
-        googleAvatar={session?.user?.image}
-        userName={fullName || "Candidate"}
-      />
     </div>
   );
 }

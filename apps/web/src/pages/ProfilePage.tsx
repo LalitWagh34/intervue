@@ -24,19 +24,16 @@ import {
   ChevronUp,
   Info,
   Copy,
-  Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useReferral } from "@/hooks/useRewards";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { AvatarEditModal } from "@/components/profile/AvatarEditModal";
 import { useSession } from "@/lib/auth";
 
 export default function ProfilePage() {
   const [selectedYear, setSelectedYear] = useState<string>("Current");
-  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const { data: session } = useSession();
   
   const { data: profile, isLoading: isProfileLoading } = useProfile();
@@ -257,35 +254,21 @@ export default function ProfilePage() {
         {/* Profile Card Body */}
         <div className="px-6 sm:px-8 pb-8 pt-0 relative flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-12 sm:-mt-14 relative z-10">
-            {/* Avatar with Interactive Edit Overlay & Badge */}
-            <div
-              onClick={() => setIsAvatarModalOpen(true)}
-              className="group cursor-pointer relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#08090C] border border-[#181A20] hover:border-blue-500/50 p-1 shadow-lg shrink-0 transition-all"
-              title="Click to change profile picture"
-            >
-              <div className="w-full h-full rounded-xl overflow-hidden relative">
+            {/* Avatar */}
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#08090C] border border-[#181A20] p-1 shadow-lg shrink-0 overflow-hidden relative">
+              <div className="w-full h-full rounded-xl overflow-hidden relative bg-[#14161C]">
                 {profile?.avatarUrl || stats?.user?.image || session?.user?.image ? (
                   <img
                     src={profile?.avatarUrl || stats?.user?.image || session?.user?.image || ""}
                     alt={displayName}
-                    className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#327CF6] to-[#1E3A8A] flex items-center justify-center text-4xl font-bold text-white shadow-inner">
                     {displayName[0]?.toUpperCase() || "C"}
                   </div>
                 )}
-
-                {/* Hover Camera Overlay */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-1">
-                  <Camera className="w-5 h-5 text-blue-400" />
-                  <span className="text-[10px] font-medium font-mono">Change</span>
-                </div>
-              </div>
-
-              {/* Bottom-right Camera Badge */}
-              <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-blue-600 border-2 border-[#0D0E12] flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
-                <Camera className="w-3.5 h-3.5" />
               </div>
             </div>
 
@@ -1187,15 +1170,6 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
-
-      {/* ─── Avatar Edit Modal ────────────────────────────────────────── */}
-      <AvatarEditModal
-        isOpen={isAvatarModalOpen}
-        onClose={() => setIsAvatarModalOpen(false)}
-        currentAvatar={profile?.avatarUrl || stats?.user?.image || session?.user?.image}
-        googleAvatar={session?.user?.image}
-        userName={displayName}
-      />
     </div>
   );
 }

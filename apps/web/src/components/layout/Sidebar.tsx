@@ -375,6 +375,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                 <img
                   src={user.image}
                   alt={user.name || "User"}
+                  referrerPolicy="no-referrer"
                   className="w-7 h-7 rounded-lg object-cover ring-1 ring-[#327CF6]/40"
                 />
               ) : (
@@ -407,6 +408,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                 <img
                   src={user.image}
                   alt="User"
+                  referrerPolicy="no-referrer"
                   className="w-7 h-7 rounded-lg object-cover ring-1 ring-[#327CF6]/40"
                 />
               ) : (

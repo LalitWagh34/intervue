@@ -122,7 +122,7 @@ export default function DashboardLayout() {
         <div className="border-t border-zinc-800 px-2 py-3">
           <div className="flex items-center gap-2.5 px-1">
             <Avatar className="w-7 h-7 flex-shrink-0">
-              <AvatarImage src={user?.image ?? ""} />
+              <AvatarImage src={user?.image ?? ""} referrerPolicy="no-referrer" />
               <AvatarFallback className="bg-orange-500 text-white text-xs">
                 {initials ?? "U"}
               </AvatarFallback>
@@ -161,7 +161,7 @@ export default function DashboardLayout() {
               {user?.email}
             </div>
             <Avatar className="w-7 h-7">
-              <AvatarImage src={user?.image ?? ""} />
+              <AvatarImage src={user?.image ?? ""} referrerPolicy="no-referrer" />
               <AvatarFallback className="bg-orange-500 text-white text-xs">
                 {initials ?? "U"}
               </AvatarFallback>

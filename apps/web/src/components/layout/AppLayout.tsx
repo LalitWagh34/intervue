@@ -167,6 +167,7 @@ export default function AppLayout() {
                   <img
                     src={user.image}
                     alt={user.name || "User"}
+                    referrerPolicy="no-referrer"
                     className="w-8 h-8 rounded-xl object-cover ring-1 ring-[#327CF6]/40 hover:ring-[#327CF6] transition-all"
                   />
                 ) : (
@@ -191,6 +192,7 @@ export default function AppLayout() {
                       <img
                         src={user.image}
                         alt="Profile"
+                        referrerPolicy="no-referrer"
                         className="w-10 h-10 rounded-xl object-cover ring-1 ring-[#327CF6]"
                       />
                     ) : (
