@@ -115,23 +115,36 @@ export default function LoginPage() {
   // Trigger OTP Send
   const handleSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const cleanNumber = phoneNumber.replace(/\D/g, "");
-    if (cleanNumber.length < 8) {
+    const cleanDigits = phoneNumber.replace(/\D/g, "");
+    if (cleanDigits.length < 8) {
       toast.error("Please enter a valid phone number");
       return;
     }
 
+    const fullPhoneNumber = `${selectedCountry.code}${cleanDigits}`;
     setIsSendingOtp(true);
     try {
-      // In production with an active SMS Gateway (e.g. Twilio/Fast2SMS/AWS SNS),
-      // this calls authClient.phoneNumber.sendOtp({ phoneNumber: `${selectedCountry.code}${cleanNumber}` })
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await fetch("http://localhost:3000/api/auth/phone/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber: fullPhoneNumber }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send verification code");
+      }
 
       setOtpStep("enter-otp");
-      setResendCountdown(45);
-      toast.success(`Verification code sent to ${selectedCountry.code} ${cleanNumber}!`, {
-        description: "For demo preview, enter code 123456 to test verification.",
-      });
+      setResendCountdown(60);
+
+      if (data.provider === "console") {
+        toast.success(`Verification code generated for ${fullPhoneNumber}!`, {
+          description: "Check your server terminal for the real OTP, or enter 123456.",
+        });
+      } else {
+        toast.success(`SMS verification code delivered to ${fullPhoneNumber}!`);
+      }
 
       // Focus first OTP input
       setTimeout(() => {
@@ -186,22 +199,33 @@ export default function LoginPage() {
       return;
     }
 
+    const cleanDigits = phoneNumber.replace(/\D/g, "");
+    const fullPhoneNumber = `${selectedCountry.code}${cleanDigits}`;
+
     setIsVerifyingOtp(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const response = await fetch("http://localhost:3000/api/auth/phone/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          phoneNumber: fullPhoneNumber,
+          code: enteredCode,
+        }),
+      });
 
-      // Demo verification check or real API
-      if (enteredCode === "123456" || enteredCode === "000000") {
-        toast.success("Phone number verified successfully!", {
-          description: "SMS Gateway integration demo passed. Connecting session...",
-        });
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 1000);
-      } else {
-        toast.error("Invalid verification code. Use 123456 for demo preview.");
-        setIsVerifyingOtp(false);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Verification failed");
       }
+
+      toast.success("Mobile phone verified successfully!", {
+        description: "Session established. Redirecting to your dashboard...",
+      });
+
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 700);
     } catch (err: any) {
       toast.error(err?.message || "Verification failed. Please check the code.");
       setIsVerifyingOtp(false);
@@ -549,11 +573,10 @@ export default function LoginPage() {
                       <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80 text-[11px] text-zinc-400 space-y-1">
                         <div className="flex items-center gap-1.5 font-medium text-zinc-300">
                           <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                          <span>SMS Gateway Compatibility</span>
+                          <span>Direct Telecom SMS Gateway</span>
                         </div>
                         <p className="leading-relaxed text-zinc-500">
-                          Supports Twilio, Fast2SMS & AWS SNS. In test mode, enter any number and use code{" "}
-                          <span className="text-zinc-300 font-mono font-semibold">123456</span>.
+                          Dispatches one-time verification code via Fast2SMS / Twilio. Code valid for 5 minutes.
                         </p>
                       </div>
                     </form>
@@ -616,7 +639,7 @@ export default function LoginPage() {
                             <span>Resend Code</span>
                           </button>
                         )}
-                        <span className="text-zinc-500 font-mono text-[11px]">Demo: 123456</span>
+                        <span className="text-zinc-500 text-[11px]">Expires in 5m</span>
                       </div>
 
                       <Button

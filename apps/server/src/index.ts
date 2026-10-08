@@ -23,6 +23,8 @@ import { logger as pinoLogger } from "./lib/logger";
 
 import { AppError, InternalServerError } from "./lib/errors";
 
+import phoneAuth from "./routes/phoneAuth";
+
 const { upgradeWebSocket, websocket } = createBunWebSocket();
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -74,6 +76,10 @@ app.use(
 app.get("/test-auth", (c) => {
   return c.json({ auth: typeof auth, handler: typeof auth.handler });
 });
+
+// Dedicated Mobile OTP Auth routes (must be mounted before the wildcard)
+app.route("/api/auth/phone", phoneAuth);
+
 // Auth routes — better-auth handles everything under /api/auth/*
 app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
