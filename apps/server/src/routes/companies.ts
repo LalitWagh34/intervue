@@ -36,29 +36,8 @@ export const FEATURED_COMPANIES = [
   { name: "Cisco", slug: "cisco", totalProblems: 87, icon: "CS" },
 ];
 
-// In-memory cache to avoid repeated GitHub fetches
-const companyCache = new Map<string, { data: any[]; timestamp: number }>();
-const CACHE_TTL = 1000 * 60 * 60; // 1 hour
-
-function parseCSVLine(line: string): string[] {
-  const result: string[] = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === "," && !inQuotes) {
-      result.push(current.trim());
-      current = "";
-    } else {
-      current += char;
-    }
-  }
-  result.push(current.trim());
-  return result;
-}
+// Use companyService for questions fetching and caching
+import { fetchCompanyQuestions } from "../services/companyService";
 
 // ─── GET /api/companies ────────────────────────────────────────────────
 app.get("/", requireAuth, async (c) => {
@@ -82,74 +61,7 @@ app.get("/:company", requireAuth, async (c) => {
     );
 
     const companyName = foundCompany ? foundCompany.name : companyParam;
-
-    // File name mapping in the repo
-    const fileMap: Record<string, string> = {
-      thirtyDays: "1.%20Thirty%20Days.csv",
-      threeMonths: "2.%20Three%20Months.csv",
-      sixMonths: "3.%20Six%20Months.csv",
-      all: "5.%20All.csv",
-    };
-
-    const fileName = fileMap[timeframe] || fileMap.thirtyDays;
-    const cacheKey = `company:${companyName}_${fileName}`;
-
-    let parsedQuestions: any[] = [];
-    let isCached = false;
-
-    if (isRedisConnected) {
-      try {
-        const redisData = await redis.get(cacheKey);
-        if (redisData) {
-          parsedQuestions = JSON.parse(redisData);
-          isCached = true;
-        }
-      } catch (e) {
-        console.error("Redis get error for company cache", e);
-      }
-    }
-
-    if (!isCached) {
-      const cached = companyCache.get(cacheKey);
-      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        parsedQuestions = cached.data;
-        isCached = true;
-      }
-    }
-
-    if (!isCached) {
-      const url = `https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/main/${encodeURIComponent(
-        companyName
-      )}/${fileName}`;
-
-      const res = await fetch(url);
-      if (!res.ok) {
-        // Fallback to "5. All.csv" if 30 days is not available
-        const fallbackUrl = `https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/main/${encodeURIComponent(
-          companyName
-        )}/5.%20All.csv`;
-        const fallbackRes = await fetch(fallbackUrl);
-        if (!fallbackRes.ok) {
-          return c.json({ error: `Questions for company "${companyName}" not found` }, 404);
-        }
-        const text = await fallbackRes.text();
-        parsedQuestions = processCSV(text);
-      } else {
-        const text = await res.text();
-        parsedQuestions = processCSV(text);
-      }
-
-      if (isRedisConnected) {
-        try {
-          await redis.set(cacheKey, JSON.stringify(parsedQuestions), "EX", 3600);
-        } catch (e) {
-          console.error("Redis set error for company cache", e);
-          companyCache.set(cacheKey, { data: parsedQuestions, timestamp: Date.now() });
-        }
-      } else {
-        companyCache.set(cacheKey, { data: parsedQuestions, timestamp: Date.now() });
-      }
-    }
+    const parsedQuestions = await fetchCompanyQuestions(companyName, timeframe);
 
     // Cross-reference with our database problems to see which can be solved natively
     const dbProblems = await db.problem.findMany({
@@ -177,50 +89,5 @@ app.get("/:company", requireAuth, async (c) => {
     return c.json({ error: err.message || "Failed to fetch company questions" }, 500);
   }
 });
-
-function processCSV(csvText: string) {
-  const lines = csvText.trim().split("\n");
-  if (lines.length <= 1) return [];
-
-  const questions = [];
-  for (let i = 1; i < lines.length; i++) {
-    const rawLine = lines[i];
-    if (!rawLine) continue;
-    const line = rawLine.trim();
-    if (!line) continue;
-
-    const parts = parseCSVLine(line);
-    if (parts.length < 5) continue;
-
-    const difficulty = parts[0] || "EASY";
-    const title = parts[1] || "Problem";
-    const frequency = parts[2] || "0";
-    const acceptanceRate = parts[3] || "";
-    const link = parts[4] || "";
-    const topics = parts[5] || "";
-
-    // Extract slug from link: https://leetcode.com/problems/two-sum
-    const slugMatch = link ? link.match(/problems\/([^\/]+)/) : null;
-    const slug = slugMatch ? slugMatch[1] : title.toLowerCase().replace(/\s+/g, "-");
-
-    questions.push({
-      difficulty: difficulty.toUpperCase(),
-      title,
-      slug,
-      frequency: parseFloat(frequency) || 0,
-      acceptanceRate: acceptanceRate ? parseFloat(acceptanceRate) : null,
-      link,
-      topics: topics
-        ? topics
-            .replace(/^"|"$/g, "")
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-        : [],
-    });
-  }
-
-  return questions;
-}
 
 export default app;

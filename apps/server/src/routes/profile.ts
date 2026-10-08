@@ -10,6 +10,7 @@ import {
   type CodeforcesStats,
   type GitHubStats,
 } from "../lib/externalStats";
+import { getCuratedProblemsForCompanies } from "../services/companyService";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -880,22 +881,6 @@ app.get("/target-company/readiness", requireAuth, async (c) => {
       }
     }
 
-    // Query all problems tagged with any of user's target companies (deduplicated by Prisma)
-    const rawProblems = await db.problem.findMany({
-      where: {
-        company: { hasSome: allSearchNames },
-      },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        difficulty: true,
-        tags: true,
-        company: true,
-      },
-      orderBy: { id: "asc" },
-    });
-
     // Find solved problems for this user
     const solved = await db.userSolvedProblem.findMany({
       where: { userId: user.id },
@@ -903,33 +888,78 @@ app.get("/target-company/readiness", requireAuth, async (c) => {
     });
     const solvedSlugs = new Set(solved.map((s) => s.problemSlug));
 
-    // Enrich problems with matching target company tags
-    const enrichedProblems = rawProblems.map((prob) => {
-      // Find which of the user's selected companies ask this problem
-      const matchingTargetCompanies = selectedCompanyNames.filter((selName) => {
-        const selLower = selName.toLowerCase();
-        return (prob.company || []).some((compTag) => {
-          const compLower = compTag.toLowerCase();
-          return (
-            compLower === selLower ||
-            (selLower === "meta" && compLower === "facebook") ||
-            (selLower === "facebook" && compLower === "meta")
-          );
-        });
-      });
+    // 1. Load authentic curated company interview questions (Two Sum, LRU Cache, etc.)
+    let enrichedProblems: Array<{
+      id: string | number;
+      title: string;
+      slug: string;
+      difficulty: string;
+      tags: string[];
+      matchingTargetCompanies: string[];
+      isSolved: boolean;
+      link: string;
+    }> = [];
 
-      return {
-        id: prob.id,
+    const curatedProblems = await getCuratedProblemsForCompanies(selectedCompanyNames);
+
+    if (curatedProblems && curatedProblems.length > 0) {
+      enrichedProblems = curatedProblems.map((prob) => ({
+        id: prob.slug,
         title: prob.title,
         slug: prob.slug,
         difficulty: prob.difficulty,
         tags: prob.tags,
-        matchingTargetCompanies:
-          matchingTargetCompanies.length > 0 ? matchingTargetCompanies : [selectedCompanyNames[0]],
+        matchingTargetCompanies: prob.matchingTargetCompanies,
         isSolved: solvedSlugs.has(prob.slug),
-        link: `https://leetcode.com/problems/${prob.slug}`,
-      };
-    });
+        link: prob.link || `https://leetcode.com/problems/${prob.slug}`,
+      }));
+    } else {
+      // Fallback to database problems, strictly excluding any mock problem placeholders
+      const rawProblems = await db.problem.findMany({
+        where: {
+          company: { hasSome: allSearchNames },
+          NOT: [
+            { slug: { startsWith: "mock-problem" } },
+            { title: { startsWith: "Mock Problem" } },
+          ],
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          difficulty: true,
+          tags: true,
+          company: true,
+        },
+        orderBy: { id: "asc" },
+      });
+
+      enrichedProblems = rawProblems.map((prob) => {
+        const matchingTargetCompanies = selectedCompanyNames.filter((selName) => {
+          const selLower = selName.toLowerCase();
+          return (prob.company || []).some((compTag) => {
+            const compLower = compTag.toLowerCase();
+            return (
+              compLower === selLower ||
+              (selLower === "meta" && compLower === "facebook") ||
+              (selLower === "facebook" && compLower === "meta")
+            );
+          });
+        });
+
+        return {
+          id: prob.id,
+          title: prob.title,
+          slug: prob.slug,
+          difficulty: prob.difficulty,
+          tags: prob.tags,
+          matchingTargetCompanies:
+            matchingTargetCompanies.length > 0 ? matchingTargetCompanies : [selectedCompanyNames[0]],
+          isSolved: solvedSlugs.has(prob.slug),
+          link: `https://leetcode.com/problems/${prob.slug}`,
+        };
+      });
+    }
 
     const totalCount = enrichedProblems.length;
     let solvedCount = 0;
