@@ -803,6 +803,17 @@ const TARGET_COMPANIES = [
   { name: "Adobe", slug: "adobe", icon: "AD", color: "#FF0000" },
   { name: "Nvidia", slug: "nvidia", icon: "NV", color: "#76B900" },
   { name: "Salesforce", slug: "salesforce", icon: "SF", color: "#00A1E0" },
+  { name: "Flipkart", slug: "flipkart", icon: "FK", color: "#2874F0" },
+  { name: "LinkedIn", slug: "linkedin", icon: "IN", color: "#0A66C2" },
+  { name: "Atlassian", slug: "atlassian", icon: "AT", color: "#0052CC" },
+  { name: "Oracle", slug: "oracle", icon: "OR", color: "#F80000" },
+  { name: "PayPal", slug: "paypal", icon: "PY", color: "#003087" },
+  { name: "Visa", slug: "visa", icon: "VI", color: "#1A1F71" },
+  { name: "TCS", slug: "tcs", icon: "TC", color: "#0083CA" },
+  { name: "Infosys", slug: "infosys", icon: "INF", color: "#007CC3" },
+  { name: "Cisco", slug: "cisco", icon: "CS", color: "#1BA0D7" },
+  { name: "PhonePe", slug: "phonepe", icon: "PP", color: "#5F259F" },
+  { name: "TikTok", slug: "tiktok", icon: "TT", color: "#000000" },
 ];
 
 // ─── GET /api/profile/target-company/readiness ─────────────────────────
@@ -814,20 +825,65 @@ app.get("/target-company/readiness", requireAuth, async (c) => {
       select: { targetCompany: true },
     });
 
-    const targetCompanyName = profile?.targetCompany || "Google";
-    const companyObj =
-      TARGET_COMPANIES.find(
-        (comp) =>
-          comp.name.toLowerCase() === targetCompanyName.toLowerCase() ||
-          comp.slug === targetCompanyName.toLowerCase()
-      ) ?? TARGET_COMPANIES[0]!;
+    const rawCompanyString = profile?.targetCompany?.trim();
 
-    const searchNames = (companyObj as any).altNames || [companyObj.name];
+    // Available companies list for selection
+    const availableCompanies = TARGET_COMPANIES.map((tc) => ({
+      name: tc.name,
+      slug: tc.slug,
+      icon: tc.icon,
+      color: tc.color,
+    }));
 
-    // Find all problems in DB tagged with this company
-    const problems = await db.problem.findMany({
+    // If user has not selected any target company (or cleared it)
+    if (!rawCompanyString) {
+      return c.json({
+        hasTarget: false,
+        targetCompany: null,
+        targetCompanies: [],
+        readinessPercentage: 0,
+        solvedCount: 0,
+        totalCount: 0,
+        breakdown: {
+          easy: { solved: 0, total: 0 },
+          medium: { solved: 0, total: 0 },
+          hard: { solved: 0, total: 0 },
+        },
+        nextRecommended: null,
+        dailyProblems: [],
+        availableCompanies,
+      });
+    }
+
+    // Parse all selected target companies (supports multiple e.g. "Google,Amazon,Meta")
+    const selectedCompanyNames = rawCompanyString
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    // Build list of all search terms including alternate names (e.g. Meta -> Facebook)
+    const allSearchNames: string[] = [];
+    for (const name of selectedCompanyNames) {
+      const match = TARGET_COMPANIES.find(
+        (tc) =>
+          tc.name.toLowerCase() === name.toLowerCase() ||
+          tc.slug.toLowerCase() === name.toLowerCase()
+      );
+      if (match) {
+        if ((match as any).altNames) {
+          allSearchNames.push(...(match as any).altNames);
+        } else {
+          allSearchNames.push(match.name);
+        }
+      } else {
+        allSearchNames.push(name);
+      }
+    }
+
+    // Query all problems tagged with any of user's target companies (deduplicated by Prisma)
+    const rawProblems = await db.problem.findMany({
       where: {
-        company: { hasSome: searchNames },
+        company: { hasSome: allSearchNames },
       },
       select: {
         id: true,
@@ -835,18 +891,47 @@ app.get("/target-company/readiness", requireAuth, async (c) => {
         slug: true,
         difficulty: true,
         tags: true,
+        company: true,
       },
       orderBy: { id: "asc" },
     });
 
-    // Find all solved problems by this user
+    // Find solved problems for this user
     const solved = await db.userSolvedProblem.findMany({
       where: { userId: user.id },
       select: { problemSlug: true },
     });
     const solvedSlugs = new Set(solved.map((s) => s.problemSlug));
 
-    const totalCount = problems.length;
+    // Enrich problems with matching target company tags
+    const enrichedProblems = rawProblems.map((prob) => {
+      // Find which of the user's selected companies ask this problem
+      const matchingTargetCompanies = selectedCompanyNames.filter((selName) => {
+        const selLower = selName.toLowerCase();
+        return (prob.company || []).some((compTag) => {
+          const compLower = compTag.toLowerCase();
+          return (
+            compLower === selLower ||
+            (selLower === "meta" && compLower === "facebook") ||
+            (selLower === "facebook" && compLower === "meta")
+          );
+        });
+      });
+
+      return {
+        id: prob.id,
+        title: prob.title,
+        slug: prob.slug,
+        difficulty: prob.difficulty,
+        tags: prob.tags,
+        matchingTargetCompanies:
+          matchingTargetCompanies.length > 0 ? matchingTargetCompanies : [selectedCompanyNames[0]],
+        isSolved: solvedSlugs.has(prob.slug),
+        link: `https://leetcode.com/problems/${prob.slug}`,
+      };
+    });
+
+    const totalCount = enrichedProblems.length;
     let solvedCount = 0;
     const breakdown = {
       easy: { solved: 0, total: 0 },
@@ -856,41 +941,58 @@ app.get("/target-company/readiness", requireAuth, async (c) => {
 
     let nextRecommended: any = null;
 
-    for (const prob of problems) {
-      const isSolved = solvedSlugs.has(prob.slug);
-      if (isSolved) solvedCount++;
+    for (const prob of enrichedProblems) {
+      if (prob.isSolved) solvedCount++;
 
       const diffKey = prob.difficulty.toLowerCase() as "easy" | "medium" | "hard";
       if (breakdown[diffKey]) {
         breakdown[diffKey].total++;
-        if (isSolved) breakdown[diffKey].solved++;
+        if (prob.isSolved) breakdown[diffKey].solved++;
       }
 
-      if (!isSolved && !nextRecommended) {
-        nextRecommended = {
-          title: prob.title,
-          slug: prob.slug,
-          difficulty: prob.difficulty,
-          tags: prob.tags,
-        };
+      if (!prob.isSolved && !nextRecommended) {
+        nextRecommended = prob;
       }
     }
 
     const readinessPercentage = totalCount > 0 ? Math.round((solvedCount / totalCount) * 100) : 0;
 
+    // ─── Generate Deterministic Daily POTD Problem Set ──────────────────
+    // Uses current day string (YYYY-MM-DD) to select consistent daily problems
+    const todayStr = new Date().toISOString().slice(0, 10);
+    let dayHash = 0;
+    for (let i = 0; i < todayStr.length; i++) {
+      dayHash = (dayHash * 37 + todayStr.charCodeAt(i)) & 0x7fffffff;
+    }
+
+    // Separate unsolved vs solved
+    const unsolvedList = enrichedProblems.filter((p) => !p.isSolved);
+    const pool = unsolvedList.length >= 3 ? unsolvedList : enrichedProblems;
+
+    // Pick 5 distinct problems for today based on dayHash rotation
+    const dailyProblems: typeof enrichedProblems = [];
+    if (pool.length > 0) {
+      const startIndex = dayHash % pool.length;
+      const countToTake = Math.min(5, pool.length);
+      for (let i = 0; i < countToTake; i++) {
+        const item = pool[(startIndex + i) % pool.length];
+        if (item && !dailyProblems.some((p) => p.slug === item.slug)) {
+          dailyProblems.push(item);
+        }
+      }
+    }
+
     return c.json({
-      targetCompany: companyObj.name,
+      hasTarget: true,
+      targetCompany: selectedCompanyNames[0] || null,
+      targetCompanies: selectedCompanyNames,
       readinessPercentage,
       solvedCount,
       totalCount,
       breakdown,
       nextRecommended,
-      availableCompanies: TARGET_COMPANIES.map((tc) => ({
-        name: tc.name,
-        slug: tc.slug,
-        icon: tc.icon,
-        color: tc.color,
-      })),
+      dailyProblems,
+      availableCompanies,
     });
   } catch (err) {
     console.error("Failed to compute target company readiness:", err);
@@ -902,26 +1004,52 @@ app.get("/target-company/readiness", requireAuth, async (c) => {
 app.put("/target-company", requireAuth, async (c) => {
   const user = c.get("user");
   try {
-    const { targetCompany } = await c.req.json();
-    if (!targetCompany || typeof targetCompany !== "string") {
-      return c.json({ error: "Invalid targetCompany" }, 400);
+    const body = await c.req.json();
+    let targetCompanyValue: string | null = null;
+
+    if (Array.isArray(body.targetCompanies)) {
+      targetCompanyValue =
+        body.targetCompanies
+          .map((s: any) => String(s).trim())
+          .filter(Boolean)
+          .join(",") || null;
+    } else if (typeof body.targetCompany === "string" && body.targetCompany.trim()) {
+      targetCompanyValue = body.targetCompany.trim();
+    } else if (body.targetCompany === null || body.targetCompanies === null || body.targetCompany === "") {
+      targetCompanyValue = null;
     }
 
     await db.profile.upsert({
       where: { userId: user.id },
       create: {
         userId: user.id,
-        targetCompany,
+        targetCompany: targetCompanyValue,
       },
       update: {
-        targetCompany,
+        targetCompany: targetCompanyValue,
       },
     });
 
-    return c.json({ success: true, targetCompany });
+    const parsedList = targetCompanyValue ? targetCompanyValue.split(",").filter(Boolean) : [];
+    return c.json({ success: true, targetCompany: targetCompanyValue, targetCompanies: parsedList });
   } catch (err) {
     console.error("Failed to update target company:", err);
     return c.json({ error: "Failed to update target company" }, 500);
+  }
+});
+
+// ─── DELETE /api/profile/target-company (Clear target companies) ───────
+app.delete("/target-company", requireAuth, async (c) => {
+  const user = c.get("user");
+  try {
+    await db.profile.updateMany({
+      where: { userId: user.id },
+      data: { targetCompany: null },
+    });
+    return c.json({ success: true, message: "Target company cleared" });
+  } catch (err) {
+    console.error("Failed to clear target company:", err);
+    return c.json({ error: "Failed to clear target company" }, 500);
   }
 });
 

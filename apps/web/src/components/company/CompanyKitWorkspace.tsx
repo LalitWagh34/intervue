@@ -13,6 +13,8 @@ import {
   Filter,
   RotateCcw,
   Sparkles,
+  Check,
+  X,
 } from "lucide-react";
 import { getCompanyKit } from "@/lib/companyKits";
 import { getCompanyLogo } from "@/lib/companyLogos";
@@ -28,6 +30,7 @@ interface CompanyKitWorkspaceProps {
   companyName: string;
   onBack: () => void;
   activeTargetCompany?: string;
+  targetCompanies?: string[];
   solvedProblems: Record<string, boolean>;
   onToggleSolved: (id: string, e: React.MouseEvent, difficulty?: string) => void;
   isBookmarked: (slug: string) => boolean;
@@ -39,6 +42,7 @@ export function CompanyKitWorkspace({
   companyName,
   onBack,
   activeTargetCompany,
+  targetCompanies = [],
   solvedProblems,
   onToggleSolved,
   isBookmarked,
@@ -49,8 +53,16 @@ export function CompanyKitWorkspace({
   const logo = getCompanyLogo(companyName) || getCompanyLogo(kit.slug);
 
   const setTargetMutation = useSetTargetCompany();
-  const isCurrentTarget =
-    activeTargetCompany?.toLowerCase() === companyName.toLowerCase();
+  
+  const currentTargets = useMemo(() => {
+    if (targetCompanies && targetCompanies.length > 0) return targetCompanies;
+    if (activeTargetCompany) return [activeTargetCompany];
+    return [];
+  }, [targetCompanies, activeTargetCompany]);
+
+  const isCurrentTarget = currentTargets.some(
+    (c) => c.toLowerCase() === companyName.toLowerCase()
+  );
 
   // Timeframe tabs
   const [timeframe, setTimeframe] = useState<string>("all");
@@ -156,12 +168,21 @@ export function CompanyKitWorkspace({
     });
   }, [curatedQuestions, search, selectedDifficulty, selectedTopic, selectedPopularity, selectedStatus, solvedProblems]);
 
-  const handleSetTarget = async () => {
+  const handleToggleTarget = async () => {
     try {
-      await setTargetMutation.mutateAsync(companyName);
-      toast.success(`${companyName} set as your active target company!`);
+      if (isCurrentTarget) {
+        const next = currentTargets.filter(
+          (c) => c.toLowerCase() !== companyName.toLowerCase()
+        );
+        await setTargetMutation.mutateAsync(next.length > 0 ? next : null);
+        toast.success(`Removed ${companyName} from target companies`);
+      } else {
+        const next = [...currentTargets, companyName];
+        await setTargetMutation.mutateAsync(next);
+        toast.success(`Added ${companyName} to your target companies!`);
+      }
     } catch {
-      toast.error("Failed to update target company");
+      toast.error("Failed to update target companies");
     }
   };
 
@@ -230,16 +251,32 @@ export function CompanyKitWorkspace({
           <div className="shrink-0 flex items-center gap-2">
             <Button
               size="sm"
-              onClick={handleSetTarget}
-              disabled={isCurrentTarget || setTargetMutation.isPending}
+              onClick={handleToggleTarget}
+              disabled={setTargetMutation.isPending}
+              title={isCurrentTarget ? "Click to remove from your target companies" : "Click to add to your target companies"}
               className={`h-9 px-4 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
                 isCurrentTarget
-                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 cursor-default"
+                  ? "group bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-rose-500/10 hover:border-rose-500/40 hover:text-rose-400"
                   : "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20"
               }`}
             >
-              <Target className="w-3.5 h-3.5 mr-1.5" />
-              {isCurrentTarget ? "Active Target Company" : "Set As My Target Company"}
+              {isCurrentTarget ? (
+                <>
+                  <span className="flex items-center gap-1.5 group-hover:hidden">
+                    <Check className="w-3.5 h-3.5" />
+                    In Target Companies
+                  </span>
+                  <span className="hidden items-center gap-1.5 group-hover:flex">
+                    <X className="w-3.5 h-3.5" />
+                    Remove Target
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Target className="w-3.5 h-3.5 mr-1.5" />
+                  Add as Target Company
+                </>
+              )}
             </Button>
           </div>
         </div>

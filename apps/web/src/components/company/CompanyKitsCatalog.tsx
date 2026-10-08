@@ -8,6 +8,7 @@ interface CompanyKitsCatalogProps {
   onSelectCompany: (companyName: string) => void;
   onBack?: () => void;
   activeTargetCompany?: string;
+  targetCompanies?: string[];
   solvedByCompany?: Record<string, number>;
 }
 
@@ -15,6 +16,7 @@ export function CompanyKitsCatalog({
   onSelectCompany,
   onBack,
   activeTargetCompany = "Google",
+  targetCompanies,
   solvedByCompany = {},
 }: CompanyKitsCatalogProps) {
   const [search, setSearch] = useState("");
@@ -108,7 +110,9 @@ export function CompanyKitsCatalog({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((kit) => {
           const logo = getCompanyLogo(kit.name) || getCompanyLogo(kit.slug);
-          const isTarget = activeTargetCompany.toLowerCase() === kit.name.toLowerCase();
+          const isTarget = targetCompanies && targetCompanies.length > 0
+            ? targetCompanies.some((c) => c.toLowerCase() === kit.name.toLowerCase())
+            : activeTargetCompany.toLowerCase() === kit.name.toLowerCase();
           const solvedCount = solvedByCompany[kit.name] || 0;
           const readinessPercent = Math.min(100, Math.round((solvedCount / kit.totalQuestions) * 100));
 

@@ -1393,7 +1393,8 @@ export default function PracticeHubPage() {
             setCurrentView("hub");
             setSearchParams({});
           }}
-          activeTargetCompany={readinessData?.targetCompany}
+          activeTargetCompany={readinessData?.targetCompany || undefined}
+          targetCompanies={readinessData?.targetCompanies}
         />
       )}
 
@@ -1407,7 +1408,8 @@ export default function PracticeHubPage() {
             setCurrentView("company_kits_catalog");
             setSearchParams({ view: "company_kits" });
           }}
-          activeTargetCompany={readinessData?.targetCompany}
+          activeTargetCompany={readinessData?.targetCompany || undefined}
+          targetCompanies={readinessData?.targetCompanies}
           solvedProblems={solvedProblems}
           onToggleSolved={toggleSolved}
           isBookmarked={(slug) => bookmarkedSlugs.includes(slug)}
