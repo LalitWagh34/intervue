@@ -6,6 +6,7 @@ import { useProfileStats } from "@/hooks/useProfile";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 import { useRewardsStatus } from "@/hooks/useRewards";
 import { DailyStreakClaim } from "@/components/shared/DailyStreakClaim";
+import { NotificationDropdown } from "./NotificationDropdown";
 import {
   Search,
   Bell,
@@ -147,14 +148,8 @@ export default function AppLayout() {
               <span>{currentStreak}d</span>
             </div>
 
-            {/* Notifications */}
-            <button
-              onClick={() => navigate("/history")}
-              className="w-9 h-9 rounded-xl bg-[#0D0E12] border border-[#181A20] flex items-center justify-center text-[#8B92A0] hover:text-white hover:border-[#327CF6]/40 transition-colors cursor-pointer"
-              title="Recent Activity"
-            >
-              <Bell className="w-4 h-4" />
-            </button>
+            {/* Notifications Popover */}
+            <NotificationDropdown />
 
             {/* User Profile Avatar with Clickable Dropdown Menu */}
             <div className="relative" ref={profileRef}>
