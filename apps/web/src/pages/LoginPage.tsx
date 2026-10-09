@@ -179,7 +179,9 @@ export default function LoginPage() {
             <BrandIcon className="w-5 h-5" />
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-white font-bold text-lg tracking-tight">Intervue</span>
+            <span className="text-white font-bold text-lg tracking-tight font-sans">
+              inter<span className="text-[#327CF6]">V</span>ue
+            </span>
             <span className="text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400">
               v2.0
             </span>
@@ -300,11 +302,18 @@ export default function LoginPage() {
 
               {/* Card Title & Subtitle */}
               <div className="space-y-1 mb-3.5 text-center sm:text-left">
-                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 lg:hidden">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-md">
-                    <span className="text-white font-bold text-xs font-mono">I</span>
+                <div className="flex items-center justify-center sm:justify-start gap-2.5 mb-2 lg:hidden">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 shrink-0">
+                    <BrandIcon className="w-5 h-5" />
                   </div>
-                  <span className="text-white font-bold text-base">Intervue</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-white font-bold text-base tracking-tight font-sans">
+                      inter<span className="text-[#327CF6]">V</span>ue
+                    </span>
+                    <span className="text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                      v2.0
+                    </span>
+                  </div>
                 </div>
                 <h2 className="text-xl font-bold tracking-tight text-white">
                   {authMode === "signin" ? "Welcome back" : "Create an account"}

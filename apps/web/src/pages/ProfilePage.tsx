@@ -26,6 +26,12 @@ import {
   Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useReferral } from "@/hooks/useRewards";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -334,15 +340,84 @@ export default function ProfilePage() {
                 </span>
               </div>
 
-              {/* Platform Radio Filter Tabs */}
-              <div className="flex items-center gap-3">
+              {/* Mobile: Modern Shadcn Dropdown + Year Selector */}
+              <div className="flex sm:hidden items-center justify-between gap-2 w-full pt-1">
+                {/* Year Selector */}
+                <div className="relative group flex items-center">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="appearance-none bg-[#101216] border border-[#1E2229] rounded-lg text-[#A1A7B3] hover:text-[#F5F7FA] text-xs font-semibold py-1.5 pl-2.5 pr-6 cursor-pointer outline-none transition-colors"
+                  >
+                    {yearOptions.map((y) => (
+                      <option key={y} value={y} className="bg-[#101216]">
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#707784] absolute right-2 pointer-events-none group-hover:text-[#F5F7FA] transition-colors" />
+                </div>
+
+                {/* Platform Shadcn Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#101216] border border-[#1E2229] hover:border-[#2F80ED]/40 text-xs font-semibold text-[#F5F7FA] transition-all cursor-pointer">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#2F80ED]" />
+                      <span>
+                        {activePlatform === "ALL"
+                          ? "All Platforms"
+                          : activePlatform === "INTERVUE"
+                          ? "interVue"
+                          : activePlatform === "LEETCODE"
+                          ? "LeetCode"
+                          : "Codeforces"}
+                      </span>
+                      <ChevronDown className="w-3.5 h-3.5 text-[#707784] ml-0.5" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="bg-[#14161B] border-[#272B33] text-zinc-300 min-w-[145px] shadow-xl p-1 z-50"
+                  >
+                    {(
+                      [
+                        { id: "ALL", label: "All Platforms" },
+                        { id: "INTERVUE", label: "interVue" },
+                        { id: "LEETCODE", label: "LeetCode" },
+                        { id: "CODEFORCES", label: "Codeforces" },
+                      ] as const
+                    ).map((p) => (
+                      <DropdownMenuItem
+                        key={p.id}
+                        onClick={() => setActivePlatform(p.id)}
+                        className={cn(
+                          "flex items-center justify-between text-xs px-2.5 py-1.5 rounded-md cursor-pointer transition-colors",
+                          activePlatform === p.id
+                            ? "bg-[#2F80ED] text-white font-semibold focus:bg-[#2F80ED] focus:text-white"
+                            : "hover:bg-[#1E2229] hover:text-white text-zinc-300 focus:bg-[#1E2229] focus:text-white"
+                        )}
+                      >
+                        <span>{p.label}</span>
+                        {activePlatform === p.id && <span className="text-[11px] ml-1.5">✓</span>}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {/* Desktop: Year + Segmented Tabs */}
+              <div className="hidden sm:flex items-center gap-3">
                 <div className="relative group flex items-center">
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                     className="appearance-none bg-transparent text-[#A1A7B3] hover:text-[#F5F7FA] text-xs font-semibold py-1 pl-2 pr-6 cursor-pointer outline-none transition-colors"
                   >
-                    {yearOptions.map(y => <option key={y} value={y} className="bg-[#101216]">{y}</option>)}
+                    {yearOptions.map((y) => (
+                      <option key={y} value={y} className="bg-[#101216]">
+                        {y}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="w-3.5 h-3.5 text-[#707784] absolute right-1 pointer-events-none group-hover:text-[#F5F7FA] transition-colors" />
                 </div>
@@ -359,7 +434,7 @@ export default function ProfilePage() {
                           : "text-[#A1A7B3] hover:text-[#F5F7FA]"
                       )}
                     >
-                      {p}
+                      {p === "INTERVUE" ? "interVue" : p === "ALL" ? "All" : p === "LEETCODE" ? "LeetCode" : "Codeforces"}
                     </button>
                   ))}
                 </div>
