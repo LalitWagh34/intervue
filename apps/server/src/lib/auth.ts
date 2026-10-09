@@ -3,7 +3,10 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "@intervue/db";
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL:
+    process.env.BETTER_AUTH_URL ||
+    process.env.RENDER_EXTERNAL_URL ||
+    "http://localhost:3000",
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
@@ -19,16 +22,29 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:3000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5174",
-    "http://127.0.0.1:3000",
-    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
-    ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
-  ],
+  trustedOrigins: async (request) => {
+    const origin = request?.headers?.get?.("origin") || request?.headers?.get?.("referer");
+    const origins = [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:3000",
+      "http://127.0.0.1:5173",
+      "http://127.0.0.1:5174",
+      "http://127.0.0.1:3000",
+      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+      ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
+      ...(process.env.RENDER_EXTERNAL_URL ? [process.env.RENDER_EXTERNAL_URL] : []),
+    ];
+    if (origin) {
+      try {
+        const u = new URL(origin);
+        if (u.hostname.endsWith(".vercel.app") || u.hostname === "localhost" || u.hostname === "127.0.0.1") {
+          origins.push(u.origin);
+        }
+      } catch {}
+    }
+    return origins;
+  },
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",
     defaultCookieAttributes: {
