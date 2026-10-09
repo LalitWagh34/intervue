@@ -94,9 +94,19 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
       socketRef.current = null;
     }
 
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = window.location.hostname || "localhost";
-    const wsUrl = `${protocol}//${host}:3000/ws/rooms`;
+    let wsUrl: string;
+    if ((import.meta as any).env?.VITE_WS_URL) {
+      wsUrl = (import.meta as any).env.VITE_WS_URL;
+    } else if ((import.meta as any).env?.VITE_API_URL) {
+      const apiUrl = (import.meta as any).env.VITE_API_URL as string;
+      const wsProtocol = apiUrl.startsWith("https:") ? "wss:" : "ws:";
+      const hostPart = apiUrl.replace(/^https?:\/\//, "").replace(/\/api\/?$/, "");
+      wsUrl = `${wsProtocol}//${hostPart}/ws/rooms`;
+    } else {
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const host = window.location.hostname || "localhost";
+      wsUrl = `${protocol}//${host}:3000/ws/rooms`;
+    }
 
     try {
       const ws = new WebSocket(wsUrl);

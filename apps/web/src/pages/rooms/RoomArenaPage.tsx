@@ -141,6 +141,25 @@ export default function RoomArenaPage() {
   // Local Authoritative Timer
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
+  // Initialize timer from room data immediately (fallback & initial sync)
+  useEffect(() => {
+    if (secondsLeft === null && room) {
+      if (room.remainingSeconds !== undefined && room.remainingSeconds !== null) {
+        setSecondsLeft(room.remainingSeconds);
+      } else if (room.endTime) {
+        const diff = Math.max(0, Math.floor((new Date(room.endTime).getTime() - Date.now()) / 1000));
+        setSecondsLeft(diff);
+      } else if (room.startTime && room.duration) {
+        const end = new Date(room.startTime).getTime() + room.duration * 60 * 1000;
+        const diff = Math.max(0, Math.floor((end - Date.now()) / 1000));
+        setSecondsLeft(diff);
+      } else if (room.duration) {
+        setSecondsLeft(room.duration * 60);
+      }
+    }
+  }, [room, secondsLeft]);
+
+  // Keep synced with authoritative WebSocket ticks
   useEffect(() => {
     if (socketRemaining !== null && socketRemaining !== undefined) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -461,7 +480,12 @@ export default function RoomArenaPage() {
 
   // Format countdown timer
   const formatTime = (secs: number | null) => {
-    if (secs === null) return "--:--";
+    if (secs === null) {
+      if (room?.duration) {
+        return `${room.duration.toString().padStart(2, "0")}:00`;
+      }
+      return "00:00";
+    }
     const m = Math.floor(secs / 60);
     const s = secs % 60;
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;

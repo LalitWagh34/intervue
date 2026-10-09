@@ -604,6 +604,11 @@ app.get("/:code", requireAuth, async (c) => {
       return base;
     });
 
+    const remainingSeconds =
+      room.status === "ACTIVE" && room.endTime
+        ? Math.max(0, Math.floor((new Date(room.endTime).getTime() - Date.now()) / 1000))
+        : room.duration * 60;
+
     return c.json({
       room: {
         id: room.id,
@@ -615,6 +620,7 @@ app.get("/:code", requireAuth, async (c) => {
         maxParticipants: room.maxParticipants,
         startTime: room.startTime,
         endTime: room.endTime,
+        remainingSeconds,
         host: room.host,
         isHost,
         currentParticipantId: currentParticipant?.id || null,
