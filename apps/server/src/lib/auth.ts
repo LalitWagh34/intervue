@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { bearer } from "better-auth/plugins";
 import { db } from "@intervue/db";
 
 export const auth = betterAuth({
@@ -10,6 +11,7 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
+  plugins: [bearer()],
   emailAndPassword: {
     enabled: true,
   },

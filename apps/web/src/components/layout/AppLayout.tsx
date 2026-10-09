@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import { authClient, useSession } from "@/lib/auth";
+import { signOut, useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 import { useRewardsStatus } from "@/hooks/useRewards";
@@ -78,7 +78,9 @@ export default function AppLayout() {
   }, [location.pathname]);
 
   const handleSignOut = async () => {
-    await authClient.signOut();
+    try {
+      await signOut();
+    } catch (_) {}
     navigate("/login");
   };
 

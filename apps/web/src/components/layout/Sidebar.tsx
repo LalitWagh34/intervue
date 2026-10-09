@@ -196,6 +196,7 @@ export default function Sidebar({
   const queryClient = useQueryClient();
   const handleSignOut = async () => {
     try {
+      localStorage.removeItem("intervue_session_token");
       await authClient.signOut();
     } catch (_) {}
     queryClient.clear();

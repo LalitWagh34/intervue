@@ -81,6 +81,7 @@ app.use(
       return origin;
     },
     credentials: true,
+    exposeHeaders: ["set-auth-token", "Set-Auth-Token"],
     allowHeaders: ["Content-Type", "Authorization", "Idempotency-Key", "X-Idempotency-Key"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Outlet, NavLink, useNavigate } from "react-router-dom"
-import { authClient } from "@/lib/auth"
+import { signOut, useSession } from "@/lib/auth"
 import {
   LayoutDashboard,
   Mic,
@@ -30,10 +30,12 @@ const navItems = [
 export default function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
-  const { data: session } = authClient.useSession()
+  const { data: session } = useSession()
 
   const handleSignOut = async () => {
-    await authClient.signOut()
+    try {
+      await signOut()
+    } catch (_) {}
     navigate("/login")
   }
 

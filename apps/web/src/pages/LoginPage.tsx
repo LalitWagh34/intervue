@@ -98,6 +98,13 @@ export default function LoginPage() {
           throw new Error(result.error.message || "Failed to create account");
         }
 
+        const sessionToken = (result.data as any)?.token;
+        if (sessionToken) {
+          try {
+            localStorage.setItem("intervue_session_token", sessionToken);
+          } catch {}
+        }
+
         toast.success("Account created successfully!", {
           description: "Welcome to Intervue! Redirecting to your dashboard...",
         });
@@ -114,6 +121,13 @@ export default function LoginPage() {
 
         if (result.error) {
           throw new Error(result.error.message || "Invalid email or password");
+        }
+
+        const sessionToken = (result.data as any)?.token;
+        if (sessionToken) {
+          try {
+            localStorage.setItem("intervue_session_token", sessionToken);
+          } catch {}
         }
 
         toast.success("Welcome back!", {

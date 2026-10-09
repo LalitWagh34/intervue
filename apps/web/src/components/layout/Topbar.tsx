@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSession, authClient } from "@/lib/auth";
+import { useSession, signOut } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 
 export default function Topbar({ title }: { title: string }) {
@@ -15,7 +15,9 @@ export default function Topbar({ title }: { title: string }) {
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    await authClient.signOut();
+    try {
+      await signOut();
+    } catch (_) {}
     navigate("/login");
   };
 
