@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { BrandIcon } from "@/components/shared/BrandLogo";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface NavSubItem {
   label: string;
@@ -192,9 +193,13 @@ export default function Sidebar({
     }
   }, [location.pathname]);
 
+  const queryClient = useQueryClient();
   const handleSignOut = async () => {
-    await authClient.signOut();
-    navigate("/login");
+    try {
+      await authClient.signOut();
+    } catch (_) {}
+    queryClient.clear();
+    window.location.href = "/login";
   };
 
   const user = session?.user;

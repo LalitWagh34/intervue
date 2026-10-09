@@ -86,6 +86,11 @@ app.use(
   })
 );
 app.get("/", (c) => {
+  const accept = c.req.header("accept") || "";
+  if (accept.includes("text/html")) {
+    const frontendUrl = process.env.FRONTEND_URL || "https://intervue-git-main-lalit-wagh-s-projects.vercel.app";
+    return c.redirect(frontendUrl);
+  }
   return c.json({ status: "healthy", service: "intervue-backend", timestamp: new Date().toISOString() });
 });
 

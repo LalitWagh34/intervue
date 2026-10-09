@@ -31,6 +31,8 @@ export const auth = betterAuth({
       "http://127.0.0.1:5173",
       "http://127.0.0.1:5174",
       "http://127.0.0.1:3000",
+      "https://*.vercel.app",
+      "*.vercel.app",
       ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
       ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
       ...(process.env.RENDER_EXTERNAL_URL ? [process.env.RENDER_EXTERNAL_URL] : []),
@@ -56,6 +58,7 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      prompt: "select_account",
     },
   },
   session: {
