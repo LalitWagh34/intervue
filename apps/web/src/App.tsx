@@ -23,6 +23,7 @@ import HelpCenterPage from "./pages/HelpCenterPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import { useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
+import { Analytics } from "@vercel/analytics/react";
 // import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -154,6 +155,7 @@ export default function App() {
         />
       </Routes>
       <Toaster position="bottom-right" richColors />
+      <Analytics />
     </>
   );
 }
