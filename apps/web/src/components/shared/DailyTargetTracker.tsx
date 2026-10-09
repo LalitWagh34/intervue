@@ -87,7 +87,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
             </div>
           </div>
           <p className="text-xs text-[#8B92A0]">
-            Set daily focus goals. You'll receive real-time notifications on addition & completion.
+            Set daily focus goals. 
           </p>
         </div>
 
@@ -169,7 +169,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
       </form>
 
       {/* Quick Suggestions Strip */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
+      {/* <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
         <span className="text-zinc-500 flex items-center gap-1">
           <Flame className="w-3 h-3 text-amber-500" />
           Quick add:
@@ -195,7 +195,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
         >
           + Review Notes
         </button>
-      </div>
+      </div> */}
 
       {/* Target Items List */}
       <div className="space-y-2 pt-2 divide-y divide-[#181A20]/40">

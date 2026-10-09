@@ -2,10 +2,9 @@ import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
-import Groq from "groq-sdk";
+import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
 
 const app = new Hono<{ Variables: AuthVariables }>();
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // Get all chats for current user
 app.get("/", requireAuth, async (c) => {
@@ -82,7 +81,7 @@ app.post("/:id/message", requireAuth, async (c) => {
   history.push({ role: "user", content: body.message });
 
   const stream = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: GROQ_CHAT_MODEL,
     messages: [
       {
         role: "system",

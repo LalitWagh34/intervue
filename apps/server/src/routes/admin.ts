@@ -3,10 +3,9 @@ import { requireAuth } from "../middleware/auth";
 import { requireAdmin } from "../middleware/admin";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
-import Groq from "groq-sdk";
+import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
 
 const app = new Hono<{ Variables: AuthVariables }>();
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // All admin routes require auth + admin role
 app.use("*", requireAuth, requireAdmin);
@@ -171,7 +170,7 @@ Respond with ONLY valid JSON, no markdown, no extra text:
 }`;
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: GROQ_CHAT_MODEL,
     messages: [{ role: "user", content: prompt }],
     temperature: 0.7,
   });

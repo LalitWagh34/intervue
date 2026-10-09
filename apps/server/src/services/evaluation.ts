@@ -1,7 +1,5 @@
-import Groq from "groq-sdk";
 import { db } from "@intervue/db";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
 
 export async function evaluateInterview(interviewId: string) {
   const interview = await db.interview.findUnique({
@@ -44,7 +42,7 @@ Evaluate the candidate's performance and respond with ONLY valid JSON in this ex
 
   try {
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: GROQ_CHAT_MODEL,
       messages: [{ role: "user", content: prompt }],
       temperature: 0.3,
       response_format: { type: "json_object" },

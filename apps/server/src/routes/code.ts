@@ -5,14 +5,13 @@ import { validateBody, runCodeSchema, aiReviewSchema } from "../middleware/valid
 import { idempotency } from "../middleware/idempotency";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
-import Groq from "groq-sdk";
+import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
 import { judgeSubmission, runSampleTestCases } from "../services/judge";
 import { syncSolutionToGitHub } from "../services/githubSync";
 import { judgeSemaphore } from "../lib/semaphore";
 import { executionQueue } from "../services/taskQueue";
 
 const app = new Hono<{ Variables: AuthVariables }>();
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // List all problems
 app.get("/problems", requireAuth, async (c) => {
@@ -219,7 +218,7 @@ Verdict: ${body.verdict || "unknown"}
 Give concise feedback in 3-4 sentences covering: time/space complexity, code quality, and one specific improvement suggestion. Be direct and helpful.`;
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: GROQ_CHAT_MODEL,
     messages: [{ role: "user", content: prompt }],
     temperature: 0.3,
   });

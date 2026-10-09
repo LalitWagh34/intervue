@@ -4,10 +4,45 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useChats, useChat } from "@/hooks/useChats";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Send, Plus, MessageSquare } from "lucide-react";
+import {
+  Send,
+  Plus,
+  MessageSquare,
+  Trash2,
+  Sparkles,
+  Bot,
+  User,
+  Zap,
+  Code2,
+  Cpu,
+  Layers,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Msg = { role: "user" | "assistant"; content: string };
+
+const MENTOR_SUGGESTIONS = [
+  {
+    icon: Code2,
+    title: "Algorithm Trade-offs",
+    prompt: "Can you explain how to implement an LRU Cache with O(1) get and put, and compare HashMap + DoublyLinkedList vs OrderedDict?",
+  },
+  {
+    icon: Cpu,
+    title: "System Design Patterns",
+    prompt: "How should I design a distributed rate limiter for a multi-region API? Compare Token Bucket vs Sliding Window Counter.",
+  },
+  {
+    icon: Layers,
+    title: "Behavioral STAR Method",
+    prompt: "Help me structure an answer using the STAR method for: 'Tell me about a time when you disagreed with a senior engineer on architecture.'",
+  },
+  {
+    icon: Zap,
+    title: "Full-Stack Concurrency",
+    prompt: "Explain how Node.js handles asynchronous I/O with libuv and the difference between microtasks and macrotasks in the event loop.",
+  },
+];
 
 export default function ChatPage() {
   const { id } = useParams();
@@ -20,6 +55,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (chat?.messages) {
@@ -31,145 +67,306 @@ export default function ChatPage() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isStreaming]);
 
   async function createNewChat() {
-    const res = await api.post("/chats");
-    queryClient.invalidateQueries({ queryKey: ["chats"] });
-    navigate(`/chat/${res.data.chat.id}`);
+    try {
+      const res = await api.post("/chats");
+      queryClient.invalidateQueries({ queryKey: ["chats"] });
+      navigate(`/chat/${res.data.chat.id}`);
+    } catch (err) {
+      console.error("Failed to create chat:", err);
+    }
   }
 
-  async function sendMessage() {
-    if (!input.trim() || isStreaming) return;
+  async function deleteChat(chatId: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    try {
+      await api.delete(`/chats/${chatId}`);
+      queryClient.invalidateQueries({ queryKey: ["chats"] });
+      if (id === chatId) {
+        navigate("/chat");
+      }
+    } catch (err) {
+      console.error("Failed to delete chat:", err);
+    }
+  }
+
+  async function sendMessage(textToSend?: string) {
+    const promptText = (textToSend || input).trim();
+    if (!promptText || isStreaming) return;
 
     let chatId = id;
     if (!chatId) {
-      const res = await api.post("/chats");
-      chatId = res.data.chat.id;
-      queryClient.invalidateQueries({ queryKey: ["chats"] });
-      navigate(`/chat/${chatId}`, { replace: true });
+      try {
+        const res = await api.post("/chats");
+        chatId = res.data.chat.id;
+        queryClient.invalidateQueries({ queryKey: ["chats"] });
+        navigate(`/chat/${chatId}`, { replace: true });
+      } catch (err) {
+        console.error("Failed to initialize chat:", err);
+        return;
+      }
     }
 
-    const userMsg = input;
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+    setMessages((prev) => [...prev, { role: "user", content: promptText }]);
     setIsStreaming(true);
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-    const res = await fetch(`${baseURL}/chats/${chatId}/message`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ message: userMsg }),
-    });
+    try {
+      const res = await fetch(`${baseURL}/chats/${chatId}/message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ message: promptText }),
+      });
 
-    const reader = res.body?.getReader();
-    const decoder = new TextDecoder();
-    if (!reader) return;
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      if (!reader) throw new Error("No reader stream");
 
-    let accumulated = "";
+      let accumulated = "";
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n\n").filter(Boolean);
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n\n").filter(Boolean);
 
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        const data = line.slice(6);
-        if (data === "[DONE]") continue;
-        try {
-          const parsed = JSON.parse(data);
-          accumulated += parsed.text;
-          const finalText = accumulated;
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { role: "assistant", content: finalText };
-            return updated;
-          });
-        } catch {}
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+          if (data === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(data);
+            accumulated += parsed.text;
+            const finalText = accumulated;
+            setMessages((prev) => {
+              const updated = [...prev];
+              updated[updated.length - 1] = { role: "assistant", content: finalText };
+              return updated;
+            });
+          } catch {}
+        }
       }
+    } catch (err) {
+      console.error("Chat streaming error:", err);
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          role: "assistant",
+          content: "Sorry, I ran into an error connecting with the mentor engine. Please try again.",
+        };
+        return updated;
+      });
+    } finally {
+      setIsStreaming(false);
+      queryClient.invalidateQueries({ queryKey: ["chats"] });
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
-
-    setIsStreaming(false);
-    queryClient.invalidateQueries({ queryKey: ["chats"] });
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Chat list sidebar */}
-      <div className="w-64 border-r border-zinc-800 p-4 flex flex-col">
+    <div className="flex h-[calc(100vh-64px)] bg-[#08090C] text-white overflow-hidden">
+      {/* Chats Left Sidebar */}
+      <aside className="w-64 sm:w-72 border-r border-[#181A20] bg-[#0D0E12] p-4 flex flex-col shrink-0">
         <Button
+          type="button"
           onClick={createNewChat}
-          className="bg-zinc-900 text-white hover:bg-zinc-800 border border-zinc-800 justify-start mb-4"
+          className="w-full bg-[#327CF6] hover:bg-[#2563EB] text-white font-semibold text-xs py-2.5 rounded-xl shadow-md shadow-[#327CF6]/20 transition-all cursor-pointer flex items-center justify-center gap-2 mb-4"
         >
-          <Plus className="w-4 h-4 mr-2" /> New chat
+          <Plus className="w-4 h-4" />
+          <span>New Discussion</span>
         </Button>
-        <div className="flex-1 overflow-y-auto space-y-1">
+
+        <div className="flex items-center justify-between px-1 pb-2">
+          <span className="text-[11px] font-bold text-[#7A808C] uppercase tracking-wider">
+            Discussion History
+          </span>
+          <span className="text-[11px] font-mono text-zinc-500">{chats?.length || 0}</span>
+        </div>
+
+        <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+          {(!chats || chats.length === 0) && (
+            <div className="p-4 rounded-xl bg-[#08090C] border border-[#181A20] text-center space-y-1">
+              <p className="text-xs text-zinc-300 font-medium">No discussions yet</p>
+              <p className="text-[10px] text-[#7A808C]">Start a conversation with your AI Mentor.</p>
+            </div>
+          )}
+
           {chats?.map((c: any) => (
-            <button
+            <div
               key={c.id}
               onClick={() => navigate(`/chat/${c.id}`)}
               className={cn(
-                "w-full text-left px-3 py-2 rounded-lg text-sm truncate flex items-center gap-2",
-                id === c.id ? "bg-zinc-800 text-white" : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
+                "group w-full text-left px-3 py-2.5 rounded-xl text-xs flex items-center justify-between gap-2 border transition-all cursor-pointer",
+                id === c.id
+                  ? "bg-[#327CF6]/10 border-[#327CF6]/40 text-white font-medium"
+                  : "bg-[#08090C] border-[#181A20] text-[#8B92A0] hover:text-white hover:border-[#262933] hover:bg-[#12141A]"
               )}
             >
-              <MessageSquare className="w-3.5 h-3.5 shrink-0" />
-              {c.title}
-            </button>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <MessageSquare
+                  className={cn(
+                    "w-3.5 h-3.5 shrink-0",
+                    id === c.id ? "text-[#327CF6]" : "text-[#7A808C] group-hover:text-zinc-300"
+                  )}
+                />
+                <span className="truncate">{c.title || "New Discussion"}</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={(e) => deleteChat(c.id, e)}
+                title="Delete discussion"
+                className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-red-500/10 text-zinc-500 hover:text-red-400 transition-all shrink-0 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
           ))}
         </div>
-      </div>
+      </aside>
 
-      {/* Chat area */}
-      <div className="flex-1 flex flex-col">
-        <div className="flex-1 overflow-y-auto p-6 max-w-2xl mx-auto w-full space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center mt-20">
-              <p className="text-white text-lg mb-1">AI Prep Chat</p>
-              <p className="text-zinc-500 text-sm">Ask anything about interview prep, coding, or career advice</p>
+      {/* Main Mentor Chat Canvas */}
+      <main className="flex-1 flex flex-col min-w-0 bg-[#08090C]">
+        {/* Top Header */}
+        <div className="px-6 py-3 border-b border-[#181A20] bg-[#0D0E12]/80 backdrop-blur-md flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/25 text-purple-400 flex items-center justify-center">
+              <Bot className="w-4 h-4" />
             </div>
-          )}
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap ${
-                  msg.role === "user"
-                    ? "bg-white text-black"
-                    : "bg-zinc-900 text-zinc-200 border border-zinc-800"
-                }`}
-              >
-                {msg.content || (isStreaming && i === messages.length - 1 ? "..." : "")}
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs sm:text-sm font-bold text-white">AI Technical Mentor</h3>
+                <span className="px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-400 text-[10px] font-mono">
+                  24/7 Active
+                </span>
+              </div>
+              <p className="text-[11px] text-[#7A808C]">
+                Ask coding concepts, system design trade-offs, and behavioral answer strategies.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Messages Body */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full space-y-5">
+          {messages.length === 0 && (
+            <div className="py-8 space-y-8 max-w-2xl mx-auto">
+              <div className="text-center space-y-2">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/25 text-purple-400 flex items-center justify-center mx-auto shadow-lg shadow-purple-500/10">
+                  <Sparkles className="w-7 h-7" />
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  What would you like to master today?
+                </h2>
+                <p className="text-xs text-[#8B92A0]">
+                  Get instant deep-dives, code refactoring advice, architecture diagrams, and mock interview critique.
+                </p>
+              </div>
+
+              {/* Suggestions Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {MENTOR_SUGGESTIONS.map((item, idx) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => sendMessage(item.prompt)}
+                      className="p-4 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 hover:bg-[#12141C] text-left transition-all cursor-pointer group space-y-1.5 shadow-sm"
+                    >
+                      <div className="flex items-center gap-2 text-xs font-bold text-white group-hover:text-[#327CF6] transition-colors">
+                        <Icon className="w-4 h-4 text-[#7A808C] group-hover:text-[#327CF6]" />
+                        <span>{item.title}</span>
+                      </div>
+                      <p className="text-[11px] text-[#7A808C] line-clamp-2 leading-relaxed">
+                        {item.prompt}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-          ))}
+          )}
+
+          {messages.map((msg, i) => {
+            const isUser = msg.role === "user";
+            return (
+              <div
+                key={i}
+                className={cn("flex items-start gap-3", isUser ? "flex-row-reverse" : "flex-row")}
+              >
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold border",
+                    isUser
+                      ? "bg-[#327CF6] border-[#327CF6]/50 text-white"
+                      : "bg-[#0D0E12] border-[#181A20] text-purple-400"
+                  )}
+                >
+                  {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                </div>
+
+                <div
+                  className={cn(
+                    "max-w-[82%] sm:max-w-[78%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-sm",
+                    isUser
+                      ? "bg-[#327CF6] text-white rounded-tr-none font-medium"
+                      : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none whitespace-pre-wrap"
+                  )}
+                >
+                  {msg.content ? (
+                    msg.content
+                  ) : isStreaming && i === messages.length - 1 ? (
+                    <span className="flex items-center gap-1.5 text-zinc-400">
+                      <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+                      <span>Mentor is responding...</span>
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                </div>
+              </div>
+            );
+          })}
           <div ref={bottomRef} />
         </div>
 
-        <div className="border-t border-zinc-800 p-4">
-          <div className="max-w-2xl mx-auto flex gap-2">
-            <input
+        {/* Input Composer Footer */}
+        <div className="border-t border-[#181A20] bg-[#0D0E12] p-3 sm:p-4">
+          <div className="max-w-4xl mx-auto flex items-end gap-2.5">
+            <textarea
+              ref={inputRef}
+              rows={1}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              placeholder="Ask anything..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              placeholder="Ask anything about coding, system design, or interview prep... (Press Enter to send)"
               disabled={isStreaming}
-              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-zinc-600"
+              className="flex-1 bg-[#08090C] border border-[#181A20] focus:border-[#327CF6] rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm outline-none transition-colors resize-none max-h-32 min-h-[42px]"
             />
+
             <Button
-              onClick={sendMessage}
+              type="button"
+              onClick={() => sendMessage()}
               disabled={isStreaming || !input.trim()}
-              className="bg-white text-black hover:bg-zinc-200"
+              className="h-[42px] px-4 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] disabled:bg-[#181A20] disabled:text-zinc-600 text-white font-semibold text-xs shadow-md shadow-[#327CF6]/20 transition-all cursor-pointer flex items-center justify-center shrink-0"
             >
               <Send className="w-4 h-4" />
             </Button>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,12 +1,11 @@
 import {Hono} from "hono";
 import { requireAuth } from "../middleware/auth";
 import { db } from "@intervue/db";
-import Groq from "groq-sdk"
 import type { AuthVariables } from "../types";
 import { evaluateInterview } from "../services/evaluation";
+import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
 
 const app = new Hono<{Variables:AuthVariables}>();
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 app.post("/" , requireAuth ,async(c)=>{
     const user = c.get("user")
@@ -121,14 +120,14 @@ app.post("/:id/message", requireAuth, async (c) => {
 
   const profile = await db.profile.findUnique({ where: { userId: user.id } });
 
-  // ─── Handle interview start signal (voice only) ───
+  // ─── Handle interview start signal (initial prompt) ───
   if (body.message === "[START_INTERVIEW]") {
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: GROQ_CHAT_MODEL,
       messages: [
         {
           role: "system",
-          content: `You are conducting a ${interview.difficulty} level voice interview for a ${interview.role} position.
+          content: `You are conducting a ${interview.difficulty} level technical interview for a ${interview.role} position.
           Candidate background: ${profile?.skills?.join(", ") || "Not specified"}.
           Start by greeting the candidate warmly and asking your first interview question. Keep it brief and conversational. 2-3 sentences max.`,
         },
@@ -160,7 +159,7 @@ app.post("/:id/message", requireAuth, async (c) => {
     Keep responses SHORT — 2-3 sentences max since this is a voice conversation. Ask one question at a time.`;
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: GROQ_CHAT_MODEL,
       messages: [{ role: "system", content: systemPrompt }, ...history],
     });
 
@@ -188,7 +187,7 @@ app.post("/:id/message", requireAuth, async (c) => {
   Keep your responses concise and conversational, like a real interviewer would speak.`;
 
   const stream = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: GROQ_CHAT_MODEL,
     messages: [{ role: "system", content: systemPrompt }, ...history],
     stream: true,
   });
