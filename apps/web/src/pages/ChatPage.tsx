@@ -16,6 +16,7 @@ import {
   Code2,
   Cpu,
   Layers,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -71,6 +73,7 @@ export default function ChatPage() {
 
   async function createNewChat() {
     try {
+      setIsHistoryOpen(false);
       const res = await api.post("/chats");
       queryClient.invalidateQueries({ queryKey: ["chats"] });
       navigate(`/chat/${res.data.chat.id}`);
@@ -170,9 +173,36 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-[#08090C] text-white overflow-hidden">
-      {/* Chats Left Sidebar */}
-      <aside className="w-64 sm:w-72 border-r border-[#181A20] bg-[#0D0E12] p-4 flex flex-col shrink-0">
+    <div className="flex h-[calc(100vh-64px)] bg-[#08090C] text-white overflow-hidden relative">
+      {/* Mobile Discussions Backdrop Overlay */}
+      {isHistoryOpen && (
+        <div
+          onClick={() => setIsHistoryOpen(false)}
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-200"
+        />
+      )}
+
+      {/* Chats Left Sidebar (Responsive drawer on mobile, static on desktop) */}
+      <aside
+        className={cn(
+          "border-r border-[#181A20] bg-[#0D0E12] p-4 flex flex-col shrink-0 transition-transform duration-300 z-40",
+          "md:relative md:w-64 lg:w-72 md:translate-x-0 md:flex",
+          "fixed inset-y-0 left-0 w-[280px] max-w-[85vw]",
+          isHistoryOpen ? "translate-x-0 flex" : "-translate-x-full hidden md:flex"
+        )}
+      >
+        {/* Mobile Header with Close button */}
+        <div className="flex items-center justify-between md:hidden pb-3 border-b border-[#181A20] mb-3">
+          <span className="text-xs font-bold text-white">Discussion History</span>
+          <button
+            type="button"
+            onClick={() => setIsHistoryOpen(false)}
+            className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-[#181A20]"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
         <Button
           type="button"
           onClick={createNewChat}
@@ -200,7 +230,10 @@ export default function ChatPage() {
           {chats?.map((c: any) => (
             <div
               key={c.id}
-              onClick={() => navigate(`/chat/${c.id}`)}
+              onClick={() => {
+                navigate(`/chat/${c.id}`);
+                setIsHistoryOpen(false);
+              }}
               className={cn(
                 "group w-full text-left px-3 py-2.5 rounded-xl text-xs flex items-center justify-between gap-2 border transition-all cursor-pointer",
                 id === c.id
@@ -234,23 +267,33 @@ export default function ChatPage() {
       {/* Main Mentor Chat Canvas */}
       <main className="flex-1 flex flex-col min-w-0 bg-[#08090C]">
         {/* Top Header */}
-        <div className="px-6 py-3 border-b border-[#181A20] bg-[#0D0E12]/80 backdrop-blur-md flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/25 text-purple-400 flex items-center justify-center">
+        <div className="px-4 sm:px-6 py-3 border-b border-[#181A20] bg-[#0D0E12]/80 backdrop-blur-md flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/25 text-purple-400 flex items-center justify-center shrink-0">
               <Bot className="w-4 h-4" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h3 className="text-xs sm:text-sm font-bold text-white">AI Technical Mentor</h3>
-                <span className="px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-400 text-[10px] font-mono">
+                <h3 className="text-xs sm:text-sm font-bold text-white truncate">AI Technical Mentor</h3>
+                <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/25 text-purple-400 text-[10px] font-mono shrink-0">
                   24/7 Active
                 </span>
               </div>
-              <p className="text-[11px] text-[#7A808C]">
+              <p className="text-[11px] text-[#7A808C] truncate">
                 Ask coding concepts, system design trade-offs, and behavioral answer strategies.
               </p>
             </div>
           </div>
+
+          {/* Mobile Discussion History Drawer Button */}
+          <button
+            type="button"
+            onClick={() => setIsHistoryOpen(true)}
+            className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-semibold text-zinc-300 hover:text-white shrink-0 cursor-pointer"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-[#327CF6]" />
+            <span>History ({chats?.length || 0})</span>
+          </button>
         </div>
 
         {/* Messages Body */}

@@ -26,6 +26,7 @@ import {
   Building2,
   HelpCircle,
   MessageSquareHeart,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
@@ -164,9 +165,16 @@ const NAV_SECTIONS: NavSection[] = [
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export default function Sidebar({
+  isCollapsed,
+  onToggle,
+  isMobileOpen = false,
+  onMobileClose,
+}: SidebarProps) {
   const location = useLocation();
   const { data: session } = useSession();
   const { data: profileStats } = useProfileStats();
@@ -198,56 +206,83 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       .slice(0, 2) || "U";
 
   return (
-    <aside
-      className={cn(
-        "fixed top-2 left-2 bottom-2 z-40 rounded-2xl bg-[#0A0C10]/95 backdrop-blur-xl border border-[#181A20] shadow-xl flex flex-col select-none transition-all duration-300 ease-in-out overflow-hidden",
-        isCollapsed ? "w-[68px]" : "w-[260px]"
+    <>
+      {/* Mobile Drawer Backdrop Overlay */}
+      {isMobileOpen && (
+        <div
+          onClick={onMobileClose}
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
+        />
       )}
-    >
-      {/* Brand Header & Toggle Button (matching tuf_ui sidebar toggle) */}
-      <div className="h-16 px-4 flex items-center justify-between border-b border-[#181A20] shrink-0">
-        {!isCollapsed ? (
-          <Link to="/dashboard" className="flex items-center gap-2.5 group min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center shadow-md shadow-[#327CF6]/20 shrink-0 group-hover:scale-105 transition-transform">
-              <span className="text-white font-bold text-sm tracking-tight font-mono">F&gt;</span>
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="text-white font-bold text-[15px] tracking-tight font-sans truncate">
-                  {/* take<span className="text-[#327CF6]">U</span>forward */}
-                  inter<span className="text-[#327CF6]">V</span>ue
-                </span>
-              </div>
-              <p className="text-[10px] text-[#525866] font-mono tracking-wide -mt-0.5 truncate">
-                placement suite
-              </p>
-            </div>
-          </Link>
-        ) : (
-          <Link to="/dashboard" className="mx-auto" title="takeUforward">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center shadow-md shadow-[#327CF6]/20">
-              <span className="text-white font-bold text-sm font-mono">F&gt;</span>
-            </div>
-          </Link>
-        )}
 
-        {/* TUF Sidebar Collapse / Open Toggle Button */}
-        <button
-          type="button"
-          onClick={onToggle}
-          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className={cn(
-            "w-7 h-7 rounded-lg flex items-center justify-center text-[#8B92A0] hover:text-white hover:bg-[#14161C] border border-transparent hover:border-[#1E2229] transition-all cursor-pointer",
-            isCollapsed && "mx-auto mt-2"
-          )}
-        >
-          {isCollapsed ? (
-            <PanelLeft className="w-4 h-4 text-[#327CF6]" />
+      <aside
+        className={cn(
+          "fixed top-2 bottom-2 z-50 rounded-2xl bg-[#0A0C10]/98 backdrop-blur-xl border border-[#181A20] shadow-2xl flex flex-col select-none transition-all duration-300 ease-in-out overflow-hidden",
+          // Desktop positioning
+          "md:left-2",
+          isCollapsed ? "md:w-[68px]" : "md:w-[260px]",
+          // Mobile positioning & slide transition
+          "left-2 w-[270px] max-w-[85vw]",
+          isMobileOpen ? "translate-x-0" : "-translate-x-[115%] md:translate-x-0"
+        )}
+      >
+        {/* Brand Header & Toggle Button */}
+        <div className="h-16 px-4 flex items-center justify-between border-b border-[#181A20] shrink-0">
+          {!isCollapsed ? (
+            <Link
+              to="/dashboard"
+              onClick={onMobileClose}
+              className="flex items-center gap-2.5 group min-w-0"
+            >
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center shadow-md shadow-[#327CF6]/20 shrink-0 group-hover:scale-105 transition-transform">
+                <span className="text-white font-bold text-sm tracking-tight font-mono">F&gt;</span>
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-white font-bold text-[15px] tracking-tight font-sans truncate">
+                    inter<span className="text-[#327CF6]">V</span>ue
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#525866] font-mono tracking-wide -mt-0.5 truncate">
+                  placement suite
+                </p>
+              </div>
+            </Link>
           ) : (
-            <PanelLeftClose className="w-4 h-4" />
+            <Link to="/dashboard" onClick={onMobileClose} className="mx-auto" title="interVue">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center shadow-md shadow-[#327CF6]/20">
+                <span className="text-white font-bold text-sm font-mono">F&gt;</span>
+              </div>
+            </Link>
           )}
-        </button>
-      </div>
+
+          {/* Mobile Close Button */}
+          <button
+            type="button"
+            onClick={onMobileClose}
+            title="Close menu"
+            className="md:hidden w-7 h-7 rounded-lg flex items-center justify-center text-[#8B92A0] hover:text-white hover:bg-[#14161C] border border-[#1E2229] transition-all cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          {/* Desktop Collapse / Open Toggle Button */}
+          <button
+            type="button"
+            onClick={onToggle}
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            className={cn(
+              "hidden md:flex w-7 h-7 rounded-lg items-center justify-center text-[#8B92A0] hover:text-white hover:bg-[#14161C] border border-transparent hover:border-[#1E2229] transition-all cursor-pointer",
+              isCollapsed && "mx-auto mt-2"
+            )}
+          >
+            {isCollapsed ? (
+              <PanelLeft className="w-4 h-4 text-[#327CF6]" />
+            ) : (
+              <PanelLeftClose className="w-4 h-4" />
+            )}
+          </button>
+        </div>
 
       {/* Navigation Sections */}
       <nav className="flex-1 px-2.5 py-4 space-y-5 overflow-y-auto scrollbar-none">
@@ -433,5 +468,6 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         )}
       </div>
     </aside>
-  );
+  </>
+);
 }

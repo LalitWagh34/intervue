@@ -21,6 +21,7 @@ import {
   Sparkles,
   CheckCircle2,
   ExternalLink,
+  Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -67,9 +68,13 @@ export default function AppLayout() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close profile dropdown on route change
+  // Mobile Drawer state
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Close profile dropdown and mobile drawer on route change
   useEffect(() => {
     setIsProfileOpen(false);
+    setIsMobileOpen(false);
   }, [location.pathname]);
 
   const handleSignOut = async () => {
@@ -92,28 +97,46 @@ export default function AppLayout() {
     <div className="min-h-screen bg-[#060709] text-[#F3F4F6] font-sans flex selection:bg-[#327CF6]/30">
       {/* Daily Streak Auto-Claim (fires once per day silently) */}
       <DailyStreakClaim />
-      {/* Floating Inset Sidebar */}
-      <Sidebar isCollapsed={isCollapsed} onToggle={toggleSidebar} />
+      {/* Floating Inset Sidebar (Responsive drawer on mobile, fixed on desktop) */}
+      <Sidebar
+        isCollapsed={isCollapsed}
+        onToggle={toggleSidebar}
+        isMobileOpen={isMobileOpen}
+        onMobileClose={() => setIsMobileOpen(false)}
+      />
 
       {/* Main Content Viewport Column */}
       <div
         className={cn(
           "flex-1 min-w-0 min-h-screen flex flex-col bg-[#060709] transition-all duration-300 ease-in-out overflow-x-hidden",
-          isCollapsed ? "pl-[84px]" : "pl-[276px]"
+          "pl-0",
+          isCollapsed ? "md:pl-[84px]" : "md:pl-[276px]"
         )}
       >
         {/* TUF Floating Top Header */}
-        <header className="h-16 px-6 md:px-8 border-b border-[#181A20] bg-[#0A0C10]/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between">
-          {/* Global Search / Command Bar Trigger */}
-          <div
-            onClick={() => setIsOpen(true)}
-            className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 text-xs text-[#8B92A0] hover:text-[#F3F4F6] cursor-pointer transition-all w-64 md:w-80 group shadow-inner"
-          >
-            <Search className="w-3.5 h-3.5 text-[#525866] group-hover:text-[#327CF6] transition-colors" />
-            <span className="flex-1 truncate">Search problems, sheets, tracks...</span>
-            <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-[#060709] border border-[#181A20] text-[10px] font-mono text-[#8B92A0]">
-              ⌘K
-            </kbd>
+        <header className="h-16 px-4 sm:px-6 md:px-8 border-b border-[#181A20] bg-[#0A0C10]/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between gap-2.5 sm:gap-4">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            {/* Mobile Menu Hamburger Button */}
+            <button
+              type="button"
+              onClick={() => setIsMobileOpen(true)}
+              className="md:hidden p-2 rounded-xl bg-[#0D0E12] border border-[#181A20] text-zinc-300 hover:text-white transition-colors cursor-pointer shrink-0"
+              title="Open navigation menu"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+
+            {/* Global Search / Command Bar Trigger */}
+            <div
+              onClick={() => setIsOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 text-xs text-[#8B92A0] hover:text-[#F3F4F6] cursor-pointer transition-all flex-1 max-w-[170px] sm:max-w-xs md:w-80 group shadow-inner"
+            >
+              <Search className="w-3.5 h-3.5 text-[#525866] group-hover:text-[#327CF6] transition-colors shrink-0" />
+              <span className="flex-1 truncate">Search...</span>
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-[#060709] border border-[#181A20] text-[10px] font-mono text-[#8B92A0]">
+                ⌘K
+              </kbd>
+            </div>
           </div>
 
           {/* Right Action Bar */}
