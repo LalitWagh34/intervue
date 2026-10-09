@@ -38,9 +38,11 @@ import {
   ArrowRight,
   LogOut,
   Search,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ExamInstructionsGate } from "@/components/exam/ExamInstructionsGate";
 
 type MonacoEditor = Parameters<OnMount>[0];
 
@@ -89,6 +91,13 @@ export default function RoomArenaPage() {
   const [isForceEndModalOpen, setIsForceEndModalOpen] = useState(false);
   const [isExitModalOpen, setIsExitModalOpen] = useState(false);
   const [isSubmittingTest, setIsSubmittingTest] = useState(false);
+
+  // Pre-Exam Rules Agreement & In-Exam Rules Reference Modal
+  const [hasAgreedRules, setHasAgreedRules] = useState<boolean>(() => {
+    if (!code) return false;
+    return sessionStorage.getItem(`intervue_exam_rules_agreed_${code}`) === "true";
+  });
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
 
   // Real-Time Socket
   const {
@@ -151,7 +160,7 @@ export default function RoomArenaPage() {
     return () => clearInterval(timer);
   }, []);
 
-  // Anti-Cheat System with backend escalation
+  // Anti-Cheat System with backend escalation (activated only after candidate agrees to rules)
   const {
     strikes,
     maxStrikes,
@@ -164,7 +173,7 @@ export default function RoomArenaPage() {
     requestFullscreen,
     exitFullscreen,
   } = useAntiCheat({
-    enabled: room?.status === "ACTIVE" && !isSpectatorMode,
+    enabled: room?.status === "ACTIVE" && !isSpectatorMode && hasAgreedRules,
     maxStrikes: 3,
     onViolation: (type, details) => {
       emitViolation(type, details);
@@ -428,6 +437,25 @@ export default function RoomArenaPage() {
     );
   }
 
+  // Mandatory Pre-Exam Instructions & Proctoring Agreement Gate
+  if (room && !hasAgreedRules) {
+    return (
+      <ExamInstructionsGate
+        room={room}
+        candidateName={session?.user?.name || "Candidate"}
+        candidateEmail={session?.user?.email || ""}
+        onAcceptAndEnter={() => {
+          if (code) {
+            sessionStorage.setItem(`intervue_exam_rules_agreed_${code}`, "true");
+          }
+          setHasAgreedRules(true);
+          requestFullscreen();
+        }}
+        onCancel={() => navigate(`/rooms/${code}/lobby`)}
+      />
+    );
+  }
+
   const activeQuestion = room.questions[activeQuestionIndex] || room.questions[0];
   const isCodingQuestion = activeQuestion?.type === "CODING";
 
@@ -539,6 +567,18 @@ export default function RoomArenaPage() {
               <Eye className="w-3.5 h-3.5 text-purple-400" />
             )}
             <span className="hidden md:inline">{isSpectatorMode ? "Exit Spectator" : "Spectator"}</span>
+          </Button>
+
+          {/* Exam Rules & Instructions Reference */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setIsRulesModalOpen(true)}
+            className="text-xs h-8 border-zinc-800 flex items-center gap-1.5 rounded-xl bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            title="View Exam Instructions, Layout & Anti-Cheat Rules"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+            <span className="hidden xl:inline">Rules & Info</span>
           </Button>
 
           {/* Standings Button */}
@@ -1881,6 +1921,37 @@ export default function RoomArenaPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* ─── IN-EXAM RULES & INSTRUCTIONS REFERENCE MODAL ───────────── */}
+      {isRulesModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-[#0C0E14] border border-zinc-800 rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 relative shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800 sticky top-0 bg-[#0C0E14]/95 backdrop-blur z-20">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-blue-400" />
+                <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                  Examination Rules & Workspace Reference
+                </h3>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsRulesModalOpen(false)}
+                className="text-zinc-400 hover:text-white h-8 px-2 rounded-lg"
+              >
+                ✕ Close
+              </Button>
+            </div>
+            <ExamInstructionsGate
+              room={room}
+              candidateName={session?.user?.name || "Candidate"}
+              candidateEmail={session?.user?.email || ""}
+              isModalView={true}
+              onAcceptAndEnter={() => setIsRulesModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

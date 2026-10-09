@@ -19,9 +19,12 @@ import {
   Sparkles,
   Shield,
   Swords,
+  ShieldAlert,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ExamInstructionsGate } from "@/components/exam/ExamInstructionsGate";
 
 interface RoomDetails {
   id: string;
@@ -63,6 +66,7 @@ export default function RoomLobbyPage() {
 
   const [unjoinedRoom, setUnjoinedRoom] = useState<any>(null);
   const [isJoiningRoom, setIsJoiningRoom] = useState(false);
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
 
   // Initialize real-time WebSocket connection only if user is authorized
   const isAuthorized = !!room && !unjoinedRoom;
@@ -349,6 +353,34 @@ export default function RoomLobbyPage() {
           </div>
         </div>
 
+        {/* Pre-Exam Rules & Disclaimer Notice Card */}
+        <div className="bg-[#0C0E14] border border-blue-500/20 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0 mt-0.5">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-white uppercase tracking-wider">Candidate Guidelines & Anti-Cheat Disclaimers</span>
+                <Badge variant="outline" className="border-red-500/30 bg-red-500/10 text-red-400 text-[10px] font-mono">
+                  Strict 3-Strike Policy
+                </Badge>
+              </div>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Review the workspace layout, focus-exit penalty disclaimers, spectator surveillance, and scoring rules before the test commences.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => setIsRulesModalOpen(true)}
+            className="w-full sm:w-auto bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border border-zinc-700 rounded-xl text-xs font-medium shrink-0 flex items-center gap-1.5 cursor-pointer shadow-sm"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+            <span>Read Exam Rules</span>
+          </Button>
+        </div>
+
         {/* Participants Grid */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -435,6 +467,44 @@ export default function RoomLobbyPage() {
           )}
         </div>
       </div>
+
+      {/* ─── PRE-EXAM RULES & GUIDELINES PREVIEW MODAL ──────────────── */}
+      {isRulesModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-[#0C0E14] border border-zinc-800 rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 relative shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800 sticky top-0 bg-[#0C0E14]/95 backdrop-blur z-20">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-blue-400" />
+                <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                  Examination Rules, Layout & Anti-Cheat Guidelines
+                </h3>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsRulesModalOpen(false)}
+                className="text-zinc-400 hover:text-white h-8 px-2 rounded-lg"
+              >
+                ✕ Close
+              </Button>
+            </div>
+            <ExamInstructionsGate
+              room={room}
+              candidateName={session?.user?.name || "Candidate"}
+              candidateEmail={session?.user?.email || ""}
+              isModalView={true}
+              onAcceptAndEnter={() => {
+                if (code) {
+                  sessionStorage.setItem(`intervue_exam_rules_agreed_${code}`, "true");
+                }
+                toast.success("Guidelines acknowledged! You are cleared for the examination.");
+                setIsRulesModalOpen(false);
+              }}
+              onCancel={() => setIsRulesModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
