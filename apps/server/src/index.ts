@@ -65,7 +65,15 @@ app.use(
       if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1")) {
         return origin || "http://localhost:5173";
       }
-      return "http://localhost:5173";
+      const allowedOrigins = [
+        process.env.FRONTEND_URL,
+        process.env.CLIENT_URL,
+      ].filter(Boolean) as string[];
+
+      if (allowedOrigins.some((allowed) => origin === allowed || origin.startsWith(allowed))) {
+        return origin;
+      }
+      return allowedOrigins[0] || origin || "http://localhost:5173";
     },
     credentials: true,
     allowHeaders: ["Content-Type", "Authorization", "Idempotency-Key", "X-Idempotency-Key"],

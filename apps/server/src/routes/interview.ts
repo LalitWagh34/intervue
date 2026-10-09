@@ -1,5 +1,6 @@
-import {Hono} from "hono";
+import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth";
+import { aiReviewLimiter } from "../middleware/rateLimiter";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import { evaluateInterview } from "../services/evaluation";
@@ -103,7 +104,7 @@ app.put("/:id/abandon" , requireAuth ,async(c)=>{
     return c.json({interview})
 })
 
-app.post("/:id/message", requireAuth, async (c) => {
+app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
   const user = c.get("user");
   const id = c.req.param("id")!;
   const body = await c.req.json();

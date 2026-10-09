@@ -2,9 +2,16 @@ import { Hono } from "hono";
 import { promises as fs } from "fs";
 import path from "path";
 import { config } from "dotenv";
+import { rateLimiter } from "../middleware/rateLimiter";
 
 const feedback = new Hono();
 const DATA_FILE = path.resolve(process.cwd(), "data", "feedbacks.json");
+
+const feedbackLimiter = rateLimiter({
+  windowMs: 5 * 60_000,
+  max: 5,
+  message: "Too many feedback submissions. Please wait a few minutes before sending again.",
+});
 
 interface FeedbackItem {
   id: string;
@@ -17,7 +24,7 @@ interface FeedbackItem {
 }
 
 // POST /api/feedback - submit user feedback
-feedback.post("/", async (c) => {
+feedback.post("/", feedbackLimiter, async (c) => {
   try {
     // Reload dotenv dynamically so any updates to .env take effect immediately
     config({ override: true });

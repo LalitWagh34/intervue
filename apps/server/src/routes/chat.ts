@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth";
+import { aiReviewLimiter } from "../middleware/rateLimiter";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
@@ -52,7 +53,7 @@ app.get("/:id", requireAuth, async (c) => {
 });
 
 // Send message — SSE streaming response
-app.post("/:id/message", requireAuth, async (c) => {
+app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
   const user = c.get("user");
   const id = c.req.param("id")!;
   const body = await c.req.json();

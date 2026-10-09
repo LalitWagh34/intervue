@@ -26,6 +26,8 @@ export const auth = betterAuth({
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
     "http://127.0.0.1:3000",
+    ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+    ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
   ],
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",
