@@ -408,29 +408,29 @@ export default function PracticeHubPage() {
               {/* Subject 1: Target Company Practice Kits (Target company wise) */}
               <div
                 onClick={() => openCompanyKitsCatalog()}
-                className="p-5 rounded-2xl bg-gradient-to-r from-[#0D0E12] via-[#0F131D] to-[#0D0E12] border border-blue-500/25 hover:border-blue-500/50 hover:bg-[#111522] transition-all cursor-pointer flex items-center justify-between group shadow-lg shadow-blue-950/10"
+                className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0D0E12] via-[#0F131D] to-[#0D0E12] border border-blue-500/25 hover:border-blue-500/50 hover:bg-[#111522] transition-all cursor-pointer flex items-center justify-between group shadow-lg shadow-blue-950/10 gap-3"
               >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-105 transition-transform shadow-inner">
-                    <Building2 className="w-6 h-6" />
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-105 transition-transform shadow-inner">
+                    <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#327CF6] transition-colors leading-snug">
                         Target Company Practice Kits
                       </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 whitespace-nowrap shrink-0">
                         Top FAANG Rounds
                       </span>
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#8B92A0] mt-0.5 line-clamp-1">
-                      Targeted interview problem sets for Google, Amazon, Meta, Microsoft, Apple, Uber & Netflix with interactive topic donuts and round breakdowns.
+                      Targeted interview problem sets for Google, Amazon, Meta, Microsoft, Apple, Uber & Netflix.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-medium text-blue-400 group-hover:text-white shrink-0 pl-4">
-                  <span>Explore Kits</span>
+                <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium text-blue-400 group-hover:text-white shrink-0 pl-1 sm:pl-4">
+                  <span className="hidden sm:inline">Explore Kits</span>
                   <ChevronRight className="w-4 h-4 text-blue-400/70 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
@@ -438,29 +438,29 @@ export default function PracticeHubPage() {
               {/* Subject 2: All Company Section (Company-Wise 470+ company question system) */}
               <div
                 onClick={() => openCompanyWise()}
-                className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
+                className="p-4 sm:p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
               >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <Layers className="w-6 h-6" />
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
+                    <Layers className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#327CF6] transition-colors leading-snug">
                         All Company Questions Archive
                       </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 whitespace-nowrap shrink-0">
                         470+ Companies
                       </span>
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#7A808C] mt-0.5 line-clamp-1">
-                      Past interview papers ranked by ask rate from Google, Amazon, Meta, Microsoft, Apple, Uber & high-growth startups.
+                      Past interview papers ranked by ask rate from Google, Amazon, Meta, Microsoft, Apple, Uber & startups.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-4">
-                  <span>View Companies</span>
+                <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-1 sm:pl-4">
+                  <span className="hidden sm:inline">View Companies</span>
                   <ChevronRight className="w-4 h-4 text-[#525866] group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
@@ -468,18 +468,18 @@ export default function PracticeHubPage() {
               {/* Subject 3: DSA Problem Sheets (Coming Soon) */}
               <div
                 onClick={() => openComingSoon("dsa")}
-                className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-amber-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
+                className="p-4 sm:p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-amber-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
               >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <Code2 className="w-6 h-6" />
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
+                    <Code2 className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors truncate">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-400 transition-colors leading-snug">
                         DSA Problem Sheets
                       </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap shrink-0">
                         Coming Soon
                       </span>
                     </div>
@@ -489,8 +489,8 @@ export default function PracticeHubPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-medium text-amber-400/80 group-hover:text-amber-400 shrink-0 pl-4">
-                  <span>Coming Soon</span>
+                <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium text-amber-400/80 group-hover:text-amber-400 shrink-0 pl-1 sm:pl-4">
+                  <span className="hidden sm:inline">Coming Soon</span>
                   <ChevronRight className="w-4 h-4 text-amber-500/50 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
@@ -498,29 +498,29 @@ export default function PracticeHubPage() {
               {/* Subject 4: AI Mock Interviews */}
               <div
                 onClick={() => navigate("/interview")}
-                className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
+                className="p-4 sm:p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
               >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-orange-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <Sparkles className="w-6 h-6" />
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-orange-400 shrink-0 group-hover:scale-105 transition-transform">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#327CF6] transition-colors leading-snug">
                         AI Mock Interviews
                       </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/30">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/30 whitespace-nowrap shrink-0">
                         Live Simulation
                       </span>
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#7A808C] mt-0.5 line-clamp-1">
-                      Interactive real-time technical & behavioral interviews with AI scoring and diagnostic rubric evaluations.
+                      Interactive real-time technical & behavioral interviews with AI rubric evaluations.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-4">
-                  <span>Start Mock</span>
+                <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-1 sm:pl-4">
+                  <span className="hidden sm:inline">Start Mock</span>
                   <ChevronRight className="w-4 h-4 text-[#525866] group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>

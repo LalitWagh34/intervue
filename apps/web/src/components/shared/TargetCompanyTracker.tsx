@@ -200,10 +200,10 @@ export function TargetCompanyTracker() {
               Interview Target Tracker
             </span>
           </div>
-          <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+          <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2 flex-wrap">
             <span>Target Company Readiness</span>
             {hasTarget && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30 font-mono">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30 font-mono shrink-0">
                 {selectedCompanies.length} Active {selectedCompanies.length === 1 ? "Target" : "Targets"}
               </span>
             )}
@@ -216,28 +216,28 @@ export function TargetCompanyTracker() {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 w-full md:w-auto">
           {hasTarget && (
             <Link
               to={`/practice?view=company_kits`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 border border-blue-500/30 text-xs font-semibold transition-all cursor-pointer shadow-sm"
+              className="flex-1 md:flex-initial justify-center flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 border border-blue-500/30 text-xs font-semibold transition-all cursor-pointer shadow-sm whitespace-nowrap"
               title="Open Company Prep Kits"
             >
-              <Building2 className="w-3.5 h-3.5" />
+              <Building2 className="w-3.5 h-3.5 shrink-0" />
               <span>Prep Kits ↗</span>
             </Link>
           )}
 
           {/* Add / Modify Targets Dropdown */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative flex-1 md:flex-initial" ref={dropdownRef}>
             <button
               type="button"
               onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12151D] border border-zinc-700/80 hover:border-zinc-600 text-xs text-zinc-200 transition-all cursor-pointer font-medium shadow-sm"
+              className="w-full md:w-auto justify-center flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12151D] border border-zinc-700/80 hover:border-zinc-600 text-xs text-zinc-200 transition-all cursor-pointer font-medium shadow-sm whitespace-nowrap"
             >
-              <Target className="w-3.5 h-3.5 text-blue-400" />
+              <Target className="w-3.5 h-3.5 text-blue-400 shrink-0" />
               <span>{hasTarget ? "Manage Targets" : "Select Targets"}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             </button>
 
             {isDropdownOpen && (
@@ -389,17 +389,17 @@ export function TargetCompanyTracker() {
                 <Flame className="w-4 h-4" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h4 className="text-sm font-bold text-white tracking-tight">
                     Today's Target Company Challenges
                   </h4>
                   {isDailyComplete ? (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shrink-0">
                       <CheckCircle2 className="w-3 h-3" />
                       <span>Complete!</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30 shrink-0">
                       {dailySolvedCount} of {dailyProblems.length} solved
                     </span>
                   )}
@@ -446,18 +446,18 @@ export function TargetCompanyTracker() {
                 return (
                   <div
                     key={p.slug}
-                    className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    className={`p-3 sm:p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2.5 sm:gap-3 ${
                       isSolved
                         ? "bg-emerald-500/[0.03] border-emerald-500/25"
                         : "bg-[#0E1118] border-[#1E2333] hover:border-zinc-700"
                     }`}
                   >
-                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                    <div className="flex items-center sm:items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
                       {/* Solved Checkbox */}
                       <button
                         type="button"
                         onClick={(e) => handleToggleSolved(p.slug, p.difficulty, e)}
-                        className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors cursor-pointer ${
+                        className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors cursor-pointer ${
                           isSolved
                             ? "bg-emerald-500 border-emerald-500 text-black shadow-sm"
                             : "border-zinc-700 bg-zinc-900/60 hover:border-zinc-500"
@@ -468,7 +468,7 @@ export function TargetCompanyTracker() {
                       </button>
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-0.5 sm:mb-1">
                           {/* Difficulty pill */}
                           <span
                             className={`text-[9px] font-mono font-semibold px-1.5 py-0.2 rounded border ${
@@ -516,12 +516,12 @@ export function TargetCompanyTracker() {
                     </div>
 
                     {/* Solve CTA */}
-                    <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       <a
                         href={leetcodeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-xl bg-[#FFA116]/10 hover:bg-[#FFA116]/20 border border-[#FFA116]/30 hover:border-[#FFA116]/50 text-[#FFA116] text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm group/lc cursor-pointer"
+                        className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#FFA116]/10 hover:bg-[#FFA116]/20 border border-[#FFA116]/30 hover:border-[#FFA116]/50 text-[#FFA116] text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-all shadow-sm group/lc cursor-pointer"
                         title="Solve on LeetCode"
                       >
                         <img
