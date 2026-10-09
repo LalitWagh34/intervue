@@ -1924,9 +1924,9 @@ export default function RoomArenaPage() {
 
       {/* ─── IN-EXAM RULES & INSTRUCTIONS REFERENCE MODAL ───────────── */}
       {isRulesModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
-          <div className="bg-[#101014] border border-zinc-800 rounded-xl max-w-4xl w-full p-5 sm:p-6 relative shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-[#101014] border border-zinc-800 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col relative shadow-2xl my-auto overflow-hidden">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-800 shrink-0 bg-[#101014]">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4 text-zinc-400" />
                 <h3 className="text-sm font-bold text-white tracking-tight">
@@ -1937,18 +1937,20 @@ export default function RoomArenaPage() {
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsRulesModalOpen(false)}
-                className="text-zinc-400 hover:text-white h-8 px-2 rounded-lg"
+                className="text-zinc-400 hover:text-white h-8 px-2 rounded-lg cursor-pointer"
               >
                 ✕ Close
               </Button>
             </div>
-            <ExamInstructionsGate
-              room={room}
-              candidateName={session?.user?.name || "Candidate"}
-              candidateEmail={session?.user?.email || ""}
-              isModalView={true}
-              onAcceptAndEnter={() => setIsRulesModalOpen(false)}
-            />
+            <div className="p-4 sm:p-5 overflow-y-auto flex-1">
+              <ExamInstructionsGate
+                room={room}
+                candidateName={session?.user?.name || "Candidate"}
+                candidateEmail={session?.user?.email || ""}
+                isModalView={true}
+                onAcceptAndEnter={() => setIsRulesModalOpen(false)}
+              />
+            </div>
           </div>
         </div>
       )}

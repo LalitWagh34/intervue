@@ -56,13 +56,11 @@ export function ExamInstructionsGate({
       className={`w-full ${
         isModalView
           ? "p-0"
-          : "min-h-screen bg-[#09090b] text-zinc-100 flex items-center justify-center p-4 sm:p-6"
+          : "min-h-screen w-full bg-[#09090b] text-zinc-100 flex flex-col items-center justify-start sm:justify-center p-3 sm:p-6 overflow-y-auto"
       }`}
     >
       <div
-        className={`w-full max-w-4xl bg-[#101014] border border-zinc-800 rounded-xl p-5 sm:p-6 flex flex-col gap-5 shadow-2xl ${
-          isModalView ? "" : ""
-        }`}
+        className="w-full max-w-4xl bg-[#101014] border border-zinc-800 rounded-xl p-4 sm:p-6 flex flex-col gap-4 shadow-2xl my-auto"
       >
         {/* Top Header Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-zinc-800/80 gap-3">
