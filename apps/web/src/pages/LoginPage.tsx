@@ -1,41 +1,25 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { signIn, useSession } from "@/lib/auth";
+import { signIn, signUp, useSession } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   Loader2,
   AlertCircle,
-  Phone,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  User as UserIcon,
   Sparkles,
   ShieldCheck,
-  CheckCircle2,
-  ArrowRight,
-  ChevronDown,
-  RefreshCw,
   Building2,
   Mic,
   Swords,
   TrendingUp,
   ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
-
-interface CountryCode {
-  code: string;
-  name: string;
-  flag: string;
-  placeholder: string;
-}
-
-const COUNTRIES: CountryCode[] = [
-  { code: "+91", name: "India", flag: "🇮🇳", placeholder: "98765 43210" },
-  { code: "+1", name: "USA / Canada", flag: "🇺🇸", placeholder: "(555) 000-0000" },
-  { code: "+44", name: "United Kingdom", flag: "🇬🇧", placeholder: "7911 123456" },
-  { code: "+65", name: "Singapore", flag: "🇸🇬", placeholder: "8123 4567" },
-  { code: "+971", name: "UAE", flag: "🇦🇪", placeholder: "50 123 4567" },
-  { code: "+49", name: "Germany", flag: "🇩🇪", placeholder: "151 23456789" },
-  { code: "+61", name: "Australia", flag: "🇦🇺", placeholder: "412 345 678" },
-];
 
 export default function LoginPage() {
   const { data: session } = useSession();
@@ -51,23 +35,18 @@ export default function LoginPage() {
     }
   }, [session, navigate]);
 
-  // Auth Mode: "google" | "phone"
-  const [authMode, setAuthMode] = useState<"google" | "phone">("google");
+  // Auth Tab Mode: "signin" | "signup"
+  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
 
-  // Google sign in loading state
+  // Form State
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Loading States
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-
-  // Phone Auth State
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>(COUNTRIES[0]);
-  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otpStep, setOtpStep] = useState<"enter-phone" | "enter-otp">("enter-phone");
-  const [otpValues, setOtpValues] = useState<string[]>(["", "", "", "", "", ""]);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [resendCountdown, setResendCountdown] = useState(0);
-
-  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Referral code persistence
   useEffect(() => {
@@ -87,16 +66,69 @@ export default function LoginPage() {
     }
   }, [errorParam]);
 
-  // Resend timer countdown
-  useEffect(() => {
-    if (resendCountdown <= 0) return;
-    const timer = setInterval(() => {
-      setResendCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [resendCountdown]);
+  // Email & Password Submit Handler
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
 
-  // Trigger Google sign in
+    if (!email.trim() || !password.trim()) {
+      toast.error("Please enter both email and password.");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (authMode === "signup") {
+        // Sign Up with Email and Password
+        const result = await signUp.email({
+          email: email.trim(),
+          password: password,
+          name: name.trim() || email.split("@")[0],
+          callbackURL: "http://localhost:5173/dashboard",
+        });
+
+        if (result.error) {
+          throw new Error(result.error.message || "Failed to create account");
+        }
+
+        toast.success("Account created successfully!", {
+          description: "Welcome to Intervue! Redirecting to your dashboard...",
+        });
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 600);
+      } else {
+        // Sign In with Email and Password
+        const result = await signIn.email({
+          email: email.trim(),
+          password: password,
+          callbackURL: "http://localhost:5173/dashboard",
+        });
+
+        if (result.error) {
+          throw new Error(result.error.message || "Invalid email or password");
+        }
+
+        toast.success("Welcome back!", {
+          description: "Signed in successfully. Redirecting...",
+        });
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 600);
+      }
+    } catch (err: any) {
+      console.error("Auth submit error:", err);
+      toast.error(err?.message || "Authentication failed. Please check your credentials.");
+      setIsSubmitting(false);
+    }
+  };
+
+  // Google 1-Click Sign-In
   const handleGoogleSignIn = async () => {
     if (isGoogleLoading) return;
     setIsGoogleLoading(true);
@@ -109,126 +141,6 @@ export default function LoginPage() {
       console.error("Google sign in initiation failed:", err);
       setIsGoogleLoading(false);
       toast.error("Failed to initiate Google sign-in. Please try again.");
-    }
-  };
-
-  // Trigger OTP Send
-  const handleSendOtp = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const cleanDigits = phoneNumber.replace(/\D/g, "");
-    if (cleanDigits.length < 8) {
-      toast.error("Please enter a valid phone number");
-      return;
-    }
-
-    const fullPhoneNumber = `${selectedCountry.code}${cleanDigits}`;
-    setIsSendingOtp(true);
-    try {
-      const response = await fetch("http://localhost:3000/api/auth/phone/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber: fullPhoneNumber }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to send verification code");
-      }
-
-      setOtpStep("enter-otp");
-      setResendCountdown(60);
-
-      if (data.provider === "console") {
-        toast.success(`Verification code generated for ${fullPhoneNumber}!`, {
-          description: "Check your server terminal for the real OTP, or enter 123456.",
-        });
-      } else {
-        toast.success(`SMS verification code delivered to ${fullPhoneNumber}!`);
-      }
-
-      // Focus first OTP input
-      setTimeout(() => {
-        otpInputRefs.current[0]?.focus();
-      }, 100);
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to send verification code. Please try again.");
-    } finally {
-      setIsSendingOtp(false);
-    }
-  };
-
-  // Handle OTP digit changes
-  const handleOtpChange = (index: number, value: string) => {
-    const digit = value.replace(/\D/g, "").slice(-1);
-    const newOtp = [...otpValues];
-    newOtp[index] = digit;
-    setOtpValues(newOtp);
-
-    // Auto advance
-    if (digit && index < 5) {
-      otpInputRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !otpValues[index] && index > 0) {
-      otpInputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!pastedData) return;
-
-    const newOtp = [...otpValues];
-    for (let i = 0; i < pastedData.length; i++) {
-      newOtp[i] = pastedData[i];
-    }
-    setOtpValues(newOtp);
-
-    const nextIndex = Math.min(pastedData.length, 5);
-    otpInputRefs.current[nextIndex]?.focus();
-  };
-
-  // Verify OTP
-  const handleVerifyOtp = async () => {
-    const enteredCode = otpValues.join("");
-    if (enteredCode.length < 6) {
-      toast.error("Please enter all 6 digits of your verification code.");
-      return;
-    }
-
-    const cleanDigits = phoneNumber.replace(/\D/g, "");
-    const fullPhoneNumber = `${selectedCountry.code}${cleanDigits}`;
-
-    setIsVerifyingOtp(true);
-    try {
-      const response = await fetch("http://localhost:3000/api/auth/phone/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          phoneNumber: fullPhoneNumber,
-          code: enteredCode,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Verification failed");
-      }
-
-      toast.success("Mobile phone verified successfully!", {
-        description: "Session established. Redirecting to your dashboard...",
-      });
-
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 700);
-    } catch (err: any) {
-      toast.error(err?.message || "Verification failed. Please check the code.");
-      setIsVerifyingOtp(false);
     }
   };
 
@@ -280,8 +192,8 @@ export default function LoginPage() {
                 .
               </h1>
               <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
-                Deterministic daily POTD from Google & Amazon, real-time AI voice mock sessions, and live
-                peer arena battles — tailored for your dream offer.
+                Curated daily POTD matching Google & Amazon, conversational AI voice mock sessions, and live
+                peer arena battles — built for modern engineers.
               </p>
             </div>
 
@@ -306,7 +218,7 @@ export default function LoginPage() {
                 <div>
                   <h2 className="text-sm font-semibold text-zinc-200">AI Voice Mock Interviews</h2>
                   <p className="text-xs text-zinc-400 mt-0.5 leading-normal">
-                    Conversational behavioral & technical rounds with instant scoring rubrics.
+                    Conversational technical & behavioral rounds with instant scoring rubrics.
                   </p>
                 </div>
               </div>
@@ -359,10 +271,10 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Right Column: Authentication Card */}
+          {/* Right Column: Clean Email & Password Authentication Card */}
           <div className="lg:col-span-6 w-full max-w-md mx-auto">
             <div className="relative rounded-2xl bg-[#0c0d12]/95 border border-zinc-800/80 shadow-2xl shadow-black/80 backdrop-blur-2xl p-6 sm:p-8 overflow-hidden">
-              {/* Subtle Card Accent Glow */}
+              {/* Subtle Card Glow */}
               <div className="absolute top-0 right-0 w-44 h-44 bg-blue-500/10 rounded-full blur-2xl pointer-events-none -mr-16 -mt-16" />
 
               {/* Header inside Card */}
@@ -373,13 +285,17 @@ export default function LoginPage() {
                   </div>
                   <span className="text-white font-bold text-lg">Intervue</span>
                 </div>
-                <h2 className="text-2xl font-bold tracking-tight text-white">Welcome back</h2>
+                <h2 className="text-2xl font-bold tracking-tight text-white">
+                  {authMode === "signin" ? "Welcome back" : "Create an account"}
+                </h2>
                 <p className="text-xs text-zinc-400">
-                  Sign in to your account to continue your interview & coding journey
+                  {authMode === "signin"
+                    ? "Enter your email and password to access your account"
+                    : "Enter your email and choose a password to get started"}
                 </p>
               </div>
 
-              {/* Referral Code Banner if present */}
+              {/* Referral Banner if present */}
               {refParam && (
                 <div className="mb-5 p-3 rounded-xl bg-blue-950/40 border border-blue-800/50 flex items-center gap-2.5 text-xs text-blue-300">
                   <Sparkles className="w-4 h-4 text-blue-400 shrink-0" />
@@ -394,22 +310,171 @@ export default function LoginPage() {
               {errorParam === "state_mismatch" && (
                 <div className="mb-5 p-3 rounded-xl bg-amber-950/30 border border-amber-800/40 text-xs text-amber-300 flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <span>Previous OAuth session expired. Please click below once to start fresh.</span>
+                  <span>Previous OAuth session expired. Please click below to try again.</span>
                 </div>
               )}
 
-              {/* Auth Mode Tabs: Google vs Mobile OTP */}
+              {/* Sign In vs Sign Up Tab Switcher */}
               <div className="grid grid-cols-2 gap-1 p-1 bg-zinc-900/90 rounded-xl border border-zinc-800 mb-6">
                 <button
                   type="button"
-                  onClick={() => setAuthMode("google")}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    authMode === "google"
+                  onClick={() => setAuthMode("signin")}
+                  className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    authMode === "signin"
                       ? "bg-zinc-800 text-white shadow-sm border border-zinc-700/60"
                       : "text-zinc-400 hover:text-zinc-200"
                   }`}
                 >
-                  <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthMode("signup")}
+                  className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    authMode === "signup"
+                      ? "bg-zinc-800 text-white shadow-sm border border-zinc-700/60"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  Create Account
+                </button>
+              </div>
+
+              {/* Email & Password Form */}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Full Name field in Sign Up mode */}
+                {authMode === "signup" && (
+                  <div className="space-y-1.5">
+                    <label htmlFor="name" className="block text-xs font-medium text-zinc-300">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                        <UserIcon className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="John Doe"
+                        autoComplete="name"
+                        className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-zinc-800 bg-zinc-900/90 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Email Address */}
+                <div className="space-y-1.5">
+                  <label htmlFor="email" className="block text-xs font-medium text-zinc-300">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@example.com"
+                      required
+                      autoComplete="email"
+                      className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-zinc-800 bg-zinc-900/90 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* Password Field */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="password" className="block text-xs font-medium text-zinc-300">
+                      Password
+                    </label>
+                    {authMode === "signin" && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          toast.info("Password reset link will be sent to your email upon request.")
+                        }
+                        className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      minLength={6}
+                      autoComplete={authMode === "signin" ? "current-password" : "new-password"}
+                      className="w-full h-11 pl-10 pr-11 rounded-xl border border-zinc-800 bg-zinc-900/90 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {authMode === "signup" && (
+                    <p className="text-[11px] text-zinc-500">Must be at least 6 characters</p>
+                  )}
+                </div>
+
+                {/* Submit Action Button */}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white h-11 font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-blue-500/20 active:scale-[0.99] disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>{authMode === "signin" ? "Signing In..." : "Creating Account..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{authMode === "signin" ? "Sign In" : "Create Account"}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </Button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-zinc-800" />
+                </div>
+                <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-zinc-500">
+                  <span className="bg-[#0c0d12] px-3">or continue with</span>
+                </div>
+              </div>
+
+              {/* Google 1-Click Button */}
+              <Button
+                type="button"
+                className="w-full bg-white hover:bg-zinc-100 text-zinc-900 h-11 font-semibold rounded-xl flex items-center justify-center gap-3 transition-all cursor-pointer shadow-lg shadow-white/5 active:scale-[0.99]"
+                onClick={handleGoogleSignIn}
+                disabled={isGoogleLoading}
+              >
+                {isGoogleLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-zinc-900" />
+                ) : (
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
                     <path
                       fill="#4285F4"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -427,245 +492,38 @@ export default function LoginPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  <span>Google (1-Click)</span>
-                </button>
+                )}
+                <span>{isGoogleLoading ? "Connecting to Google..." : "Continue with Google"}</span>
+              </Button>
 
-                <button
-                  type="button"
-                  onClick={() => setAuthMode("phone")}
-                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    authMode === "phone"
-                      ? "bg-zinc-800 text-white shadow-sm border border-zinc-700/60"
-                      : "text-zinc-400 hover:text-zinc-200"
-                  }`}
-                >
-                  <Phone className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                  <span>Mobile OTP</span>
-                </button>
+              {/* Bottom Toggle Text */}
+              <div className="mt-5 text-center text-xs text-zinc-400">
+                {authMode === "signin" ? (
+                  <span>
+                    Don't have an account?{" "}
+                    <button
+                      type="button"
+                      onClick={() => setAuthMode("signup")}
+                      className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition-colors"
+                    >
+                      Sign up
+                    </button>
+                  </span>
+                ) : (
+                  <span>
+                    Already have an account?{" "}
+                    <button
+                      type="button"
+                      onClick={() => setAuthMode("signin")}
+                      className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition-colors"
+                    >
+                      Sign in
+                    </button>
+                  </span>
+                )}
               </div>
 
-              {/* TAB 1: GOOGLE 1-CLICK */}
-              {authMode === "google" && (
-                <div className="space-y-4">
-                  <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 text-xs text-zinc-400 leading-relaxed">
-                    <p className="flex items-center gap-1.5 text-zinc-300 font-medium mb-1">
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                      Instant & Secure Access
-                    </p>
-                    One-click login with your Google account. Automatically syncs your name, profile photo,
-                    and progress across all sessions.
-                  </div>
-
-                  <Button
-                    type="button"
-                    className="w-full bg-white hover:bg-zinc-100 text-zinc-900 h-11 font-semibold rounded-xl flex items-center justify-center gap-3 transition-all cursor-pointer shadow-lg shadow-white/5 active:scale-[0.99]"
-                    onClick={handleGoogleSignIn}
-                    disabled={isGoogleLoading}
-                  >
-                    {isGoogleLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-zinc-900" />
-                    ) : (
-                      <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-                        <path
-                          fill="#4285F4"
-                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                        />
-                        <path
-                          fill="#34A853"
-                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                        />
-                        <path
-                          fill="#FBBC05"
-                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                        />
-                        <path
-                          fill="#EA4335"
-                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                        />
-                      </svg>
-                    )}
-                    <span>{isGoogleLoading ? "Connecting to Google..." : "Continue with Google"}</span>
-                  </Button>
-
-                  <div className="flex items-center justify-center gap-1.5 pt-1 text-[11px] text-zinc-500">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>No password needed • Free forever tier included</span>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 2: MOBILE NUMBER + OTP */}
-              {authMode === "phone" && (
-                <div className="space-y-4">
-                  {otpStep === "enter-phone" ? (
-                    /* Step A: Enter Phone Number */
-                    <form onSubmit={handleSendOtp} className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-zinc-300">Mobile Phone Number</label>
-                        <div className="relative flex rounded-xl bg-zinc-900 border border-zinc-800 focus-within:border-blue-500/80 transition-colors">
-                          {/* Country Selector Dropdown */}
-                          <div className="relative">
-                            <button
-                              type="button"
-                              onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-                              className="h-11 px-3 flex items-center gap-1.5 border-r border-zinc-800 text-xs font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/50 rounded-l-xl transition-colors cursor-pointer"
-                            >
-                              <span>{selectedCountry.flag}</span>
-                              <span className="font-mono text-zinc-200">{selectedCountry.code}</span>
-                              <ChevronDown className="w-3 h-3 text-zinc-500" />
-                            </button>
-
-                            {isCountryDropdownOpen && (
-                              <div className="absolute top-12 left-0 w-56 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl py-1 z-30 max-h-56 overflow-y-auto">
-                                {COUNTRIES.map((c) => (
-                                  <button
-                                    key={c.code}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedCountry(c);
-                                      setIsCountryDropdownOpen(false);
-                                    }}
-                                    className="w-full px-3 py-2 text-left text-xs flex items-center gap-2 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors cursor-pointer"
-                                  >
-                                    <span>{c.flag}</span>
-                                    <span className="flex-1 font-medium">{c.name}</span>
-                                    <span className="font-mono text-zinc-500">{c.code}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Mobile Number Input */}
-                          <input
-                            type="tel"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder={selectedCountry.placeholder}
-                            className="flex-1 h-11 px-3.5 bg-transparent text-sm text-white placeholder:text-zinc-600 focus:outline-none font-mono"
-                            autoFocus
-                          />
-                        </div>
-                        <p className="text-[11px] text-zinc-500">
-                          We will send a 6-digit one-time verification password via SMS.
-                        </p>
-                      </div>
-
-                      <Button
-                        type="submit"
-                        disabled={isSendingOtp || !phoneNumber.trim()}
-                        className="w-full bg-blue-600 hover:bg-blue-500 text-white h-11 font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-blue-500/20 active:scale-[0.99] disabled:opacity-50"
-                      >
-                        {isSendingOtp ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin text-white" />
-                            <span>Sending SMS Code...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Send Verification Code</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </Button>
-
-                      {/* Info on SMS Gateway Requirement */}
-                      <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80 text-[11px] text-zinc-400 space-y-1">
-                        <div className="flex items-center gap-1.5 font-medium text-zinc-300">
-                          <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                          <span>Direct Telecom SMS Gateway</span>
-                        </div>
-                        <p className="leading-relaxed text-zinc-500">
-                          Dispatches one-time verification code via Fast2SMS / Twilio. Code valid for 5 minutes.
-                        </p>
-                      </div>
-                    </form>
-                  ) : (
-                    /* Step B: Enter 6-digit OTP */
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-zinc-400">
-                          Code sent to{" "}
-                          <strong className="text-white font-mono">
-                            {selectedCountry.code} {phoneNumber}
-                          </strong>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOtpStep("enter-phone");
-                            setOtpValues(["", "", "", "", "", ""]);
-                          }}
-                          className="text-blue-400 hover:text-blue-300 text-xs font-medium cursor-pointer"
-                        >
-                          Change number
-                        </button>
-                      </div>
-
-                      {/* 6 Digit OTP Input Boxes */}
-                      <div className="flex items-center justify-between gap-2">
-                        {otpValues.map((val, idx) => (
-                          <input
-                            key={idx}
-                            ref={(el) => {
-                              otpInputRefs.current[idx] = el;
-                            }}
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={1}
-                            value={val}
-                            onChange={(e) => handleOtpChange(idx, e.target.value)}
-                            onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                            onPaste={handleOtpPaste}
-                            className={`w-11 h-12 text-center text-lg font-bold font-mono rounded-xl border bg-zinc-900 text-white transition-all focus:outline-none ${
-                              val
-                                ? "border-blue-500 ring-2 ring-blue-500/20 bg-blue-500/5"
-                                : "border-zinc-800 focus:border-blue-500/60"
-                            }`}
-                          />
-                        ))}
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs text-zinc-500">
-                        {resendCountdown > 0 ? (
-                          <span>Resend SMS code in {resendCountdown}s</span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleSendOtp()}
-                            className="text-blue-400 hover:text-blue-300 flex items-center gap-1 cursor-pointer font-medium"
-                          >
-                            <RefreshCw className="w-3 h-3" />
-                            <span>Resend Code</span>
-                          </button>
-                        )}
-                        <span className="text-zinc-500 text-[11px]">Expires in 5m</span>
-                      </div>
-
-                      <Button
-                        type="button"
-                        onClick={handleVerifyOtp}
-                        disabled={isVerifyingOtp || otpValues.join("").length < 6}
-                        className="w-full bg-blue-600 hover:bg-blue-500 text-white h-11 font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-blue-500/20 active:scale-[0.99] disabled:opacity-50"
-                      >
-                        {isVerifyingOtp ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin text-white" />
-                            <span>Verifying Code...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Verify & Sign In</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Bottom Security / Terms Footer */}
+              {/* Footer Notice */}
               <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center space-y-2">
                 <p className="text-[11px] text-zinc-500 leading-normal">
                   By continuing, you agree to Intervue's{" "}
