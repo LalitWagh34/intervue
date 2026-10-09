@@ -876,9 +876,29 @@ export default function ProfilePage() {
             {lcStats?.handle ? (
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
-                  <span className="text-xs text-[#A1A7B3]">Total Solved</span>
-                  <span className="text-lg font-bold text-[#F5F7FA]">{lcStats.totalSolved}</span>
+                  <div>
+                    <span className="text-[11px] text-[#A1A7B3] block">Contest Rating</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="text-lg font-bold text-[#FFA116]">
+                        {lcStats.contestRating && lcStats.contestRating > 0
+                          ? lcStats.contestRating
+                          : "Unrated"}
+                      </span>
+                      {lcStats.badge && (
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#FFA116]/15 text-[#FFA116] border border-[#FFA116]/30">
+                          {lcStats.badge}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[11px] text-[#A1A7B3] block">Total Solved</span>
+                    <span className="text-lg font-bold text-[#F5F7FA] mt-0.5 inline-block">
+                      {lcStats.totalSolved}
+                    </span>
+                  </div>
                 </div>
+
                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
                   <div className="p-2 rounded-md bg-[#22C55E]/10 border border-[#22C55E]/20">
                     <p className="text-[10px] text-[#22C55E] font-semibold">Easy</p>
@@ -893,14 +913,27 @@ export default function ProfilePage() {
                     <p className="font-bold text-[#F5F7FA] mt-0.5">{lcStats.hardSolved}</p>
                   </div>
                 </div>
-                {lcStats.ranking > 0 && (
-                  <div className="flex items-center justify-between text-[11px] text-[#A1A7B3] pt-1">
-                    <span>Global Rank</span>
-                    <span className="font-mono text-[#F5F7FA] font-medium">
-                      #{lcStats.ranking.toLocaleString()}
-                    </span>
-                  </div>
-                )}
+
+                <div className="space-y-1 pt-1">
+                  {lcStats.ranking > 0 && (
+                    <div className="flex items-center justify-between text-[11px] text-[#A1A7B3]">
+                      <span>Global Practice Rank</span>
+                      <span className="font-mono text-[#F5F7FA] font-medium">
+                        #{lcStats.ranking.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                  {Boolean(lcStats.contestGlobalRanking && lcStats.contestGlobalRanking > 0) && (
+                    <div className="flex items-center justify-between text-[11px] text-[#A1A7B3]">
+                      <span>Contest Rank</span>
+                      <span className="font-mono text-[#FFA116] font-medium">
+                        #{lcStats.contestGlobalRanking?.toLocaleString()}
+                        {lcStats.topPercentage ? ` (Top ${lcStats.topPercentage}%)` : ""}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
                 <a
                   href={`https://leetcode.com/u/${lcStats.handle}`}
                   target="_blank"
@@ -960,18 +993,24 @@ export default function ProfilePage() {
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-between p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
                   <div>
-                    <p className="text-[11px] text-[#A1A7B3]">Contest Rating</p>
-                    <p className="text-lg font-bold text-[#3B9CFF] mt-0.5">{cfStats.rating}</p>
+                    <p className="text-[11px] text-[#A1A7B3]">Current Rating</p>
+                    <p className="text-lg font-bold text-[#3B9CFF] mt-0.5">
+                      {cfStats.rating && cfStats.rating > 0 ? cfStats.rating : "Unrated"}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[11px] text-[#A1A7B3]">Rank</p>
-                    <p className="text-xs font-semibold text-[#22C55E] capitalize mt-1">{cfStats.rank}</p>
+                    <p className="text-[11px] text-[#A1A7B3]">Rank Title</p>
+                    <p className="text-xs font-semibold text-[#22C55E] capitalize mt-1">
+                      {cfStats.rank || "Unrated"}
+                    </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-center text-xs">
                   <div className="p-2 rounded-md bg-[#101216] border border-[#1E2229]">
-                    <p className="text-[10px] text-[#707784]">Max Rating</p>
-                    <p className="font-bold text-[#F5F7FA] mt-0.5">{cfStats.maxRating}</p>
+                    <p className="text-[10px] text-[#707784]">Max / Peak Rating</p>
+                    <p className="font-bold text-[#F5F7FA] mt-0.5">
+                      {cfStats.maxRating && cfStats.maxRating > 0 ? cfStats.maxRating : (cfStats.rating || "--")}
+                    </p>
                   </div>
                   <div className="p-2 rounded-md bg-[#101216] border border-[#1E2229]">
                     <p className="text-[10px] text-[#707784]">Problems Solved</p>

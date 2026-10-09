@@ -5,6 +5,11 @@ export interface LeetCodeStats {
   mediumSolved: number;
   hardSolved: number;
   ranking: number;
+  contestRating?: number;
+  contestGlobalRanking?: number;
+  attendedContests?: number;
+  topPercentage?: number;
+  badge?: string | null;
   calendar: Record<string, number>; // unix timestamp seconds -> count
   lastSyncedAt: string;
   topicStats?: Array<{ tag: string; count: number }>;
@@ -68,6 +73,16 @@ export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStat
             }
           }
         }
+        userContestRanking(username: $username) {
+          attendedContestsCount
+          rating
+          globalRanking
+          totalParticipants
+          topPercentage
+          badge {
+            name
+          }
+        }
       }`,
       variables: { username: cleanUsername },
     }),
@@ -91,6 +106,14 @@ export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStat
   const easy = acList.find((x) => x.difficulty === "Easy")?.count || 0;
   const medium = acList.find((x) => x.difficulty === "Medium")?.count || 0;
   const hard = acList.find((x) => x.difficulty === "Hard")?.count || 0;
+
+  // Contest metrics
+  const contestRanking = data?.data?.userContestRanking;
+  const contestRating = contestRanking?.rating ? Math.round(contestRanking.rating) : 0;
+  const attendedContests = contestRanking?.attendedContestsCount || 0;
+  const contestGlobalRanking = contestRanking?.globalRanking || 0;
+  const topPercentage = contestRanking?.topPercentage || 0;
+  const badge = contestRanking?.badge?.name || null;
 
   let calendarMap: Record<string, number> = {};
   try {
@@ -124,6 +147,11 @@ export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStat
     mediumSolved: medium,
     hardSolved: hard,
     ranking: matchedUser.profile?.ranking || 0,
+    contestRating,
+    contestGlobalRanking,
+    attendedContests,
+    topPercentage,
+    badge,
     calendar: calendarMap,
     lastSyncedAt: new Date().toISOString(),
     topicStats,

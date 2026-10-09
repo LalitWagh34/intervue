@@ -23,6 +23,11 @@ export interface LeetCodeStats {
   mediumSolved: number;
   hardSolved: number;
   ranking: number;
+  contestRating?: number;
+  contestGlobalRanking?: number;
+  attendedContests?: number;
+  topPercentage?: number;
+  badge?: string | null;
   calendar?: Record<string, number>;
   lastSyncedAt?: string;
 }
