@@ -23,6 +23,7 @@ import {
   Code2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BrandIcon } from "@/components/shared/BrandLogo";
 
 export default function LandingPage() {
   return (
@@ -33,8 +34,8 @@ export default function LandingPage() {
           {/* Logo & Brand */}
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center text-white shadow-md shadow-[#327CF6]/20 group-hover:scale-105 transition-transform">
-                <Brain className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 group-hover:border-[#327CF6]/70 group-hover:scale-105 transition-all">
+                <BrandIcon className="w-5 h-5" />
               </div>
               <span className="text-lg font-extrabold tracking-tight text-white group-hover:text-zinc-200 transition-colors">
                 Intervue
@@ -738,8 +739,8 @@ export default function LandingPage() {
         {/* ─── Bottom CTA Banner ─────────────────────────────────────── */}
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="rounded-3xl bg-gradient-to-tr from-[#0D0E12] via-[#0A0C10] to-[#121626] border border-[#181A20] p-10 sm:p-16 text-center space-y-6 relative overflow-hidden shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-[#327CF6]/15 border border-[#327CF6]/30 text-[#327CF6] flex items-center justify-center mx-auto shadow-md">
-              <Brain className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-2xl bg-[#0B0D13] border border-[#1F2430] flex items-center justify-center mx-auto shadow-md shadow-[#007BFA]/20">
+              <BrandIcon className="w-7 h-7" />
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight max-w-2xl mx-auto">
@@ -771,8 +772,8 @@ export default function LandingPage() {
       <footer className="w-full border-t border-[#181A20] bg-[#060709] py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#8B92A0]">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-[#327CF6] flex items-center justify-center text-white">
-              <Brain className="w-3.5 h-3.5" />
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-b from-[#141A29] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center text-white shadow-sm shadow-[#327CF6]/20">
+              <BrandIcon className="w-4 h-4" />
             </div>
             <span className="font-bold text-white">Intervue</span>
             <span>— Tech Interview & Placement Cockpit</span>

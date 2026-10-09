@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useFeaturedCompanies, useCompanyQuestions } from "@/hooks/useCompanies";
 import { getCompanyLogo } from "@/lib/companyLogos";
+import { BrandIcon } from "@/components/shared/BrandLogo";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useProblemFilter } from "@/hooks/useProblemFilter";
@@ -385,14 +386,16 @@ export default function PracticeHubPage() {
               </div>
 
               {/* Right Glowing Logo Illustration */}
-              <div className="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 items-center pointer-events-none opacity-80">
+              <div className="hidden sm:flex absolute right-6 top-1/2 -translate-y-1/2 items-center pointer-events-none opacity-90">
                 <div className="relative w-44 h-32 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-[#327CF6]/15 rounded-full blur-2xl" />
-                  <div className="w-36 h-24 rounded-xl bg-[#08090C] border border-[#1E2229] shadow-2xl flex flex-col items-center justify-center p-2 relative z-10">
-                    <div className="w-8 h-8 rounded-lg bg-[#327CF6] flex items-center justify-center text-white font-bold text-xs font-mono shadow-md shadow-[#327CF6]/30">
-                      F&gt;
+                  <div className="absolute inset-0 bg-[#327CF6]/20 rounded-full blur-2xl" />
+                  <div className="w-36 h-24 rounded-xl bg-[#08090C] border border-[#1E2433] shadow-2xl flex flex-col items-center justify-center p-2 relative z-10">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/25">
+                      <BrandIcon className="w-5.5 h-5.5" />
                     </div>
-                    <span className="text-[10px] text-[#525866] font-mono mt-1">Intervue TUF</span>
+                    <span className="text-[11px] font-bold text-white tracking-tight font-sans mt-1.5">
+                      inter<span className="text-[#327CF6]">V</span>ue
+                    </span>
                   </div>
                 </div>
               </div>

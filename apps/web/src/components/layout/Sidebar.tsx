@@ -31,6 +31,7 @@ import {
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
+import { BrandIcon } from "@/components/shared/BrandLogo";
 
 interface NavSubItem {
   label: string;
@@ -234,8 +235,8 @@ export default function Sidebar({
               onClick={onMobileClose}
               className="flex items-center gap-2.5 group min-w-0"
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center shadow-md shadow-[#327CF6]/20 shrink-0 group-hover:scale-105 transition-transform">
-                <span className="text-white font-bold text-sm tracking-tight font-mono">F&gt;</span>
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 shrink-0 group-hover:border-[#327CF6]/70 group-hover:scale-105 transition-all">
+                <BrandIcon className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
@@ -250,8 +251,8 @@ export default function Sidebar({
             </Link>
           ) : (
             <Link to="/dashboard" onClick={onMobileClose} className="mx-auto" title="interVue">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#327CF6] flex items-center justify-center shadow-md shadow-[#327CF6]/20">
-                <span className="text-white font-bold text-sm font-mono">F&gt;</span>
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 hover:border-[#327CF6]/70 transition-colors">
+                <BrandIcon className="w-5 h-5" />
               </div>
             </Link>
           )}

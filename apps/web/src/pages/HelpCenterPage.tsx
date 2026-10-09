@@ -155,7 +155,7 @@ const ARTICLES: GuideArticle[] = [
   },
   {
     id: "how-workspace-works",
-    title: "How the Workspace & Target Companies Work?",
+    title: "How Target Companies Work?",
     category: "Question Tracker",
     summary: "Target specific tech giants and get daily customized practice sets.",
     content: [

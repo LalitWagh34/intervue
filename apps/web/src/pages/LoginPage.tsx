@@ -21,6 +21,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+import { BrandIcon } from "@/components/shared/BrandLogo";
+
 export default function LoginPage() {
   const { data: session } = useSession();
   const navigate = useNavigate();
@@ -152,8 +154,8 @@ export default function LoginPage() {
       {/* Top Header */}
       <header className="w-full max-w-6xl mx-auto flex items-center justify-between shrink-0 py-1 z-10">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-            <span className="text-white font-black text-sm tracking-wider font-mono">I</span>
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 group-hover:border-[#327CF6]/70 group-hover:scale-105 transition-all duration-200">
+            <BrandIcon className="w-5 h-5" />
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-white font-bold text-lg tracking-tight">Intervue</span>
