@@ -128,33 +128,33 @@ export function CompanyKitsCatalog({
             >
               <div>
                 {/* Card Top Row: Logo & Badges */}
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-[#141720] border border-[#222634] p-2 flex items-center justify-center shrink-0 group-hover:border-blue-500/50 transition-colors shadow-inner">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-xl bg-[#141720] border border-[#222634] p-2 flex items-center justify-center shrink-0 group-hover:border-blue-500/50 transition-colors shadow-inner">
                       {logo ? (
                         <img src={logo} alt={kit.name} className="w-full h-full object-contain" />
                       ) : (
                         <Building2 className="w-5 h-5 text-zinc-400" />
                       )}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="text-sm font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors truncate">
                           {kit.name}
                         </h3>
                         {isTarget && (
-                          <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-[9px] px-1.5 py-0">
+                          <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-[9px] px-1.5 py-0 shrink-0">
                             Active Target
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[11px] text-[#7A808C] truncate max-w-[180px] font-mono">
+                      <p className="text-[11px] text-[#7A808C] truncate font-mono">
                         {kit.tagline}
                       </p>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-800/80 border border-zinc-700/60 text-zinc-300 shrink-0">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-800/80 border border-zinc-700/60 text-zinc-300 shrink-0 whitespace-nowrap self-start mt-0.5">
                     {kit.totalQuestions} Qs
                   </span>
                 </div>

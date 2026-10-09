@@ -27,7 +27,7 @@ import { BrandIcon } from "@/components/shared/BrandLogo";
 
 export default function LandingPage() {
   return (
-    <div className="w-full bg-[#060709] text-[#F3F4F6] min-h-screen selection:bg-[#327CF6]/30 font-sans">
+    <div className="w-full bg-[#060709] text-[#F3F4F6] min-h-screen selection:bg-[#327CF6]/30 font-sans overflow-x-hidden">
       {/* ─── Top Navigation Header ─────────────────────────────────────── */}
       <header className="fixed top-0 inset-x-0 z-50 bg-[#060709]/80 backdrop-blur-xl border-b border-[#181A20]">
         <div className="h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
