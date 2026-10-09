@@ -135,14 +135,19 @@ export default function LoginPage() {
     if (isGoogleLoading) return;
     setIsGoogleLoading(true);
     try {
-      await signIn.social({
+      const res = await signIn.social({
         provider: "google",
         callbackURL: `${window.location.origin}/dashboard`,
       });
+      if (res?.error) {
+        console.error("Google sign in response error:", res.error);
+        setIsGoogleLoading(false);
+        toast.error(res.error.message || "Failed to initiate Google sign-in.");
+      }
     } catch (err: any) {
       console.error("Google sign in initiation failed:", err);
       setIsGoogleLoading(false);
-      toast.error("Failed to initiate Google sign-in. Please try again.");
+      toast.error(err?.message || "Failed to initiate Google sign-in. Please try again.");
     }
   };
 

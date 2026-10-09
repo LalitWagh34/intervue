@@ -4,8 +4,8 @@ import { db } from "@intervue/db";
 
 export const auth = betterAuth({
   baseURL:
-    process.env.BETTER_AUTH_URL ||
     process.env.RENDER_EXTERNAL_URL ||
+    process.env.BETTER_AUTH_URL ||
     "http://localhost:3000",
   database: prismaAdapter(db, {
     provider: "postgresql",

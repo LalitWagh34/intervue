@@ -61,9 +61,14 @@ app.use(
   "*",
   cors({
     origin: (origin) => {
-      // Allow any localhost/127.0.0.1 origin during development
-      if (!origin || origin.includes("localhost") || origin.includes("127.0.0.1")) {
-        return origin || "http://localhost:5173";
+      if (!origin) return "http://localhost:5173";
+      if (
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1") ||
+        origin.endsWith(".vercel.app") ||
+        origin.includes("vercel.app")
+      ) {
+        return origin;
       }
       const allowedOrigins = [
         process.env.FRONTEND_URL,
@@ -73,7 +78,7 @@ app.use(
       if (allowedOrigins.some((allowed) => origin === allowed || origin.startsWith(allowed))) {
         return origin;
       }
-      return allowedOrigins[0] || origin || "http://localhost:5173";
+      return origin;
     },
     credentials: true,
     allowHeaders: ["Content-Type", "Authorization", "Idempotency-Key", "X-Idempotency-Key"],
