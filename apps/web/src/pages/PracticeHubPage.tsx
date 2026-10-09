@@ -912,15 +912,17 @@ export default function PracticeHubPage() {
                           </button>
 
                           <div className="flex items-center gap-2 min-w-0">
-                            <Link
-                              to={`/coding/${prob.slug}`}
+                            <a
+                              href={`https://leetcode.com/problems/${prob.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className={cn(
-                                "font-medium hover:text-[#327CF6] transition-colors truncate",
+                                "font-medium hover:text-[#327CF6] transition-colors truncate cursor-pointer",
                                 isSolved ? "text-[#7A808C] line-through" : "text-[#EDEDED]"
                               )}
                             >
                               {prob.index}. {prob.title}
-                            </Link>
+                            </a>
 
                             {prob.isPotd && (
                               <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30 shrink-0">

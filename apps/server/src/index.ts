@@ -17,6 +17,7 @@ import { searchRouter } from "./routes/search";
 import notesRoutes from "./routes/notes";
 import bookmarksRoutes from "./routes/bookmarks";
 import rewardsRoutes from "./routes/rewards";
+import feedbackRoutes from "./routes/feedback";
 import { roomSocketManager } from "./services/roomSocket";
 import { register, httpRequestDurationMicroseconds } from "./lib/metrics";
 import { logger as pinoLogger } from "./lib/logger";
@@ -92,6 +93,7 @@ app.route("/api/search", searchRouter);
 app.route("/api/notes", notesRoutes);
 app.route("/api/bookmarks", bookmarksRoutes);
 app.route("/api/rewards", rewardsRoutes);
+app.route("/api/feedback", feedbackRoutes);
 
 // Metrics Endpoint
 app.get("/metrics", async (c) => {

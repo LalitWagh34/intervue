@@ -19,6 +19,8 @@ import RoomResultsPage from "./pages/rooms/RoomResultsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import NotepadPage from "./pages/NotepadPage";
 import BookmarksPage from "./pages/BookmarksPage";
+import HelpCenterPage from "./pages/HelpCenterPage";
+import FeedbackPage from "./pages/FeedbackPage";
 import { useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 // import VoiceInterviewPage from "./pages/VoiceInterviewPage";
@@ -127,9 +129,12 @@ export default function App() {
           />
           <Route path="/notes" element={<NotepadPage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
-          {/* Coding Practice disabled for V1 */}
-          <Route path="/coding" element={<NotFoundPage />} />
-          <Route path="/coding/:slug" element={<NotFoundPage />} />
+          <Route path="/help" element={<HelpCenterPage />} />
+          <Route path="/feedback" element={<FeedbackPage />} />
+          
+          {/* Coding Practice disabled for V1 - redirect to Prep Hub */}
+          <Route path="/coding" element={<Navigate to="/practice" replace />} />
+          <Route path="/coding/:slug" element={<Navigate to="/practice" replace />} />
           
           <Route path="/rooms" element={<RoomsPage />} />
           <Route path="/rooms/:code/lobby" element={<RoomLobbyPage />} />

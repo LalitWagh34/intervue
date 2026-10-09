@@ -112,7 +112,7 @@ export function CommandPalette() {
                 {data.problems.map((prob: any) => (
                   <Command.Item
                     key={prob.id}
-                    onSelect={() => runCommand(() => navigate(`/coding/${prob.slug}`))}
+                    onSelect={() => runCommand(() => window.open(`https://leetcode.com/problems/${prob.slug}`, "_blank"))}
                     className="flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer aria-selected:bg-[#111318] text-sm text-white transition-colors group"
                   >
                     <div className="flex items-center gap-3 min-w-0">

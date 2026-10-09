@@ -24,6 +24,8 @@ import {
   Users,
   FileCode2,
   Building2,
+  HelpCircle,
+  MessageSquareHeart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authClient, useSession } from "@/lib/auth";
@@ -73,11 +75,6 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/rooms",
         // badge: "LIVE",
         badgeColor: "red",
-      },
-      {
-        label: "Practice Code",
-        icon: Code2,
-        href: "/coding",
       },
       {
         label: "AI Interview",
@@ -144,6 +141,21 @@ const NAV_SECTIONS: NavSection[] = [
           { label: "Code Submissions", icon: FileCode2, href: "/admin/submissions" },
           { label: "Contest Rooms", icon: Swords, href: "/admin/rooms" },
         ],
+      },
+    ],
+  },
+  {
+    title: "SUPPORT",
+    items: [
+      {
+        label: "Help Center",
+        icon: HelpCircle,
+        href: "/help",
+      },
+      {
+        label: "Feedback",
+        icon: MessageSquareHeart,
+        href: "/feedback",
       },
     ],
   },
