@@ -90,9 +90,52 @@ export function NotificationDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Custom notifications (e.g. daily target added, all targets finished)
+  const [customNotifications, setCustomNotifications] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("intervue_custom_notifications");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Listen for real-time notification dispatch events
+  useEffect(() => {
+    const handleCustomNotifs = () => {
+      try {
+        const saved = localStorage.getItem("intervue_custom_notifications");
+        if (saved) setCustomNotifications(JSON.parse(saved));
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    window.addEventListener("intervue-notifications-updated", handleCustomNotifs);
+    window.addEventListener("storage", handleCustomNotifs);
+    return () => {
+      window.removeEventListener("intervue-notifications-updated", handleCustomNotifs);
+      window.removeEventListener("storage", handleCustomNotifs);
+    };
+  }, []);
+
   // Assemble dynamic list of notifications
   const notifications: NotificationItem[] = useMemo(() => {
     const list: NotificationItem[] = [];
+
+    // 0. Prepend user-triggered custom notifications (e.g. daily targets set or completed)
+    if (Array.isArray(customNotifications) && customNotifications.length > 0) {
+      customNotifications.forEach((cn) => {
+        list.push({
+          id: cn.id,
+          title: cn.title,
+          description: cn.description,
+          timestamp: cn.timestamp || "Just now",
+          type: cn.type || "practice",
+          link: cn.link || "/dashboard",
+          isRead: readIds.includes(cn.id),
+        });
+      });
+    }
 
     // 1. Dynamic scorecard notifications from real interviews
     if (Array.isArray(interviews) && interviews.length > 0) {

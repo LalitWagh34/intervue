@@ -11,6 +11,7 @@ import { useBookmarkSlugs, useToggleBookmark } from "@/hooks/useBookmarks";
 import { useCompanyReadiness } from "@/hooks/useReadiness";
 import { CompanyKitsCatalog } from "@/components/company/CompanyKitsCatalog";
 import { CompanyKitWorkspace } from "@/components/company/CompanyKitWorkspace";
+import { DailyTargetTracker } from "@/components/shared/DailyTargetTracker";
 import { toast } from "sonner";
 import {
   Code2,
@@ -382,6 +383,9 @@ export default function PracticeHubPage() {
                 </div>
               </div>
             </div>
+
+            {/* Daily Focus Targets Tracker */}
+            <DailyTargetTracker />
 
             {/* "Explore Subjects" Section (Vertical Stacked Horizontal Rows) */}
             <div className="space-y-3.5">

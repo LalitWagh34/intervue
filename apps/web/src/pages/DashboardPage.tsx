@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSession } from "../lib/auth";
 import { api } from "@/lib/api";
 import { TargetCompanyTracker } from "@/components/shared/TargetCompanyTracker";
+import { DailyTargetTracker } from "@/components/shared/DailyTargetTracker";
 import {
   Brain,
   Flame,
@@ -422,84 +423,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Right Column (1 Col): Skill Readiness & Recommendations */}
+          {/* Right Column (1 Col): Track Your Daily Targets */}
           <div className="space-y-6">
-            {/* Domain Mastery Breakdown */}
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-sm space-y-4">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Award className="w-4 h-4 text-emerald-400" />
-                  Domain Readiness
-                </h3>
-                <p className="text-xs text-[#8B92A0] mt-0.5">
-                  Performance across core technical pillars
-                </p>
-              </div>
-
-              <div className="space-y-3 pt-1">
-                {[
-                  { label: "Data Structures & Algos", value: stats?.skills?.dsa ?? 75, color: "from-blue-600 to-blue-400" },
-                  { label: "System Design & Architecture", value: stats?.skills?.systemDesign ?? 65, color: "from-violet-600 to-violet-400" },
-                  { label: "Operating Systems", value: stats?.skills?.os ?? 70, color: "from-emerald-600 to-emerald-400" },
-                  { label: "DBMS & Query Optimization", value: stats?.skills?.dbms ?? 80, color: "from-amber-600 to-amber-400" },
-                  { label: "Computer Networks", value: stats?.skills?.networks ?? 68, color: "from-cyan-600 to-cyan-400" },
-                  { label: "Behavioral & Leadership", value: stats?.skills?.behavioral ?? 72, color: "from-pink-600 to-pink-400" },
-                ].map((skill) => (
-                  <div key={skill.label} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-zinc-300">{skill.label}</span>
-                      <span className="font-mono font-bold text-white">{skill.value}%</span>
-                    </div>
-                    <div className="w-full h-1.5 rounded-full bg-[#181A20] overflow-hidden">
-                      <div
-                        className={cn("h-full rounded-full bg-gradient-to-r", skill.color)}
-                        style={{ width: `${Math.min(100, Math.max(5, skill.value))}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Targeted Next Focus Suggestions */}
-            {stats?.recommendations && stats.recommendations.length > 0 && (
-              <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-sm space-y-4">
-                <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#327CF6]" />
-                    Recommended Next Focus
-                  </h3>
-                  <p className="text-xs text-[#8B92A0] mt-0.5">
-                    Based on your readiness radar
-                  </p>
-                </div>
-
-                <div className="space-y-2.5">
-                  {stats.recommendations.map((rec) => (
-                    <div
-                      key={rec.id}
-                      onClick={() => navigate("/practice")}
-                      className="p-3.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-center justify-between text-[11px] mb-1">
-                        <span className="font-semibold text-[#327CF6] uppercase tracking-wider font-mono">
-                          {rec.type}
-                        </span>
-                        <span className="text-zinc-500 font-mono text-[10px]">
-                          {rec.level}
-                        </span>
-                      </div>
-                      <h4 className="text-xs font-semibold text-white group-hover:text-[#327CF6] transition-colors">
-                        {rec.title}
-                      </h4>
-                      <p className="text-[11px] text-[#8B92A0] mt-1 line-clamp-2">
-                        {rec.description}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <DailyTargetTracker />
           </div>
         </div>
       </div>
