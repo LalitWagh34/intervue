@@ -24,6 +24,22 @@ export const setSessionToken = (token: string) => {
   } catch {}
 };
 
+// Check URL for session_token from OAuth redirect (e.g. mobile Safari / Google OAuth fallback)
+if (typeof window !== "undefined") {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("session_token") || params.get("token");
+    if (token) {
+      localStorage.setItem("intervue_session_token", token);
+      params.delete("session_token");
+      params.delete("token");
+      const newSearch = params.toString();
+      const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : "") + window.location.hash;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  } catch {}
+}
+
 export const authClient = createAuthClient({
   baseURL: getAuthBaseUrl(),
   fetchOptions: {

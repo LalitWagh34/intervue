@@ -100,8 +100,34 @@ app.get("/test-auth", (c) => {
 });
 
 // Auth routes — better-auth handles everything under /api/auth/* (Google OAuth + Email/Password)
-app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", (c) => {
-  return auth.handler(c.req.raw);
+app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
+  const res = await auth.handler(c.req.raw);
+
+  // If redirecting back to frontend (e.g. after Google OAuth completion), attach session_token
+  // to URL query so mobile browsers with strict 3rd-party cookie blocking (iOS Safari ITP) can capture it.
+  const location = res.headers.get("location");
+  if (location && res.status >= 300 && res.status < 400) {
+    try {
+      const token =
+        res.headers.get("set-auth-token") ||
+        res.headers.get("Set-Auth-Token") ||
+        res.headers.get("set-cookie")?.match(/(?:better-auth\.session_token|__Secure-better-auth\.session_token)=([^;]+)/)?.[1];
+
+      if (token && !location.includes("accounts.google.com") && !location.includes("/api/auth")) {
+        const url = new URL(location);
+        url.searchParams.set("session_token", token);
+        const headers = new Headers(res.headers);
+        headers.set("location", url.toString());
+        return new Response(res.body, {
+          status: res.status,
+          statusText: res.statusText,
+          headers,
+        });
+      }
+    } catch {}
+  }
+
+  return res;
 });
 app.route("/api/profile", profileRoutes);
 app.route("/api/interviews", interviewRoutes);
