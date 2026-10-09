@@ -80,6 +80,10 @@ app.use(
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
+app.get("/", (c) => {
+  return c.json({ status: "healthy", service: "intervue-backend", timestamp: new Date().toISOString() });
+});
+
 app.get("/test-auth", (c) => {
   return c.json({ auth: typeof auth, handler: typeof auth.handler });
 });

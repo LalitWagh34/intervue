@@ -1,5 +1,8 @@
 FROM oven/bun:1.2-slim AS base
 
+# Install OpenSSL for Prisma engine compatibility
+RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Copy root workspace definitions and lockfile
