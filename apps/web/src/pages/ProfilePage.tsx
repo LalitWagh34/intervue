@@ -856,6 +856,19 @@ export default function ProfilePage() {
                     Live
                   </span>
                   <button
+                    onClick={() => {
+                      syncAllMutation.mutate(undefined, {
+                        onSuccess: () => toast.success("LeetCode stats synced!"),
+                        onError: () => toast.error("Failed to sync stats"),
+                      });
+                    }}
+                    disabled={syncAllMutation.isPending}
+                    className="p-1 text-[#707784] hover:text-[#FFA116] transition-colors cursor-pointer disabled:opacity-50"
+                    title="Sync LeetCode Stats"
+                  >
+                    <RefreshCw className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#FFA116]")} />
+                  </button>
+                  <button
                     onClick={() => disconnectMutation.mutate({ platform: "leetcode" })}
                     className="p-1 text-[#707784] hover:text-[#EF4444] transition-colors cursor-pointer"
                     title="Disconnect LeetCode"
@@ -932,6 +945,14 @@ export default function ProfilePage() {
                       </span>
                     </div>
                   )}
+                  {Boolean(lcStats.attendedContests && lcStats.attendedContests > 0) && (
+                    <div className="flex items-center justify-between text-[11px] text-[#A1A7B3]">
+                      <span>Contests Attended</span>
+                      <span className="font-mono text-[#F5F7FA] font-medium">
+                        {lcStats.attendedContests}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <a
@@ -971,6 +992,19 @@ export default function ProfilePage() {
                   <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded bg-[#2F80ED]/10 text-[#3B9CFF] border border-[#2F80ED]/25">
                     Live
                   </span>
+                  <button
+                    onClick={() => {
+                      syncAllMutation.mutate(undefined, {
+                        onSuccess: () => toast.success("Codeforces stats synced!"),
+                        onError: () => toast.error("Failed to sync stats"),
+                      });
+                    }}
+                    disabled={syncAllMutation.isPending}
+                    className="p-1 text-[#707784] hover:text-[#2F80ED] transition-colors cursor-pointer disabled:opacity-50"
+                    title="Sync Codeforces Stats"
+                  >
+                    <RefreshCw className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#2F80ED]")} />
+                  </button>
                   <button
                     onClick={() => disconnectMutation.mutate({ platform: "codeforces" })}
                     className="p-1 text-[#707784] hover:text-[#EF4444] transition-colors cursor-pointer"
