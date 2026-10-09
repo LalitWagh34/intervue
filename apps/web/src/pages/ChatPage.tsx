@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -359,12 +360,16 @@ export default function ChatPage() {
                   className={cn(
                     "max-w-[82%] sm:max-w-[78%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-sm",
                     isUser
-                      ? "bg-[#327CF6] text-white rounded-tr-none font-medium"
-                      : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none whitespace-pre-wrap"
+                      ? "bg-[#327CF6] text-white rounded-tr-none font-medium whitespace-pre-wrap"
+                      : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none"
                   )}
                 >
-                  {msg.content ? (
+                  {isUser ? (
                     msg.content
+                  ) : msg.content ? (
+                    <div className="space-y-2 [&_p]:leading-relaxed [&_strong]:text-white [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_li]:text-zinc-300 [&_code]:bg-[#181A20] [&_code]:text-purple-300 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-xs">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
                   ) : isStreaming && i === messages.length - 1 ? (
                     <span className="flex items-center gap-1.5 text-zinc-400">
                       <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
