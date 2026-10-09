@@ -60,10 +60,29 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  const isStreamingRef = useRef(false);
+  const activeChatIdRef = useRef(id);
+
+  // Synchronize active chat ID changes (e.g. user clicks another chat in the sidebar)
   useEffect(() => {
-    if (chat?.messages) {
+    if (activeChatIdRef.current !== id) {
+      activeChatIdRef.current = id;
+      // Only clear/reset messages if we are NOT in the middle of streaming a newly created chat
+      if (!isStreamingRef.current) {
+        if (!id) {
+          setMessages([]);
+        }
+      }
+    }
+  }, [id]);
+
+  // Sync messages from cache when chat data loads (guarded against overriding active streams)
+  useEffect(() => {
+    if (isStreamingRef.current) return;
+
+    if (chat?.messages && chat.id === id) {
       setMessages(chat.messages.map((m: any) => ({ role: m.role, content: m.content })));
-    } else if (!id) {
+    } else if (!id && !isStreamingRef.current) {
       setMessages([]);
     }
   }, [chat, id]);
@@ -98,25 +117,36 @@ export default function ChatPage() {
 
   async function sendMessage(textToSend?: string) {
     const promptText = (textToSend || input).trim();
-    if (!promptText || isStreaming) return;
+    if (!promptText || isStreamingRef.current) return;
+
+    setInput("");
+
+    // Optimistically show user question and assistant placeholder IMMEDIATELY
+    // This prevents the starter hero screen from ever flashing
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: promptText },
+      { role: "assistant", content: "" },
+    ]);
+    setIsStreaming(true);
+    isStreamingRef.current = true;
 
     let chatId = id;
     if (!chatId) {
       try {
         const res = await api.post("/chats");
         chatId = res.data.chat.id;
+        activeChatIdRef.current = chatId;
         queryClient.invalidateQueries({ queryKey: ["chats"] });
         navigate(`/chat/${chatId}`, { replace: true });
       } catch (err) {
         console.error("Failed to initialize chat:", err);
+        setIsStreaming(false);
+        isStreamingRef.current = false;
+        setMessages((prev) => prev.slice(0, -2));
         return;
       }
     }
-
-    setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: promptText }]);
-    setIsStreaming(true);
-    setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
     try {
@@ -150,7 +180,9 @@ export default function ChatPage() {
             const finalText = accumulated;
             setMessages((prev) => {
               const updated = [...prev];
-              updated[updated.length - 1] = { role: "assistant", content: finalText };
+              if (updated.length > 0) {
+                updated[updated.length - 1] = { role: "assistant", content: finalText };
+              }
               return updated;
             });
           } catch {}
@@ -160,14 +192,18 @@ export default function ChatPage() {
       console.error("Chat streaming error:", err);
       setMessages((prev) => {
         const updated = [...prev];
-        updated[updated.length - 1] = {
-          role: "assistant",
-          content: "Sorry, I ran into an error connecting with the mentor engine. Please try again.",
-        };
+        if (updated.length > 0) {
+          updated[updated.length - 1] = {
+            role: "assistant",
+            content: "Sorry, I ran into an error connecting with the mentor engine. Please try again.",
+          };
+        }
         return updated;
       });
     } finally {
       setIsStreaming(false);
+      isStreamingRef.current = false;
+      queryClient.invalidateQueries({ queryKey: ["chat", chatId] });
       queryClient.invalidateQueries({ queryKey: ["chats"] });
       setTimeout(() => inputRef.current?.focus(), 50);
     }
@@ -367,8 +403,73 @@ export default function ChatPage() {
                   {isUser ? (
                     msg.content
                   ) : msg.content ? (
-                    <div className="space-y-2 [&_p]:leading-relaxed [&_strong]:text-white [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_li]:text-zinc-300 [&_code]:bg-[#181A20] [&_code]:text-purple-300 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:text-xs">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    <div className="space-y-2">
+                      <ReactMarkdown
+                        components={{
+                          h1: ({ children }) => (
+                            <h1 className="text-base sm:text-lg font-bold text-white mt-3 mb-2 border-b border-zinc-800 pb-1">
+                              {children}
+                            </h1>
+                          ),
+                          h2: ({ children }) => (
+                            <h2 className="text-sm sm:text-base font-bold text-white mt-3 mb-1.5 flex items-center gap-1.5">
+                              {children}
+                            </h2>
+                          ),
+                          h3: ({ children }) => (
+                            <h3 className="text-xs sm:text-sm font-bold text-purple-300 mt-2.5 mb-1 tracking-wide uppercase">
+                              {children}
+                            </h3>
+                          ),
+                          p: ({ children }) => (
+                            <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed mb-2 last:mb-0">
+                              {children}
+                            </p>
+                          ),
+                          strong: ({ children }) => (
+                            <strong className="font-semibold text-white">
+                              {children}
+                            </strong>
+                          ),
+                          ul: ({ children }) => (
+                            <ul className="list-disc pl-5 space-y-1 mb-2 text-zinc-300">
+                              {children}
+                            </ul>
+                          ),
+                          ol: ({ children }) => (
+                            <ol className="list-decimal pl-5 space-y-1 mb-2 text-zinc-300">
+                              {children}
+                            </ol>
+                          ),
+                          li: ({ children }) => (
+                            <li className="leading-relaxed">
+                              {children}
+                            </li>
+                          ),
+                          blockquote: ({ children }) => (
+                            <blockquote className="border-l-2 border-purple-500/50 pl-3 py-1 my-2 text-zinc-400 italic bg-purple-500/5 rounded-r">
+                              {children}
+                            </blockquote>
+                          ),
+                          code: ({ className, children, ...props }) => {
+                            const isInline = !className && typeof children === "string" && !children.includes("\n");
+                            if (isInline) {
+                              return (
+                                <code className="bg-[#181A20] text-purple-300 px-1.5 py-0.5 rounded font-mono text-xs border border-zinc-800">
+                                  {children}
+                                </code>
+                              );
+                            }
+                            return (
+                              <pre className="bg-[#090A0E] border border-zinc-800/80 rounded-xl p-3 my-2 overflow-x-auto text-xs font-mono text-zinc-200">
+                                <code>{children}</code>
+                              </pre>
+                            );
+                          },
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
                   ) : isStreaming && i === messages.length - 1 ? (
                     <span className="flex items-center gap-1.5 text-zinc-400">
