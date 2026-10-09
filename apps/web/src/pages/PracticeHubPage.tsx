@@ -11,7 +11,7 @@ import { useBookmarkSlugs, useToggleBookmark } from "@/hooks/useBookmarks";
 import { useCompanyReadiness } from "@/hooks/useReadiness";
 import { CompanyKitsCatalog } from "@/components/company/CompanyKitsCatalog";
 import { CompanyKitWorkspace } from "@/components/company/CompanyKitWorkspace";
-import { DailyTargetTracker } from "@/components/shared/DailyTargetTracker";
+import { useDailyTargets } from "@/hooks/useDailyTargets";
 import { toast } from "sonner";
 import {
   Code2,
@@ -97,6 +97,7 @@ const TOP_COMPANIES_PRESET = [
 export default function PracticeHubPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { completedCount: dailyCompleted, totalCount: dailyTotal } = useDailyTargets();
 
   // Target Company Readiness
   const { data: readinessData } = useCompanyReadiness();
@@ -384,9 +385,6 @@ export default function PracticeHubPage() {
               </div>
             </div>
 
-            {/* Daily Focus Targets Tracker */}
-            <DailyTargetTracker />
-
             {/* "Explore Subjects" Section (Vertical Stacked Horizontal Rows) */}
             <div className="space-y-3.5">
               <h2 className="text-base font-bold text-white tracking-tight">Explore Subjects</h2>
@@ -572,26 +570,36 @@ export default function PracticeHubPage() {
             {/* Daily Planner Card */}
             <div className="p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] min-h-[260px] flex flex-col justify-between">
               <div>
-                <h3 className="text-sm font-bold text-white">Daily Planner</h3>
-                <div className="py-8 flex flex-col items-center justify-center text-center">
+                <h3 className="text-sm font-bold text-white flex items-center justify-between">
+                  <span>Daily Planner</span>
+                  {dailyTotal > 0 && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30">
+                      {dailyCompleted}/{dailyTotal} Done
+                    </span>
+                  )}
+                </h3>
+                <div className="py-7 flex flex-col items-center justify-center text-center">
                   <div className="w-10 h-10 rounded-full bg-[#14161C] border border-[#1E2229] flex items-center justify-center text-[#8B92A0] mb-3">
-                    <CheckCircle2 className="w-5 h-5" />
+                    <CheckCircle2 className="w-5 h-5 text-[#327CF6]" />
                   </div>
                   <p className="text-xs font-semibold text-white">
-                    Track your daily targets
+                    Track Your Daily Targets
                   </p>
-                  <p className="text-[11px] text-[#525866] mt-1 max-w-xs">
-                    Solve questions each day to maintain your streak and earn certificates.
+                  <p className="text-[11px] text-[#8B92A0] mt-1 max-w-xs leading-relaxed">
+                    {dailyTotal > 0
+                      ? `${dailyCompleted} of ${dailyTotal} daily focus goals completed. Stay consistent to boost your streak.`
+                      : "Define today's focus goals, track problem sets, and build consistent interview readiness."}
                   </p>
                 </div>
               </div>
 
               <button
                 type="button"
-                onClick={() => openSheetPractice("striver_a2z")}
-                className="w-full py-2 rounded-xl bg-[#14161C] hover:bg-[#1A1D24] text-xs font-medium text-white border border-[#1E2229] transition-all cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+                className="w-full py-2.5 rounded-xl bg-[#14161C] hover:bg-[#327CF6] text-xs font-semibold text-white border border-[#1E2229] hover:border-[#327CF6] transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
               >
-                View Today's Tasks →
+                <span>View Today's Tasks</span>
+                <span className="font-mono">→</span>
               </button>
             </div>
 
