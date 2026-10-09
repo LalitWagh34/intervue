@@ -116,6 +116,7 @@ export default function PracticeHubPage() {
     | "company_wise"
     | "company_kits_catalog"
     | "company_kit_workspace"
+    | "coming_soon"
   >("hub");
 
   // Selected Subject ("dsa" | "core_cs")
@@ -145,6 +146,12 @@ export default function PracticeHubPage() {
     } else if (viewParam === "company_wise") {
       if (companyParam) setSelectedCompany(companyParam);
       setCurrentView("company_wise");
+    } else if (
+      viewParam === "coming_soon" ||
+      viewParam === "sheets_catalog" ||
+      viewParam === "sheet_practice"
+    ) {
+      setCurrentView("coming_soon");
     }
   }, [searchParams]);
 
@@ -319,6 +326,12 @@ export default function PracticeHubPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const openComingSoon = (feature: string = "dsa") => {
+    setCurrentView("coming_soon");
+    setSearchParams({ view: "coming_soon", feature });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (isSheetsLoading || !currentSheet) {
     return (
       <div className="min-h-screen bg-[#060709] flex items-center justify-center">
@@ -389,37 +402,7 @@ export default function PracticeHubPage() {
             <div className="space-y-3.5">
               <h2 className="text-base font-bold text-white tracking-tight">Explore Subjects</h2>
 
-              {/* Subject 1: DSA (Opens DSA Sheets Catalog with A2Z, NeetCode 150, Blind 75, SDE) */}
-              <div
-                onClick={() => openSubject("dsa")}
-                className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <Code2 className="w-6 h-6" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
-                        DSA Sheets
-                      </h3>
-                      {/* <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30">
-                        4 Major Sheets
-                      </span> */}
-                    </div>
-                    <p className="text-xs sm:text-[13px] text-[#7A808C] mt-0.5 line-clamp-1">
-                      Striver A2Z, NeetCode 150, Blind 75 & Striver's SDE Sheet.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-4">
-                  <span>Explore Sheets</span>
-                  <ChevronRight className="w-4 h-4 text-[#525866] group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </div>
-
-              {/* Subject 2: Target Company Practice Kits (Codolio-Inspired with Pattern Donut & Interview Loops) */}
+              {/* Subject 1: Target Company Practice Kits (Target company wise) */}
               <div
                 onClick={() => openCompanyKitsCatalog()}
                 className="p-5 rounded-2xl bg-gradient-to-r from-[#0D0E12] via-[#0F131D] to-[#0D0E12] border border-blue-500/25 hover:border-blue-500/50 hover:bg-[#111522] transition-all cursor-pointer flex items-center justify-between group shadow-lg shadow-blue-950/10"
@@ -433,10 +416,9 @@ export default function PracticeHubPage() {
                       <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
                         Target Company Practice Kits
                       </h3>
-                      {/* <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 flex items-center gap-1 font-mono">
-                        <Sparkles className="w-2.5 h-2.5" />
-                        <span>Loop Kits & Pattern Donuts</span>
-                      </span> */}
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30">
+                        Top FAANG Rounds
+                      </span>
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#8B92A0] mt-0.5 line-clamp-1">
                       Targeted interview problem sets for Google, Amazon, Meta, Microsoft, Apple, Uber & Netflix with interactive topic donuts and round breakdowns.
@@ -450,7 +432,7 @@ export default function PracticeHubPage() {
                 </div>
               </div>
 
-              {/* Subject 3: Company-Wise (Dedicated 470+ company question system) */}
+              {/* Subject 2: All Company Section (Company-Wise 470+ company question system) */}
               <div
                 onClick={() => openCompanyWise()}
                 className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
@@ -462,14 +444,14 @@ export default function PracticeHubPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
-                        Company-Wise Sheets Archive
+                        All Company Questions Archive
                       </h3>
-                      <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30">
                         470+ Companies
                       </span>
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#7A808C] mt-0.5 line-clamp-1">
-                      Past interview papers ranked by ask rate from Google, Amazon, Meta, Microsoft, Apple & startups.
+                      Past interview papers ranked by ask rate from Google, Amazon, Meta, Microsoft, Apple, Uber & high-growth startups.
                     </p>
                   </div>
                 </div>
@@ -480,33 +462,33 @@ export default function PracticeHubPage() {
                 </div>
               </div>
 
-              {/* Subject 3: Core Subjects (OS, DBMS, CN) */}
+              {/* Subject 3: DSA Problem Sheets (Coming Soon) */}
               <div
-                onClick={() => openSubject("core_cs")}
-                className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
+                onClick={() => openComingSoon("dsa")}
+                className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-amber-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group"
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/25 flex items-center justify-center text-fuchsia-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <Cpu className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
+                    <Code2 className="w-6 h-6" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
-                        Core CS Subjects
+                      <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors truncate">
+                        DSA Problem Sheets
                       </h3>
-                      <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/30">
-                        3 Sheets
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                        Coming Soon
                       </span>
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#7A808C] mt-0.5 line-clamp-1">
-                      Strengthen DBMS, Operating Systems and Computer Networks fundamentals for technical rounds.
+                      Striver A2Z, NeetCode 150, Blind 75 & Striver's SDE Sheet. In active preparation for V2.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-4">
-                  <span>Explore Sheets</span>
-                  <ChevronRight className="w-4 h-4 text-[#525866] group-hover:translate-x-0.5 transition-transform" />
+                <div className="flex items-center gap-2 text-xs font-medium text-amber-400/80 group-hover:text-amber-400 shrink-0 pl-4">
+                  <span>Coming Soon</span>
+                  <ChevronRight className="w-4 h-4 text-amber-500/50 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
 
@@ -524,18 +506,18 @@ export default function PracticeHubPage() {
                       <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors truncate">
                         AI Mock Interviews
                       </h3>
-                      <span className="px-2 py-0.2 rounded-full text-[10px] font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/30">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/30">
                         Live Simulation
                       </span>
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#7A808C] mt-0.5 line-clamp-1">
-                      Interactive real-time text and coding interviews with AI scoring and rubric evaluation.
+                      Interactive real-time technical & behavioral interviews with AI scoring and diagnostic rubric evaluations.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-4">
-                  <span>Launch Room</span>
+                  <span>Start Mock</span>
                   <ChevronRight className="w-4 h-4 text-[#525866] group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
@@ -664,9 +646,127 @@ export default function PracticeHubPage() {
         </div>
       )}
 
-      {/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-          LEVEL 2: SHEETS CATALOG CARDS VIEW (Selecting between Striver A2Z, NeetCode 150, Blind 75, etc.)
-      â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* COMING SOON VIEW (DSA Problem Sheets & V2 Roadmap) */}
+      {currentView === "coming_soon" && (
+        <div className="space-y-6 max-w-4xl mx-auto py-4">
+          {/* Breadcrumb Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-[#181A20]">
+            <div className="flex items-center gap-2 text-xs text-[#7A808C]">
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentView("hub");
+                  setSearchParams({});
+                }}
+                className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>Prephub</span>
+              </button>
+              <span>/</span>
+              <span className="text-white font-medium">DSA Problem Sheets</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentView("hub");
+                setSearchParams({});
+              }}
+              className="px-3.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <span>← Back to Overview</span>
+            </button>
+          </div>
+
+          {/* Hero Spotlight Card */}
+          <div className="p-8 sm:p-12 rounded-3xl bg-[#0D0E12] border border-[#181A20] relative overflow-hidden text-center space-y-6 shadow-2xl">
+            <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 w-96 h-48 bg-[#327CF6]/15 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 flex items-center justify-center mx-auto shadow-lg shadow-cyan-500/10">
+              <Code2 className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-2 max-w-xl mx-auto">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 font-mono text-xs font-semibold uppercase">
+                <Sparkles className="w-3 h-3" />
+                Under Active Crafting • V2 Feature
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                DSA Problem Sheets are Coming Soon
+              </h2>
+              <p className="text-xs sm:text-sm text-[#8B92A0] leading-relaxed">
+                We are curating Striver A2Z, NeetCode 150, Blind 75, and SDE sheets with automated test runners, hint assistance, and solution breakdowns.
+              </p>
+            </div>
+
+            {/* What's Coming Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto text-left pt-2">
+              <div className="p-4 rounded-xl bg-[#08090C] border border-[#181A20] space-y-1">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                  Striver A2Z DSA Sheet
+                </span>
+                <p className="text-[11px] text-[#7A808C]">
+                  450+ complete step-by-step roadmap from basics to advanced graphs & DP.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#08090C] border border-[#181A20] space-y-1">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#327CF6]" />
+                  NeetCode 150 Patterns
+                </span>
+                <p className="text-[11px] text-[#7A808C]">
+                  Core algorithmic patterns covering two pointers, sliding window, and heaps.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#08090C] border border-[#181A20] space-y-1">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  Blind 75 High-Yield
+                </span>
+                <p className="text-[11px] text-[#7A808C]">
+                  The timeless curated 75 questions most frequently asked in tech screens.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#08090C] border border-[#181A20] space-y-1">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
+                  Striver SDE Sheet
+                </span>
+                <p className="text-[11px] text-[#7A808C]">
+                  Top product-based company interview questions for rapid final-month prep.
+                </p>
+              </div>
+            </div>
+
+            {/* Active Alternatives CTAs */}
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => openCompanyKitsCatalog()}
+                className="px-5 py-2.5 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-white text-xs font-semibold shadow-md shadow-[#327CF6]/20 transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Explore Company Kits (Live)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openCompanyWise()}
+                className="px-5 py-2.5 rounded-xl bg-[#14161C] hover:bg-[#1E2229] border border-[#1E2229] text-zinc-300 hover:text-white text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Browse 470+ Company Archive</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {currentView === "sheets_catalog" && (
         <div className="space-y-6">
           {/* Breadcrumb Header */}
