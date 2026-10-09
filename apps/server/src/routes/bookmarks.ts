@@ -1,4 +1,4 @@
-﻿import { Hono } from "hono";
+import { Hono } from "hono";
 import { db } from "@intervue/db";
 import { requireAuth } from "../middleware/auth";
 import type { AuthVariables } from "../types";
@@ -6,6 +6,14 @@ import type { AuthVariables } from "../types";
 const bookmarks = new Hono<{ Variables: AuthVariables }>();
 
 bookmarks.use("*", requireAuth);
+
+function normalizeDifficulty(diff?: string): "Easy" | "Medium" | "Hard" {
+  if (!diff) return "Medium";
+  const raw = String(diff).toUpperCase().trim();
+  if (raw === "BASIC" || raw === "EASY") return "Easy";
+  if (raw === "HARD") return "Hard";
+  return "Medium";
+}
 
 // GET /api/bookmarks - list all bookmarks for current user
 bookmarks.get("/", async (c) => {
@@ -18,7 +26,12 @@ bookmarks.get("/", async (c) => {
       orderBy: { createdAt: "desc" },
     });
 
-    return c.json({ bookmarks: all });
+    const normalized = all.map((b) => ({
+      ...b,
+      difficulty: normalizeDifficulty(b.difficulty),
+    }));
+
+    return c.json({ bookmarks: normalized });
   } catch (err: any) {
     console.error("Error fetching bookmarks:", err);
     return c.json({ error: err.message }, 500);
@@ -32,7 +45,7 @@ bookmarks.post("/toggle", async (c) => {
     if (!user) return c.json({ error: "Unauthorized" }, 401);
 
     const body = await c.req.json();
-    const { problemSlug, problemTitle, difficulty } = body;
+    let { problemSlug, problemTitle, difficulty } = body;
 
     if (!problemSlug) return c.json({ error: "problemSlug is required" }, 400);
 
@@ -44,12 +57,14 @@ bookmarks.post("/toggle", async (c) => {
       await db.userBookmark.delete({ where: { id: existing.id } });
       return c.json({ bookmarked: false });
     } else {
+      const normalizedDiff = normalizeDifficulty(difficulty);
+
       await db.userBookmark.create({
         data: {
           userId: user.id,
           problemSlug,
           problemTitle: problemTitle || problemSlug,
-          difficulty: difficulty || "Core",
+          difficulty: normalizedDiff,
         },
       });
       return c.json({ bookmarked: true });

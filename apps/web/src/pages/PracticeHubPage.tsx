@@ -1413,8 +1413,8 @@ export default function PracticeHubPage() {
           solvedProblems={solvedProblems}
           onToggleSolved={toggleSolved}
           isBookmarked={(slug) => bookmarkedSlugs.includes(slug)}
-          onToggleBookmark={(slug) =>
-            handleToggleBookmark(slug, slug, "MEDIUM")
+          onToggleBookmark={(slug, title, difficulty) =>
+            handleToggleBookmark(slug, title || slug, difficulty || "Medium")
           }
           onOpenNotes={(problem) =>
             setActiveNoteTarget({

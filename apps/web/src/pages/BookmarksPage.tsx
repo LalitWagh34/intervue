@@ -3,13 +3,21 @@ import { useBookmarks, useToggleBookmark } from "@/hooks/useBookmarks";
 import { Bookmark, Search, BookmarkX, ExternalLink, Loader2 } from "lucide-react";
 import { cn, formatDistanceToNow } from "@/lib/utils";
 
-const DIFFICULTY_CONFIG = {
-  Basic: { label: "Easy", color: "text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20" },
-  Core: { label: "Medium", color: "text-[#F59E0B] bg-[#F59E0B]/10 border-[#F59E0B]/20" },
+const DIFFICULTY_CONFIG: Record<"Easy" | "Medium" | "Hard", { label: string; color: string }> = {
+  Easy: { label: "Easy", color: "text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20" },
+  Medium: { label: "Medium", color: "text-[#F59E0B] bg-[#F59E0B]/10 border-[#F59E0B]/20" },
   Hard: { label: "Hard", color: "text-[#EF4444] bg-[#EF4444]/10 border-[#EF4444]/20" },
 };
 
-type FilterType = "ALL" | "Basic" | "Core" | "Hard";
+function normalizeDifficulty(diff?: string): "Easy" | "Medium" | "Hard" {
+  if (!diff) return "Medium";
+  const s = String(diff).toUpperCase().trim();
+  if (s === "BASIC" || s === "EASY") return "Easy";
+  if (s === "HARD") return "Hard";
+  return "Medium";
+}
+
+type FilterType = "ALL" | "Easy" | "Medium" | "Hard";
 
 export default function BookmarksPage() {
   const { data: bookmarks = [], isLoading } = useBookmarks();
@@ -24,7 +32,8 @@ export default function BookmarksPage() {
         !search.trim() ||
         b.problemTitle.toLowerCase().includes(search.toLowerCase()) ||
         b.problemSlug.toLowerCase().includes(search.toLowerCase());
-      const matchFilter = filter === "ALL" || b.difficulty === filter;
+      const bDiff = normalizeDifficulty(b.difficulty);
+      const matchFilter = filter === "ALL" || bDiff === filter;
       return matchSearch && matchFilter;
     });
   }, [bookmarks, search, filter]);
@@ -56,7 +65,7 @@ export default function BookmarksPage() {
         </div>
 
         <div className="flex items-center gap-1 p-1 rounded-lg bg-[#0D0E12] border border-[#1E2229]">
-          {(["ALL", "Basic", "Core", "Hard"] as FilterType[]).map((f) => (
+          {(["ALL", "Easy", "Medium", "Hard"] as FilterType[]).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -67,7 +76,7 @@ export default function BookmarksPage() {
                   : "text-[#A1A7B3] hover:text-[#F5F7FA]"
               )}
             >
-              {f === "ALL" ? "All" : f === "Basic" ? "Easy" : f === "Core" ? "Medium" : "Hard"}
+              {f === "ALL" ? "All" : f}
             </button>
           ))}
         </div>
@@ -91,7 +100,8 @@ export default function BookmarksPage() {
       ) : (
         <div className="space-y-2">
           {filtered.map((bookmark) => {
-            const diff = DIFFICULTY_CONFIG[bookmark.difficulty as keyof typeof DIFFICULTY_CONFIG] ?? DIFFICULTY_CONFIG.Core;
+            const bDiff = normalizeDifficulty(bookmark.difficulty);
+            const diff = DIFFICULTY_CONFIG[bDiff];
             return (
               <div
                 key={bookmark.problemSlug}

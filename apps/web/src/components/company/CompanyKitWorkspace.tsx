@@ -34,7 +34,7 @@ interface CompanyKitWorkspaceProps {
   solvedProblems: Record<string, boolean>;
   onToggleSolved: (id: string, e: React.MouseEvent, difficulty?: string) => void;
   isBookmarked: (slug: string) => boolean;
-  onToggleBookmark: (slug: string) => void;
+  onToggleBookmark: (slug: string, title?: string, difficulty?: string) => void;
   onOpenNotes: (problem: { slug: string; title: string }) => void;
 }
 
@@ -585,7 +585,7 @@ export function CompanyKitWorkspace({
                           {/* Bookmark */}
                           <button
                             type="button"
-                            onClick={() => onToggleBookmark(q.slug)}
+                            onClick={() => onToggleBookmark(q.slug, q.title, q.difficulty)}
                             className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                               isSaved
                                 ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
