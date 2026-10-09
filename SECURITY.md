@@ -15,7 +15,7 @@ The interVue team takes security seriously. If you discover a security vulnerabi
 
 1. **Do not disclose the issue publicly** in GitHub issues, discussions, or social channels.
 2. Email full vulnerability reproduction details, affected files, and proof-of-concept exploits to:
-   - **lalitwagh2004@gmail.com**
+   - **lalitwagh2804@gmail.com**
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce
