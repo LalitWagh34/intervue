@@ -68,7 +68,7 @@ const NAV_SECTIONS: NavSection[] = [
         label: "Company Kits",
         icon: Building2,
         href: "/practice?view=company_kits",
-        badge: "HOT",
+        // badge: "HOT",
         badgeColor: "amber",
       },
       {
