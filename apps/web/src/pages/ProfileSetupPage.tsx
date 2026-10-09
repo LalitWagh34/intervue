@@ -123,51 +123,54 @@ export default function ProfileSetupPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#060709] text-[#F3F4F6] font-sans flex items-center justify-center p-4 selection:bg-[#327CF6]/30">
-      <div className="w-full max-w-4xl bg-[#0D0E12] border border-[#181A20] rounded-2xl shadow-2xl flex overflow-hidden min-h-[550px]">
-        {/* Sidebar */}
-        <div className="w-64 border-r border-[#181A20] bg-[#0A0C10]/50 p-6 flex flex-col">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="text-[#8B92A0] text-xs font-semibold mb-8 flex items-center gap-2 hover:text-white transition-colors"
-          >
-            <span className="text-[#327CF6]">←</span> Back to Dashboard
-          </button>
-          
-          <h2 className="text-xs font-bold text-white uppercase tracking-wider mb-4 px-2">Setup Profile</h2>
-          
-          <nav className="space-y-1.5 flex-1">
+    <div className="min-h-screen bg-[#060709] text-[#F3F4F6] font-sans flex items-center justify-center p-3 sm:p-6 selection:bg-[#327CF6]/30">
+      <div className="w-full max-w-4xl bg-[#0D0E12] border border-[#181A20] rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden min-h-[550px]">
+        {/* Sidebar / Mobile Nav Header */}
+        <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#181A20] bg-[#0A0C10]/60 p-4 sm:p-6 flex flex-col shrink-0">
+          <div className="flex items-center justify-between md:block mb-3 md:mb-6">
+            <button
+              onClick={() => navigate("/profile")}
+              className="text-[#8B92A0] text-xs font-semibold flex items-center gap-2 hover:text-white transition-colors cursor-pointer"
+            >
+              <span className="text-[#327CF6]">←</span> Back to Profile
+            </button>
+            <h2 className="text-xs font-bold text-white uppercase tracking-wider hidden md:block mt-6 px-1">
+              Setup Profile
+            </h2>
+          </div>
+
+          <nav className="flex md:flex-col gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
             {SECTIONS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 className={cn(
-                  "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                  "shrink-0 md:w-full flex items-center gap-2 md:gap-3 px-3 py-2 md:px-3.5 md:py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap",
                   activeSection === s.id
-                    ? "bg-[#327CF6]/10 text-[#327CF6] shadow-sm shadow-[#327CF6]/5"
-                    : "text-[#8B92A0] hover:text-white hover:bg-[#14161C]"
+                    ? "bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30 shadow-sm"
+                    : "text-[#8B92A0] hover:text-white hover:bg-[#14161C] border border-transparent"
                 )}
               >
-                <s.icon className="w-4 h-4" />
-                {s.label}
+                <s.icon className="w-4 h-4 shrink-0" />
+                <span>{s.label}</span>
               </button>
             ))}
           </nav>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-8 sm:p-12 relative flex flex-col">
+        <div className="flex-1 p-5 sm:p-8 md:p-10 relative flex flex-col">
           <div className="flex-1">
             {activeSection === "basic" && (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="mb-8">
-                  <h1 className="text-2xl font-bold tracking-tight text-white mb-1.5">Basic Info</h1>
-                  <p className="text-[#8B92A0] text-sm">Tell us a bit about yourself to personalize your experience.</p>
+                <div className="mb-6 sm:mb-8">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-1.5">Basic Info</h1>
+                  <p className="text-[#8B92A0] text-xs sm:text-sm">Tell us a bit about yourself to personalize your experience.</p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 p-4 rounded-2xl bg-[#08090C] border border-[#181A20]">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#14161C] border border-[#1E2229] shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8 p-3.5 sm:p-4 rounded-2xl bg-[#08090C] border border-[#181A20]">
+                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-[#14161C] border border-[#1E2229] shrink-0">
                       {avatarUrl || session?.user?.image ? (
                         <img
                           src={avatarUrl || session?.user?.image || ""}
@@ -388,13 +391,13 @@ export default function ProfileSetupPage() {
             )}
           </div>
 
-          <div className="mt-10 pt-6 border-t border-[#181A20] flex items-center justify-between">
+          <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-[#181A20] flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
             {mutation.isError ? (
               <p className="text-[#EF4444] text-xs font-medium">Something went wrong. Please try again.</p>
             ) : <div />}
-            
+
             <Button
-              className="bg-[#327CF6] text-white hover:bg-[#2563EB] rounded-xl px-6"
+              className="w-full sm:w-auto bg-[#327CF6] text-white hover:bg-[#2563EB] rounded-xl px-6 h-10 font-semibold cursor-pointer shadow-lg shadow-[#327CF6]/20"
               disabled={!fullName || !targetRole || !experienceLevel || mutation.isPending}
               onClick={() => mutation.mutate()}
             >

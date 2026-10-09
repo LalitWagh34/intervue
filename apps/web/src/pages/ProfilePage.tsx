@@ -302,11 +302,11 @@ export default function ProfilePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 pt-4 sm:pt-0 pb-1">
+          <div className="flex items-center gap-2.5 pt-4 sm:pt-0 pb-1 w-full sm:w-auto">
             <button
               onClick={() => syncAllMutation.mutate()}
               disabled={syncAllMutation.isPending}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#08090C] border border-[#181A20] hover:border-[#327CF6]/50 text-xs font-medium text-[#8B92A0] hover:text-white transition-all cursor-pointer disabled:opacity-50"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-[#08090C] border border-[#181A20] hover:border-[#327CF6]/50 text-xs font-medium text-[#8B92A0] hover:text-white transition-all cursor-pointer disabled:opacity-50"
               title="Sync all connected platforms"
             >
               <RefreshCw
@@ -316,7 +316,7 @@ export default function ProfilePage() {
             </button>
             <Link
               to="/profile-setup"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white shadow-sm shadow-[#327CF6]/20 transition-all cursor-pointer"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white shadow-sm shadow-[#327CF6]/20 transition-all cursor-pointer text-center"
             >
               <Pencil className="w-3.5 h-3.5" />
               <span>Edit Profile</span>
