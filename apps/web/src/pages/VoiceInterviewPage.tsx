@@ -47,13 +47,15 @@ export default function VoiceInterviewPage() {
     createSession();
   }, []);
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
   async function startInterview(id: string) {
     setIsLoading(true);
     setStatus("speaking");
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/interviews/${id}/message`,
+        `${API_BASE_URL}/interviews/${id}/message`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -140,7 +142,7 @@ export default function VoiceInterviewPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/interviews/${id}/message`,
+        `${API_BASE_URL}/interviews/${id}/message`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

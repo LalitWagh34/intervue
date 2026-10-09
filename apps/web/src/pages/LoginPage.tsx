@@ -86,11 +86,12 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       if (authMode === "signup") {
+        const callbackURL = `${window.location.origin}/dashboard`;
         const result = await signUp.email({
           email: email.trim(),
           password: password,
           name: name.trim() || email.split("@")[0],
-          callbackURL: "http://localhost:5173/dashboard",
+          callbackURL,
         });
 
         if (result.error) {
@@ -104,10 +105,11 @@ export default function LoginPage() {
           window.location.href = "/dashboard";
         }, 500);
       } else {
+        const callbackURL = `${window.location.origin}/dashboard`;
         const result = await signIn.email({
           email: email.trim(),
           password: password,
-          callbackURL: "http://localhost:5173/dashboard",
+          callbackURL,
         });
 
         if (result.error) {
@@ -135,7 +137,7 @@ export default function LoginPage() {
     try {
       await signIn.social({
         provider: "google",
-        callbackURL: "http://localhost:5173/dashboard",
+        callbackURL: `${window.location.origin}/dashboard`,
       });
     } catch (err: any) {
       console.error("Google sign in initiation failed:", err);
