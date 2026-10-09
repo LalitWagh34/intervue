@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { promises as fs } from "fs";
 import path from "path";
+import { config } from "dotenv";
 
 const feedback = new Hono();
 const DATA_FILE = path.resolve(process.cwd(), "data", "feedbacks.json");
@@ -18,6 +19,9 @@ interface FeedbackItem {
 // POST /api/feedback - submit user feedback
 feedback.post("/", async (c) => {
   try {
+    // Reload dotenv dynamically so any updates to .env take effect immediately
+    config({ override: true });
+
     const body = await c.req.json();
     const { name, email, subject, message } = body;
 
@@ -37,13 +41,13 @@ feedback.post("/", async (c) => {
         const emailResponse = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${resendApiKey}`,
+            Authorization: `Bearer ${resendApiKey.trim()}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Intervue App <onboarding@resend.dev>",
-            to: [targetAdminEmail],
-            reply_to: email || undefined,
+            from: "onboarding@resend.dev",
+            to: [targetAdminEmail.trim()],
+            reply_to: email ? email.trim() : undefined,
             subject: `[Intervue Feedback] ${subject || "General"}: from ${name || "User"}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;">
