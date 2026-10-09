@@ -448,8 +448,8 @@ export function CompanyKitWorkspace({
             No questions found matching your filter criteria.
           </div>
         ) : (
-          <div className="rounded-2xl border border-[#181A20] overflow-hidden bg-[#0D0E12]">
-            <table className="w-full text-left text-xs">
+          <div className="rounded-2xl border border-[#181A20] overflow-x-auto bg-[#0D0E12]">
+            <table className="w-full text-left text-xs min-w-[620px]">
               <thead className="bg-[#101217] border-b border-[#181A20] text-zinc-400 font-mono text-[11px]">
                 <tr>
                   <th className="p-3.5 w-10 text-center">Status</th>

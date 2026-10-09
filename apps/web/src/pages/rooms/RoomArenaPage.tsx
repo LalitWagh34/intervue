@@ -500,16 +500,16 @@ export default function RoomArenaPage() {
   const remainingCount = Math.max(0, totalQuestions - completedCount);
 
   return (
-    <div className="h-screen bg-[#07080B] text-zinc-100 flex flex-col overflow-hidden font-sans selection:bg-blue-600/30">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[#07080B] text-zinc-100 flex flex-col overflow-hidden font-sans selection:bg-blue-600/30">
       {/* ─── TOP ARENA HUD ───────────────────────────────────────────── */}
-      <header className="h-14 border-b border-zinc-800/90 bg-[#0C0E13]/95 backdrop-blur px-4 flex items-center justify-between shrink-0 select-none z-20">
+      <header className="h-14 border-b border-zinc-800/90 bg-[#0C0E13]/95 backdrop-blur px-2.5 sm:px-4 flex items-center justify-between shrink-0 select-none z-20 gap-2">
         {/* Left: Question Palette Toggle & Contest Title */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Button
             size="sm"
             variant="outline"
             onClick={() => setIsQuestionNavOpen(!isQuestionNavOpen)}
-            className={`text-xs h-8.5 px-3 border-zinc-800 flex items-center gap-2 rounded-xl transition-all shrink-0 ${
+            className={`text-xs h-8.5 px-2.5 sm:px-3 border-zinc-800 flex items-center gap-1.5 sm:gap-2 rounded-xl transition-all shrink-0 ${
               isQuestionNavOpen
                 ? "bg-blue-600/20 text-blue-300 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.2)]"
                 : "bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
@@ -523,8 +523,8 @@ export default function RoomArenaPage() {
             </span>
           </Button>
 
-          <div className="flex items-center gap-2.5 pl-2 border-l border-zinc-800/80 shrink-0">
-            <span className="font-bold text-sm tracking-tight text-white truncate max-w-[140px] sm:max-w-[200px] md:max-w-[280px]">
+          <div className="hidden sm:flex items-center gap-2.5 pl-2 border-l border-zinc-800/80 shrink-0">
+            <span className="font-bold text-sm tracking-tight text-white truncate max-w-[120px] md:max-w-[280px]">
               {room.title}
             </span>
             <Badge variant="outline" className="text-[10px] border-zinc-800 bg-black/40 font-mono text-zinc-400">
@@ -534,9 +534,9 @@ export default function RoomArenaPage() {
         </div>
 
         {/* Center: Authoritative Countdown Timer */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center shrink-0">
           <div
-            className={`px-4 py-1.5 rounded-full border flex items-center gap-2 font-mono text-xs font-bold tracking-wider transition-all duration-300 shadow-sm ${
+            className={`px-2.5 sm:px-4 py-1.5 rounded-full border flex items-center gap-1.5 sm:gap-2 font-mono text-xs font-bold tracking-wider transition-all duration-300 shadow-sm ${
               (secondsLeft ?? 100) < 300
                 ? "bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse"
                 : "bg-black/60 border-zinc-800 text-zinc-200"
@@ -548,7 +548,7 @@ export default function RoomArenaPage() {
         </div>
 
         {/* Right: Proctor Status, Fullscreen, Standings, Finish Test & Host Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Proctoring Status Indicator */}
           <div
             className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-medium ${
@@ -567,18 +567,18 @@ export default function RoomArenaPage() {
           {/* Fullscreen Toggle */}
           <button
             onClick={isFullscreen ? exitFullscreen : requestFullscreen}
-            className="p-1.5 rounded-lg border border-zinc-800 bg-[#11141A] text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
+            className="hidden sm:flex p-1.5 rounded-lg border border-zinc-800 bg-[#11141A] text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
             title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
 
-          {/* Live Spectator Mode Toggle */}
+          {/* Live Spectator Mode Toggle (Hidden on mobile) */}
           <Button
             size="sm"
             variant="outline"
             onClick={() => setIsSpectatorMode(!isSpectatorMode)}
-            className={`text-xs h-8 border-zinc-800 flex items-center gap-1.5 rounded-xl transition-all ${
+            className={`hidden md:flex text-xs h-8 border-zinc-800 items-center gap-1.5 rounded-xl transition-all ${
               isSpectatorMode
                 ? "bg-purple-600/20 text-purple-300 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.25)]"
                 : "bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
@@ -590,15 +590,15 @@ export default function RoomArenaPage() {
             ) : (
               <Eye className="w-3.5 h-3.5 text-purple-400" />
             )}
-            <span className="hidden md:inline">{isSpectatorMode ? "Exit Spectator" : "Spectator"}</span>
+            <span>{isSpectatorMode ? "Exit Spectator" : "Spectator"}</span>
           </Button>
 
-          {/* Exam Rules & Instructions Reference */}
+          {/* Exam Rules & Instructions Reference (Hidden on mobile) */}
           <Button
             size="sm"
             variant="outline"
             onClick={() => setIsRulesModalOpen(true)}
-            className="text-xs h-8 border-zinc-800 flex items-center gap-1.5 rounded-xl bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            className="hidden md:flex text-xs h-8 border-zinc-800 items-center gap-1.5 rounded-xl bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
             title="View Exam Instructions, Layout & Anti-Cheat Rules"
           >
             <BookOpen className="w-3.5 h-3.5 text-blue-400" />
@@ -610,15 +610,16 @@ export default function RoomArenaPage() {
             size="sm"
             variant="outline"
             onClick={() => setIsLeaderboardOpen(!isLeaderboardOpen)}
-            className={`text-xs h-8 border-zinc-800 flex items-center gap-2 rounded-xl transition-all ${
+            className={`text-xs h-8 px-2 sm:px-3 border-zinc-800 flex items-center gap-1.5 sm:gap-2 rounded-xl transition-all ${
               isLeaderboardOpen
                 ? "bg-blue-600/20 text-blue-300 border-blue-500/40"
                 : "bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
             }`}
           >
-            <Trophy className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-mono">
-              #{myData?.rank || 1} • {myData?.score || 0} pts
+            <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="font-mono text-[11px] sm:text-xs">
+              #{myData?.rank || 1}
+              <span className="hidden sm:inline"> • {myData?.score || 0} pts</span>
             </span>
           </Button>
 
@@ -626,7 +627,7 @@ export default function RoomArenaPage() {
           <Button
             size="sm"
             onClick={() => setIsFinishModalOpen(true)}
-            className="text-xs h-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center gap-1.5 transition-all"
+            className="text-xs h-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold px-2.5 sm:px-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center gap-1.5 transition-all shrink-0"
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Finish Test</span>
@@ -1302,41 +1303,41 @@ export default function RoomArenaPage() {
           </div>
         ) : activeQuestion?.assessmentQuestion ? (
           // ─── MCQ CARD VIEW ──────────────────────────────────────────
-          <div className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 flex justify-center items-start bg-[#07080B]">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-8 md:p-10 flex justify-center items-start bg-[#07080B]">
             <motion.div
               key={activeQuestion.assessmentQuestion.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
-              className="max-w-3xl w-full rounded-2xl bg-[#0D0F14] border border-zinc-800/90 p-6 sm:p-8 space-y-7 shadow-2xl"
+              className="max-w-3xl w-full rounded-2xl bg-[#0D0F14] border border-zinc-800/90 p-4 sm:p-8 space-y-4 sm:space-y-7 shadow-2xl"
             >
               {/* Card Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-4 gap-3">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className="text-xs font-bold font-mono px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/30">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-3 sm:pb-4 gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+                  <span className="text-[11px] sm:text-xs font-bold font-mono px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/30">
                     Question {activeQuestionIndex + 1} of {totalQuestions}
                   </span>
-                  <Badge variant="outline" className="border-zinc-700 bg-zinc-800/60 text-zinc-300 text-xs">
+                  <Badge variant="outline" className="border-zinc-700 bg-zinc-800/60 text-zinc-300 text-[10px] sm:text-xs">
                     {activeQuestion.assessmentQuestion.category || "MCQ"}
                   </Badge>
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-[11px] sm:text-xs text-zinc-400">
                     {activeQuestion.assessmentQuestion.subject} • {activeQuestion.assessmentQuestion.topic}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-bold font-mono px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-emerald-400 font-bold font-mono px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                     +{activeQuestion.points} points
                   </div>
                 </div>
               </div>
 
               {/* Question Text */}
-              <p className="text-lg sm:text-xl font-medium text-white leading-relaxed">
+              <p className="text-base sm:text-xl font-medium text-white leading-relaxed">
                 {activeQuestion.assessmentQuestion.question}
               </p>
 
               {/* Options */}
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {((activeQuestion.assessmentQuestion.options as string[]) || []).map((optionText, optIdx) => {
                   const qId = activeQuestion.assessmentQuestion!.id;
                   const isSelected = selectedOptions[qId] === optIdx;
@@ -1347,15 +1348,15 @@ export default function RoomArenaPage() {
                       key={optIdx}
                       type="button"
                       onClick={() => setSelectedOptions((prev) => ({ ...prev, [qId]: optIdx }))}
-                      className={`w-full p-4 rounded-xl border text-left text-sm transition-all duration-200 flex items-center justify-between ${
+                      className={`w-full p-3 sm:p-4 rounded-xl border text-left text-xs sm:text-sm transition-all duration-200 flex items-center justify-between ${
                         isSelected
                           ? "bg-blue-600/15 border-blue-500/60 text-white shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-blue-500/30"
                           : "bg-black/30 border-zinc-800/90 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900/40"
                       }`}
                     >
-                      <div className="flex items-center gap-3.5">
+                      <div className="flex items-center gap-2.5 sm:gap-3.5">
                         <span
-                          className={`w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-mono font-bold transition-colors ${
+                          className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg border flex items-center justify-center text-xs font-mono font-bold transition-colors ${
                             isSelected
                               ? "border-blue-500 bg-blue-500 text-white"
                               : "border-zinc-800 bg-zinc-900 text-zinc-400"
@@ -1372,7 +1373,7 @@ export default function RoomArenaPage() {
               </div>
 
               {/* Submit & Navigation Bar */}
-              <div className="pt-5 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="pt-3 sm:pt-5 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 {/* Left: Previous Button & Hotkeys Guide */}
                 <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-start">
                   <Button

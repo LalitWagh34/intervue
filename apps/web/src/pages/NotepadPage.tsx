@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNotes, useSaveNote, useDeleteNote } from "@/hooks/useNotes";
-import { NotebookPen, Search, Trash2, Save, Loader2, StickyNote } from "lucide-react";
+import { NotebookPen, Search, Trash2, Save, Loader2, StickyNote, ArrowLeft } from "lucide-react";
 import { cn, formatDistanceToNow } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -62,10 +62,10 @@ export default function NotepadPage() {
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto h-[calc(100vh-64px)] flex flex-col">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto h-[calc(100dvh-64px)] flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-9 h-9 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/25 flex items-center justify-center">
+      <div className="flex items-center gap-3 mb-4 sm:mb-6 shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/25 flex items-center justify-center shrink-0">
           <NotebookPen className="w-4.5 h-4.5 text-[#F59E0B]" />
         </div>
         <div>
@@ -74,12 +74,17 @@ export default function NotepadPage() {
         </div>
       </div>
 
-      {/* Two-column Layout */}
+      {/* Two-column Layout: On mobile shows list or editor full-width, on desktop side-by-side */}
       <div className="flex-1 flex gap-4 min-h-0">
         {/* Left: Note List */}
-        <div className="w-80 shrink-0 flex flex-col gap-3">
+        <div
+          className={cn(
+            "w-full md:w-80 shrink-0 flex flex-col gap-3 min-h-0",
+            selectedSlug ? "hidden md:flex" : "flex"
+          )}
+        >
           {/* Search */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#525866]" />
             <input
               type="text"
@@ -124,7 +129,8 @@ export default function NotepadPage() {
                         e.stopPropagation();
                         handleDelete(note.problemSlug);
                       }}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-[#707784] hover:text-[#EF4444] cursor-pointer shrink-0"
+                      className="opacity-70 sm:opacity-0 group-hover:opacity-100 transition-opacity text-[#707784] hover:text-[#EF4444] cursor-pointer shrink-0 p-1"
+                      title="Delete Note"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -143,18 +149,33 @@ export default function NotepadPage() {
         </div>
 
         {/* Right: Editor */}
-        <div className="flex-1 flex flex-col rounded-xl bg-[#0D0E12] border border-[#1E2229] overflow-hidden">
+        <div
+          className={cn(
+            "flex-1 flex flex-col rounded-xl bg-[#0D0E12] border border-[#1E2229] overflow-hidden min-h-0",
+            !selectedSlug ? "hidden md:flex" : "flex"
+          )}
+        >
           {selectedNote ? (
             <>
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#1E2229]">
-                <div>
-                  <p className="text-sm font-semibold text-[#F5F7FA]">{selectedNote.problemTitle}</p>
-                  <p className="text-[11px] text-[#707784] font-mono">{selectedNote.problemSlug}</p>
+              <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-[#1E2229] shrink-0">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSlug(null)}
+                    className="md:hidden p-1.5 rounded-lg bg-zinc-800/60 text-zinc-300 hover:text-white shrink-0"
+                    title="Back to notes list"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-[#F5F7FA] truncate">{selectedNote.problemTitle}</p>
+                    <p className="text-[11px] text-[#707784] font-mono truncate">{selectedNote.problemSlug}</p>
+                  </div>
                 </div>
                 <button
                   onClick={handleSave}
                   disabled={saveNote.isPending || !isDirty}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed transition-colors shrink-0"
                 >
                   {saveNote.isPending ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -170,12 +191,12 @@ export default function NotepadPage() {
                   setEditContent(e.target.value);
                   setIsDirty(true);
                 }}
-                className="flex-1 w-full bg-transparent p-5 text-sm text-[#E0E2E8] font-mono resize-none outline-none leading-relaxed placeholder:text-[#525866]"
+                className="flex-1 w-full bg-transparent p-4 sm:p-5 text-sm text-[#E0E2E8] font-mono resize-none outline-none leading-relaxed placeholder:text-[#525866]"
                 placeholder="Write your hint, approach, complexity notes..."
               />
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-6">
               <NotebookPen className="w-10 h-10 text-[#525866]" />
               <p className="text-sm font-medium text-[#707784]">Select a note to view or edit</p>
               <p className="text-xs text-[#525866] max-w-xs">

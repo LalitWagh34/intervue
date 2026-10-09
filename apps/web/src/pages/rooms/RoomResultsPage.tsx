@@ -323,18 +323,18 @@ export default function RoomResultsPage() {
         )}
 
         {/* ─── TAB NAVIGATION BAR ─────────────────────────────────────── */}
-        <div className="flex items-center justify-between border-b border-zinc-800/90 pb-3">
-          <div className="flex items-center gap-2 p-1 bg-[#0D0F14] border border-zinc-800/80 rounded-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/90 pb-3 gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2 p-1 bg-[#0D0F14] border border-zinc-800/80 rounded-xl w-full sm:w-auto">
             <button
               onClick={() => setActiveTab("review")}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 sm:gap-2 transition-all ${
                 activeTab === "review"
                   ? "bg-blue-600/20 text-blue-300 border border-blue-500/40 shadow-sm"
                   : "text-zinc-400 hover:text-white"
               }`}
             >
-              <Layers className="w-3.5 h-3.5" />
-              <span>Questions & Solutions Review</span>
+              <Layers className="w-3.5 h-3.5 shrink-0" />
+              <span>Questions Review</span>
               <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/40 font-mono text-zinc-400">
                 {scorecard?.questions.length || 0}
               </span>
@@ -342,28 +342,28 @@ export default function RoomResultsPage() {
 
             <button
               onClick={() => setActiveTab("standings")}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 sm:gap-2 transition-all ${
                 activeTab === "standings"
                   ? "bg-blue-600/20 text-blue-300 border border-blue-500/40 shadow-sm"
                   : "text-zinc-400 hover:text-white"
               }`}
             >
-              <Trophy className="w-3.5 h-3.5" />
-              <span>Podium & Full Leaderboard</span>
+              <Trophy className="w-3.5 h-3.5 shrink-0" />
+              <span>Leaderboard</span>
               <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/40 font-mono text-zinc-400">
                 {leaderboard.length}
               </span>
             </button>
           </div>
 
-          {/* Question Filter dropdown if on Review tab */}
+          {/* Question Filter buttons if on Review tab */}
           {activeTab === "review" && (
-            <div className="flex items-center gap-1.5 text-xs">
+            <div className="flex items-center gap-1.5 text-xs overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               {(["all", "correct", "incorrect", "unattempted"] as const).map((filterKey) => (
                 <button
                   key={filterKey}
                   onClick={() => setQuestionFilter(filterKey)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-medium capitalize border transition-all ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-medium capitalize border transition-all shrink-0 ${
                     questionFilter === filterKey
                       ? "bg-zinc-800 border-zinc-600 text-white font-semibold"
                       : "bg-black/30 border-zinc-800/80 text-zinc-400 hover:border-zinc-700"
@@ -455,7 +455,7 @@ export default function RoomResultsPage() {
                               </span>
                             </div>
 
-                            <p className="text-sm font-semibold text-white mt-1 truncate max-w-xl">
+                            <p className="text-xs sm:text-sm font-semibold text-white mt-1 line-clamp-2 max-w-xl">
                               {isCoding
                                 ? q.problem?.title
                                 : q.assessmentQuestion?.question}
@@ -600,12 +600,29 @@ export default function RoomResultsPage() {
               transition={{ duration: 0.15 }}
               className="space-y-8"
             >
-              {/* Top 3 Podium */}
-              {leaderboard.length > 0 && (
-                <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto pt-6 items-end">
+              {/* Top 3 Podium or Single Winner Card */}
+              {leaderboard.length === 1 && top1 ? (
+                <div className="max-w-xs mx-auto pt-4">
+                  <div className="bg-[#0E1117] border border-amber-500/40 rounded-2xl p-6 text-center flex flex-col items-center justify-between shadow-[0_0_30px_rgba(245,158,11,0.1)] gap-3">
+                    <div className="w-12 h-12 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-lg font-bold text-amber-400">
+                      🥇
+                    </div>
+                    <div className="font-bold text-sm text-white px-2">
+                      {top1.name}
+                    </div>
+                    <div className="space-y-0.5">
+                      <span className="font-mono text-xl font-extrabold text-amber-400">
+                        {top1.score} pts
+                      </span>
+                      <p className="text-xs text-zinc-400 font-mono">{top1.solvedCount} solved</p>
+                    </div>
+                  </div>
+                </div>
+              ) : leaderboard.length > 1 ? (
+                <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto pt-6 items-end">
                   {/* 2nd Place */}
                   {top2 ? (
-                    <div className="bg-[#0D0F14] border border-zinc-800 rounded-2xl p-5 text-center flex flex-col items-center justify-between h-48 order-1">
+                    <div className="bg-[#0D0F14] border border-zinc-800 rounded-2xl p-4 sm:p-5 text-center flex flex-col items-center justify-between h-48 order-1">
                       <div className="space-y-2">
                         <div className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-300">
                           🥈
@@ -615,7 +632,7 @@ export default function RoomResultsPage() {
                         </div>
                       </div>
                       <div className="space-y-0.5">
-                        <span className="font-mono text-base font-bold text-white">
+                        <span className="font-mono text-sm sm:text-base font-bold text-white">
                           {top2.score} pts
                         </span>
                         <p className="text-[11px] text-zinc-500 font-mono">{top2.solvedCount} solved</p>
@@ -625,7 +642,7 @@ export default function RoomResultsPage() {
 
                   {/* 1st Place Champion */}
                   {top1 && (
-                    <div className="bg-[#0E1117] border border-amber-500/40 rounded-2xl p-6 text-center flex flex-col items-center justify-between h-56 shadow-[0_0_30px_rgba(245,158,11,0.1)] order-2">
+                    <div className="bg-[#0E1117] border border-amber-500/40 rounded-2xl p-5 sm:p-6 text-center flex flex-col items-center justify-between h-56 shadow-[0_0_30px_rgba(245,158,11,0.1)] order-2">
                       <div className="space-y-2">
                         <div className="w-12 h-12 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center text-lg font-bold text-amber-400">
                           🥇
@@ -635,7 +652,7 @@ export default function RoomResultsPage() {
                         </div>
                       </div>
                       <div className="space-y-0.5">
-                        <span className="font-mono text-xl font-extrabold text-amber-400">
+                        <span className="font-mono text-lg sm:text-xl font-extrabold text-amber-400">
                           {top1.score} pts
                         </span>
                         <p className="text-xs text-zinc-400 font-mono">{top1.solvedCount} solved</p>
@@ -645,7 +662,7 @@ export default function RoomResultsPage() {
 
                   {/* 3rd Place */}
                   {top3 ? (
-                    <div className="bg-[#0D0F14] border border-zinc-800 rounded-2xl p-5 text-center flex flex-col items-center justify-between h-44 order-3">
+                    <div className="bg-[#0D0F14] border border-zinc-800 rounded-2xl p-4 sm:p-5 text-center flex flex-col items-center justify-between h-44 order-3">
                       <div className="space-y-2">
                         <div className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-400">
                           🥉
@@ -655,7 +672,7 @@ export default function RoomResultsPage() {
                         </div>
                       </div>
                       <div className="space-y-0.5">
-                        <span className="font-mono text-base font-bold text-white">
+                        <span className="font-mono text-sm sm:text-base font-bold text-white">
                           {top3.score} pts
                         </span>
                         <p className="text-[11px] text-zinc-500 font-mono">{top3.solvedCount} solved</p>
@@ -663,10 +680,10 @@ export default function RoomResultsPage() {
                     </div>
                   ) : <div className="order-3" />}
                 </div>
-              )}
+              ) : null}
 
               {/* Full Standings Table */}
-              <div className="border border-zinc-800/90 rounded-2xl overflow-hidden bg-[#0D0F14]">
+              <div className="border border-zinc-800/90 rounded-2xl overflow-x-auto bg-[#0D0F14]">
                 <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300">
                     Complete Ranked Standings
@@ -676,7 +693,7 @@ export default function RoomResultsPage() {
                   </span>
                 </div>
 
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[500px]">
                   <thead className="bg-black/60 text-zinc-400 uppercase tracking-wider border-b border-zinc-800">
                     <tr>
                       <th className="py-3.5 px-4 font-mono w-16">Rank</th>

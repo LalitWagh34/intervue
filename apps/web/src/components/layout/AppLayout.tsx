@@ -96,7 +96,7 @@ export default function AppLayout() {
       .slice(0, 2) || "U";
 
   return (
-    <div className="min-h-screen bg-[#060709] text-[#F3F4F6] font-sans flex selection:bg-[#327CF6]/30">
+    <div className="min-h-screen min-h-[100dvh] bg-[#060709] text-[#F3F4F6] font-sans flex selection:bg-[#327CF6]/30">
       {/* Daily Streak Auto-Claim (fires once per day silently) */}
       <DailyStreakClaim />
       {/* Floating Inset Sidebar (Responsive drawer on mobile, fixed on desktop) */}
@@ -110,7 +110,7 @@ export default function AppLayout() {
       {/* Main Content Viewport Column */}
       <div
         className={cn(
-          "flex-1 min-w-0 min-h-screen flex flex-col bg-[#060709] transition-all duration-300 ease-in-out overflow-x-hidden",
+          "flex-1 min-w-0 min-h-screen min-h-[100dvh] flex flex-col bg-[#060709] transition-all duration-300 ease-in-out overflow-x-hidden",
           "pl-0",
           isCollapsed ? "md:pl-[84px]" : "md:pl-[276px]"
         )}
