@@ -217,7 +217,10 @@ export function NotificationDropdown() {
 
       {/* Popover Dropdown Drawer */}
       {isOpen && (
-        <div className="absolute right-0 top-12 w-[360px] sm:w-[400px] rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[520px]">
+        <div
+          onWheel={(e) => e.stopPropagation()}
+          className="absolute right-0 top-12 w-[360px] sm:w-[400px] rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[520px] overscroll-contain"
+        >
           {/* Header */}
           <div className="p-4 border-b border-[#181A20] flex items-center justify-between bg-[#0D0E14]/60">
             <div className="flex items-center gap-2">
@@ -281,7 +284,7 @@ export function NotificationDropdown() {
           </div>
 
           {/* Notifications List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-[#181A20]/40 p-1.5">
+          <div className="flex-1 overflow-y-auto divide-y divide-[#181A20]/40 p-1.5 overscroll-contain max-h-[380px]">
             {filteredNotifications.length === 0 ? (
               <div className="p-8 text-center flex flex-col items-center justify-center gap-2 text-zinc-500">
                 <div className="w-10 h-10 rounded-full bg-[#12141A] flex items-center justify-center text-zinc-400 mb-1">
