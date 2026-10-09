@@ -1924,12 +1924,12 @@ export default function RoomArenaPage() {
 
       {/* ─── IN-EXAM RULES & INSTRUCTIONS REFERENCE MODAL ───────────── */}
       {isRulesModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-[#0C0E14] border border-zinc-800 rounded-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 relative shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800 sticky top-0 bg-[#0C0E14]/95 backdrop-blur z-20">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+          <div className="bg-[#101014] border border-zinc-800 rounded-xl max-w-4xl w-full p-5 sm:p-6 relative shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-blue-400" />
-                <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                <BookOpen className="w-4 h-4 text-zinc-400" />
+                <h3 className="text-sm font-bold text-white tracking-tight">
                   Examination Rules & Workspace Reference
                 </h3>
               </div>
