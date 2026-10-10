@@ -103,23 +103,23 @@ export default function LandingPage() {
       </header>
 
       {/* ─── Main Content ────────────────────────────────────────────── */}
-      <main className="w-full pt-20">
+      <main className="w-full pt-16 sm:pt-20">
         {/* ─── Hero Section ──────────────────────────────────────────── */}
-        <section className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 flex flex-col items-center text-center overflow-hidden">
+        <section className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16 pb-8 sm:pb-20 flex flex-col items-center text-center overflow-hidden">
           {/* Ambient Background Glows */}
           <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[680px] h-[320px] bg-[#327CF6]/15 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute top-28 left-1/3 -translate-x-1/2 w-64 h-64 bg-[#8B5CF6]/10 rounded-full blur-[100px] pointer-events-none" />
 
           {/* Hero Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-300 mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-300 mb-5 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
             <span className="text-[#327CF6] font-semibold">AI Technical Mock Cockpit</span>
-            <span className="text-zinc-600">•</span>
-            <span className="text-zinc-400">FAANG Placement Ready</span>
+            <span className="text-zinc-600 hidden sm:inline">•</span>
+            <span className="text-zinc-400 hidden sm:inline">FAANG Placement Ready</span>
           </div>
 
           {/* Hero Title */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-5xl mx-auto leading-[1.1] mb-6">
+          <h1 className="text-3xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-5xl mx-auto leading-[1.15] mb-4 sm:mb-6">
             Practice like it's the{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#327CF6] via-[#60A5FA] to-[#A78BFA]">
               real interview.
@@ -127,15 +127,15 @@ export default function LandingPage() {
           </h1>
 
           {/* Hero Subtitle */}
-          <p className="text-base sm:text-lg text-[#8B92A0] max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-sm sm:text-lg text-[#8B92A0] max-w-2xl mx-auto leading-relaxed mb-6 sm:mb-8">
             Adaptive AI technical interviews, curated FAANG company prep kits, real-time 1v1 coding battle arenas, and granular diagnostic scorecards.
           </p>
 
           {/* Hero CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3.5 mb-5">
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-4 sm:mb-5">
             <Link
               to="/login"
-              className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-sm font-semibold shadow-xl shadow-[#327CF6]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-xs sm:text-sm font-semibold shadow-xl shadow-[#327CF6]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Start Practicing Free</span>
               <ArrowRight className="w-4 h-4" />
@@ -143,7 +143,7 @@ export default function LandingPage() {
 
             <a
               href="#features"
-              className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#0D0E12] hover:bg-[#13161F] border border-[#181A20] hover:border-[#327CF6]/40 text-zinc-300 hover:text-white text-sm font-semibold transition-all shadow-sm"
+              className="flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#0D0E12] hover:bg-[#13161F] border border-[#181A20] hover:border-[#327CF6]/40 text-zinc-300 hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-sm"
             >
               <Sparkles className="w-4 h-4 text-[#327CF6]" />
               <span>Explore Features</span>
@@ -151,13 +151,13 @@ export default function LandingPage() {
           </div>
 
           {/* Social Proof Pill */}
-          <p className="text-xs text-[#8B92A0] flex items-center justify-center gap-2 font-mono">
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
-            Free practice tier · No credit card required · Instant session launch
+          <p className="text-[11px] sm:text-xs text-[#8B92A0] flex items-center justify-center gap-1.5 sm:gap-2 font-mono">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
+            Free practice tier · No credit card required · Instant start
           </p>
 
-          {/* ─── Hero Product Mockup Terminal ────────────────────────── */}
-          <div className="w-full mt-14 rounded-2xl border border-[#181A20] bg-[#0A0C10] shadow-2xl overflow-hidden text-left">
+          {/* ─── Hero Product Mockup Terminal (Desktop Only) ─────────── */}
+          <div className="hidden md:block w-full mt-14 rounded-2xl border border-[#181A20] bg-[#0A0C10] shadow-2xl overflow-hidden text-left">
             {/* Window Topbar */}
             <div className="bg-[#0D0E14] px-5 py-3 border-b border-[#181A20] flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -307,132 +307,132 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Highlights Numbers Strip ──────────────────────────────── */}
-        <section className="w-full border-y border-[#181A20] bg-[#0A0C10] py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
-              <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#327CF6]">
+        <section className="w-full border-y border-[#181A20] bg-[#0A0C10] py-6 sm:py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+              <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#327CF6]">
                 Adaptive
               </span>
-              <p className="text-xs font-bold text-white mt-0.5">AI Interview Evaluator</p>
-              <p className="text-[11px] text-[#8B92A0]">Adjusts difficulty dynamically per turn</p>
+              <p className="text-xs font-bold text-white mt-0.5">AI Evaluator</p>
+              <p className="text-[10px] sm:text-[11px] text-[#8B92A0]">Adjusts difficulty dynamically</p>
             </div>
-            <div className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
-              <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#8B5CF6]">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+              <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#8B5CF6]">
                 6+ Pillars
               </span>
-              <p className="text-xs font-bold text-white mt-0.5">Technical Domains</p>
-              <p className="text-[11px] text-[#8B92A0]">DSA, System Design, OS, DBMS, Networks</p>
+              <p className="text-xs font-bold text-white mt-0.5">Tech Domains</p>
+              <p className="text-[10px] sm:text-[11px] text-[#8B92A0]">DSA, Systems, OS & DBMS</p>
             </div>
-            <div className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
-              <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#F59E0B]">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+              <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#F59E0B]">
                 FAANG
               </span>
-              <p className="text-xs font-bold text-white mt-0.5">Company Prep Kits</p>
-              <p className="text-[11px] text-[#8B92A0]">Google, Amazon, Meta & Microsoft rounds</p>
+              <p className="text-xs font-bold text-white mt-0.5">Company Kits</p>
+              <p className="text-[10px] sm:text-[11px] text-[#8B92A0]">Google, Meta, Amazon sets</p>
             </div>
-            <div className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
-              <span className="text-2xl sm:text-3xl font-extrabold font-mono text-[#10B981]">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+              <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#10B981]">
                 Real-Time
               </span>
-              <p className="text-xs font-bold text-white mt-0.5">1v1 Battle Arena</p>
-              <p className="text-[11px] text-[#8B92A0]">Multiplayer coding faceoffs with live lobbies</p>
+              <p className="text-xs font-bold text-white mt-0.5">1v1 Arena</p>
+              <p className="text-[10px] sm:text-[11px] text-[#8B92A0]">Multiplayer coding duels</p>
             </div>
           </div>
         </section>
 
         {/* ─── Core Features Ecosystem ──────────────────────────────── */}
-        <section id="features" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-3">
+        <section id="features" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 space-y-8 sm:space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-2 sm:space-y-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#327CF6]/10 border border-[#327CF6]/20 text-[11px] font-mono text-[#327CF6] font-semibold uppercase">
               Comprehensive Platform
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
               One platform. Your entire placement readiness.
             </h2>
-            <p className="text-sm text-[#8B92A0] leading-relaxed">
-              Replace disorganized spreadsheets and generic YouTube prep with an integrated telemetry-driven interview cockpit.
+            <p className="text-xs sm:text-sm text-[#8B92A0] leading-relaxed max-w-xl mx-auto">
+              An integrated telemetry-driven interview cockpit with mock interviews, 1v1 arenas, and company tracks.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Feature 1 */}
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#327CF6]/40 transition-all flex flex-col justify-between gap-5 group">
-              <div className="space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-[#327CF6]/10 border border-[#327CF6]/20 flex items-center justify-center text-[#327CF6] group-hover:scale-105 transition-transform">
-                  <Brain className="w-6 h-6" />
+            <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#327CF6]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
+              <div className="space-y-2.5 sm:space-y-3">
+                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#327CF6]/10 border border-[#327CF6]/20 flex items-center justify-center text-[#327CF6] group-hover:scale-105 transition-transform">
+                  <Brain className="w-5 sm:w-6 h-5 sm:h-6" />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#327CF6] transition-colors">
                   AI Technical Interviews
                 </h3>
                 <p className="text-xs text-[#8B92A0] leading-relaxed">
                   Multi-turn dialogues that challenge your architecture, probe edge cases, and evaluate algorithmic efficiency in real-time.
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-[11px] sm:text-xs font-mono text-zinc-400 flex items-center justify-between">
                 <span>&gt; adaptive_depth: true</span>
                 <span className="text-[#327CF6] font-semibold">Active</span>
               </div>
             </div>
 
             {/* Feature 2 */}
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#F59E0B]/40 transition-all flex flex-col justify-between gap-5 group">
-              <div className="space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20 flex items-center justify-center text-[#F59E0B] group-hover:scale-105 transition-transform">
-                  <Building2 className="w-6 h-6" />
+            <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#F59E0B]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
+              <div className="space-y-2.5 sm:space-y-3">
+                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20 flex items-center justify-center text-[#F59E0B] group-hover:scale-105 transition-transform">
+                  <Building2 className="w-5 sm:w-6 h-5 sm:h-6" />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-[#F59E0B] transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#F59E0B] transition-colors">
                   Target Company Prep Kits
                 </h3>
                 <p className="text-xs text-[#8B92A0] leading-relaxed">
                   Tailored question banks for Google, Amazon, Meta, and Microsoft categorized by company frequency and difficulty.
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-[11px] sm:text-xs font-mono text-zinc-400 flex items-center justify-between">
                 <span>FAANG / Top Tier</span>
                 <span className="text-[#F59E0B] font-semibold">Updated</span>
               </div>
             </div>
 
             {/* Feature 3 */}
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-red-500/40 transition-all flex flex-col justify-between gap-5 group">
-              <div className="space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 group-hover:scale-105 transition-transform">
-                  <Swords className="w-6 h-6" />
+            <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-red-500/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
+              <div className="space-y-2.5 sm:space-y-3">
+                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 group-hover:scale-105 transition-transform">
+                  <Swords className="w-5 sm:w-6 h-5 sm:h-6" />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-red-400 transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-red-400 transition-colors">
                   Live 1v1 Battle Arena
                 </h3>
                 <p className="text-xs text-[#8B92A0] leading-relaxed">
                   Join real-time coding showdowns against peers with room lobbies, shared timers, and live winner evaluation.
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-[11px] sm:text-xs font-mono text-zinc-400 flex items-center justify-between">
                 <span>Multiplayer Lobby</span>
                 <span className="text-red-400 font-semibold">Live</span>
               </div>
             </div>
 
             {/* Feature 4 */}
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#10B981]/40 transition-all flex flex-col justify-between gap-5 group">
-              <div className="space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center text-[#10B981] group-hover:scale-105 transition-transform">
-                  <Award className="w-6 h-6" />
+            <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#10B981]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
+              <div className="space-y-2.5 sm:space-y-3">
+                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center text-[#10B981] group-hover:scale-105 transition-transform">
+                  <Award className="w-5 sm:w-6 h-5 sm:h-6" />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-[#10B981] transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#10B981] transition-colors">
                   Diagnostic Scorecards
                 </h3>
                 <p className="text-xs text-[#8B92A0] leading-relaxed">
                   Granular post-interview assessments with category percentages, pinpointed weak spots, and targeted drill recommendations.
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-[11px] sm:text-xs font-mono text-zinc-400 flex items-center justify-between">
                 <span>Overall Readiness</span>
                 <span className="text-[#10B981] font-semibold">Instant</span>
               </div>
             </div>
 
-            {/* Feature 5 */}
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#8B5CF6]/40 transition-all flex flex-col justify-between gap-5 group">
+            {/* Feature 5 (Desktop Only) */}
+            <div className="hidden md:flex p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#8B5CF6]/40 transition-all flex-col justify-between gap-5 group">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 flex items-center justify-center text-[#8B5CF6] group-hover:scale-105 transition-transform">
                   <MessageSquare className="w-6 h-6" />
@@ -450,8 +450,8 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Feature 6 */}
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-amber-400/40 transition-all flex flex-col justify-between gap-5 group">
+            {/* Feature 6 (Desktop Only) */}
+            <div className="hidden md:flex p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-amber-400/40 transition-all flex-col justify-between gap-5 group">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
                   <NotebookPen className="w-6 h-6" />
@@ -472,14 +472,14 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Company Tracks Section ────────────────────────────────── */}
-        <section id="companies" className="w-full bg-[#0A0C10] border-y border-[#181A20] py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div className="space-y-2">
+        <section id="companies" className="w-full bg-[#0A0C10] border-y border-[#181A20] py-12 md:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
+              <div className="space-y-1.5 sm:space-y-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F59E0B]/10 border border-[#F59E0B]/20 text-[11px] font-mono text-[#F59E0B] font-semibold uppercase">
                   Target Company Tracks
                 </span>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                   Prepare for the companies you target.
                 </h2>
               </div>
@@ -488,7 +488,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[
                 {
                   code: "AMZN",
@@ -532,21 +532,24 @@ export default function LandingPage() {
                   desc: "Memory management, low-level OS fundamentals, and robust array algorithms.",
                   topics: ["Bit Manipulation", "Pointers", "Two Pointers"],
                 },
-              ].map((comp) => (
+              ].map((comp, idx) => (
                 <div
                   key={comp.code}
-                  className="p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 transition-all flex flex-col justify-between gap-5 group"
+                  className={cn(
+                    "p-5 sm:p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group",
+                    idx >= 3 && "hidden md:flex"
+                  )}
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="w-12 h-12 rounded-xl bg-[#181A20] flex items-center justify-center font-mono font-bold text-sm text-white group-hover:text-[#327CF6] transition-colors">
+                      <span className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#181A20] flex items-center justify-center font-mono font-bold text-xs sm:text-sm text-white group-hover:text-[#327CF6] transition-colors">
                         {comp.code}
                       </span>
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181A20] text-zinc-400">
                         {comp.tag}
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-white group-hover:text-[#327CF6] transition-colors">
+                    <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#327CF6] transition-colors">
                       {comp.name}
                     </h3>
                     <p className="text-xs text-[#8B92A0] leading-relaxed">
@@ -578,23 +581,23 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Battle Arena Spotlight ───────────────────────────────── */}
-        <section id="arena" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="rounded-3xl bg-gradient-to-br from-[#0D0E14] via-[#0A0C10] to-[#120B16] border border-[#181A20] p-8 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-10 relative overflow-hidden">
-            <div className="space-y-4 max-w-xl text-left">
+        <section id="arena" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
+          <div className="rounded-3xl bg-gradient-to-br from-[#0D0E14] via-[#0A0C10] to-[#120B16] border border-[#181A20] p-6 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10 relative overflow-hidden">
+            <div className="space-y-3 sm:space-y-4 max-w-xl text-left">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[11px] font-mono text-red-400 font-semibold uppercase">
                 <Swords className="w-3.5 h-3.5" />
                 Live Battle Arena
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Challenge fellow engineers in real-time 1v1 battles.
               </h2>
-              <p className="text-sm text-[#8B92A0] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#8B92A0] leading-relaxed">
                 Test your problem-solving speed under real competitive pressure. Create private lobby codes, set round duration, and race to pass all test cases first.
               </p>
               <div className="pt-2 flex flex-wrap gap-3">
                 <Link
                   to="/login"
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-red-600/20 transition-all hover:scale-[1.02]"
+                  className="flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-red-600/20 transition-all hover:scale-[1.02]"
                 >
                   <Swords className="w-4 h-4" />
                   <span>Enter Arena Lobby</span>
@@ -602,8 +605,8 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Arena Preview Card */}
-            <div className="w-full lg:w-96 rounded-2xl bg-[#060709] border border-[#181A20] p-5 space-y-4 shadow-xl">
+            {/* Arena Preview Card (Desktop Only) */}
+            <div className="hidden lg:block w-full lg:w-96 rounded-2xl bg-[#060709] border border-[#181A20] p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between border-b border-[#181A20] pb-3">
                 <div className="flex items-center gap-2 font-mono text-xs">
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
@@ -650,65 +653,65 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Diagnostic Scorecard Showcase ────────────────────────── */}
-        <section id="scorecards" className="w-full bg-[#0A0C10] border-t border-[#181A20] py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-            <div className="text-center max-w-2xl mx-auto space-y-3">
+        <section id="scorecards" className="w-full bg-[#0A0C10] border-t border-[#181A20] py-12 md:py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
+            <div className="text-center max-w-2xl mx-auto space-y-2 sm:space-y-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#10B981]/10 border border-[#10B981]/20 text-[11px] font-mono text-[#10B981] font-semibold uppercase">
                 Actionable Post-Mortem
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Don't just practice. Understand your score.
               </h2>
-              <p className="text-sm text-[#8B92A0]">
+              <p className="text-xs sm:text-sm text-[#8B92A0]">
                 Every mock session yields actionable, quote-attributed assessments rather than generic feedback.
               </p>
             </div>
 
-            <div className="rounded-2xl bg-[#0D0E12] border border-[#181A20] p-6 sm:p-8 space-y-6 shadow-xl">
+            <div className="rounded-2xl bg-[#0D0E12] border border-[#181A20] p-4 sm:p-8 space-y-6 shadow-xl">
               {/* Scorecard Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#181A20]">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#060709] border border-[#181A20] flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black font-mono text-white">82</span>
-                    <span className="text-[10px] font-mono text-zinc-500">/ 100</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 sm:pb-6 border-b border-[#181A20]">
+                <div className="flex items-center gap-3.5 sm:gap-4">
+                  <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl bg-[#060709] border border-[#181A20] flex flex-col items-center justify-center shrink-0">
+                    <span className="text-xl sm:text-2xl font-black font-mono text-white">82</span>
+                    <span className="text-[9px] sm:text-[10px] font-mono text-zinc-500">/ 100</span>
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-base font-bold text-white">
-                        Senior Backend Systems Simulation
+                      <h4 className="text-sm sm:text-base font-bold text-white">
+                        Senior Backend Systems
                       </h4>
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/40 text-emerald-400 border border-emerald-800/40">
                         Strong Hire
                       </span>
                     </div>
-                    <p className="text-xs text-[#8B92A0] font-mono mt-0.5">
+                    <p className="text-[11px] sm:text-xs text-[#8B92A0] font-mono mt-0.5">
                       Session #IV-9481 • Completed in 38 mins
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-center">
-                  <div className="p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
-                    <span className="text-sm font-bold font-mono text-[#327CF6]">84%</span>
-                    <p className="text-[10px] text-zinc-500">Problem Solving</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
+                    <span className="text-xs sm:text-sm font-bold font-mono text-[#327CF6]">84%</span>
+                    <p className="text-[9px] sm:text-[10px] text-zinc-500">Problem Solving</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
-                    <span className="text-sm font-bold font-mono text-[#8B5CF6]">82%</span>
-                    <p className="text-[10px] text-zinc-500">System Depth</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
+                    <span className="text-xs sm:text-sm font-bold font-mono text-[#8B5CF6]">82%</span>
+                    <p className="text-[9px] sm:text-[10px] text-zinc-500">System Depth</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
-                    <span className="text-sm font-bold font-mono text-[#10B981]">88%</span>
-                    <p className="text-[10px] text-zinc-500">Communication</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
+                    <span className="text-xs sm:text-sm font-bold font-mono text-[#10B981]">88%</span>
+                    <p className="text-[9px] sm:text-[10px] text-zinc-500">Communication</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
-                    <span className="text-sm font-bold font-mono text-[#F59E0B]">78%</span>
-                    <p className="text-[10px] text-zinc-500">Trade-offs</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
+                    <span className="text-xs sm:text-sm font-bold font-mono text-[#F59E0B]">78%</span>
+                    <p className="text-[9px] sm:text-[10px] text-zinc-500">Trade-offs</p>
                   </div>
                 </div>
               </div>
 
-              {/* Strengths & Improvements */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Strengths & Improvements (Desktop Only) */}
+              <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-[#060709] border border-[#181A20] space-y-2.5">
                   <span className="text-xs font-bold text-[#10B981] flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5" />
@@ -737,31 +740,31 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Bottom CTA Banner ─────────────────────────────────────── */}
-        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="rounded-3xl bg-gradient-to-tr from-[#0D0E12] via-[#0A0C10] to-[#121626] border border-[#181A20] p-10 sm:p-16 text-center space-y-6 relative overflow-hidden shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-[#0B0D13] border border-[#1F2430] flex items-center justify-center mx-auto shadow-md shadow-[#007BFA]/20">
-              <BrandIcon className="w-7 h-7" />
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
+          <div className="rounded-3xl bg-gradient-to-tr from-[#0D0E12] via-[#0A0C10] to-[#121626] border border-[#181A20] p-6 sm:p-16 text-center space-y-4 sm:space-y-6 relative overflow-hidden shadow-2xl">
+            <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-[#0B0D13] border border-[#1F2430] flex items-center justify-center mx-auto shadow-md shadow-[#007BFA]/20">
+              <BrandIcon className="w-6 sm:w-7 h-6 sm:h-7" />
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-5xl font-extrabold text-white tracking-tight max-w-2xl mx-auto">
               Ready to ace your next technical round?
             </h2>
 
-            <p className="text-sm text-[#8B92A0] max-w-lg mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#8B92A0] max-w-lg mx-auto leading-relaxed">
               Join candidates using Intervue to master system design, solve curated company problem kits, and simulate real interview pressure.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-sm font-semibold shadow-lg shadow-[#327CF6]/30 transition-all hover:scale-[1.02]"
+                className="flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-xs sm:text-sm font-semibold shadow-lg shadow-[#327CF6]/30 transition-all hover:scale-[1.02]"
               >
                 <span>Get Started for Free</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
-            <p className="text-xs font-mono text-zinc-500 pt-2">
+            <p className="text-[11px] sm:text-xs font-mono text-zinc-500 pt-1">
               No download required · Runs in any browser · Instant start
             </p>
           </div>
@@ -769,7 +772,7 @@ export default function LandingPage() {
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────────────── */}
-      <footer className="w-full border-t border-[#181A20] bg-[#060709] py-12">
+      <footer className="w-full border-t border-[#181A20] bg-[#060709] py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#8B92A0]">
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-lg bg-gradient-to-b from-[#141A29] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center text-white shadow-sm shadow-[#327CF6]/20">
@@ -779,7 +782,7 @@ export default function LandingPage() {
             <span>— Tech Interview & Placement Cockpit</span>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <a href="#features" className="hover:text-white transition-colors">
               Features
             </a>
