@@ -156,6 +156,43 @@ export default function LandingPage() {
             Free practice tier · No credit card required · Instant start
           </p>
 
+          {/* Company Brand Logos Trust Strip */}
+          <div className="mt-8 pt-4 pb-1 border-t border-[#181A20]/60 w-full max-w-4xl mx-auto flex flex-col items-center gap-3">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-500">
+              Targeted practice sets for engineers interviewing at
+            </span>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
+                <img src="/google.png" alt="Google" className="h-4 sm:h-5 object-contain" />
+                <span className="text-xs font-semibold text-zinc-300">Google</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
+                <img src="/amazon.png" alt="Amazon" className="h-4 sm:h-5 object-contain" />
+                <span className="text-xs font-semibold text-zinc-300">Amazon</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
+                <img src="/meta.png" alt="Meta" className="h-4 sm:h-5 object-contain" />
+                <span className="text-xs font-semibold text-zinc-300">Meta</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
+                <img src="/microsoft.png" alt="Microsoft" className="h-4 sm:h-5 object-contain" />
+                <span className="text-xs font-semibold text-zinc-300">Microsoft</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
+                <img src="/apple_dark.png" alt="Apple" className="h-4 sm:h-5 object-contain" />
+                <span className="text-xs font-semibold text-zinc-300">Apple</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
+                <img src="/uber.png" alt="Uber" className="h-3.5 sm:h-4 object-contain" />
+                <span className="text-xs font-semibold text-zinc-300">Uber</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
+                <img src="/netflix-1-logo-svgrepo-com.svg" alt="Netflix" className="h-4 sm:h-5 object-contain" />
+                <span className="text-xs font-semibold text-zinc-300">Netflix</span>
+              </div>
+            </div>
+          </div>
+
           {/* ─── Hero Product Mockup Terminal (Desktop Only) ─────────── */}
           <div className="hidden md:block w-full mt-14 rounded-2xl border border-[#181A20] bg-[#0A0C10] shadow-2xl overflow-hidden text-left">
             {/* Window Topbar */}
@@ -492,6 +529,7 @@ export default function LandingPage() {
               {[
                 {
                   code: "AMZN",
+                  logo: "/amazon.png",
                   name: "Amazon Prep Kit",
                   tag: "High Frequency",
                   desc: "Leadership principles, distributed caching, and trees/graphs optimization.",
@@ -499,6 +537,7 @@ export default function LandingPage() {
                 },
                 {
                   code: "GOOG",
+                  logo: "/google.png",
                   name: "Google Prep Kit",
                   tag: "Algorithms: Hard",
                   desc: "Unconventional graph traversal, dynamic programming, and scale pipelines.",
@@ -506,6 +545,7 @@ export default function LandingPage() {
                 },
                 {
                   code: "MSFT",
+                  logo: "/microsoft.png",
                   name: "Microsoft Prep Kit",
                   tag: "Object Design & DSA",
                   desc: "Clean object-oriented principles, trees/linked lists, and concurrency safety.",
@@ -513,6 +553,7 @@ export default function LandingPage() {
                 },
                 {
                   code: "META",
+                  logo: "/meta.png",
                   name: "Meta Prep Kit",
                   tag: "Speed & Accuracy",
                   desc: "High-speed multi-problem sessions with deep social graph and sliding window drills.",
@@ -520,6 +561,7 @@ export default function LandingPage() {
                 },
                 {
                   code: "UBER",
+                  logo: "/uber.png",
                   name: "Uber Prep Kit",
                   tag: "Real-time & Arrays",
                   desc: "Geospatial indexing algorithms, interval scheduling, and high availability systems.",
@@ -527,6 +569,7 @@ export default function LandingPage() {
                 },
                 {
                   code: "AAPL",
+                  logo: "/apple_dark.png",
                   name: "Apple Prep Kit",
                   tag: "Core Systems & DSA",
                   desc: "Memory management, low-level OS fundamentals, and robust array algorithms.",
@@ -542,9 +585,13 @@ export default function LandingPage() {
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#181A20] flex items-center justify-center font-mono font-bold text-xs sm:text-sm text-white group-hover:text-[#327CF6] transition-colors">
-                        {comp.code}
-                      </span>
+                      <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#14171F] border border-[#232731] flex items-center justify-center p-2 group-hover:border-[#327CF6]/50 transition-colors shadow-sm">
+                        <img
+                          src={comp.logo}
+                          alt={comp.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
                       <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181A20] text-zinc-400">
                         {comp.tag}
                       </span>
