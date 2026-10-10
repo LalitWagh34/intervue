@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Command } from "cmdk";
 import { useNavigate } from "react-router-dom";
-import { Search, Code2, Folder, Loader2 } from "lucide-react";
+import { Search, Code2, Folder, Loader2, Compass } from "lucide-react";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
+import { openProductTour } from "@/components/shared/ProductTourModal";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -74,8 +75,23 @@ export function CommandPalette() {
 
           <Command.List className="max-h-[60vh] overflow-y-auto p-2 custom-scrollbar">
             {query.length < 2 && (
-              <div className="py-14 text-center text-sm text-[#525866]">
-                Type at least 2 characters to search...
+              <div className="p-2 space-y-1">
+                <div className="px-2 py-1 text-[11px] font-semibold text-[#525866] uppercase tracking-wider">
+                  Quick Actions
+                </div>
+                <button
+                  type="button"
+                  onClick={() => runCommand(() => openProductTour())}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-white hover:bg-[#14171F] transition-colors cursor-pointer text-left group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#3B9CFF] shrink-0 group-hover:bg-blue-500/20 transition-colors">
+                    <Compass className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-white">Explore Platform Tour</p>
+                    <p className="text-[11px] text-[#707784]">Interactive 6-card walkthrough of all features</p>
+                  </div>
+                </button>
               </div>
             )}
 

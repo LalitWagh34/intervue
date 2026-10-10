@@ -9,7 +9,9 @@ import {
   ChevronRight,
   HelpCircle,
   X,
+  Compass,
 } from "lucide-react";
+import { openProductTour } from "@/components/shared/ProductTourModal";
 
 interface GuideArticle {
   id: string;
@@ -313,14 +315,24 @@ export default function HelpCenterPage() {
         </div>
       </div>
 
-      {/* Main Page Title */}
-      <div className="space-y-1.5">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Intervue User Guide
-        </h1>
-        <p className="text-xs text-zinc-400">
-          Everything you need to know about preparing, practicing, and cracking top tech interviews.
-        </p>
+      {/* Main Page Title & Tour Launcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1.5">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Intervue User Guide
+          </h1>
+          <p className="text-xs text-zinc-400">
+            Everything you need to know about preparing, practicing, and cracking top tech interviews.
+          </p>
+        </div>
+
+        <button
+          onClick={() => openProductTour()}
+          className="self-start sm:self-auto flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-[#3B9CFF] bg-[#3B9CFF]/10 hover:bg-[#3B9CFF]/20 border border-[#3B9CFF]/25 transition-colors cursor-pointer"
+        >
+          <Compass className="w-4 h-4" />
+          <span>Launch Platform Tour</span>
+        </button>
       </div>
 
       {/* Search results banner if active */}

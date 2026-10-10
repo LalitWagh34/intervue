@@ -22,8 +22,10 @@ import {
   CheckCircle2,
   ExternalLink,
   Menu,
+  Compass,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ProductTourModal, openProductTour } from "@/components/shared/ProductTourModal";
 
 export default function AppLayout() {
   const { data: session } = useSession();
@@ -290,6 +292,18 @@ export default function AppLayout() {
                       <Settings className="w-4 h-4 text-[#525866]" />
                       <span>Admin Management CMS</span>
                     </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        openProductTour();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#8B92A0] hover:text-white hover:bg-[#12141B] transition-colors cursor-pointer text-left"
+                    >
+                      <Compass className="w-4 h-4 text-[#3B9CFF]" />
+                      <span>Explore Platform Tour</span>
+                    </button>
                   </div>
 
                   {/* Sign Out Button */}
@@ -313,6 +327,9 @@ export default function AppLayout() {
         <main className="flex-1 relative z-10 max-w-[1440px] w-full mx-auto">
           <Outlet />
         </main>
+
+        {/* 6-Card Product Tour Modal */}
+        <ProductTourModal />
       </div>
     </div>
   );
