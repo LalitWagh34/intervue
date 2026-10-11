@@ -4,6 +4,14 @@
 
 **Next-Generation AI Technical Interview Platform, Real-Time Battle Arena & Target Company Prep Ecosystem**
 
+<br/>
+
+<a href="https://intervue-mu.vercel.app" target="_blank">
+  <img src="./intervue-banner.jpg" alt="interVue Hero Banner" width="100%" />
+</a>
+
+<br/>
+
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
