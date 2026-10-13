@@ -286,7 +286,7 @@ export default function InterviewPage() {
       setMessages([
         {
           role: "assistant",
-          content: `Welcome to your ${selectedLevel} level ${selectedTrack} technical interview. To begin, could you briefly introduce yourself and share a complex problem you tackled recently?`,
+          content: `Hi! Welcome, thanks for taking the time to chat today. I'm excited to meet you! Before we jump into technical details, could you tell me a little bit about yourself and what you've been working on recently?`,
         },
       ]);
     } finally {
