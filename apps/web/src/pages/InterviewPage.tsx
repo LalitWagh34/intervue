@@ -15,6 +15,8 @@ import {
   User,
   Bot,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Clock,
   Shield,
   Activity,
@@ -110,6 +112,20 @@ export default function InterviewPage() {
   const [selectedFocus, setSelectedFocus] = useState("comprehensive");
   const [customTrack, setCustomTrack] = useState("");
   const [isConfiguring, setIsConfiguring] = useState(!roleParam && !idParam);
+  const [isTrackDropdownOpen, setIsTrackDropdownOpen] = useState(false);
+  const [isResumeExpanded, setIsResumeExpanded] = useState(false);
+  const trackDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close track dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (trackDropdownRef.current && !trackDropdownRef.current.contains(event.target as Node)) {
+        setIsTrackDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Resume Grounding state
   const { data: userProfile } = useProfile();
@@ -130,6 +146,7 @@ export default function InterviewPage() {
     if (combined.trim()) {
       setResumeText(combined);
       setResumeFileName("Imported from Profile");
+      setIsResumeExpanded(true);
     }
   };
 
@@ -144,6 +161,7 @@ export default function InterviewPage() {
       if (content) {
         const clean = content.replace(/[^\x20-\x7E\t\n\r]/g, " ").replace(/\s+/g, " ").trim();
         setResumeText(clean.length > 50 ? clean.slice(0, 4000) : content.slice(0, 4000));
+        setIsResumeExpanded(true);
       }
     };
     reader.readAsText(file);
@@ -357,14 +375,16 @@ export default function InterviewPage() {
   // ─────────────────────────────────────────────────────────────
   if (isConfiguring) {
     const activeTrackTitle = customTrack.trim() || selectedTrack;
-    const currentTrackObj = TRACKS.find((t) => t.id === selectedTrack);
-    const currentLevelObj = LEVELS.find((l) => l.id === selectedLevel);
+    const currentTrackObj = TRACKS.find((t) => t.id === selectedTrack) || TRACKS[0];
+    const currentLevelObj = LEVELS.find((l) => l.id === selectedLevel) || LEVELS[1];
+    const currentFocusObj = ROUND_FOCUSES.find((f) => f.id === selectedFocus) || ROUND_FOCUSES[0];
+    const SelectedTrackIcon = currentTrackObj.icon;
 
     return (
       <div className="min-h-screen bg-[#08090C] text-white">
         {/* Studio Sub-Header */}
         <div className="border-b border-[#181A20] bg-[#0D0E12]/80 backdrop-blur-md px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -384,282 +404,403 @@ export default function InterviewPage() {
                   </span>
                 </div>
                 <p className="text-xs text-[#7A808C]">
-                  Configure your track, calibrate seniority, and run a full technical mock round.
+                  Calibrate your track, seniority, and optional portfolio grounding before launching the session.
                 </p>
               </div>
             </div>
 
-            <div className="hidden sm:flex items-center gap-3 text-xs text-[#7A808C]">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                Interviewer Engine Active
-              </span>
+            <div className="hidden sm:flex items-center gap-2 text-xs text-[#7A808C] font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Adaptive Groq Engine</span>
             </div>
           </div>
         </div>
 
-        {/* Main 2-Column Grid */}
-        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left 7 Cols: Primary Track & Level Controls */}
-            <div className="lg:col-span-8 space-y-6">
-              {/* Track Selection */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                    <SlidersHorizontal className="w-3.5 h-3.5 text-[#327CF6]" />
-                    <span>Select Engineering Track</span>
-                  </label>
-                  <span className="text-[11px] text-[#7A808C]">5 Specialized Paths</span>
-                </div>
+        {/* Studio Workspace */}
+        <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            {/* Left 8 Cols: Compact Configuration Console */}
+            <div className="lg:col-span-8 space-y-5">
+              <div className="p-5 sm:p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] shadow-xl space-y-6">
+                
+                {/* 01. TARGET ENGINEERING TRACK DROPDOWN */}
+                <div className="space-y-2.5 relative" ref={trackDropdownRef}>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#327CF6]" />
+                      <span>Target Role & Engineering Track</span>
+                    </label>
+                    <span className="text-[11px] text-[#7A808C]">
+                      {customTrack ? "Custom Role" : "5 Curated Tracks"}
+                    </span>
+                  </div>
 
-                <div className="space-y-2">
-                  {TRACKS.map((t) => {
-                    const Icon = t.icon;
-                    const isSelected = selectedTrack === t.id && !customTrack;
-                    return (
-                      <div
-                        key={t.id}
-                        onClick={() => {
-                          setSelectedTrack(t.id);
-                          setCustomTrack("");
-                        }}
-                        className={cn(
-                          "p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 group",
-                          isSelected
-                            ? "bg-[#0E121B] border-[#327CF6] shadow-sm shadow-[#327CF6]/15"
-                            : "bg-[#0D0E12] border-[#181A20] hover:border-[#262933] hover:bg-[#111319]"
-                        )}
-                      >
-                        <div
+                  {/* Dropdown Trigger Button */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsTrackDropdownOpen((prev) => !prev)}
+                      className={cn(
+                        "w-full px-4 py-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3",
+                        isTrackDropdownOpen
+                          ? "bg-[#10141F] border-[#327CF6] ring-1 ring-[#327CF6]/30"
+                          : "bg-[#090A0E] border-[#181A20] hover:border-[#262933] hover:bg-[#0D0F14]"
+                      )}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#327CF6]/15 border border-[#327CF6]/30 flex items-center justify-center shrink-0 text-[#327CF6]">
+                          <SelectedTrackIcon className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs sm:text-sm font-bold text-white truncate">
+                            {customTrack.trim() || currentTrackObj.title}
+                          </p>
+                          <p className="text-[11px] text-[#7A808C] truncate">
+                            {customTrack.trim() ? "Custom specialized engineering track" : currentTrackObj.desc}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="hidden sm:inline-block text-[10px] text-[#8B92A0] bg-[#14161C] border border-[#1E2229] px-2 py-0.5 rounded-md font-mono">
+                          Change Track
+                        </span>
+                        <ChevronDown
                           className={cn(
-                            "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border transition-colors",
-                            isSelected
-                              ? "bg-[#327CF6]/20 border-[#327CF6]/50 text-[#327CF6]"
-                              : "bg-[#14161C] border-[#1E2229] text-[#7A808C] group-hover:text-zinc-200"
+                            "w-4 h-4 text-zinc-400 transition-transform duration-200",
+                            isTrackDropdownOpen && "rotate-180 text-[#327CF6]"
                           )}
-                        >
-                          <Icon className="w-4 h-4" />
+                        />
+                      </div>
+                    </button>
+
+                    {/* Dropdown Menu Popover */}
+                    {isTrackDropdownOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 z-40 rounded-xl bg-[#0B0D13] border border-[#222530] shadow-2xl p-1.5 space-y-1 backdrop-blur-xl animate-in fade-in-50 zoom-in-95">
+                        <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                          Select Curated Track
                         </div>
 
-                        <div className="min-w-0 flex-1 space-y-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <h3
+                        {TRACKS.map((t) => {
+                          const Icon = t.icon;
+                          const isSelected = selectedTrack === t.id && !customTrack;
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedTrack(t.id);
+                                setCustomTrack("");
+                                setIsTrackDropdownOpen(false);
+                              }}
                               className={cn(
-                                "text-xs sm:text-sm font-bold tracking-tight",
-                                isSelected ? "text-white" : "text-zinc-200"
+                                "w-full p-2.5 rounded-lg text-left transition-all cursor-pointer flex items-center justify-between gap-3 group",
+                                isSelected
+                                  ? "bg-[#327CF6]/15 text-white font-medium"
+                                  : "hover:bg-[#14161F] text-zinc-300 hover:text-white"
                               )}
                             >
-                              {t.title}
-                            </h3>
-                            {isSelected && (
-                              <span className="px-2 py-0.5 rounded-full bg-[#327CF6]/15 text-[#327CF6] text-[10px] font-mono font-semibold shrink-0">
-                                Selected
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div
+                                  className={cn(
+                                    "w-7 h-7 rounded-md flex items-center justify-center shrink-0 border",
+                                    isSelected
+                                      ? "bg-[#327CF6]/20 border-[#327CF6]/50 text-[#327CF6]"
+                                      : "bg-[#14161C] border-[#1E2229] text-[#7A808C] group-hover:text-zinc-200"
+                                  )}
+                                >
+                                  <Icon className="w-3.5 h-3.5" />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-xs font-semibold truncate">{t.title}</p>
+                                  <p className="text-[10px] text-[#7A808C] truncate">{t.tags.join(" • ")}</p>
+                                </div>
+                              </div>
+
+                              {isSelected && (
+                                <Check className="w-4 h-4 text-[#327CF6] shrink-0" />
+                              )}
+                            </button>
+                          );
+                        })}
+
+                        {/* Custom Track Trigger inside dropdown */}
+                        <div className="pt-1.5 mt-1 border-t border-[#181A20]/80 px-2 pb-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedTrack("");
+                              if (!customTrack) setCustomTrack("ML Platform Engineer");
+                              setIsTrackDropdownOpen(false);
+                            }}
+                            className="w-full text-left py-1.5 px-2 text-xs text-[#327CF6] hover:text-[#5694F8] hover:bg-[#327CF6]/10 rounded-md transition-colors flex items-center gap-1.5 font-medium cursor-pointer"
+                          >
+                            <span>+ Specify Custom Role / Specialization</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Inline Custom Track Input (if active or custom) */}
+                  {(customTrack || !selectedTrack) && (
+                    <div className="pt-1">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="e.g. Staff iOS Engineer, ML Platform, Distributed Systems Architect..."
+                          value={customTrack}
+                          onChange={(e) => setCustomTrack(e.target.value)}
+                          className="w-full pl-3.5 pr-20 py-2 rounded-xl bg-[#090A0E] border border-[#327CF6]/50 focus:border-[#327CF6] text-white text-xs outline-none transition-colors placeholder:text-zinc-600"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCustomTrack("");
+                            setSelectedTrack(TRACKS[0].id);
+                          }}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 hover:text-zinc-200 px-1.5 py-0.5 rounded hover:bg-[#181A20] cursor-pointer"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Active tags preview */}
+                  {!customTrack && (
+                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                      {currentTrackObj.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-0.5 rounded-md bg-[#08090C] border border-[#181A20] text-[10px] text-zinc-400 font-mono"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 02. SENIORITY CALIBRATION (Segmented Pill Switcher) */}
+                <div className="space-y-2 pt-3 border-t border-[#181A20]">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
+                      Seniority Level
+                    </label>
+                    <span className="text-[11px] text-[#7A808C] font-mono">
+                      {currentLevelObj.subtitle}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-[#08090C] border border-[#181A20]">
+                    {LEVELS.map((lvl) => {
+                      const isSelected = selectedLevel === lvl.id;
+                      return (
+                        <button
+                          key={lvl.id}
+                          type="button"
+                          onClick={() => setSelectedLevel(lvl.id)}
+                          className={cn(
+                            "py-2 px-3 rounded-lg text-center transition-all cursor-pointer font-medium text-xs flex flex-col items-center justify-center gap-0.5",
+                            isSelected
+                              ? "bg-[#327CF6] text-white shadow-md shadow-[#327CF6]/20 font-semibold"
+                              : "text-[#8B92A0] hover:text-white hover:bg-[#111319]"
+                          )}
+                        >
+                          <span className="truncate">{lvl.label}</span>
+                          <span className={cn(
+                            "text-[10px] font-mono",
+                            isSelected ? "text-blue-100" : "text-[#555B67]"
+                          )}>
+                            {lvl.subtitle}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <p className="text-[11px] text-[#7A808C] px-1">
+                    {currentLevelObj.description}
+                  </p>
+                </div>
+
+                {/* 03. ROUND FOCUS (Segmented Control) */}
+                <div className="space-y-2 pt-3 border-t border-[#181A20]">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
+                      Assessment Focus
+                    </label>
+                    <span className="text-[11px] text-[#7A808C]">
+                      {currentFocusObj.desc}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-[#08090C] border border-[#181A20]">
+                    {ROUND_FOCUSES.map((f) => {
+                      const isSelected = selectedFocus === f.id;
+                      return (
+                        <button
+                          key={f.id}
+                          type="button"
+                          onClick={() => setSelectedFocus(f.id)}
+                          className={cn(
+                            "py-2 px-2.5 rounded-lg text-center transition-all cursor-pointer text-xs font-medium truncate",
+                            isSelected
+                              ? "bg-[#181D2A] text-white border border-[#327CF6]/40 shadow-sm"
+                              : "text-[#8B92A0] hover:text-white hover:bg-[#111319]"
+                          )}
+                        >
+                          {f.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 04. RESUME & PORTFOLIO GROUNDING (Collapsible Accordion Card) */}
+                <div className="pt-3 border-t border-[#181A20]">
+                  <div className="rounded-xl border border-[#181A20] bg-[#08090C] overflow-hidden transition-all">
+                    
+                    {/* Accordion Bar Header */}
+                    <div
+                      onClick={() => setIsResumeExpanded((prev) => !prev)}
+                      className="p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:bg-[#0E1015] transition-colors select-none"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={cn(
+                          "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border",
+                          resumeText.trim()
+                            ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-400"
+                            : "bg-[#14161C] border-[#1E2229] text-[#7A808C]"
+                        )}>
+                          <FileText className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-white tracking-tight">
+                              Ground with Resume & Projects
+                            </span>
+                            {resumeText.trim() ? (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-medium flex items-center gap-1 shrink-0">
+                                <FileCheck className="w-3 h-3" />
+                                <span>Attached</span>
+                              </span>
+                            ) : (
+                              <span className="px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 text-[10px] font-mono shrink-0">
+                                Optional
                               </span>
                             )}
                           </div>
-
-                          <p className="text-[11px] text-[#7A808C] leading-relaxed line-clamp-1">
-                            {t.desc}
+                          <p className="text-[11px] text-[#7A808C] truncate">
+                            {resumeText.trim()
+                              ? `${resumeFileName || "Custom highlights loaded"} (${resumeText.length} chars)`
+                              : "Upload resume or sync profile so AI grills your actual past work"}
                           </p>
-
-                          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                            {t.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-2 py-0.5 rounded-md bg-[#14161C] border border-[#1E2229] text-[10px] text-zinc-400 font-mono"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
 
-                {/* Custom Track write-in */}
-                <div className="pt-1">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Or specify custom role (e.g. Staff iOS Engineer, ML Platform, Data Architect)..."
-                      value={customTrack}
-                      onChange={(e) => setCustomTrack(e.target.value)}
-                      className="w-full pl-3.5 pr-20 py-2.5 rounded-xl bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] text-white text-xs outline-none transition-colors placeholder:text-zinc-600"
-                    />
-                    {customTrack.trim() && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded bg-[#327CF6]/20 text-[#327CF6] text-[10px] font-mono">
-                        Active Custom
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Quick action buttons right on the bar */}
+                        <div
+                          className="flex items-center gap-1.5"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".txt,.md,.pdf,.doc,.docx"
+                            onChange={handleFileUpload}
+                            className="hidden"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-2 py-1 rounded-md bg-[#14161C] border border-[#1E2229] hover:border-[#327CF6]/40 text-[#8B92A0] hover:text-white text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer"
+                          >
+                            <Upload className="w-3 h-3 text-[#327CF6]" />
+                            <span className="hidden sm:inline">Upload</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleAutoFillFromProfile}
+                            className="px-2 py-1 rounded-md bg-[#14161C] border border-[#1E2229] hover:border-emerald-500/40 text-[#8B92A0] hover:text-white text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer"
+                          >
+                            <Sparkles className="w-3 h-3 text-emerald-400" />
+                            <span className="hidden sm:inline">Sync</span>
+                          </button>
+                        </div>
+
+                        <div className="p-1 text-zinc-400 hover:text-white">
+                          <ChevronDown
+                            className={cn(
+                              "w-4 h-4 transition-transform duration-200",
+                              isResumeExpanded && "rotate-180"
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Accordion Body Content */}
+                    {isResumeExpanded && (
+                      <div className="p-3.5 pt-2 border-t border-[#181A20] space-y-3 bg-[#090A0E] animate-in fade-in-50 duration-150">
+                        {resumeFileName && (
+                          <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <FileCheck className="w-3.5 h-3.5 shrink-0" />
+                              <span className="font-medium truncate">{resumeFileName}</span>
+                              <span className="text-[10px] text-emerald-400/70 font-mono shrink-0">
+                                ({resumeText.length} chars)
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setResumeText("");
+                                setResumeFileName(null);
+                                if (fileInputRef.current) fileInputRef.current.value = "";
+                              }}
+                              className="p-1 hover:bg-emerald-500/20 rounded text-emerald-300 transition-colors cursor-pointer"
+                              title="Remove resume"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="relative">
+                          <textarea
+                            value={resumeText}
+                            onChange={(e) => setResumeText(e.target.value.slice(0, 4000))}
+                            placeholder="Paste resume text, standout projects, tech stack, or architecture highlights here...&#10;e.g.&#10;• Built distributed caching engine with Go & Redis handling 50k RPS&#10;• Designed micro-frontend platform with Module Federation & React&#10;• Migrated monolithic PostgreSQL to distributed Neon DB"
+                            rows={4}
+                            className="w-full px-3 py-2.5 rounded-lg bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs text-white placeholder-[#454A54] resize-none font-mono leading-relaxed transition-colors"
+                          />
+                          <div className="absolute right-2.5 bottom-2 flex items-center gap-2 pointer-events-none">
+                            <span className="text-[10px] text-[#555B67] font-mono">
+                              {resumeText.length}/4000
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-[#7A808C]">
+                          The interviewer will question the real production trade-offs and edge cases of the projects entered above.
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
-              </div>
 
-              {/* Seniority Calibration */}
-              <div className="space-y-3 pt-4 border-t border-[#181A20]">
-                <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
-                  Calibrate Seniority Level
-                </label>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  {LEVELS.map((lvl) => {
-                    const isSelected = selectedLevel === lvl.id;
-                    return (
-                      <button
-                        key={lvl.id}
-                        type="button"
-                        onClick={() => setSelectedLevel(lvl.id)}
-                        className={cn(
-                          "p-3.5 rounded-xl text-left border transition-all cursor-pointer space-y-1",
-                          isSelected
-                            ? "bg-[#0E121B] border-[#327CF6] shadow-sm shadow-[#327CF6]/15"
-                            : "bg-[#0D0E12] border-[#181A20] hover:border-[#262933] hover:bg-[#111319]"
-                        )}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={cn(
-                              "text-xs font-bold",
-                              isSelected ? "text-white" : "text-zinc-300"
-                            )}
-                          >
-                            {lvl.label}
-                          </span>
-                          <span className="text-[10px] font-mono text-[#7A808C]">
-                            {lvl.subtitle}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-[#7A808C] line-clamp-2 leading-relaxed">
-                          {lvl.description}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Round Focus Mode */}
-              <div className="space-y-3 pt-4 border-t border-[#181A20]">
-                <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
-                  Assessment Focus
-                </label>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {ROUND_FOCUSES.map((f) => {
-                    const isSelected = selectedFocus === f.id;
-                    return (
-                      <button
-                        key={f.id}
-                        type="button"
-                        onClick={() => setSelectedFocus(f.id)}
-                        className={cn(
-                          "px-3 py-2.5 rounded-xl text-left border text-xs transition-all cursor-pointer",
-                          isSelected
-                            ? "bg-[#327CF6]/10 border-[#327CF6]/40 text-white font-medium"
-                            : "bg-[#0D0E12] border-[#181A20] text-[#8B92A0] hover:text-white hover:border-[#262933]"
-                        )}
-                      >
-                        <p className="font-semibold text-xs truncate">{f.label}</p>
-                        <p className="text-[10px] text-[#7A808C] truncate mt-0.5">{f.desc}</p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 04. RESUME & PORTFOLIO GROUNDING */}
-              <div className="space-y-3 pt-2">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#327CF6]" />
-                    <span className="text-xs font-bold text-white tracking-tight uppercase">
-                      04. Resume & Project Grounding
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium">
-                      Recommended
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".txt,.md,.pdf,.doc,.docx"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 text-[#8B92A0] hover:text-white text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Upload className="w-3.5 h-3.5 text-[#327CF6]" />
-                      <span>Upload Resume</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleAutoFillFromProfile}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20] hover:border-emerald-500/40 text-[#8B92A0] hover:text-white text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Sync Profile</span>
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-xs text-[#7A808C] leading-relaxed">
-                  Provide your resume or project highlights. The AI interviewer will read your real past tech stack and ask rigorous questions on your specific architectural decisions and production trade-offs.
-                </p>
-
-                {resumeFileName && (
-                  <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
-                    <div className="flex items-center gap-2">
-                      <FileCheck className="w-4 h-4" />
-                      <span className="font-medium truncate">{resumeFileName}</span>
-                      <span className="text-[10px] text-emerald-400/70 font-mono">
-                        ({resumeText.length} chars loaded)
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setResumeText("");
-                        setResumeFileName(null);
-                        if (fileInputRef.current) fileInputRef.current.value = "";
-                      }}
-                      className="p-1 hover:bg-emerald-500/20 rounded-md text-emerald-300 transition-colors cursor-pointer"
-                      title="Remove resume"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-
-                <div className="relative">
-                  <textarea
-                    value={resumeText}
-                    onChange={(e) => setResumeText(e.target.value.slice(0, 4000))}
-                    placeholder="Paste resume text, project bullets, tech stack, or architecture highlights here...&#10;e.g.&#10;• Built distributed caching engine with Go & Redis handling 50k RPS&#10;• Designed micro-frontend platform with Module Federation & React&#10;• Migrated monolithic PostgreSQL to distributed Neon DB"
-                    rows={4}
-                    className="w-full px-3.5 py-3 rounded-xl bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs text-white placeholder-[#454A54] resize-none font-mono leading-relaxed transition-colors"
-                  />
-                  <div className="absolute right-3 bottom-3 flex items-center gap-2 pointer-events-none">
-                    <span className="text-[10px] text-[#555B67] font-mono">
-                      {resumeText.length}/4000
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* Right 4 Cols: Live Session Blueprint & Launchcard */}
+            {/* Right 4 Cols: Live Session Blueprint & Launch Card (Sticky) */}
             <div className="lg:col-span-4 sticky top-6 space-y-4">
-              <div className="p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] shadow-xl space-y-5">
+              <div className="p-5 sm:p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] shadow-xl space-y-5">
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-[#7A808C] uppercase tracking-wider">
@@ -672,8 +813,8 @@ export default function InterviewPage() {
                   </h2>
                 </div>
 
-                <div className="space-y-3 text-xs divide-y divide-[#181A20]/60">
-                  <div className="pt-2 flex items-center justify-between text-zinc-400">
+                <div className="space-y-2.5 text-xs divide-y divide-[#181A20]/60">
+                  <div className="pt-1.5 flex items-center justify-between text-zinc-400">
                     <span>Seniority Target</span>
                     <span className="text-white font-medium capitalize">
                       {currentLevelObj?.label} ({currentLevelObj?.subtitle})
@@ -681,13 +822,15 @@ export default function InterviewPage() {
                   </div>
 
                   <div className="pt-2 flex items-center justify-between text-zinc-400">
-                    <span>Target Format</span>
-                    <span className="text-white font-medium">Text & Architectural Round</span>
+                    <span>Assessment Focus</span>
+                    <span className="text-white font-medium">
+                      {currentFocusObj.label.split(" ")[0]}
+                    </span>
                   </div>
 
                   <div className="pt-2 flex items-center justify-between text-zinc-400">
-                    <span>Estimated Length</span>
-                    <span className="text-white font-medium">15–20 minutes</span>
+                    <span>Target Format</span>
+                    <span className="text-white font-medium">Interactive Technical Round</span>
                   </div>
 
                   <div className="pt-2 flex items-center justify-between text-zinc-400">
@@ -718,7 +861,7 @@ export default function InterviewPage() {
                 {/* Scorecard Dimensions Covered */}
                 <div className="p-3.5 rounded-xl bg-[#08090C] border border-[#181A20] space-y-2">
                   <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
-                    Evaluated Scorecard Dimensions
+                    Evaluated Dimensions
                   </span>
                   <div className="space-y-1.5 text-[11px] text-[#8B92A0]">
                     <div className="flex items-center gap-2">
@@ -751,6 +894,7 @@ export default function InterviewPage() {
                 </p>
               </div>
             </div>
+
           </div>
         </div>
       </div>
