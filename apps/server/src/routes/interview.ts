@@ -6,8 +6,91 @@ import type { AuthVariables } from "../types";
 import { evaluateInterview } from "../services/evaluation";
 import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
 import { checkInputGuardrails, buildInterviewSystemPrompt } from "../lib/guardrails";
+import { extractText } from "unpdf";
 
 const app = new Hono<{Variables:AuthVariables}>();
+
+app.post("/parse-resume", requireAuth, async (c) => {
+  try {
+    const contentType = c.req.header("content-type") || "";
+    let rawText = "";
+    let fileName = "Uploaded Resume";
+
+    if (contentType.includes("multipart/form-data")) {
+      const body = await c.req.parseBody();
+      const file = body["file"];
+      if (!file || typeof file === "string") {
+        return c.json({ error: "No file provided" }, 400);
+      }
+
+      fileName = (file as File).name || "resume.pdf";
+      const buffer = new Uint8Array(await (file as File).arrayBuffer());
+
+      if (fileName.toLowerCase().endsWith(".pdf")) {
+        const result = await extractText(buffer);
+        rawText = Array.isArray(result.text) ? result.text.join("\n") : (result.text || "");
+      } else {
+        const dec = new TextDecoder("utf-8");
+        rawText = dec.decode(buffer);
+      }
+    } else {
+      const json = await c.req.json();
+      rawText = json.text || "";
+      fileName = json.fileName || "Imported Profile";
+    }
+
+    if (!rawText || rawText.trim().length < 20) {
+      return c.json({ error: "Could not extract readable text from the file" }, 400);
+    }
+
+    // Clean up whitespace & non-printable characters
+    const cleanText = rawText.replace(/[^\x20-\x7E\t\n\r]/g, " ").replace(/\s+/g, " ").trim();
+    const truncated = cleanText.slice(0, 4000);
+
+    // AI summarizer using Groq Llama to extract clean structured dossier
+    const completion = await groq.chat.completions.create({
+      model: GROQ_CHAT_MODEL,
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert technical resume analyzer. Extract key engineering details from the candidate's resume text into JSON:
+{
+  "projects": ["Project Name: 1-sentence description of architecture or key achievements (max 3 standout projects)"],
+  "stack": ["Key technologies, languages, databases, or frameworks (max 8)"],
+  "summary": "1-2 sentence executive summary of the candidate's engineering background"
+}
+Output ONLY valid JSON.`,
+        },
+        {
+          role: "user",
+          content: truncated,
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    let dossier: { projects?: string[]; stack?: string[]; summary?: string } = { projects: [], stack: [], summary: "" };
+    try {
+      dossier = JSON.parse(completion.choices[0]?.message?.content || "{}");
+    } catch {
+      // Fallback
+    }
+
+    return c.json({
+      success: true,
+      fileName,
+      extractedText: truncated,
+      dossier: {
+        projects: dossier.projects || [],
+        stack: dossier.stack || [],
+        summary: dossier.summary || "",
+      },
+    });
+  } catch (err: any) {
+    console.error("Resume parse error:", err);
+    return c.json({ error: err.message || "Failed to parse resume" }, 500);
+  }
+});
 
 app.post("/" , requireAuth ,async(c)=>{
     const user = c.get("user")
@@ -33,6 +116,7 @@ app.post("/" , requireAuth ,async(c)=>{
             mode:body.mode,
             role:body.role,
             difficulty:body.difficulty|| "mid",
+            focus:body.focus || "comprehensive",
             status:"active",
             resumeText: resumeText || null,
         },
@@ -142,6 +226,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     const systemPrompt = buildInterviewSystemPrompt({
       role: interview.role,
       difficulty: interview.difficulty,
+      focus: interview.focus || "comprehensive",
       skills: profile?.skills?.join(", "),
       experienceLevel: profile?.experienceLevel,
       resumeText: interview.resumeText,
@@ -212,6 +297,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     const systemPrompt = buildInterviewSystemPrompt({
       role: interview.role,
       difficulty: interview.difficulty,
+      focus: interview.focus || "comprehensive",
       skills: profile?.skills?.join(", "),
       experienceLevel: profile?.experienceLevel,
       resumeText: interview.resumeText,
@@ -244,6 +330,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
   const systemPrompt = buildInterviewSystemPrompt({
     role: interview.role,
     difficulty: interview.difficulty,
+    focus: interview.focus || "comprehensive",
     skills: profile?.skills?.join(", "),
     experienceLevel: profile?.experienceLevel,
     resumeText: interview.resumeText,

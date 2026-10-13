@@ -82,21 +82,61 @@ export function checkInputGuardrails(
 export function buildInterviewSystemPrompt(params: {
   role: string;
   difficulty: string;
+  focus?: string;
   skills?: string;
   experienceLevel?: string;
   resumeText?: string | null;
   isVoice?: boolean;
 }): string {
-  const { role, difficulty, skills, experienceLevel, resumeText, isVoice } = params;
+  const { role, difficulty, focus = "comprehensive", skills, experienceLevel, resumeText, isVoice } = params;
 
+  // 1. Difficulty Calibration Matrix
+  let difficultyDirective = "";
+  if (difficulty === "junior") {
+    difficultyDirective = `### SENIORITY CALIBRATION: JUNIOR (0–2 YOE)
+- Scope & Complexity: Focus on core language fundamentals, standard data structures (arrays, hash maps, queues, strings), basic algorithms, clean readable syntax, simple unit tests, and debugging edge cases.
+- Style: Be encouraging and constructive. Allow them time to articulate their thought process. If they stumble on edge cases, provide subtle guiding hints rather than harsh dismissals.
+- MANDATORY CONSTRAINT: DO NOT ask for distributed multi-datacenter system architecture, sharding, or consensus algorithms. Focus on coding logic, fundamentals, and clean implementation.`;
+  } else if (difficulty === "senior") {
+    difficultyDirective = `### SENIORITY CALIBRATION: SENIOR / STAFF (5+ YOE)
+- Scope & Complexity: Conduct an aggressive, Staff-level evaluation. Test high-scale distributed systems (10M+ DAU), high availability, CAP theorem trade-offs, database partitioning/sharding, asynchronous message brokers (Kafka/RabbitMQ), p99 latency degradation, cascading failures, circuit breakers, and architectural leadership.
+- Style: High-bar technical interrogation. Challenge their choices aggressively: "What happens when Redis crashes?", "How do you handle split-brain?", "How do you migrate 100M rows with zero downtime?", "Why this database over an alternative?"`;
+  } else {
+    // mid
+    difficultyDirective = `### SENIORITY CALIBRATION: MID-LEVEL (2–5 YOE)
+- Scope & Complexity: Focus on production-grade engineering: concurrency/race conditions, caching layers (Redis), database query optimization (indexing, N+1 queries, ACID transactions), REST/GraphQL API contracts, error boundaries, and modular microservices/components.
+- Style: Realistic industry peer. Evaluate how they weigh trade-offs: read-heavy vs write-heavy, latency vs memory, SQL vs NoSQL. Expect them to proactively bring up edge cases and failure scenarios.`;
+  }
+
+  // 2. Assessment Focus Mode Matrix
+  let focusDirective = "";
+  if (focus === "architecture") {
+    focusDirective = `### ROUND FOCUS: SYSTEM DESIGN & ARCHITECTURE
+- Keep the ENTIRE round focused on architectural design, distributed data flow, schema modeling, service boundaries, and scaling trade-offs.
+- Skip low-level syntax trivia or simple algorithmic puzzles. Probe how they build scalable, resilient production systems from the ground up.`;
+  } else if (focus === "scenarios") {
+    focusDirective = `### ROUND FOCUS: REAL-WORLD SCENARIOS & TRIAGE
+- Present concrete production fires and outages (e.g. "Your production API latency suddenly jumped 10x after deploy", "Deadlocks spiking in payments database", "Memory leak detected in production container cluster").
+- Require candidate to articulate their triage methodology: logs/metrics to check, immediate mitigation, rollback vs hotfix, and long-term safeguards.`;
+  } else {
+    focusDirective = `### ROUND FOCUS: COMPREHENSIVE (BALANCED TECHNICAL ROUND)
+- Maintain a structured progression: 1) Candidate's standout project architecture & role background, 2) Core problem-solving and trade-off evaluation, 3) Scalability and edge case hardening.`;
+  }
+
+  // 3. Resume & Portfolio Grounding
   const resumeSection =
     resumeText && resumeText.trim().length > 0
-      ? `\n═══════════════════════════════════════════════════════════════\nCANDIDATE RESUME & PROJECT PORTFOLIO (DEEP-DIVE DIRECTIVES)\n═══════════════════════════════════════════════════════════════\nThe candidate provided their actual resume and project portfolio:\n"""\n${resumeText.trim().slice(0, 4000)}\n"""\n\nRESUME-BASED INTERVIEW INSTRUCTIONS:\n- Actively integrate their real projects, tech stack, and achievements into your interview questions.\n- In your opening question, specifically reference an intriguing project or architectural claim from their resume.\n- Test whether their understanding is genuine: probe their architectural decisions, failure modes, caching strategies, and data models.\n- Balance resume-specific deep dives with algorithmic and system design principles relevant to the ${role} position.`
+      ? `\n═══════════════════════════════════════════════════════════════\nCANDIDATE RESUME & PROJECT PORTFOLIO (DEEP-DIVE DIRECTIVES)\n═══════════════════════════════════════════════════════════════\nThe candidate provided their actual resume and project portfolio:\n"""\n${resumeText.trim().slice(0, 4000)}\n"""\n\nRESUME-BASED INTERVIEW INSTRUCTIONS:\n- Actively integrate their real projects, tech stack, and achievements into your interview questions.\n- IN YOUR VERY FIRST QUESTION, SPECIFICALLY REFERENCE an intriguing project or architectural claim from their resume above.\n- Test whether their understanding is genuine: probe their architectural decisions, failure modes, caching strategies, and data models.\n- Balance resume-specific deep dives with algorithmic and system design principles relevant to the ${role} position.`
       : "";
 
   return `You are a Senior Technical Interviewer conducting a rigorous, professional ${difficulty}-level technical interview for a ${role} position at a premier tech company.
 Candidate background skills: ${skills || "Not specified"}.
-Candidate experience level: ${experienceLevel || "Not specified"}.${resumeSection}
+Candidate experience level: ${experienceLevel || "Not specified"}.
+
+${difficultyDirective}
+
+${focusDirective}
+${resumeSection}
 
 ═══════════════════════════════════════════════════════════════
 CRITICAL SYSTEM DIRECTIVES & BOUNDARIES (STRICT ZERO TOLERANCE)

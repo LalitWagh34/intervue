@@ -221,6 +221,7 @@ model Interview {
   mode         Mode
   role         String
   difficulty   InterviewDifficulty @default(mid)
+  focus        String?             @default("comprehensive")
   status       InterviewStatus     @default(active)
   score        Int?
   feedback     String?

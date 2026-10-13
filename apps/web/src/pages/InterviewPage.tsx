@@ -131,6 +131,9 @@ export default function InterviewPage() {
   const { data: userProfile } = useProfile();
   const [resumeText, setResumeText] = useState("");
   const [resumeFileName, setResumeFileName] = useState<string | null>(null);
+  const [isParsingResume, setIsParsingResume] = useState(false);
+  const [resumeDossier, setResumeDossier] = useState<{ projects: string[]; stack: string[]; summary: string } | null>(null);
+  const [showRawEditor, setShowRawEditor] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAutoFillFromProfile = () => {
@@ -145,26 +148,52 @@ export default function InterviewPage() {
     const combined = parts.join("\n\n");
     if (combined.trim()) {
       setResumeText(combined);
-      setResumeFileName("Imported from Profile");
+      setResumeFileName("Intervue Profile Dossier");
+      setResumeDossier({
+        projects: userProfile.bio ? [userProfile.bio.slice(0, 160)] : ["Verified candidate background"],
+        stack: userProfile.skills || [],
+        summary: `${userProfile.targetRole || "Software Engineer"} • ${userProfile.experienceLevel || "Mid"} Level Engineer`,
+      });
       setIsResumeExpanded(true);
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setIsParsingResume(true);
     setResumeFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      if (content) {
-        const clean = content.replace(/[^\x20-\x7E\t\n\r]/g, " ").replace(/\s+/g, " ").trim();
-        setResumeText(clean.length > 50 ? clean.slice(0, 4000) : content.slice(0, 4000));
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await api.post("/interviews/parse-resume", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data?.success) {
+        setResumeText(res.data.extractedText);
+        setResumeFileName(res.data.fileName);
+        setResumeDossier(res.data.dossier);
         setIsResumeExpanded(true);
       }
-    };
-    reader.readAsText(file);
+    } catch (err) {
+      console.error("Resume backend parse error, falling back to local text reader:", err);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        if (content) {
+          const clean = content.replace(/[^\x20-\x7E\t\n\r]/g, " ").replace(/\s+/g, " ").trim();
+          setResumeText(clean.slice(0, 4000));
+          setIsResumeExpanded(true);
+        }
+      };
+      reader.readAsText(file);
+    } finally {
+      setIsParsingResume(false);
+    }
   };
 
   // Active interview session state
@@ -203,6 +232,9 @@ export default function InterviewPage() {
         setInterviewId(interview.id);
         setSelectedTrack(interview.role);
         setSelectedLevel(interview.difficulty);
+        if (interview.focus) {
+          setSelectedFocus(interview.focus);
+        }
         if (interview.resumeText) {
           setResumeText(interview.resumeText);
         }
@@ -271,6 +303,7 @@ export default function InterviewPage() {
         mode: "text",
         role: targetTrack,
         difficulty: targetLevel,
+        focus: selectedFocus,
         resumeText: resumeText.trim() || undefined,
       });
 
@@ -748,13 +781,23 @@ export default function InterviewPage() {
                     {/* Accordion Body Content */}
                     {isResumeExpanded && (
                       <div className="p-3.5 pt-2 border-t border-[#181A20] space-y-3 bg-[#090A0E] animate-in fade-in-50 duration-150">
+                        {isParsingResume && (
+                          <div className="p-3.5 rounded-xl bg-[#10141F] border border-[#327CF6]/30 flex items-center gap-3 text-xs text-[#8B92A0]">
+                            <Sparkles className="w-4 h-4 text-[#327CF6] animate-spin shrink-0" />
+                            <div className="space-y-0.5">
+                              <p className="font-semibold text-white">Extracting & Analyzing Resume Dossier</p>
+                              <p className="text-[11px] text-[#7A808C]">Reading PDF streams and extracting standout projects...</p>
+                            </div>
+                          </div>
+                        )}
+
                         {resumeFileName && (
                           <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
                             <div className="flex items-center gap-2 min-w-0">
                               <FileCheck className="w-3.5 h-3.5 shrink-0" />
                               <span className="font-medium truncate">{resumeFileName}</span>
                               <span className="text-[10px] text-emerald-400/70 font-mono shrink-0">
-                                ({resumeText.length} chars)
+                                (Verified & Grounded)
                               </span>
                             </div>
                             <button
@@ -762,6 +805,8 @@ export default function InterviewPage() {
                               onClick={() => {
                                 setResumeText("");
                                 setResumeFileName(null);
+                                setResumeDossier(null);
+                                setShowRawEditor(false);
                                 if (fileInputRef.current) fileInputRef.current.value = "";
                               }}
                               className="p-1 hover:bg-emerald-500/20 rounded text-emerald-300 transition-colors cursor-pointer"
@@ -772,24 +817,87 @@ export default function InterviewPage() {
                           </div>
                         )}
 
-                        <div className="relative">
-                          <textarea
-                            value={resumeText}
-                            onChange={(e) => setResumeText(e.target.value.slice(0, 4000))}
-                            placeholder="Paste resume text, standout projects, tech stack, or architecture highlights here...&#10;e.g.&#10;• Built distributed caching engine with Go & Redis handling 50k RPS&#10;• Designed micro-frontend platform with Module Federation & React&#10;• Migrated monolithic PostgreSQL to distributed Neon DB"
-                            rows={4}
-                            className="w-full px-3 py-2.5 rounded-lg bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs text-white placeholder-[#454A54] resize-none font-mono leading-relaxed transition-colors"
-                          />
-                          <div className="absolute right-2.5 bottom-2 flex items-center gap-2 pointer-events-none">
-                            <span className="text-[10px] text-[#555B67] font-mono">
-                              {resumeText.length}/4000
-                            </span>
-                          </div>
-                        </div>
+                        {/* Dossier Highlights Card (Instead of raw text dump) */}
+                        {resumeDossier && (
+                          <div className="p-3.5 rounded-xl bg-[#0D0E12] border border-[#181A20] space-y-2.5 text-xs">
+                            {resumeDossier.summary && (
+                              <p className="text-[#A5ABB6] leading-relaxed">
+                                {resumeDossier.summary}
+                              </p>
+                            )}
 
-                        <p className="text-[11px] text-[#7A808C]">
-                          The interviewer will question the real production trade-offs and edge cases of the projects entered above.
-                        </p>
+                            {resumeDossier.projects && resumeDossier.projects.length > 0 && (
+                              <div className="space-y-1">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                                  Standout Projects Detected
+                                </span>
+                                <div className="space-y-1">
+                                  {resumeDossier.projects.map((proj, idx) => (
+                                    <div key={idx} className="flex items-start gap-1.5 text-[11px] text-zinc-300">
+                                      <span className="text-[#327CF6] font-bold">•</span>
+                                      <span>{proj}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {resumeDossier.stack && resumeDossier.stack.length > 0 && (
+                              <div className="space-y-1 pt-1">
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                                  Core Stack
+                                </span>
+                                <div className="flex flex-wrap gap-1">
+                                  {resumeDossier.stack.map((tech, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-0.5 rounded-md bg-[#14161C] border border-[#1E2229] text-[10px] text-zinc-300 font-mono"
+                                    >
+                                      {tech}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="pt-1 flex items-center justify-between border-t border-[#181A20]/60">
+                              <span className="text-[10px] text-[#7A808C]">
+                                AI interviewer will probe these projects first.
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setShowRawEditor((prev) => !prev)}
+                                className="text-[10px] text-[#327CF6] hover:underline cursor-pointer"
+                              >
+                                {showRawEditor ? "Hide Raw Notes" : "View / Edit Raw Notes"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Raw text editor only when toggled or when no dossier is present */}
+                        {(showRawEditor || (!resumeDossier && !isParsingResume)) && (
+                          <div className="relative">
+                            <textarea
+                              value={resumeText}
+                              onChange={(e) => setResumeText(e.target.value.slice(0, 4000))}
+                              placeholder="Or paste resume text, standout projects, tech stack, or architecture highlights here...&#10;e.g.&#10;• Built distributed caching engine with Go & Redis handling 50k RPS&#10;• Designed micro-frontend platform with Module Federation & React&#10;• Migrated monolithic PostgreSQL to distributed Neon DB"
+                              rows={4}
+                              className="w-full px-3 py-2.5 rounded-lg bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs text-white placeholder-[#454A54] resize-none font-mono leading-relaxed transition-colors"
+                            />
+                            <div className="absolute right-2.5 bottom-2 flex items-center gap-2 pointer-events-none">
+                              <span className="text-[10px] text-[#555B67] font-mono">
+                                {resumeText.length}/4000
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {!resumeDossier && !isParsingResume && (
+                          <p className="text-[11px] text-[#7A808C]">
+                            Upload a PDF or sync your Intervue profile. The interviewer will question the real production trade-offs and edge cases of your projects.
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
