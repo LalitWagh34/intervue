@@ -13,6 +13,20 @@ app.post("/" , requireAuth ,async(c)=>{
     const user = c.get("user")
     const body = await c.req.json();
     
+    // Resume context: from request payload or existing user profile
+    let resumeText = body.resumeText;
+    if (!resumeText) {
+      const profile = await db.profile.findUnique({
+        where: { userId: user.id },
+        select: { resumeText: true, bio: true, skills: true },
+      });
+      if (profile?.resumeText) {
+        resumeText = profile.resumeText;
+      } else if (profile?.bio && profile.skills?.length > 0) {
+        resumeText = `Candidate Bio: ${profile.bio}\nKey Skills: ${profile.skills.join(", ")}`;
+      }
+    }
+
     const interview= await db.interview.create({
         data:{
             userId:user.id,
@@ -20,6 +34,7 @@ app.post("/" , requireAuth ,async(c)=>{
             role:body.role,
             difficulty:body.difficulty|| "mid",
             status:"active",
+            resumeText: resumeText || null,
         },
     });
 
@@ -129,6 +144,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
       difficulty: interview.difficulty,
       skills: profile?.skills?.join(", "),
       experienceLevel: profile?.experienceLevel,
+      resumeText: interview.resumeText,
       isVoice,
     });
 
@@ -198,6 +214,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
       difficulty: interview.difficulty,
       skills: profile?.skills?.join(", "),
       experienceLevel: profile?.experienceLevel,
+      resumeText: interview.resumeText,
       isVoice: true,
     });
 
@@ -229,6 +246,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     difficulty: interview.difficulty,
     skills: profile?.skills?.join(", "),
     experienceLevel: profile?.experienceLevel,
+    resumeText: interview.resumeText,
     isVoice: false,
   });
 

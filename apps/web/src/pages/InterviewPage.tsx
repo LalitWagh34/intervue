@@ -21,8 +21,13 @@ import {
   SlidersHorizontal,
   Flame,
   Check,
+  FileText,
+  Upload,
+  FileCheck,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useProfile } from "@/hooks/useProfile";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -106,6 +111,44 @@ export default function InterviewPage() {
   const [customTrack, setCustomTrack] = useState("");
   const [isConfiguring, setIsConfiguring] = useState(!roleParam && !idParam);
 
+  // Resume Grounding state
+  const { data: userProfile } = useProfile();
+  const [resumeText, setResumeText] = useState("");
+  const [resumeFileName, setResumeFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAutoFillFromProfile = () => {
+    if (!userProfile) return;
+    const parts: string[] = [];
+    if (userProfile.fullName) parts.push(`Candidate: ${userProfile.fullName}`);
+    if (userProfile.targetRole) parts.push(`Target Role: ${userProfile.targetRole}`);
+    if (userProfile.experienceLevel) parts.push(`Experience Level: ${userProfile.experienceLevel}`);
+    if (userProfile.skills && userProfile.skills.length > 0) parts.push(`Core Skills: ${userProfile.skills.join(", ")}`);
+    if (userProfile.bio) parts.push(`Background & Projects:\n${userProfile.bio}`);
+    if (userProfile.githubUrl) parts.push(`GitHub: ${userProfile.githubUrl}`);
+    const combined = parts.join("\n\n");
+    if (combined.trim()) {
+      setResumeText(combined);
+      setResumeFileName("Imported from Profile");
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setResumeFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        const clean = content.replace(/[^\x20-\x7E\t\n\r]/g, " ").replace(/\s+/g, " ").trim();
+        setResumeText(clean.length > 50 ? clean.slice(0, 4000) : content.slice(0, 4000));
+      }
+    };
+    reader.readAsText(file);
+  };
+
   // Active interview session state
   const [interviewId, setInterviewId] = useState<string | null>(idParam);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -142,6 +185,9 @@ export default function InterviewPage() {
         setInterviewId(interview.id);
         setSelectedTrack(interview.role);
         setSelectedLevel(interview.difficulty);
+        if (interview.resumeText) {
+          setResumeText(interview.resumeText);
+        }
         setIsConfiguring(false);
 
         if (interview.messages && interview.messages.length > 0) {
@@ -207,6 +253,7 @@ export default function InterviewPage() {
         mode: "text",
         role: targetTrack,
         difficulty: targetLevel,
+        resumeText: resumeText.trim() || undefined,
       });
 
       const newId = res.data.interview.id;
@@ -232,10 +279,14 @@ export default function InterviewPage() {
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+    const token = localStorage.getItem("intervue_session_token");
     try {
       const res = await fetch(`${baseURL}/interviews/${interviewId}/message`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         credentials: "include",
         body: JSON.stringify({ message: userMsg }),
       });
@@ -518,6 +569,92 @@ export default function InterviewPage() {
                   })}
                 </div>
               </div>
+
+              {/* 04. RESUME & PORTFOLIO GROUNDING */}
+              <div className="space-y-3 pt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#327CF6]" />
+                    <span className="text-xs font-bold text-white tracking-tight uppercase">
+                      04. Resume & Project Grounding
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium">
+                      Recommended
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".txt,.md,.pdf,.doc,.docx"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-2.5 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 text-[#8B92A0] hover:text-white text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-[#327CF6]" />
+                      <span>Upload Resume</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleAutoFillFromProfile}
+                      className="px-2.5 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20] hover:border-emerald-500/40 text-[#8B92A0] hover:text-white text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Sync Profile</span>
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-xs text-[#7A808C] leading-relaxed">
+                  Provide your resume or project highlights. The AI interviewer will read your real past tech stack and ask rigorous questions on your specific architectural decisions and production trade-offs.
+                </p>
+
+                {resumeFileName && (
+                  <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+                    <div className="flex items-center gap-2">
+                      <FileCheck className="w-4 h-4" />
+                      <span className="font-medium truncate">{resumeFileName}</span>
+                      <span className="text-[10px] text-emerald-400/70 font-mono">
+                        ({resumeText.length} chars loaded)
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setResumeText("");
+                        setResumeFileName(null);
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className="p-1 hover:bg-emerald-500/20 rounded-md text-emerald-300 transition-colors cursor-pointer"
+                      title="Remove resume"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <textarea
+                    value={resumeText}
+                    onChange={(e) => setResumeText(e.target.value.slice(0, 4000))}
+                    placeholder="Paste resume text, project bullets, tech stack, or architecture highlights here...&#10;e.g.&#10;• Built distributed caching engine with Go & Redis handling 50k RPS&#10;• Designed micro-frontend platform with Module Federation & React&#10;• Migrated monolithic PostgreSQL to distributed Neon DB"
+                    rows={4}
+                    className="w-full px-3.5 py-3 rounded-xl bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs text-white placeholder-[#454A54] resize-none font-mono leading-relaxed transition-colors"
+                  />
+                  <div className="absolute right-3 bottom-3 flex items-center gap-2 pointer-events-none">
+                    <span className="text-[10px] text-[#555B67] font-mono">
+                      {resumeText.length}/4000
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Right 4 Cols: Live Session Blueprint & Launchcard */}
@@ -556,6 +693,25 @@ export default function InterviewPage() {
                   <div className="pt-2 flex items-center justify-between text-zinc-400">
                     <span>Interviewer Persona</span>
                     <span className="text-emerald-400 font-medium">Staff Engineer (Adaptive)</span>
+                  </div>
+
+                  <div className="pt-2 flex items-center justify-between text-zinc-400">
+                    <span>Resume Grounding</span>
+                    <span
+                      className={cn(
+                        "font-medium flex items-center gap-1.5",
+                        resumeText.trim() ? "text-emerald-400" : "text-[#7A808C]"
+                      )}
+                    >
+                      {resumeText.trim() ? (
+                        <>
+                          <FileCheck className="w-3.5 h-3.5" />
+                          <span>Active (Project Probing)</span>
+                        </>
+                      ) : (
+                        <span>Optional (Unattached)</span>
+                      )}
+                    </span>
                   </div>
                 </div>
 
@@ -637,6 +793,12 @@ export default function InterviewPage() {
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-mono font-medium">
                 Live Session
               </span>
+              {resumeText.trim() && (
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-[10px] font-mono font-medium">
+                  <FileCheck className="w-3 h-3" />
+                  <span>Resume Grounded</span>
+                </span>
+              )}
             </div>
             <p className="text-[11px] text-[#7A808C] capitalize">
               {selectedLevel} Level • Technical Round

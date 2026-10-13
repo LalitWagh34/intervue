@@ -188,6 +188,7 @@ model Profile {
   githubUrl        String?
   linkedinUrl      String?
   resumeUrl        String?
+  resumeText       String?   @db.Text
   bio              String?   @db.Text
   skills           String[]
   githubData       Json?
@@ -227,6 +228,7 @@ model Interview {
   recordingUrl String?
   canvasData   Json?
   duration     Int?
+  resumeText   String?             @db.Text
   endedAt      DateTime?
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
