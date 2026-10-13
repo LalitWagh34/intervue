@@ -4,6 +4,7 @@ import { aiReviewLimiter } from "../middleware/rateLimiter";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
+import { checkInputGuardrails, buildChatSystemPrompt } from "../lib/guardrails";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -67,6 +68,44 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     return c.json({ error: "Chat not found" }, 404);
   }
 
+  // ─── Fast Guardrail Pre-Check (Blocks jailbreaks & off-topic queries) ───
+  const guardrail = checkInputGuardrails(body.message, "CHAT");
+  if (guardrail.isBlocked) {
+    await db.chatMessage.create({
+      data: {
+        chatId: id,
+        role: "user",
+        content: body.message,
+      },
+    });
+    await db.chatMessage.create({
+      data: {
+        chatId: id,
+        role: "assistant",
+        content: guardrail.refusalMessage!,
+      },
+    });
+
+    return new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(
+            new TextEncoder().encode(`data: ${JSON.stringify({ text: guardrail.refusalMessage })}\n\n`)
+          );
+          controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+          controller.close();
+        },
+      }),
+      {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      }
+    );
+  }
+
   await db.chatMessage.create({
     data: {
       chatId: id,
@@ -86,21 +125,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     messages: [
       {
         role: "system",
-        content: `You are an elite Senior Staff Engineer and Technical Interview Mentor at Intervue.
-Your goal is to coach candidates to communicate with clarity, precision, and senior-level depth in technical interviews.
-
-GUIDELINES FOR YOUR RESPONSES:
-1. NATURAL & ADAPTIVE: Do NOT use a rigid or repetitive template. NEVER output identical boilerplate headers like "Clean Mental Model", "Core Pillars", or "Real-World Trade-Off" on every response. Instead, adapt naturally to what the candidate is asking.
-2. CONCISE & HIGH-SIGNAL: Keep answers focused and punchy (150-280 words). Avoid bloated textbook dumps or academic fluff. Focus on what senior interviewers actually look for:
-   - For concept/algorithm questions: clear intuition, time/space complexity, and practical edge cases.
-   - For system design: core trade-offs (latency vs throughput, consistency vs availability, bottlenecks).
-   - For behavioral: concise STAR format structure or high-impact talking points.
-   - For coding: clean, modern code snippets with a 2-3 line breakdown.
-3. PROPER MARKDOWN FORMATTING:
-   - Always put a blank line between headers, paragraphs, and list items so Markdown renders cleanly.
-   - Use headings (###), bullet points, and code blocks (\`\`\`) where appropriate.
-   - Highlight key terminology in bold.
-4. ENGAGING FOLLOW-UP: Conclude with ONE sharp, thoughtful interview follow-up question or scenario to help the candidate practice deeper.`,
+        content: buildChatSystemPrompt(),
       },
       ...history,
     ],

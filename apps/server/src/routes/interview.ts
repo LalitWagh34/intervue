@@ -5,6 +5,7 @@ import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import { evaluateInterview } from "../services/evaluation";
 import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
+import { checkInputGuardrails, buildInterviewSystemPrompt } from "../lib/guardrails";
 
 const app = new Hono<{Variables:AuthVariables}>();
 
@@ -123,16 +124,19 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
 
   // ─── Handle interview start signal (initial prompt) ───
   if (body.message === "[START_INTERVIEW]") {
+    const systemPrompt = buildInterviewSystemPrompt({
+      role: interview.role,
+      difficulty: interview.difficulty,
+      skills: profile?.skills?.join(", "),
+      experienceLevel: profile?.experienceLevel,
+      isVoice,
+    });
+
     const completion = await groq.chat.completions.create({
       model: GROQ_CHAT_MODEL,
       messages: [
-        {
-          role: "system",
-          content: `You are conducting a ${interview.difficulty} level technical interview for a ${interview.role} position.
-          Candidate background: ${profile?.skills?.join(", ") || "Not specified"}.
-          Start by greeting the candidate warmly and asking your first interview question. Keep it brief and conversational. 2-3 sentences max.`,
-        },
-        { role: "user", content: "Start the interview" },
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "Hello, I am ready to begin the technical interview." },
       ],
     });
 
@@ -141,6 +145,40 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
       data: { interviewId: id, role: "assistant", content: text },
     });
     return c.json({ text });
+  }
+
+  // ─── Fast Guardrail Pre-Check (Blocks jailbreaks & off-topic questions) ───
+  const guardrail = checkInputGuardrails(body.message, "INTERVIEW", interview.role);
+  if (guardrail.isBlocked) {
+    await db.message.create({
+      data: { interviewId: id, role: "user", content: body.message },
+    });
+    await db.message.create({
+      data: { interviewId: id, role: "assistant", content: guardrail.refusalMessage! },
+    });
+
+    if (isVoice) {
+      return c.json({ text: guardrail.refusalMessage });
+    }
+
+    return new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(
+            new TextEncoder().encode(`data: ${JSON.stringify({ text: guardrail.refusalMessage })}\n\n`)
+          );
+          controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+          controller.close();
+        },
+      }),
+      {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      }
+    );
   }
 
   // ─── Voice mode — return JSON not SSE ───
@@ -155,9 +193,13 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     }));
     history.push({ role: "user", content: body.message });
 
-    const systemPrompt = `You are conducting a ${interview.difficulty} level voice interview for a ${interview.role} position.
-    Candidate background: ${profile?.skills?.join(", ") || "Not specified"}, experience level: ${profile?.experienceLevel || "unknown"}.
-    Keep responses SHORT — 2-3 sentences max since this is a voice conversation. Ask one question at a time.`;
+    const systemPrompt = buildInterviewSystemPrompt({
+      role: interview.role,
+      difficulty: interview.difficulty,
+      skills: profile?.skills?.join(", "),
+      experienceLevel: profile?.experienceLevel,
+      isVoice: true,
+    });
 
     const completion = await groq.chat.completions.create({
       model: GROQ_CHAT_MODEL,
@@ -182,10 +224,13 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
   }));
   history.push({ role: "user", content: body.message });
 
-  const systemPrompt = `You are conducting a ${interview.difficulty} level technical interview for a ${interview.role} position.
-  Candidate background: ${profile?.skills?.join(", ") || "Not specified"}, experience level: ${profile?.experienceLevel || "unknown"}.
-  Ask one question at a time. Follow up on their answers. Keep questions relevant to ${interview.role}.
-  Keep your responses concise and conversational, like a real interviewer would speak.`;
+  const systemPrompt = buildInterviewSystemPrompt({
+    role: interview.role,
+    difficulty: interview.difficulty,
+    skills: profile?.skills?.join(", "),
+    experienceLevel: profile?.experienceLevel,
+    isVoice: false,
+  });
 
   const stream = await groq.chat.completions.create({
     model: GROQ_CHAT_MODEL,
