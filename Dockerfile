@@ -21,11 +21,16 @@ COPY apps/server ./apps/server
 # Generate Prisma client for database connection
 RUN bun run --cwd packages/db db:generate
 
+# Pre-build server bundle to eliminate runtime TypeScript compiling overhead
+RUN bun run --cwd apps/server build
+
 # Default production environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
+# Tell JavaScriptCore runtime memory limit is 384MB (staying well within Render 512MB free tier limit)
+ENV BUN_JSC_forceRAMSize=384000000
 
 EXPOSE 3000
 
-# Start server with Bun
-CMD ["bun", "run", "--cwd", "apps/server", "src/index.ts"]
+# Start compiled bundle with Bun's low-memory flag (--smol)
+CMD ["bun", "--smol", "apps/server/dist/index.js"]

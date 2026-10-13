@@ -6,7 +6,6 @@ import type { AuthVariables } from "../types";
 import { evaluateInterview } from "../services/evaluation";
 import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
 import { checkInputGuardrails, buildInterviewSystemPrompt } from "../lib/guardrails";
-import { extractText } from "unpdf";
 
 const app = new Hono<{Variables:AuthVariables}>();
 
@@ -27,6 +26,8 @@ app.post("/parse-resume", requireAuth, async (c) => {
       const buffer = new Uint8Array(await (file as File).arrayBuffer());
 
       if (fileName.toLowerCase().endsWith(".pdf")) {
+        // Dynamically import unpdf only when processing a PDF to keep base memory low
+        const { extractText } = await import("unpdf");
         const result = await extractText(buffer);
         rawText = Array.isArray(result.text) ? result.text.join("\n") : (result.text || "");
       } else {

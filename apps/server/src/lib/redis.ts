@@ -46,12 +46,16 @@ redisSubscriber.on("close", () => {
   isRedisSubscriberConnected = false;
 });
 
-// Attempt to connect immediately
-redis.connect().catch(() => {
-  console.warn("[Redis] Main initial connection failed. App will use in-memory fallbacks.");
-});
+// Attempt to connect immediately only if an explicit REDIS_URL is provided
+if (process.env.REDIS_URL) {
+  redis.connect().catch(() => {
+    console.warn("[Redis] Main initial connection failed. App will use in-memory fallbacks.");
+  });
 
-redisSubscriber.connect().catch(() => {
-  console.warn("[Redis] Subscriber initial connection failed.");
-});
+  redisSubscriber.connect().catch(() => {
+    console.warn("[Redis] Subscriber initial connection failed.");
+  });
+} else {
+  console.log("[Redis] No REDIS_URL configured. Running in lightweight in-memory mode.");
+}
 

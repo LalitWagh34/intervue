@@ -48,7 +48,8 @@ app.use("*", async (c, next) => {
   const start = Date.now();
   await next();
   const duration = Date.now() - start;
-  httpRequestDurationMicroseconds.labels(c.req.method, c.req.routePath, c.res.status.toString()).observe(duration);
+  const route = c.req.routePath || "unmatched";
+  httpRequestDurationMicroseconds.labels(c.req.method, route, c.res.status.toString()).observe(duration);
 });
 
 // Middleware
