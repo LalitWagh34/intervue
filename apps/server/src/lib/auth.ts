@@ -27,14 +27,15 @@ export const auth = betterAuth({
   trustedOrigins: async (request) => {
     const origin = request?.headers?.get?.("origin") || request?.headers?.get?.("referer");
     const origins = [
+      "https://intervue-mu.vercel.app",
+      "https://intervue.vercel.app",
+      "https://intervue-git-main-lalit-wagh-s-projects.vercel.app",
       "http://localhost:5173",
       "http://localhost:5174",
       "http://localhost:3000",
       "http://127.0.0.1:5173",
       "http://127.0.0.1:5174",
       "http://127.0.0.1:3000",
-      "https://*.vercel.app",
-      "*.vercel.app",
       ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
       ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
       ...(process.env.RENDER_EXTERNAL_URL ? [process.env.RENDER_EXTERNAL_URL] : []),
@@ -47,7 +48,19 @@ export const auth = betterAuth({
         }
       } catch {}
     }
-    return origins;
+    try {
+      if (request?.url) {
+        const reqUrl = new URL(request.url);
+        const cb = reqUrl.searchParams.get("callbackURL") || reqUrl.searchParams.get("redirectTo") || reqUrl.searchParams.get("redirect_uri");
+        if (cb) {
+          const cbOrigin = new URL(cb).origin;
+          if (cbOrigin.endsWith(".vercel.app") || cbOrigin.includes("localhost") || cbOrigin.includes("127.0.0.1")) {
+            origins.push(cbOrigin);
+          }
+        }
+      }
+    } catch {}
+    return Array.from(new Set(origins));
   },
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",

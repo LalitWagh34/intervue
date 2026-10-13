@@ -35,7 +35,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
-  if (!session) return <Navigate to="/login" />;
+  if (!session) return <Navigate to="/login" replace />;
 
   return <>{children}</>;
 }
@@ -51,7 +51,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
       </div>
     );
 
-  if (!session) return <Navigate to="/login" />;
+  if (!session) return <Navigate to="/login" replace />;
 
   const isAdmin = (session?.user as any)?.role === "admin" || profileStats?.user?.role === "admin";
 
@@ -72,7 +72,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
-  if (session) return <Navigate to="/dashboard" />;
+  if (session) return <Navigate to="/dashboard" replace />;
 
   return <>{children}</>;
 }

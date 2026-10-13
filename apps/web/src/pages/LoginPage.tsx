@@ -98,7 +98,11 @@ export default function LoginPage() {
           throw new Error(result.error.message || "Failed to create account");
         }
 
-        const sessionToken = (result.data as any)?.token;
+        const sessionToken =
+          (result.data as any)?.token ||
+          (result.data as any)?.session?.token ||
+          (result.data as any)?.sessionToken ||
+          (result as any)?.token;
         if (sessionToken) {
           try {
             localStorage.setItem("intervue_session_token", sessionToken);
@@ -110,7 +114,7 @@ export default function LoginPage() {
         });
         setTimeout(() => {
           window.location.href = "/dashboard";
-        }, 500);
+        }, 400);
       } else {
         const callbackURL = `${window.location.origin}/dashboard`;
         const result = await signIn.email({
@@ -123,7 +127,11 @@ export default function LoginPage() {
           throw new Error(result.error.message || "Invalid email or password");
         }
 
-        const sessionToken = (result.data as any)?.token;
+        const sessionToken =
+          (result.data as any)?.token ||
+          (result.data as any)?.session?.token ||
+          (result.data as any)?.sessionToken ||
+          (result as any)?.token;
         if (sessionToken) {
           try {
             localStorage.setItem("intervue_session_token", sessionToken);
@@ -135,7 +143,7 @@ export default function LoginPage() {
         });
         setTimeout(() => {
           window.location.href = "/dashboard";
-        }, 500);
+        }, 400);
       }
     } catch (err: any) {
       console.error("Auth submit error:", err);

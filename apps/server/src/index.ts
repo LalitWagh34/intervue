@@ -89,7 +89,7 @@ app.use(
 app.get("/", (c) => {
   const accept = c.req.header("accept") || "";
   if (accept.includes("text/html")) {
-    const frontendUrl = process.env.FRONTEND_URL || "https://intervue-git-main-lalit-wagh-s-projects.vercel.app";
+    const frontendUrl = process.env.FRONTEND_URL || "https://intervue-mu.vercel.app";
     return c.redirect(frontendUrl);
   }
   return c.json({ status: "healthy", service: "intervue-backend", timestamp: new Date().toISOString() });
@@ -108,14 +108,17 @@ app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
   const location = res.headers.get("location");
   if (location && res.status >= 300 && res.status < 400) {
     try {
+      const rawCookie = res.headers.get("set-cookie") || "";
+      const cookieMatch = rawCookie.match(/(?:better-auth\.session_token|__Secure-better-auth\.session_token|better-auth_session_token)=([^;]+)/i);
       const token =
         res.headers.get("set-auth-token") ||
         res.headers.get("Set-Auth-Token") ||
-        res.headers.get("set-cookie")?.match(/(?:better-auth\.session_token|__Secure-better-auth\.session_token)=([^;]+)/)?.[1];
+        (cookieMatch ? cookieMatch[1] : null);
 
       if (token && !location.includes("accounts.google.com") && !location.includes("/api/auth")) {
-        const url = new URL(location);
-        url.searchParams.set("session_token", token);
+        const baseUrl = process.env.FRONTEND_URL || "https://intervue-mu.vercel.app";
+        const url = new URL(location, baseUrl);
+        url.searchParams.set("session_token", decodeURIComponent(token));
         const headers = new Headers(res.headers);
         headers.set("location", url.toString());
         return new Response(res.body, {
@@ -124,7 +127,9 @@ app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
           headers,
         });
       }
-    } catch {}
+    } catch (e) {
+      console.error("[OAuth redirect session_token attachment failed]:", e);
+    }
   }
 
   return res;
