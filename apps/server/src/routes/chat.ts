@@ -57,7 +57,12 @@ app.get("/:id", requireAuth, async (c) => {
 app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
   const user = c.get("user");
   const id = c.req.param("id")!;
-  const body = await c.req.json();
+  const body = await c.req.json().catch(() => ({}));
+  const userMessage = typeof body.message === "string" ? body.message.trim() : "";
+
+  if (!userMessage) {
+    return c.json({ error: "Message text is required" }, 400);
+  }
 
   const chat = await db.chat.findFirst({
     where: { id, userId: user.id },
@@ -69,13 +74,13 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
   }
 
   // ─── Fast Guardrail Pre-Check (Blocks jailbreaks & off-topic queries) ───
-  const guardrail = checkInputGuardrails(body.message, "CHAT");
+  const guardrail = checkInputGuardrails(userMessage, "CHAT");
   if (guardrail.isBlocked) {
     await db.chatMessage.create({
       data: {
         chatId: id,
         role: "user",
-        content: body.message,
+        content: userMessage,
       },
     });
     await db.chatMessage.create({
@@ -110,7 +115,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     data: {
       chatId: id,
       role: "user",
-      content: body.message,
+      content: userMessage,
     },
   });
 
@@ -118,52 +123,88 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     role: m.role as "user" | "assistant",
     content: m.content,
   }));
-  history.push({ role: "user", content: body.message });
+  history.push({ role: "user", content: userMessage });
 
-  const stream = await groq.chat.completions.create({
-    model: GROQ_CHAT_MODEL,
-    messages: [
-      {
-        role: "system",
-        content: buildChatSystemPrompt(),
-      },
-      ...history,
-    ],
-    stream: true,
-    max_tokens: 700,
-    temperature: 0.6,
-  });
+  let stream;
+  try {
+    stream = await groq.chat.completions.create({
+      model: GROQ_CHAT_MODEL,
+      messages: [
+        {
+          role: "system",
+          content: buildChatSystemPrompt(),
+        },
+        ...history,
+      ],
+      stream: true,
+      max_tokens: 700,
+      temperature: 0.6,
+    });
+  } catch (error: any) {
+    console.error("Groq primary model error in chat, attempting fallback:", error);
+    try {
+      stream = await groq.chat.completions.create({
+        model: "openai/gpt-oss-20b",
+        messages: [
+          {
+            role: "system",
+            content: buildChatSystemPrompt(),
+          },
+          ...history,
+        ],
+        stream: true,
+        max_tokens: 700,
+        temperature: 0.6,
+      });
+    } catch (fallbackErr: any) {
+      console.error("Groq fallback model error:", fallbackErr);
+      return c.json(
+        { error: "AI Mentor is temporarily overloaded. Please try again in a few moments." },
+        503
+      );
+    }
+  }
 
   let fullResponse = "";
 
   return new Response(
     new ReadableStream({
       async start(controller) {
-        for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content || "";
-          fullResponse += text;
+        try {
+          for await (const chunk of stream) {
+            const text = chunk.choices[0]?.delta?.content || "";
+            fullResponse += text;
+            controller.enqueue(
+              new TextEncoder().encode(`data: ${JSON.stringify({ text })}\n\n`)
+            );
+          }
+
+          if (fullResponse.trim()) {
+            await db.chatMessage.create({
+              data: {
+                chatId: id,
+                role: "assistant",
+                content: fullResponse,
+              },
+            });
+          }
+
+          if (chat.messages.length === 0) {
+            await db.chat.update({
+              where: { id },
+              data: { title: userMessage.slice(0, 50) },
+            });
+          }
+        } catch (streamErr: any) {
+          console.error("Error during streaming chat response:", streamErr);
+          const errNotice = "\n\n*[Connection interrupted while generating answer. Please try again.]*";
           controller.enqueue(
-            new TextEncoder().encode(`data: ${JSON.stringify({ text })}\n\n`)
+            new TextEncoder().encode(`data: ${JSON.stringify({ text: errNotice })}\n\n`)
           );
+        } finally {
+          controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+          controller.close();
         }
-
-        await db.chatMessage.create({
-          data: {
-            chatId: id,
-            role: "assistant",
-            content: fullResponse,
-          },
-        });
-
-        if (chat.messages.length === 0) {
-          await db.chat.update({
-            where: { id },
-            data: { title: body.message.slice(0, 50) },
-          });
-        }
-
-        controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
-        controller.close();
       },
     }),
     {

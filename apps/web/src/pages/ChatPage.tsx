@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useChats, useChat } from "@/hooks/useChats";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   Send,
   Plus,
@@ -97,8 +98,9 @@ export default function ChatPage() {
       const res = await api.post("/chats");
       queryClient.invalidateQueries({ queryKey: ["chats"] });
       navigate(`/chat/${res.data.chat.id}`);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to create chat:", err);
+      toast.error(err?.response?.data?.error || "Failed to start a new discussion");
     }
   }
 
@@ -110,8 +112,9 @@ export default function ChatPage() {
       if (id === chatId) {
         navigate("/chat");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to delete chat:", err);
+      toast.error(err?.response?.data?.error || "Failed to delete discussion");
     }
   }
 
@@ -139,27 +142,41 @@ export default function ChatPage() {
         activeChatIdRef.current = chatId;
         queryClient.invalidateQueries({ queryKey: ["chats"] });
         navigate(`/chat/${chatId}`, { replace: true });
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to initialize chat:", err);
         setIsStreaming(false);
         isStreamingRef.current = false;
         setMessages((prev) => prev.slice(0, -2));
+        toast.error(err?.response?.data?.error || "Failed to create discussion session");
         return;
       }
     }
 
     const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+    const token = localStorage.getItem("intervue_session_token");
     try {
       const res = await fetch(`${baseURL}/chats/${chatId}/message`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         credentials: "include",
         body: JSON.stringify({ message: promptText }),
       });
 
+      if (!res.ok) {
+        let errMessage = `Error ${res.status}: Failed to reach AI mentor`;
+        try {
+          const errData = await res.json();
+          if (errData.error) errMessage = errData.error;
+        } catch {}
+        throw new Error(errMessage);
+      }
+
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
-      if (!reader) throw new Error("No reader stream");
+      if (!reader) throw new Error("No reader stream available");
 
       let accumulated = "";
 
@@ -188,18 +205,24 @@ export default function ChatPage() {
           } catch {}
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Chat streaming error:", err);
+      const isAuthError = err?.message?.toLowerCase().includes("unauthorized") || err?.message?.includes("401");
+      const errorMsg = isAuthError
+        ? "Please sign in to chat with the AI Mentor."
+        : err?.message || "Sorry, I ran into an error connecting with the mentor engine. Please try again.";
+
       setMessages((prev) => {
         const updated = [...prev];
         if (updated.length > 0) {
           updated[updated.length - 1] = {
             role: "assistant",
-            content: "Sorry, I ran into an error connecting with the mentor engine. Please try again.",
+            content: `⚠️ ${errorMsg}`,
           };
         }
         return updated;
       });
+      toast.error(errorMsg);
     } finally {
       setIsStreaming(false);
       isStreamingRef.current = false;

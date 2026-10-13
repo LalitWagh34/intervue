@@ -54,11 +54,15 @@ export default function VoiceInterviewPage() {
     setStatus("speaking");
 
     try {
+      const token = localStorage.getItem("intervue_session_token");
       const res = await fetch(
         `${API_BASE_URL}/interviews/${id}/message`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           credentials: "include",
           body: JSON.stringify({ message: "[START_INTERVIEW]", isVoice: true }),
         }
@@ -141,11 +145,15 @@ export default function VoiceInterviewPage() {
     setMessages((prev) => [...prev, { role: "user", content: text }]);
 
     try {
+      const token = localStorage.getItem("intervue_session_token");
       const res = await fetch(
         `${API_BASE_URL}/interviews/${id}/message`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           credentials: "include",
           body: JSON.stringify({ message: text, isVoice: true }),
         }
