@@ -86,7 +86,7 @@ export default function AppLayout() {
     navigate("/login");
   };
 
-  const currentStreak = stats?.consistency?.currentStreak ?? 0;
+  const currentStreak = Math.max(stats?.profile?.streakCount ?? 0, stats?.consistency?.currentStreak ?? 0);
   const { data: rewardsStatus } = useRewardsStatus();
   const user = session?.user;
   const initials =

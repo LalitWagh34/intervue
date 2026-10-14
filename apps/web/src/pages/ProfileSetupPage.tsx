@@ -38,6 +38,24 @@ export default function ProfileSetupPage() {
   const [githubUrl, setGithubUrl] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [skillsInput, setSkillsInput] = useState("");
+  const [errors, setErrors] = useState<{ fullName?: string; targetRole?: string; experienceLevel?: string }>({});
+
+  const getInitials = (name?: string, email?: string) => {
+    const clean = (name || "").trim();
+    if (clean) {
+      const parts = clean.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return parts[0].slice(0, parts[0].length >= 2 && parts[0].toUpperCase() === "GA" ? 2 : 1).toUpperCase();
+    }
+    if (email) {
+      const prefix = email.split("@")[0].toUpperCase();
+      if (prefix.startsWith("GA")) return "GA";
+      return prefix[0] || "G";
+    }
+    return "GA";
+  };
 
   // Populate from existing profile or session
   useEffect(() => {
@@ -103,13 +121,13 @@ export default function ProfileSetupPage() {
     mutationFn: async () => {
       const skills = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
       const res = await api.post("/profile/setup", {
-        fullName,
+        fullName: fullName.trim(),
         avatarUrl: avatarUrl || undefined,
-        bio,
+        bio: bio.trim(),
         targetRole,
         experienceLevel,
-        githubUrl,
-        linkedinUrl,
+        githubUrl: githubUrl.trim(),
+        linkedinUrl: linkedinUrl.trim(),
         skills,
       });
       return res.data;
@@ -121,6 +139,34 @@ export default function ProfileSetupPage() {
       navigate("/dashboard");
     },
   });
+
+  const handleSaveProfile = () => {
+    const newErrors: { fullName?: string; targetRole?: string; experienceLevel?: string } = {};
+    if (!fullName.trim()) {
+      newErrors.fullName = "Full Name is required.";
+    }
+    if (!targetRole) {
+      newErrors.targetRole = "Please select a target role.";
+    }
+    if (!experienceLevel) {
+      newErrors.experienceLevel = "Please select an experience level.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      if (newErrors.fullName) {
+        setActiveSection("basic");
+        toast.error("Please enter your full name.");
+      } else if (newErrors.targetRole || newErrors.experienceLevel) {
+        setActiveSection("career");
+        toast.error("Please complete your career details.");
+      }
+      return;
+    }
+
+    setErrors({});
+    mutation.mutate();
+  };
 
   return (
     <div className="min-h-screen bg-[#060709] text-[#F3F4F6] font-sans flex items-center justify-center p-3 sm:p-6 selection:bg-[#327CF6]/30">
@@ -180,7 +226,7 @@ export default function ProfileSetupPage() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xl font-bold text-white bg-gradient-to-br from-[#327CF6] to-[#1E3A8A]">
-                          {fullName?.[0] || "C"}
+                          {getInitials(fullName || session?.user?.name, session?.user?.email)}
                         </div>
                       )}
                     </div>
@@ -251,10 +297,19 @@ export default function ProfileSetupPage() {
                     </Label>
                     <Input
                       value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
+                      onChange={(e) => {
+                        setFullName(e.target.value);
+                        if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: undefined }));
+                      }}
                       placeholder="e.g. John Doe"
-                      className="bg-[#08090C] border-[#181A20] text-white focus:border-[#327CF6]/50 focus:ring-[#327CF6]/20 transition-all rounded-xl"
+                      className={cn(
+                        "bg-[#08090C] border-[#181A20] text-white focus:border-[#327CF6]/50 focus:ring-[#327CF6]/20 transition-all rounded-xl",
+                        errors.fullName && "border-red-500 focus:border-red-500 ring-1 ring-red-500/30"
+                      )}
                     />
+                    {errors.fullName && (
+                      <p className="text-red-400 text-xs mt-1.5 font-medium">{errors.fullName}</p>
+                    )}
                   </div>
 
                   <div>
@@ -397,9 +452,9 @@ export default function ProfileSetupPage() {
             ) : <div />}
 
             <Button
-              className="w-full sm:w-auto bg-[#327CF6] text-white hover:bg-[#2563EB] rounded-xl px-6 h-10 font-semibold cursor-pointer shadow-lg shadow-[#327CF6]/20"
-              disabled={!fullName || !targetRole || !experienceLevel || mutation.isPending}
-              onClick={() => mutation.mutate()}
+              className="w-full sm:w-auto bg-[#327CF6] text-white hover:bg-[#2563EB] rounded-xl px-6 h-10 font-semibold cursor-pointer shadow-lg shadow-[#327CF6]/20 disabled:opacity-50"
+              disabled={mutation.isPending}
+              onClick={handleSaveProfile}
             >
               {mutation.isPending ? "Saving..." : "Save Profile"}
             </Button>

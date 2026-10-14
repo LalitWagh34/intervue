@@ -3,6 +3,7 @@ import { useSession } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, MessageSquare, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function FeedbackPage() {
   const { data: session } = useSession();
@@ -11,6 +12,7 @@ export default function FeedbackPage() {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<{ subject?: string; message?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -26,10 +28,20 @@ export default function FeedbackPage() {
     e.preventDefault();
     if (isSubmitting) return;
 
+    const newErrors: { subject?: string; message?: string } = {};
+    if (!subject.trim()) {
+      newErrors.subject = "Please select a feedback subject.";
+    }
     if (!message.trim()) {
-      toast.error("Please enter your message or feedback.");
+      newErrors.message = "Please enter your message or feedback.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error(newErrors.subject || newErrors.message);
       return;
     }
+    setErrors({});
 
     setIsSubmitting(true);
     const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
@@ -40,7 +52,7 @@ export default function FeedbackPage() {
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
-          subject: subject || "General Feedback",
+          subject: subject.trim(),
           message: message.trim(),
         }),
       });
@@ -56,6 +68,8 @@ export default function FeedbackPage() {
 
       setSubmitted(true);
       setMessage("");
+      setSubject("");
+      setErrors({});
     } catch (err: any) {
       console.error("Feedback error:", err);
       toast.error(err?.message || "Failed to submit feedback. Please try again.");
@@ -96,7 +110,7 @@ export default function FeedbackPage() {
         </div>
       ) : (
         /* Form (Matching Screenshot 2) */
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           {/* Name */}
           <div className="space-y-1.5">
             <label htmlFor="name" className="block text-xs font-medium text-zinc-300">
@@ -130,13 +144,21 @@ export default function FeedbackPage() {
           {/* Subject Dropdown */}
           <div className="space-y-1.5">
             <label htmlFor="subject" className="block text-xs font-medium text-zinc-300">
-              Subject
+              Subject <span className="text-red-400">*</span>
             </label>
             <select
               id="subject"
               value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="w-full h-11 px-3.5 rounded-xl bg-[#0D0E12] border border-[#1E2229] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 text-xs sm:text-sm text-white outline-none transition-colors cursor-pointer"
+              onChange={(e) => {
+                setSubject(e.target.value);
+                if (errors.subject) setErrors((prev) => ({ ...prev, subject: undefined }));
+              }}
+              className={cn(
+                "w-full h-11 px-3.5 rounded-xl bg-[#0D0E12] border text-xs sm:text-sm text-white outline-none transition-colors cursor-pointer",
+                errors.subject
+                  ? "border-red-500 focus:border-red-500 ring-1 ring-red-500/30"
+                  : "border-[#1E2229] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30"
+              )}
             >
               <option value="" disabled className="bg-[#0D0E12] text-zinc-500">
                 Select subject
@@ -157,29 +179,42 @@ export default function FeedbackPage() {
                 Account & Login Support
               </option>
             </select>
+            {errors.subject && (
+              <p className="text-[11px] text-red-400 mt-1 font-medium">{errors.subject}</p>
+            )}
           </div>
 
           {/* Message Textarea */}
           <div className="space-y-1.5">
             <label htmlFor="message" className="block text-xs font-medium text-zinc-300">
-              Message
+              Message <span className="text-red-400">*</span>
             </label>
             <textarea
               id="message"
               rows={6}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                if (errors.message) setErrors((prev) => ({ ...prev, message: undefined }));
+              }}
               placeholder="Tell us what you think or how we can help..."
-              required
-              className="w-full p-4 rounded-xl bg-[#0D0E12] border border-[#1E2229] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 text-xs sm:text-sm text-white placeholder:text-zinc-600 outline-none transition-colors resize-y leading-relaxed"
+              className={cn(
+                "w-full p-4 rounded-xl bg-[#0D0E12] border text-xs sm:text-sm text-white placeholder:text-zinc-600 outline-none transition-colors resize-y leading-relaxed",
+                errors.message
+                  ? "border-red-500 focus:border-red-500 ring-1 ring-red-500/30"
+                  : "border-[#1E2229] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30"
+              )}
             />
+            {errors.message && (
+              <p className="text-[11px] text-red-400 mt-1 font-medium">{errors.message}</p>
+            )}
           </div>
 
           {/* Submit Button (Right Aligned matching Screenshot 2) */}
           <div className="flex justify-end pt-2">
             <Button
               type="submit"
-              disabled={isSubmitting || !message.trim()}
+              disabled={isSubmitting}
               className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-semibold px-6 h-10 rounded-xl cursor-pointer transition-all shadow-md shadow-blue-600/20 active:scale-95 disabled:opacity-50"
             >
               {isSubmitting ? (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSession } from "../lib/auth";
+import { useProfileStats } from "@/hooks/useProfile";
 import { api } from "@/lib/api";
 import { TargetCompanyTracker } from "@/components/shared/TargetCompanyTracker";
 import { DailyTargetTracker } from "@/components/shared/DailyTargetTracker";
@@ -53,6 +54,7 @@ interface DashboardStats {
 
 export default function DashboardPage() {
   const { data: session } = useSession();
+  const { data: profileStats } = useProfileStats();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,7 +81,13 @@ export default function DashboardPage() {
     return "Good evening";
   };
 
-  const firstName = session?.user?.name?.split(" ")[0] || "Candidate";
+  const rawFirstName = session?.user?.name?.split(" ")[0] || "Candidate";
+  const firstName = rawFirstName.trim();
+  const streak = Math.max(
+    profileStats?.profile?.streakCount ?? 0,
+    profileStats?.consistency?.currentStreak ?? 0,
+    stats?.streakCount ?? 0
+  );
 
   return (
     <div className="w-full min-h-screen bg-[#060709] text-[#F3F4F6] selection:bg-[#327CF6]/30">
@@ -93,8 +101,11 @@ export default function DashboardPage() {
                 Active Readiness Sprint
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
-              {getGreeting()}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400">{firstName}</span>.
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              {getGreeting()},{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400">
+                {firstName}
+              </span>.
             </h1>
             <p className="text-sm text-[#8B92A0] max-w-2xl leading-relaxed">
               Your interview prep control center. Track your company readiness loops, review AI evaluations, and hone your technical rounds.
@@ -174,9 +185,11 @@ export default function DashboardPage() {
             </div>
             <div className="my-3 flex items-baseline gap-2">
               <span className="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">
-                {stats?.streakCount || 0}
+                {streak}
               </span>
-              <span className="text-sm text-[#8B92A0] font-medium">consecutive days</span>
+              <span className="text-sm text-[#8B92A0] font-medium">
+                {streak === 1 ? "consecutive day" : "consecutive days"}
+              </span>
             </div>
             <div className="flex items-center justify-between text-xs text-zinc-500">
               <span>Keep your momentum alive</span>

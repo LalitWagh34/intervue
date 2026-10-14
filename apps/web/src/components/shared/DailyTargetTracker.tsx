@@ -136,11 +136,13 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
             value={inputTitle}
             onChange={(e) => setInputTitle(e.target.value)}
             placeholder="Add new daily target (e.g. Solve 2 Trees problems)..."
-            className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs sm:text-sm text-white placeholder:text-zinc-600 transition-colors"
+            style={{ minWidth: 0, flex: 1 }}
+            className="min-w-0 flex-1 px-3.5 py-2.5 rounded-xl bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs sm:text-sm text-white placeholder:text-zinc-600 transition-colors"
           />
           <button
             type="submit"
-            className="px-4 py-2.5 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-[#327CF6]/20 cursor-pointer shrink-0"
+            style={{ flexShrink: 0 }}
+            className="shrink-0 flex-shrink-0 px-4 py-2.5 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-[#327CF6]/20 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Target</span>

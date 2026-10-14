@@ -598,9 +598,10 @@ export default function PracticeHubPage() {
                 <button
                   type="button"
                   onClick={() => openCompanyKitsCatalog()}
-                  className="text-[11px] text-blue-400 hover:text-blue-300 font-mono transition-colors cursor-pointer"
+                  className="whitespace-nowrap inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 font-mono transition-colors cursor-pointer shrink-0"
                 >
-                  View All Kits →
+                  <span>View All Kits</span>
+                  <span>→</span>
                 </button>
               </div>
               <p className="text-xs text-[#8B92A0]">
