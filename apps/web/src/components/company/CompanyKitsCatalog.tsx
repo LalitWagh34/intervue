@@ -127,9 +127,9 @@ export function CompanyKitsCatalog({
               }`}
             >
               <div>
-                {/* Card Top Row: Logo & Badges */}
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                {/* 1. Header: Logo, Title & 1-Line Tagline */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-10 h-10 rounded-xl bg-[#141720] border border-[#222634] p-2 flex items-center justify-center shrink-0 group-hover:border-blue-500/50 transition-colors shadow-inner">
                       {logo ? (
                         <img src={logo} alt={kit.name} className="w-full h-full object-contain" />
@@ -144,48 +144,48 @@ export function CompanyKitsCatalog({
                         </h3>
                         {isTarget && (
                           <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30 text-[9px] px-1.5 py-0 shrink-0">
-                            Active Target
+                            Target
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[11px] text-[#7A808C] truncate font-mono">
+                      <p className="text-xs text-slate-400 truncate mt-0.5">
                         {kit.tagline}
                       </p>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-800/80 border border-zinc-700/60 text-zinc-300 shrink-0 whitespace-nowrap self-start mt-0.5">
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#141720] border border-[#1E222D] text-slate-300 shrink-0 whitespace-nowrap self-start">
                     {kit.totalQuestions} Qs
                   </span>
                 </div>
 
-                {/* Description */}
-                <p className="text-xs text-[#8B92A0] line-clamp-3 leading-relaxed mb-4">
-                  {kit.description}
-                </p>
-
-                {/* Top 3 Patterns Preview */}
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {kit.topPatterns.slice(0, 3).map((pat) => (
+                {/* 2. Max 2 Subtle Tags */}
+                <div className="flex flex-wrap items-center gap-1.5 mb-4">
+                  {kit.topPatterns.slice(0, 2).map((pat) => (
                     <span
                       key={pat.topic}
-                      className="px-2 py-0.5 rounded-md bg-[#13151D] border border-[#1E222D] text-[10px] font-mono text-zinc-300"
+                      className="px-2 py-0.5 rounded-md bg-[#11131A] text-[11px] font-mono text-slate-400 border border-white/[0.04]"
                     >
-                      {pat.topic} ({pat.percentage}%)
+                      {pat.topic}
                     </span>
                   ))}
+                  {kit.topPatterns.length > 2 && (
+                    <span className="text-[10px] text-slate-500 font-mono pl-1">
+                      +{kit.topPatterns.length - 2} more
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Bottom Progress & Action Row */}
+              {/* 3. Bottom Row: Progress / Difficulty & Action */}
               <div className="pt-3 border-t border-[#181A20] flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 font-mono text-[11px] text-[#7A808C]">
-                  <span>Easy {kit.difficultySplit.easy}</span>
-                  <span>•</span>
-                  <span>Med {kit.difficultySplit.medium}</span>
-                  <span>•</span>
-                  <span>Hard {kit.difficultySplit.hard}</span>
-                </div>
+                <span className="text-xs text-slate-400 font-mono">
+                  {solvedCount > 0 ? (
+                    <span className="text-emerald-400 font-medium">{solvedCount} solved</span>
+                  ) : (
+                    <span>Easy {kit.difficultySplit.easy} • Med {kit.difficultySplit.medium} • Hard {kit.difficultySplit.hard}</span>
+                  )}
+                </span>
 
                 <div className="flex items-center gap-1 text-xs font-semibold text-blue-400 group-hover:translate-x-0.5 transition-transform">
                   <span>Explore Kit</span>

@@ -5,25 +5,19 @@ import {
   Code2,
   History,
   MessageSquare,
-  User,
   LogOut,
-  Settings,
   Swords,
   BookOpen,
   Brain,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   PanelLeftClose,
   PanelLeft,
-  ExternalLink,
   NotebookPen,
   Bookmark,
   Shield,
   BarChart3,
   Users,
   FileCode2,
-  Building2,
   HelpCircle,
   MessageSquareHeart,
   X,
@@ -56,38 +50,6 @@ interface NavSection {
 
 const NAV_SECTIONS: NavSection[] = [
   {
-    title: "PREP",
-    items: [
-      {
-        label: "Prep Hub",
-        icon: BookOpen,
-        href: "/practice",
-        // badge: "TUF",
-        badgeColor: "blue",
-      },
-      {
-        label: "Company Kits",
-        icon: Building2,
-        href: "/practice?view=company_kits",
-        // badge: "HOT",
-        badgeColor: "amber",
-      },
-      {
-        label: "Battle Arena",
-        icon: Swords,
-        href: "/rooms",
-        // badge: "LIVE",
-        badgeColor: "red",
-      },
-      {
-        label: "AI Interview",
-        icon: Brain,
-        href: "/interview",
-      },
-    ],
-  },
-  {
-    title: "EXPLORE",
     items: [
       {
         label: "Dashboard",
@@ -95,41 +57,44 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/dashboard",
       },
       {
+        label: "Practice Hub",
+        icon: BookOpen,
+        href: "/practice",
+      },
+      {
+        label: "AI Interview",
+        icon: Brain,
+        href: "/interview",
+      },
+      {
+        label: "Battle Arena",
+        icon: Swords,
+        href: "/rooms",
+      },
+    ],
+  },
+  {
+    title: "TOOLS",
+    items: [
+      {
         label: "Scorecards",
         icon: History,
         href: "/history",
       },
       {
-        label: "AI Mentor",
-        icon: MessageSquare,
-        href: "/chat",
-      },
-    ],
-  },
-  {
-    title: "MY TOOLS",
-    items: [
-      {
         label: "Notes & Hints",
         icon: NotebookPen,
         href: "/notes",
-        // badge: "NEW",
-        badgeColor: "amber" as const,
       },
       {
         label: "Bookmarks",
         icon: Bookmark,
         href: "/bookmarks",
       },
-    ],
-  },
-  {
-    title: "MY SPACES",
-    items: [
       {
-        label: "Profile",
-        icon: User,
-        href: "/profile",
+        label: "AI Mentor",
+        icon: MessageSquare,
+        href: "/chat",
       },
       {
         label: "Admin CMS",
@@ -144,21 +109,6 @@ const NAV_SECTIONS: NavSection[] = [
           { label: "Code Submissions", icon: FileCode2, href: "/admin/submissions" },
           { label: "Contest Rooms", icon: Swords, href: "/admin/rooms" },
         ],
-      },
-    ],
-  },
-  {
-    title: "SUPPORT",
-    items: [
-      {
-        label: "Help Center",
-        icon: HelpCircle,
-        href: "/help",
-      },
-      {
-        label: "Feedback",
-        icon: MessageSquareHeart,
-        href: "/feedback",
       },
     ],
   },
@@ -419,6 +369,42 @@ export default function Sidebar({
         );
       })}
       </nav>
+
+      {/* Compact Secondary Support Group (Help & Feedback) */}
+      <div className="px-3 py-2 border-t border-[#181A20] bg-[#07080C] shrink-0">
+        {!isCollapsed ? (
+          <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+            <Link
+              to="/help"
+              onClick={onMobileClose}
+              className="flex items-center gap-1.5 hover:text-slate-300 transition-colors"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>Help Center</span>
+            </Link>
+            <span className="text-slate-700">•</span>
+            <Link
+              to="/feedback"
+              onClick={onMobileClose}
+              className="flex items-center gap-1.5 hover:text-slate-300 transition-colors"
+            >
+              <MessageSquareHeart className="w-3.5 h-3.5" />
+              <span>Feedback</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="flex justify-center gap-2">
+            <Link
+              to="/help"
+              onClick={onMobileClose}
+              title="Help Center"
+              className="p-1 text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
+      </div>
 
       {/* Footer Profile / Quick Status */}
       <div className="p-2.5 border-t border-[#181A20] bg-[#08090C] shrink-0">

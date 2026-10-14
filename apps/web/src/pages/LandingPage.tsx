@@ -599,18 +599,23 @@ export default function LandingPage() {
                     <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#327CF6] transition-colors">
                       {comp.name}
                     </h3>
-                    <p className="text-xs text-[#8B92A0] leading-relaxed">
+                    <p className="text-xs text-[#8B92A0] leading-relaxed line-clamp-1">
                       {comp.desc}
                     </p>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {comp.topics.map((t) => (
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      {comp.topics.slice(0, 2).map((t) => (
                         <span
                           key={t}
-                          className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#181A20] text-zinc-300"
+                          className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#141720] text-zinc-400 border border-white/[0.04]"
                         >
                           {t}
                         </span>
                       ))}
+                      {comp.topics.length > 2 && (
+                        <span className="text-[10px] font-mono text-zinc-500 pl-0.5">
+                          +{comp.topics.length - 2}
+                        </span>
+                      )}
                     </div>
                   </div>
 

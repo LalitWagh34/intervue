@@ -12,18 +12,12 @@ import {
   TrendingUp,
   Sparkles,
   ArrowRight,
-  BookOpen,
-  Swords,
   Building2,
   History,
-  NotebookPen,
-  Bookmark,
   Award,
   Layers,
   Clock,
   ChevronRight,
-  Target,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -94,13 +88,7 @@ export default function DashboardPage() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* ─── Hero Header & Quick Actions ───────────────────────── */}
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2 border-b border-[#181A20]">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-[#327CF6]/10 text-[#327CF6] border border-[#327CF6]/20 font-mono">
-                <Target className="w-3 h-3" />
-                Active Readiness Sprint
-              </span>
-            </div>
+          <div className="space-y-1.5">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               {getGreeting()},{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400">
@@ -112,30 +100,14 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Primary Launch Actions */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          {/* Primary Launch Action */}
+          <div className="flex items-center">
             <Link
               to="/interview"
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#3B82F6] hover:from-[#4F46E5] hover:to-[#2563EB] text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-500/25 border border-white/10 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <Brain className="w-4 h-4" />
               <span>Start AI Interview</span>
-            </Link>
-
-            <Link
-              to="/practice"
-              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#11131A] hover:bg-[#1A1D27] border border-white/[0.08] hover:border-white/[0.16] text-slate-200 hover:text-white text-xs sm:text-sm font-medium transition-all shadow-sm cursor-pointer"
-            >
-              <BookOpen className="w-4 h-4 text-slate-400" />
-              <span>Prep Hub</span>
-            </Link>
-
-            <Link
-              to="/rooms"
-              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#11131A] hover:bg-[#1A1D27] border border-white/[0.08] hover:border-white/[0.16] text-slate-200 hover:text-white text-xs sm:text-sm font-medium transition-all shadow-sm cursor-pointer"
-            >
-              <Swords className="w-4 h-4 text-slate-400" />
-              <span>Battle Arena</span>
             </Link>
           </div>
         </header>
@@ -356,83 +328,6 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               )}
-            </div>
-
-            {/* Quick Prep Launchpad */}
-            <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] shadow-sm space-y-4">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Zap className="w-4 h-4 text-[#F59E0B]" />
-                Quick Launchpad
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Link
-                  to="/practice?view=company_kits"
-                  className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 transition-all group flex items-start gap-3.5"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-violet-950/40 border border-violet-800/40 text-[#8B5CF6] flex items-center justify-center shrink-0">
-                    <Building2 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-white group-hover:text-[#327CF6] transition-colors">
-                      Company Prep Kits
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Targeted rounds for Google, Amazon, Meta & Microsoft.
-                    </p>
-                  </div>
-                </Link>
-
-                <Link
-                  to="/notes"
-                  className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 transition-all group flex items-start gap-3.5"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-amber-950/40 border border-amber-800/40 text-[#F59E0B] flex items-center justify-center shrink-0">
-                    <NotebookPen className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-white group-hover:text-[#F59E0B] transition-colors">
-                      Notes & Key Takeaways
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Review personal solution notes, patterns, and cheat-sheets.
-                    </p>
-                  </div>
-                </Link>
-
-                <Link
-                  to="/bookmarks"
-                  className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 transition-all group flex items-start gap-3.5"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-blue-950/40 border border-blue-800/40 text-[#327CF6] flex items-center justify-center shrink-0">
-                    <Bookmark className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-white group-hover:text-[#327CF6] transition-colors">
-                      Saved Bookmarks
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Quickly review saved high-yield questions before interviews.
-                    </p>
-                  </div>
-                </Link>
-
-                <Link
-                  to="/chat"
-                  className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#10B981]/40 transition-all group flex items-start gap-3.5"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-emerald-950/40 border border-emerald-800/40 text-[#10B981] flex items-center justify-center shrink-0">
-                    <Brain className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-white group-hover:text-[#10B981] transition-colors">
-                      AI Tech Mentor
-                    </h4>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Ask complex architectural, system design, or DSA questions.
-                    </p>
-                  </div>
-                </Link>
-              </div>
             </div>
           </div>
 

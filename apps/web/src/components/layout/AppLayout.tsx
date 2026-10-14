@@ -155,24 +155,20 @@ export default function AppLayout() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
             </Link> */}
 
-            {/* Points Balance Pill */}
-            {rewardsStatus && (
-              <div
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-semibold font-mono text-[#22C55E] cursor-default"
-                title={`${rewardsStatus.points} Intervue points`}
-              >
-                <Coins className="w-3.5 h-3.5" />
-                <span>{rewardsStatus.points}</span>
-              </div>
-            )}
-
-            {/* Streak Counter Pill */}
+            {/* Merged Rewards & Streak Hover Pill */}
             <div
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-semibold font-mono text-[#F59E0B]"
-              title="Consecutive practice streak"
+              className="flex items-center rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-white/[0.15] transition-all text-xs font-semibold font-mono shadow-inner overflow-hidden cursor-default"
+              title={`${rewardsStatus?.points ?? 0} Intervue Coins • ${currentStreak} Day Practice Streak`}
             >
-              <img src="/fire.png" alt="Streak" className="w-4 h-4 object-contain" />
-              <span>{currentStreak}d</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-emerald-400">
+                <Coins className="w-3.5 h-3.5" />
+                <span>{rewardsStatus?.points ?? 0}</span>
+              </div>
+              <div className="h-3.5 w-px bg-[#181A20]" />
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-amber-400">
+                <img src="/fire.png" alt="Streak" className="w-3.5 h-3.5 object-contain" />
+                <span>{currentStreak}d</span>
+              </div>
             </div>
 
             {/* Notifications Popover */}

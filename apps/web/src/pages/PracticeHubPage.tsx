@@ -349,10 +349,8 @@ export default function PracticeHubPage() {
           LEVEL 1: PREP HUB ROOT OVERVIEW (tuf_ui/prep_hub.png)
       â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {currentView === "hub" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Main Left Section (8 of 12 cols) */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Prephub Hero Banner Card with Single Capsule Bar */}
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Prephub Hero Banner Card with Single Capsule Bar */}
             <div className="p-7 sm:p-8 rounded-2xl bg-[#11131A] border border-white/[0.07] relative overflow-hidden flex flex-col justify-between min-h-[200px]">
               <div className="relative z-10 max-w-xl">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
@@ -527,90 +525,32 @@ export default function PracticeHubPage() {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Rail (4 of 12 cols) */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Battle Arena Contest Card */}
-            <div className="p-6 rounded-2xl bg-gradient-to-b from-[#131124] to-[#0A0C10] border border-[#261E42] shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/15 border border-purple-500/30 px-2 py-0.5 rounded-md">
-                  COMPETITIVE ARENA
-                </span>
-                <h3 className="text-xl font-extrabold text-white mt-3 tracking-tight">
-                  LIVE BATTLE ARENA
-                </h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  Host or join timed assessments with peer competition, live scoring, and anti-cheat proctoring.
-                </p>
-              </div>
-
-              <Link
-                to="/rooms"
-                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-bold text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <span>Enter Battle Arena</span>
-                <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
-              </Link>
-            </div>
-
-            {/* Daily Planner Card */}
-            <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] min-h-[260px] flex flex-col justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-white flex items-center justify-between">
-                  <span>Daily Planner</span>
-                  {dailyTotal > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30">
-                      {dailyCompleted}/{dailyTotal} Done
-                    </span>
-                  )}
-                </h3>
-                <div className="py-7 flex flex-col items-center justify-center text-center">
-                  <div className="w-10 h-10 rounded-full bg-[#14161C] border border-[#1E2229] flex items-center justify-center text-slate-400 mb-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#327CF6]" />
-                  </div>
-                  <p className="text-xs font-semibold text-white">
-                    Track Your Daily Targets
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-1 max-w-xs leading-relaxed">
-                    {dailyTotal > 0
-                      ? `${dailyCompleted} of ${dailyTotal} daily focus goals completed. Stay consistent to boost your streak.`
-                      : "Define today's focus goals, track problem sets, and build consistent interview readiness."}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => navigate("/dashboard")}
-                className="w-full py-2.5 rounded-xl bg-[#14161C] hover:bg-[#327CF6] text-xs font-semibold text-white border border-[#1E2229] hover:border-[#327CF6] transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5 group"
-              >
-                <span>View Today's Tasks</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </div>
-
-            {/* Target Company Loops Quick Card */}
-            <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  <h3 className="text-sm font-bold text-white">Target Company Kits</h3>
+            {/* Target Company Kits Section (Full Width) */}
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#11131A] border border-white/[0.07] space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
+                  <h3 className="text-base font-bold text-white tracking-tight">Target Company Kits</h3>
+                  <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">
+                    Top 18+ Loops
+                  </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => openCompanyKitsCatalog()}
-                  className="whitespace-nowrap inline-flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 font-mono transition-colors cursor-pointer shrink-0 group"
+                  className="whitespace-nowrap inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-mono transition-colors cursor-pointer shrink-0 group"
                 >
                   <span>View All Kits</span>
-                  <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
-              <p className="text-xs text-slate-400">
-                Targeting a specific loop? Jump straight to interview question sets with real ask frequencies.
+
+              <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
+                Targeting a specific loop? Jump straight to interview question sets with verified ask frequencies and curated pattern breakdowns.
               </p>
 
-              <div className="grid grid-cols-2 gap-2 pt-1">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 pt-1">
                 {TOP_COMPANIES_PRESET.slice(0, 8).map((comp) => {
                   const logo = getCompanyLogo(comp.name);
                   const isTarget = readinessData?.targetCompany?.toLowerCase() === comp.name.toLowerCase();
@@ -620,17 +560,17 @@ export default function PracticeHubPage() {
                       type="button"
                       onClick={() => openCompanyKit(comp.name)}
                       className={cn(
-                        "flex items-center gap-2 p-2 rounded-xl border text-xs font-medium transition-all text-left group cursor-pointer",
+                        "flex items-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-all text-left group cursor-pointer",
                         isTarget
                           ? "bg-blue-600/10 border-blue-500/40 text-blue-400"
-                          : "bg-[#12151D] border-[#181A20] hover:border-zinc-700 text-zinc-300 hover:text-white"
+                          : "bg-[#0D0E12] border-[#181A20] hover:border-zinc-700 text-zinc-300 hover:text-white hover:bg-[#13151D]"
                       )}
                     >
-                      <div className="w-5 h-5 rounded-lg bg-[#08090C] border border-[#1E2229] p-0.5 flex items-center justify-center shrink-0">
+                      <div className="w-6 h-6 rounded-lg bg-[#08090C] border border-[#1E2229] p-0.5 flex items-center justify-center shrink-0">
                         {logo ? (
                           <img src={logo} alt="" className="w-full h-full object-contain" />
                         ) : (
-                          <Building2 className="w-3 h-3 text-zinc-400" />
+                          <Building2 className="w-3.5 h-3.5 text-zinc-400" />
                         )}
                       </div>
                       <span className="truncate flex-1">{comp.name}</span>
@@ -638,17 +578,7 @@ export default function PracticeHubPage() {
                   );
                 })}
               </div>
-
-              <button
-                type="button"
-                onClick={() => openCompanyKitsCatalog()}
-                className="w-full py-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-xs font-semibold text-blue-400 border border-blue-500/30 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <span>Explore 18+ Curated Kits</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
             </div>
-          </div>
         </div>
       )}
 
