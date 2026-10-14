@@ -17,39 +17,55 @@ import RoomLobbyPage from "./pages/rooms/RoomLobbyPage";
 import RoomArenaPage from "./pages/rooms/RoomArenaPage";
 import RoomResultsPage from "./pages/rooms/RoomResultsPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import { useEffect } from "react";
 import NotepadPage from "./pages/NotepadPage";
 import BookmarksPage from "./pages/BookmarksPage";
 import HelpCenterPage from "./pages/HelpCenterPage";
 import FeedbackPage from "./pages/FeedbackPage";
-import { useSession } from "@/lib/auth";
+import { useSession, getSessionToken } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { Analytics } from "@vercel/analytics/react";
+import { SessionVerificationLoader } from "@/components/shared/SessionVerificationLoader";
 // import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const hasToken = typeof window !== "undefined" && !!getSessionToken();
+
+  // Instant fast-path: If user has no session token at all, avoid waiting for server timeout
+  if (!hasToken) {
+    return <Navigate to="/login" replace />;
+  }
+
   const { data: session, isPending } = useSession();
 
-  if (isPending)
-    return (
-      <div className="flex items-center justify-center h-screen bg-[#060709] text-white">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+  if (isPending) {
+    return <SessionVerificationLoader title="Authenticating your session..." />;
+  }
+
   if (!session) return <Navigate to="/login" replace />;
 
   return <>{children}</>;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
+  const hasToken = typeof window !== "undefined" && !!getSessionToken();
+
+  // Instant fast-path
+  if (!hasToken) {
+    return <Navigate to="/login" replace />;
+  }
+
   const { data: session, isPending: isSessionPending } = useSession();
   const { data: profileStats, isLoading: isStatsLoading } = useProfileStats();
 
-  if (isSessionPending || isStatsLoading)
+  if (isSessionPending || isStatsLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#060709] text-white">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <SessionVerificationLoader
+        title="Verifying administrator credentials..."
+        subtitle="Validating role privileges & permissions..."
+      />
     );
+  }
 
   if (!session) return <Navigate to="/login" replace />;
 
@@ -64,14 +80,24 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 // Redirects logged-in users away from public pages (like Landing and Login)
 function PublicRoute({ children }: { children: React.ReactNode }) {
+  const hasToken = typeof window !== "undefined" && !!getSessionToken();
+
+  // Instant fast-path: Guest visitors with no saved token see the landing page instantly
+  if (!hasToken) {
+    return <>{children}</>;
+  }
+
   const { data: session, isPending } = useSession();
 
-  if (isPending)
+  if (isPending) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#060709] text-white">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <SessionVerificationLoader
+        title="Checking your session..."
+        subtitle="Resuming your active workspace..."
+      />
     );
+  }
+
   if (session) return <Navigate to="/dashboard" replace />;
 
   return <>{children}</>;
@@ -81,6 +107,15 @@ import { Toaster } from "@/components/ui/sonner";
 import { CommandPalette } from "@/components/shared/CommandPalette";
 
 export default function App() {
+  // Speculative backend pre-warm: Wake up sleeping Render container in background on first visit
+  useEffect(() => {
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+      const serverUrl = apiBase.replace(/\/api\/?$/, "");
+      fetch(`${serverUrl}/`, { mode: "no-cors" }).catch(() => {});
+    } catch {}
+  }, []);
+
   return (
     <>
       <CommandPalette />
