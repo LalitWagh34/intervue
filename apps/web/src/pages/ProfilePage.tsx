@@ -367,7 +367,7 @@ export default function ProfilePage() {
                         {activePlatform === "ALL"
                           ? "All Platforms"
                           : activePlatform === "INTERVUE"
-                          ? "interVue"
+                          ? "Intervue"
                           : activePlatform === "LEETCODE"
                           ? "LeetCode"
                           : "Codeforces"}
@@ -382,7 +382,7 @@ export default function ProfilePage() {
                     {(
                       [
                         { id: "ALL", label: "All Platforms" },
-                        { id: "INTERVUE", label: "interVue" },
+                        { id: "INTERVUE", label: "Intervue" },
                         { id: "LEETCODE", label: "LeetCode" },
                         { id: "CODEFORCES", label: "Codeforces" },
                       ] as const
@@ -434,7 +434,7 @@ export default function ProfilePage() {
                           : "text-[#A1A7B3] hover:text-[#F5F7FA]"
                       )}
                     >
-                      {p === "INTERVUE" ? "interVue" : p === "ALL" ? "All" : p === "LEETCODE" ? "LeetCode" : "Codeforces"}
+                      {p === "INTERVUE" ? "Intervue" : p === "ALL" ? "All" : p === "LEETCODE" ? "LeetCode" : "Codeforces"}
                     </button>
                   ))}
                 </div>

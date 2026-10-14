@@ -44,10 +44,10 @@ const TOUR_STEPS: TourStep[] = [
     badge: "Platform Overview",
     badgeColor: "text-blue-400 bg-blue-500/10 border-blue-500/25",
     icon: Sparkles,
-    title: "Welcome to interVue",
+    title: "Welcome to Intervue",
     headline: "Your All-in-One Technical Interview Ecosystem",
     description:
-      "interVue combines AI-driven technical mock interviews, real-time 1v1 multiplayer coding arenas, curated FAANG company prep kits, and multi-platform developer profiles into one unified workstation.",
+      "Intervue combines AI-driven technical mock interviews, real-time 1v1 multiplayer coding arenas, curated FAANG company prep kits, and multi-platform developer profiles into one unified workstation.",
     highlights: [
       "Role-tailored AI technical evaluations with automated scorecards",
       "Live 1v1 coding duels with Monaco editor, anti-cheat & test runner",

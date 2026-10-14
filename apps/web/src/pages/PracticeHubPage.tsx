@@ -28,6 +28,8 @@ import {
   Building2,
   Coins,
   ArrowRight,
+  ArrowLeft,
+  ArrowUpRight,
   Bookmark,
   Check,
   Lock,
@@ -581,10 +583,10 @@ export default function PracticeHubPage() {
               <button
                 type="button"
                 onClick={() => navigate("/dashboard")}
-                className="w-full py-2.5 rounded-xl bg-[#14161C] hover:bg-[#327CF6] text-xs font-semibold text-white border border-[#1E2229] hover:border-[#327CF6] transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-xl bg-[#14161C] hover:bg-[#327CF6] text-xs font-semibold text-white border border-[#1E2229] hover:border-[#327CF6] transition-all cursor-pointer shadow-sm flex items-center justify-center gap-1.5 group"
               >
                 <span>View Today's Tasks</span>
-                <span className="font-mono">→</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
 
@@ -598,10 +600,10 @@ export default function PracticeHubPage() {
                 <button
                   type="button"
                   onClick={() => openCompanyKitsCatalog()}
-                  className="whitespace-nowrap inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 font-mono transition-colors cursor-pointer shrink-0"
+                  className="whitespace-nowrap inline-flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 font-mono transition-colors cursor-pointer shrink-0 group"
                 >
                   <span>View All Kits</span>
-                  <span>→</span>
+                  <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
               <p className="text-xs text-[#8B92A0]">
@@ -803,7 +805,7 @@ export default function PracticeHubPage() {
               onClick={() => setCurrentView("hub")}
               className="px-3.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer"
             >
-              â† Back to Overview
+              <ArrowLeft className="w-3.5 h-3.5 inline mr-1" /> Back to Overview
             </button>
           </div>
 
@@ -952,7 +954,7 @@ export default function PracticeHubPage() {
                   onClick={() => setCurrentView("sheets_catalog")}
                   className="hover:text-white text-[11px] transition-colors"
                 >
-                  All sheets â†—
+                  All sheets <ArrowUpRight className="w-3 h-3 inline ml-0.5" />
                 </button>
               </div>
 
@@ -1140,7 +1142,7 @@ export default function PracticeHubPage() {
                     onClick={() => openCompanyWise()}
                     className="text-[10px] text-[#327CF6] hover:underline whitespace-nowrap"
                   >
-                    View 470+ â†—
+                    View 470+ <ArrowUpRight className="w-3 h-3 inline ml-0.5" />
                   </button>
                 </div>
                 
@@ -1223,7 +1225,7 @@ export default function PracticeHubPage() {
               onClick={() => setCurrentView("hub")}
               className="px-3.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer"
             >
-              â† Back to Prephub
+              <ArrowLeft className="w-3.5 h-3.5 inline mr-1" /> Back to Prephub
             </button>
           </div>
 

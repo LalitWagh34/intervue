@@ -247,7 +247,7 @@ export default function Sidebar({
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-white font-bold text-[15px] tracking-tight font-sans truncate">
-                    inter<span className="text-[#327CF6]">V</span>ue
+                    Intervue
                   </span>
                 </div>
                 <p className="text-[10px] text-[#525866] font-mono tracking-wide -mt-0.5 truncate">
@@ -256,7 +256,7 @@ export default function Sidebar({
               </div>
             </Link>
           ) : (
-            <Link to="/dashboard" onClick={onMobileClose} className="mx-auto" title="interVue">
+            <Link to="/dashboard" onClick={onMobileClose} className="mx-auto" title="Intervue">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 hover:border-[#327CF6]/70 transition-colors">
                 <BrandIcon className="w-5 h-5" />
               </div>

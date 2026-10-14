@@ -122,7 +122,7 @@ export function BrandLogo({
                 sizeConfig.text
               )}
             >
-              inter<span className="text-[#327CF6]">V</span>ue
+              Intervue
             </span>
           </div>
           {subtitle && (

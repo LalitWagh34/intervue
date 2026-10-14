@@ -188,10 +188,7 @@ export default function LoginPage() {
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-white font-bold text-lg tracking-tight font-sans">
-              inter<span className="text-[#327CF6]">V</span>ue
-            </span>
-            <span className="text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400">
-              v2.0
+              Intervue
             </span>
           </div>
         </Link>
@@ -316,10 +313,7 @@ export default function LoginPage() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="text-white font-bold text-base tracking-tight font-sans">
-                      inter<span className="text-[#327CF6]">V</span>ue
-                    </span>
-                    <span className="text-[9px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400">
-                      v2.0
+                      Intervue
                     </span>
                   </div>
                 </div>
