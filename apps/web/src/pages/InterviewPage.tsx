@@ -32,16 +32,6 @@ import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from "react-resizable-panels";
-import Editor from "@monaco-editor/react";
-
-function closeUnbalancedBoldTokens(markdown: string): string {
-  const matches = markdown.match(/\*\*/g);
-  if (matches && matches.length % 2 !== 0) {
-    return `${markdown}**`;
-  }
-  return markdown;
-}
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -218,43 +208,6 @@ export default function InterviewPage() {
   const [isEnding, setIsEnding] = useState(false);
   const [startedAt, setStartedAt] = useState<Date>(new Date());
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
-
-  // Split-Pane Code Workspace & Telemetry State
-  const [showCodePanel, setShowCodePanel] = useState(true);
-  const [codeLanguage, setCodeLanguage] = useState("python");
-  const [codeSnippet, setCodeSnippet] = useState<string>(() => {
-    return `# architecture_spec.py
-# High-throughput URL Shortener (10M writes/day, <50ms p99 read latency)
-
-class URLCompressorCluster:
-    def __init__(self, node_id: int = 1):
-        self.node_id = node_id
-        # In-process L1 cache (<0.1ms) absorbs viral hotspot keys
-        self.l1_cache = {}
-        # Multi-AZ Distributed Redis cluster (~1-2ms)
-        self.cache_layer = {}
-        # Prefix-sharded persistent storage cluster
-        self.db_shards = {}
-
-    async def shorten_url(self, long_url: str) -> str:
-        # Pre-generated Base62 key allocation
-        short_key = "k9xW2a1"
-        self.db_shards[short_key] = long_url
-        self.cache_layer[short_key] = long_url
-        return short_key
-
-    async def resolve_url(self, short_key: str) -> str:
-        # 1. Local L1 in-process memory cache
-        if short_key in self.l1_cache:
-            return self.l1_cache[short_key]
-        # 2. L2 Redis cluster
-        if short_key in self.cache_layer:
-            self.l1_cache[short_key] = self.cache_layer[short_key]
-            return self.cache_layer[short_key]
-        # 3. Persistent sharded DB fallback
-        return self.db_shards.get(short_key, "")
-`;
-  });
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -1107,22 +1060,7 @@ class URLCompressorCluster:
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          {/* Toggle Code Workspace Button */}
-          <button
-            type="button"
-            onClick={() => setShowCodePanel((prev) => !prev)}
-            className={cn(
-              "hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer",
-              showCodePanel
-                ? "bg-[#327CF6]/15 border-[#327CF6]/40 text-[#327CF6]"
-                : "bg-[#14161C] border-[#1E2229] text-slate-400 hover:text-white"
-            )}
-          >
-            <Code2 className="w-3.5 h-3.5" />
-            <span>{showCodePanel ? "Hide Code Workspace" : "Open Code Workspace"}</span>
-          </button>
-
+        <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#08090C] border border-[#181A20] text-xs font-mono text-[#8B92A0]">
             <Clock className="w-3.5 h-3.5 text-zinc-500" />
             <span>{elapsedMinutes}m elapsed</span>
@@ -1139,340 +1077,113 @@ class URLCompressorCluster:
         </div>
       </header>
 
-      {/* Main Active Cockpit Area */}
-      <div className="flex-1 min-h-0 flex overflow-hidden">
-        {showCodePanel ? (
-          <PanelGroup orientation="horizontal" className="flex-1 min-h-0">
-            {/* Left Dialogue Stream Panel */}
-            <Panel defaultSize="50%" minSize="30%" className="flex flex-col h-full bg-[#08090C] overflow-hidden">
-              <main className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 w-full space-y-5">
-                {messages.map((msg, i) => {
-                  const isUser = msg.role === "user";
-                  return (
-                    <div
-                      key={i}
-                      className={cn("flex items-start gap-3", isUser ? "flex-row-reverse" : "flex-row")}
+      {/* Messages Stream Area */}
+      <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full space-y-5">
+        {messages.map((msg, i) => {
+          const isUser = msg.role === "user";
+          return (
+            <div
+              key={i}
+              className={cn("flex items-start gap-3", isUser ? "flex-row-reverse" : "flex-row")}
+            >
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold border",
+                  isUser
+                    ? "bg-[#327CF6] border-[#327CF6]/50 text-white"
+                    : "bg-[#0D0E12] border-[#181A20] text-cyan-400"
+                )}
+              >
+                {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+              </div>
+
+              <div
+                className={cn(
+                  "max-w-[85%] sm:max-w-[78%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-sm",
+                  isUser
+                    ? "bg-[#327CF6] text-white rounded-tr-none font-medium whitespace-pre-wrap"
+                    : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none"
+                )}
+              >
+                {isUser ? (
+                  msg.content
+                ) : msg.content ? (
+                  <div className="space-y-1.5">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ children }) => <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>,
+                        strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                        ul: ({ children }) => <ul className="list-disc pl-4 space-y-0.5 my-1.5">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-4 space-y-0.5 my-1.5">{children}</ol>,
+                        li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                        code: ({ className, children }) => {
+                          const isInline = !className && typeof children === "string" && !children.includes("\n");
+                          if (isInline) {
+                            return (
+                              <code className="bg-[#181A20] text-cyan-300 px-1 py-0.5 rounded font-mono text-[11px] border border-zinc-800">
+                                {children}
+                              </code>
+                            );
+                          }
+                          return (
+                            <pre className="bg-[#090A0E] border border-zinc-800/80 rounded-xl p-2.5 my-2 overflow-x-auto text-xs font-mono text-zinc-200">
+                              <code>{children}</code>
+                            </pre>
+                          );
+                        },
+                      }}
                     >
-                      <div
-                        className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold border",
-                          isUser
-                            ? "bg-[#327CF6] border-[#327CF6]/50 text-white"
-                            : "bg-[#0D0E12] border-[#181A20] text-cyan-400"
-                        )}
-                      >
-                        {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                      </div>
-
-                      <div
-                        className={cn(
-                          "max-w-[85%] sm:max-w-[80%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-sm",
-                          isUser
-                            ? "bg-[#327CF6] text-white rounded-tr-none font-medium whitespace-pre-wrap"
-                            : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none"
-                        )}
-                      >
-                        {isUser ? (
-                          msg.content
-                        ) : msg.content ? (
-                          <div className="space-y-1.5">
-                            <ReactMarkdown
-                              remarkPlugins={[remarkGfm]}
-                              components={{
-                                p: ({ children }) => <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>,
-                                strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-                                ul: ({ children }) => <ul className="list-disc pl-4 space-y-0.5 my-1.5">{children}</ul>,
-                                ol: ({ children }) => <ol className="list-decimal pl-4 space-y-0.5 my-1.5">{children}</ol>,
-                                li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                                code: ({ className, children }) => {
-                                  const isInline = !className && typeof children === "string" && !children.includes("\n");
-                                  if (isInline) {
-                                    return (
-                                      <code className="bg-[#181A20] text-cyan-300 px-1 py-0.5 rounded font-mono text-[11px] border border-zinc-800">
-                                        {children}
-                                      </code>
-                                    );
-                                  }
-                                  return (
-                                    <pre className="bg-[#090A0E] border border-zinc-800/80 rounded-xl p-2.5 my-2 overflow-x-auto text-xs font-mono text-zinc-200">
-                                      <code>{children}</code>
-                                    </pre>
-                                  );
-                                },
-                              }}
-                            >
-                              {closeUnbalancedBoldTokens(msg.content)}
-                            </ReactMarkdown>
-                            {isStreaming && i === messages.length - 1 && (
-                              <span className="inline-block w-1.5 h-3.5 bg-cyan-400 ml-1 animate-pulse align-middle" />
-                            )}
-                          </div>
-                        ) : isStreaming && i === messages.length - 1 ? (
-                          <span className="flex items-center gap-1.5 text-zinc-400">
-                            <span className="w-2 h-2 rounded-full bg-[#327CF6] animate-ping" />
-                            <span>Evaluating response & formulating next question...</span>
-                          </span>
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                <div ref={bottomRef} />
-              </main>
-
-              {/* Input Composer */}
-              <footer className="border-t border-[#181A20] bg-[#0D0E12] p-3 sm:p-4 shrink-0">
-                <div className="flex items-end gap-2.5">
-                  <textarea
-                    ref={inputRef}
-                    rows={1}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    placeholder="Type your response... (Enter to send, Shift+Enter for new line)"
-                    disabled={isStreaming}
-                    className="flex-1 bg-[#08090C] border border-[#181A20] focus:border-[#327CF6] rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm outline-none transition-colors resize-none max-h-36 min-h-[42px]"
-                  />
-
-                  <Button
-                    type="button"
-                    onClick={sendMessage}
-                    disabled={isStreaming || !input.trim()}
-                    className="h-[42px] px-4 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] disabled:bg-[#181A20] disabled:text-zinc-600 text-white font-semibold text-xs shadow-md shadow-[#327CF6]/20 transition-all cursor-pointer flex items-center justify-center shrink-0"
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </div>
-              </footer>
-            </Panel>
-
-            {/* Panel Resizer Handle */}
-            <PanelResizeHandle className="w-1.5 bg-[#14161C] hover:bg-[#327CF6]/60 transition-colors cursor-col-resize active:bg-[#327CF6]" />
-
-            {/* Right Panel: Monaco Code Editor + Live Rubric Telemetry */}
-            <Panel defaultSize="50%" minSize="28%" className="hidden md:flex flex-col h-full bg-[#0A0C10] overflow-hidden border-l border-[#181A20]">
-              {/* Editor Top Bar */}
-              <div className="h-10 px-4 border-b border-[#181A20] bg-[#0D0E14] flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-2">
-                  <Code2 className="w-4 h-4 text-[#327CF6]" />
-                  <span className="text-xs font-semibold text-white font-mono">architecture_spec.py</span>
-                  <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Synced
+                      {msg.content}
+                    </ReactMarkdown>
+                    {isStreaming && i === messages.length - 1 && (
+                      <span className="inline-block w-1.5 h-3.5 bg-cyan-400 ml-1 animate-pulse align-middle" />
+                    )}
+                  </div>
+                ) : isStreaming && i === messages.length - 1 ? (
+                  <span className="flex items-center gap-1.5 text-zinc-400">
+                    <span className="w-2 h-2 rounded-full bg-[#327CF6] animate-ping" />
+                    <span>Evaluating response & formulating next question...</span>
                   </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={codeLanguage}
-                    onChange={(e) => setCodeLanguage(e.target.value)}
-                    className="bg-[#14161F] border border-[#222634] text-[11px] text-slate-300 rounded-lg px-2 py-0.5 outline-none font-mono cursor-pointer"
-                  >
-                    <option value="python">Python 3</option>
-                    <option value="typescript">TypeScript</option>
-                    <option value="javascript">JavaScript</option>
-                    <option value="go">Go</option>
-                    <option value="java">Java</option>
-                    <option value="cpp">C++</option>
-                  </select>
-                </div>
+                ) : (
+                  ""
+                )}
               </div>
+            </div>
+          );
+        })}
+        <div ref={bottomRef} />
+      </main>
 
-              {/* Monaco Code Editor */}
-              <div className="flex-1 min-h-0 bg-[#08090C]">
-                <Editor
-                  height="100%"
-                  language={codeLanguage}
-                  theme="vs-dark"
-                  value={codeSnippet}
-                  onChange={(val) => setCodeSnippet(val || "")}
-                  options={{
-                    fontSize: 12.5,
-                    lineNumbers: "on",
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
-                    automaticLayout: true,
-                    fontFamily: "'JetBrains Mono', Consolas, monospace",
-                    tabSize: 4,
-                    padding: { top: 10 },
-                  }}
-                />
-              </div>
+      {/* Input Composer */}
+      <footer className="border-t border-[#181A20] bg-[#0D0E12] p-3 sm:p-4 sticky bottom-0 z-10">
+        <div className="max-w-4xl mx-auto flex items-end gap-2.5">
+          <textarea
+            ref={inputRef}
+            rows={1}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+            placeholder="Type your response... (Enter to send, Shift+Enter for new line)"
+            disabled={isStreaming}
+            className="flex-1 bg-[#08090C] border border-[#181A20] focus:border-[#327CF6] rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm outline-none transition-colors resize-none max-h-36 min-h-[42px]"
+          />
 
-              {/* Live Rubric Telemetry Dock */}
-              <div className="p-3 border-t border-[#181A20] bg-[#0D0E14] space-y-2 shrink-0">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-[#327CF6]" />
-                    Live Rubric Telemetry
-                  </span>
-                  <span className="text-[10px] font-mono text-emerald-400 font-semibold">
-                    Calibrated: {selectedLevel}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2 rounded-lg bg-[#11131A] border border-white/[0.05] space-y-1">
-                    <div className="flex justify-between text-[10px]">
-                      <span className="text-slate-400">System Architecture</span>
-                      <span className="font-mono text-white font-bold">84%</span>
-                    </div>
-                    <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                      <div className="h-full bg-blue-500 rounded-full w-[84%]" />
-                    </div>
-                  </div>
-
-                  <div className="p-2 rounded-lg bg-[#11131A] border border-white/[0.05] space-y-1">
-                    <div className="flex justify-between text-[10px]">
-                      <span className="text-slate-400">Algorithmic Trade-offs</span>
-                      <span className="font-mono text-white font-bold">78%</span>
-                    </div>
-                    <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                      <div className="h-full bg-amber-400 rounded-full w-[78%]" />
-                    </div>
-                  </div>
-
-                  <div className="p-2 rounded-lg bg-[#11131A] border border-white/[0.05] space-y-1">
-                    <div className="flex justify-between text-[10px]">
-                      <span className="text-slate-400">Edge Cases & Resiliency</span>
-                      <span className="font-mono text-white font-bold">82%</span>
-                    </div>
-                    <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                      <div className="h-full bg-cyan-400 rounded-full w-[82%]" />
-                    </div>
-                  </div>
-
-                  <div className="p-2 rounded-lg bg-[#11131A] border border-white/[0.05] space-y-1">
-                    <div className="flex justify-between text-[10px]">
-                      <span className="text-slate-400">Concurrency Safety</span>
-                      <span className="font-mono text-white font-bold">75%</span>
-                    </div>
-                    <div className="h-1 rounded-full bg-slate-800 overflow-hidden">
-                      <div className="h-full bg-emerald-400 rounded-full w-[75%]" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Panel>
-          </PanelGroup>
-        ) : (
-          /* Single Column Dialogue Stream when Code Panel is closed or on mobile */
-          <div className="flex-1 flex flex-col h-full bg-[#08090C] overflow-hidden">
-            <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full space-y-5">
-              {messages.map((msg, i) => {
-                const isUser = msg.role === "user";
-                return (
-                  <div
-                    key={i}
-                    className={cn("flex items-start gap-3", isUser ? "flex-row-reverse" : "flex-row")}
-                  >
-                    <div
-                      className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold border",
-                        isUser
-                          ? "bg-[#327CF6] border-[#327CF6]/50 text-white"
-                          : "bg-[#0D0E12] border-[#181A20] text-cyan-400"
-                      )}
-                    >
-                      {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                    </div>
-
-                    <div
-                      className={cn(
-                        "max-w-[85%] sm:max-w-[78%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-sm",
-                        isUser
-                          ? "bg-[#327CF6] text-white rounded-tr-none font-medium whitespace-pre-wrap"
-                          : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none"
-                      )}
-                    >
-                      {isUser ? (
-                        msg.content
-                      ) : msg.content ? (
-                        <div className="space-y-1.5">
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            components={{
-                              p: ({ children }) => <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>,
-                              strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-                              ul: ({ children }) => <ul className="list-disc pl-4 space-y-0.5 my-1.5">{children}</ul>,
-                              ol: ({ children }) => <ol className="list-decimal pl-4 space-y-0.5 my-1.5">{children}</ol>,
-                              li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                              code: ({ className, children }) => {
-                                const isInline = !className && typeof children === "string" && !children.includes("\n");
-                                if (isInline) {
-                                  return (
-                                    <code className="bg-[#181A20] text-cyan-300 px-1 py-0.5 rounded font-mono text-[11px] border border-zinc-800">
-                                      {children}
-                                    </code>
-                                  );
-                                }
-                                return (
-                                  <pre className="bg-[#090A0E] border border-zinc-800/80 rounded-xl p-2.5 my-2 overflow-x-auto text-xs font-mono text-zinc-200">
-                                    <code>{children}</code>
-                                  </pre>
-                                );
-                              },
-                            }}
-                          >
-                            {closeUnbalancedBoldTokens(msg.content)}
-                          </ReactMarkdown>
-                          {isStreaming && i === messages.length - 1 && (
-                            <span className="inline-block w-1.5 h-3.5 bg-cyan-400 ml-1 animate-pulse align-middle" />
-                          )}
-                        </div>
-                      ) : isStreaming && i === messages.length - 1 ? (
-                        <span className="flex items-center gap-1.5 text-zinc-400">
-                          <span className="w-2 h-2 rounded-full bg-[#327CF6] animate-ping" />
-                          <span>Evaluating response & formulating next question...</span>
-                        </span>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-              <div ref={bottomRef} />
-            </main>
-
-            {/* Input Composer */}
-            <footer className="border-t border-[#181A20] bg-[#0D0E12] p-3 sm:p-4 sticky bottom-0 z-10">
-              <div className="max-w-4xl mx-auto flex items-end gap-2.5">
-                <textarea
-                  ref={inputRef}
-                  rows={1}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage();
-                    }
-                  }}
-                  placeholder="Type your response... (Enter to send, Shift+Enter for new line)"
-                  disabled={isStreaming}
-                  className="flex-1 bg-[#08090C] border border-[#181A20] focus:border-[#327CF6] rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm outline-none transition-colors resize-none max-h-36 min-h-[42px]"
-                />
-
-                <Button
-                  type="button"
-                  onClick={sendMessage}
-                  disabled={isStreaming || !input.trim()}
-                  className="h-[42px] px-4 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] disabled:bg-[#181A20] disabled:text-zinc-600 text-white font-semibold text-xs shadow-md shadow-[#327CF6]/20 transition-all cursor-pointer flex items-center justify-center shrink-0"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
-            </footer>
-          </div>
-        )}
-      </div>
+          <Button
+            type="button"
+            onClick={sendMessage}
+            disabled={isStreaming || !input.trim()}
+            className="h-[42px] px-4 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] disabled:bg-[#181A20] disabled:text-zinc-600 text-white font-semibold text-xs shadow-md shadow-[#327CF6]/20 transition-all cursor-pointer flex items-center justify-center shrink-0"
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </div>
+      </footer>
 
       {/* End Interview Confirmation Modal */}
       {showEndConfirm && (
