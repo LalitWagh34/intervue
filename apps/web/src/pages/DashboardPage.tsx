@@ -107,7 +107,7 @@ export default function DashboardPage() {
                 {firstName}
               </span>.
             </h1>
-            <p className="text-sm text-[#8B92A0] max-w-2xl leading-relaxed">
+            <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
               Your interview prep control center. Track your company readiness loops, review AI evaluations, and hone your technical rounds.
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
             <Link
               to="/interview"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-xs sm:text-sm font-semibold shadow-lg shadow-[#327CF6]/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#3B82F6] hover:from-[#4F46E5] hover:to-[#2563EB] text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-500/25 border border-white/10 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <Brain className="w-4 h-4" />
               <span>Start AI Interview</span>
@@ -124,17 +124,17 @@ export default function DashboardPage() {
 
             <Link
               to="/practice"
-              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#0D0E12] hover:bg-[#13161F] border border-[#181A20] hover:border-[#327CF6]/40 text-zinc-300 hover:text-white text-xs sm:text-sm font-medium transition-all shadow-sm cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#11131A] hover:bg-[#1A1D27] border border-white/[0.08] hover:border-white/[0.16] text-slate-200 hover:text-white text-xs sm:text-sm font-medium transition-all shadow-sm cursor-pointer"
             >
-              <BookOpen className="w-4 h-4 text-[#327CF6]" />
+              <BookOpen className="w-4 h-4 text-slate-400" />
               <span>Prep Hub</span>
             </Link>
 
             <Link
               to="/rooms"
-              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#0D0E12] hover:bg-[#13161F] border border-[#181A20] hover:border-red-500/40 text-zinc-300 hover:text-white text-xs sm:text-sm font-medium transition-all shadow-sm cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#11131A] hover:bg-[#1A1D27] border border-white/[0.08] hover:border-white/[0.16] text-slate-200 hover:text-white text-xs sm:text-sm font-medium transition-all shadow-sm cursor-pointer"
             >
-              <Swords className="w-4 h-4 text-red-400" />
+              <Swords className="w-4 h-4 text-slate-400" />
               <span>Battle Arena</span>
             </Link>
           </div>
@@ -145,9 +145,9 @@ export default function DashboardPage() {
           {/* 1. Interview Average Score */}
           <div
             onClick={() => navigate("/history")}
-            className="group p-5 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#327CF6]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
+            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#327CF6]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
           >
-            <div className="flex items-center justify-between text-[#8B92A0]">
+            <div className="flex items-center justify-between text-slate-400">
               <span className="text-xs font-semibold uppercase tracking-wider font-mono">
                 Interview Score
               </span>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
               <span className="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">
                 {stats?.avgScore || 0}
               </span>
-              <span className="text-sm font-mono text-zinc-500">/ 100</span>
+              <span className="text-sm font-mono text-slate-500">/ 100</span>
             </div>
             <div className="flex items-center justify-between text-xs text-emerald-400 font-medium">
               <span className="flex items-center gap-1.5">
@@ -173,9 +173,9 @@ export default function DashboardPage() {
           {/* 2. Practice Streak */}
           <div
             onClick={() => navigate("/rewards")}
-            className="group p-5 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#F59E0B]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
+            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#F59E0B]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
           >
-            <div className="flex items-center justify-between text-[#8B92A0]">
+            <div className="flex items-center justify-between text-slate-400">
               <span className="text-xs font-semibold uppercase tracking-wider font-mono">
                 Practice Streak
               </span>
@@ -187,11 +187,11 @@ export default function DashboardPage() {
               <span className="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">
                 {streak}
               </span>
-              <span className="text-sm text-[#8B92A0] font-medium">
+              <span className="text-sm text-slate-400 font-medium">
                 {streak === 1 ? "consecutive day" : "consecutive days"}
               </span>
             </div>
-            <div className="flex items-center justify-between text-xs text-zinc-500">
+            <div className="flex items-center justify-between text-xs text-slate-500">
               <span>Keep your momentum alive</span>
               <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#F59E0B]" />
             </div>
@@ -200,9 +200,9 @@ export default function DashboardPage() {
           {/* 3. Problems Mastered */}
           <div
             onClick={() => navigate("/practice")}
-            className="group p-5 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#10B981]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
+            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#10B981]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
           >
-            <div className="flex items-center justify-between text-[#8B92A0]">
+            <div className="flex items-center justify-between text-slate-400">
               <span className="text-xs font-semibold uppercase tracking-wider font-mono">
                 Problems Mastered
               </span>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
               <span className="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">
                 {stats?.solvedCount || 0}
               </span>
-              <span className="text-sm text-zinc-500 font-mono">solved</span>
+              <span className="text-sm text-slate-500 font-mono">solved</span>
             </div>
             <div className="flex items-center justify-between text-xs text-zinc-400">
               <span>Tracked & verified problems</span>
@@ -225,9 +225,9 @@ export default function DashboardPage() {
           {/* 4. Full AI Simulations */}
           <div
             onClick={() => navigate("/history")}
-            className="group p-5 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#8B5CF6]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
+            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#8B5CF6]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
           >
-            <div className="flex items-center justify-between text-[#8B92A0]">
+            <div className="flex items-center justify-between text-slate-400">
               <span className="text-xs font-semibold uppercase tracking-wider font-mono">
                 Full Simulations
               </span>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
               <span className="text-3xl sm:text-4xl font-extrabold font-mono text-white tracking-tight">
                 {stats?.simulationsCount || 0}
               </span>
-              <span className="text-sm text-zinc-500 font-mono">rounds</span>
+              <span className="text-sm text-slate-500 font-mono">rounds</span>
             </div>
             <div className="flex items-center justify-between text-xs text-zinc-400">
               <span>Detailed scorecards logged</span>
@@ -249,7 +249,7 @@ export default function DashboardPage() {
         </section>
 
         {/* ─── Target Company Readiness Tracker ──────────────────── */}
-        <section className="rounded-2xl bg-[#0A0C10] border border-[#181A20] p-6 shadow-sm">
+        <section className="rounded-2xl bg-[#11131A] border border-white/[0.07] p-6 shadow-sm">
           <TargetCompanyTracker />
         </section>
 
@@ -257,14 +257,14 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column (2 Cols): Recent Interview Scorecards */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-sm space-y-4">
+            <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
                     <History className="w-4 h-4 text-[#327CF6]" />
                     Recent Interview Scorecards
                   </h3>
-                  <p className="text-xs text-[#8B92A0] mt-0.5">
+                  <p className="text-xs text-slate-400 mt-0.5">
                     Evaluated AI interviews and performance breakdowns
                   </p>
                 </div>
@@ -305,9 +305,9 @@ export default function DashboardPage() {
                               {int.status || "Completed"}
                             </span>
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-[#8B92A0] font-mono">
+                          <div className="flex items-center gap-3 text-xs text-slate-400 font-mono">
                             <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3 text-zinc-500" />
+                              <Clock className="w-3 h-3 text-slate-500" />
                               {int.createdAt ? new Date(int.createdAt).toLocaleDateString() : "Recent"}
                             </span>
                             <span>•</span>
@@ -321,7 +321,7 @@ export default function DashboardPage() {
                               <span className="text-lg font-black font-mono text-white">
                                 {score}%
                               </span>
-                              <p className="text-[10px] text-zinc-500 uppercase font-mono">
+                              <p className="text-[10px] text-slate-500 uppercase font-mono">
                                 Overall Score
                               </p>
                             </div>
@@ -344,7 +344,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold text-white">
                       No interview simulations yet
                     </h4>
-                    <p className="text-xs text-[#8B92A0] max-w-sm">
+                    <p className="text-xs text-slate-400 max-w-sm">
                       Take your first full-length AI mock session to receive an instant comprehensive scorecard and feedback breakdown.
                     </p>
                   </div>
@@ -359,7 +359,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Prep Launchpad */}
-            <div className="p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-sm space-y-4">
+            <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] shadow-sm space-y-4">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
                 <Zap className="w-4 h-4 text-[#F59E0B]" />
                 Quick Launchpad
@@ -376,7 +376,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold text-white group-hover:text-[#327CF6] transition-colors">
                       Company Prep Kits
                     </h4>
-                    <p className="text-xs text-[#8B92A0] mt-0.5">
+                    <p className="text-xs text-slate-400 mt-0.5">
                       Targeted rounds for Google, Amazon, Meta & Microsoft.
                     </p>
                   </div>
@@ -393,7 +393,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold text-white group-hover:text-[#F59E0B] transition-colors">
                       Notes & Key Takeaways
                     </h4>
-                    <p className="text-xs text-[#8B92A0] mt-0.5">
+                    <p className="text-xs text-slate-400 mt-0.5">
                       Review personal solution notes, patterns, and cheat-sheets.
                     </p>
                   </div>
@@ -410,7 +410,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold text-white group-hover:text-[#327CF6] transition-colors">
                       Saved Bookmarks
                     </h4>
-                    <p className="text-xs text-[#8B92A0] mt-0.5">
+                    <p className="text-xs text-slate-400 mt-0.5">
                       Quickly review saved high-yield questions before interviews.
                     </p>
                   </div>
@@ -427,7 +427,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold text-white group-hover:text-[#10B981] transition-colors">
                       AI Tech Mentor
                     </h4>
-                    <p className="text-xs text-[#8B92A0] mt-0.5">
+                    <p className="text-xs text-slate-400 mt-0.5">
                       Ask complex architectural, system design, or DSA questions.
                     </p>
                   </div>

@@ -353,17 +353,17 @@ export default function PracticeHubPage() {
           {/* Main Left Section (8 of 12 cols) */}
           <div className="lg:col-span-8 space-y-6">
             {/* Prephub Hero Banner Card with Single Capsule Bar */}
-            <div className="p-7 sm:p-8 rounded-2xl bg-[#0D0E12] border border-[#181A20] relative overflow-hidden flex flex-col justify-between min-h-[200px]">
+            <div className="p-7 sm:p-8 rounded-2xl bg-[#11131A] border border-white/[0.07] relative overflow-hidden flex flex-col justify-between min-h-[200px]">
               <div className="relative z-10 max-w-xl">
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
                   Prephub
                 </h1>
-                <p className="text-xs sm:text-[13px] text-[#8B92A0] mt-1.5 leading-relaxed">
+                <p className="text-xs sm:text-[13px] text-slate-400 mt-1.5 leading-relaxed">
                   Your one-stop platform to learn, and master every interview subject.
                 </p>
 
                 {/* Single Continuous Stats Capsule Bar */}
-                <div className="mt-6 inline-flex items-center rounded-xl bg-[#08090C] border border-[#181A20] px-3.5 py-2 text-xs text-[#8B92A0] font-sans shadow-inner">
+                <div className="mt-6 inline-flex items-center rounded-xl bg-[#08090C] border border-[#181A20] px-3.5 py-2 text-xs text-slate-400 font-sans shadow-inner">
                   <div className="flex items-center gap-1.5 pr-3.5 border-r border-[#181A20]">
                     <Flame className="w-3.5 h-3.5 text-[#F59E0B]" />
                     <span>
@@ -425,7 +425,7 @@ export default function PracticeHubPage() {
                         Top FAANG Rounds
                       </span>
                     </div>
-                    <p className="text-xs sm:text-[13px] text-[#8B92A0] mt-0.5 line-clamp-1">
+                    <p className="text-xs sm:text-[13px] text-slate-400 mt-0.5 line-clamp-1">
                       Targeted interview problem sets for Google, Amazon, Meta, Microsoft, Apple, Uber & Netflix.
                     </p>
                   </div>
@@ -440,7 +440,7 @@ export default function PracticeHubPage() {
               {/* Subject 2: All Company Section (Company-Wise 470+ company question system) */}
               <div
                 onClick={() => openCompanyWise()}
-                className="p-4 sm:p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
+                className="p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
@@ -463,14 +463,14 @@ export default function PracticeHubPage() {
 
                 <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-1 sm:pl-4">
                   <span className="hidden sm:inline">View Companies</span>
-                  <ChevronRight className="w-4 h-4 text-[#525866] group-hover:translate-x-0.5 transition-transform" />
+                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
 
               {/* Subject 3: DSA Problem Sheets (Coming Soon) */}
               <div
                 onClick={() => openComingSoon("dsa")}
-                className="p-4 sm:p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-amber-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
+                className="p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-amber-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
@@ -500,7 +500,7 @@ export default function PracticeHubPage() {
               {/* Subject 4: AI Mock Interviews */}
               <div
                 onClick={() => navigate("/interview")}
-                className="p-4 sm:p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
+                className="p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-orange-400 shrink-0 group-hover:scale-105 transition-transform">
@@ -523,7 +523,7 @@ export default function PracticeHubPage() {
 
                 <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium text-[#7A808C] group-hover:text-white shrink-0 pl-1 sm:pl-4">
                   <span className="hidden sm:inline">Start Mock</span>
-                  <ChevronRight className="w-4 h-4 text-[#525866] group-hover:translate-x-0.5 transition-transform" />
+                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
             </div>
@@ -540,7 +540,7 @@ export default function PracticeHubPage() {
                 <h3 className="text-xl font-extrabold text-white mt-3 tracking-tight">
                   LIVE BATTLE ARENA
                 </h3>
-                <p className="text-xs text-[#8B92A0] mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   Host or join timed assessments with peer competition, live scoring, and anti-cheat proctoring.
                 </p>
               </div>
@@ -555,7 +555,7 @@ export default function PracticeHubPage() {
             </div>
 
             {/* Daily Planner Card */}
-            <div className="p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] min-h-[260px] flex flex-col justify-between">
+            <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] min-h-[260px] flex flex-col justify-between">
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center justify-between">
                   <span>Daily Planner</span>
@@ -566,13 +566,13 @@ export default function PracticeHubPage() {
                   )}
                 </h3>
                 <div className="py-7 flex flex-col items-center justify-center text-center">
-                  <div className="w-10 h-10 rounded-full bg-[#14161C] border border-[#1E2229] flex items-center justify-center text-[#8B92A0] mb-3">
+                  <div className="w-10 h-10 rounded-full bg-[#14161C] border border-[#1E2229] flex items-center justify-center text-slate-400 mb-3">
                     <CheckCircle2 className="w-5 h-5 text-[#327CF6]" />
                   </div>
                   <p className="text-xs font-semibold text-white">
                     Track Your Daily Targets
                   </p>
-                  <p className="text-[11px] text-[#8B92A0] mt-1 max-w-xs leading-relaxed">
+                  <p className="text-[11px] text-slate-400 mt-1 max-w-xs leading-relaxed">
                     {dailyTotal > 0
                       ? `${dailyCompleted} of ${dailyTotal} daily focus goals completed. Stay consistent to boost your streak.`
                       : "Define today's focus goals, track problem sets, and build consistent interview readiness."}
@@ -591,7 +591,7 @@ export default function PracticeHubPage() {
             </div>
 
             {/* Target Company Loops Quick Card */}
-            <div className="p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] space-y-4">
+            <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
@@ -606,7 +606,7 @@ export default function PracticeHubPage() {
                   <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </div>
-              <p className="text-xs text-[#8B92A0]">
+              <p className="text-xs text-slate-400">
                 Targeting a specific loop? Jump straight to interview question sets with real ask frequencies.
               </p>
 
@@ -679,14 +679,14 @@ export default function PracticeHubPage() {
                 setCurrentView("hub");
                 setSearchParams({});
               }}
-              className="px-3.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] text-xs text-slate-400 hover:text-white transition-all cursor-pointer flex items-center gap-1.5"
             >
               <span>← Back to Overview</span>
             </button>
           </div>
 
           {/* Hero Spotlight Card */}
-          <div className="p-8 sm:p-12 rounded-3xl bg-[#0D0E12] border border-[#181A20] relative overflow-hidden text-center space-y-6 shadow-2xl">
+          <div className="p-8 sm:p-12 rounded-3xl bg-[#11131A] border border-white/[0.07] relative overflow-hidden text-center space-y-6 shadow-2xl">
             <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 w-96 h-48 bg-[#327CF6]/15 rounded-full blur-3xl pointer-events-none" />
 
             <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 flex items-center justify-center mx-auto shadow-lg shadow-cyan-500/10">
@@ -701,7 +701,7 @@ export default function PracticeHubPage() {
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 DSA Problem Sheets are Coming Soon
               </h2>
-              <p className="text-xs sm:text-sm text-[#8B92A0] leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                 We are curating Striver A2Z, NeetCode 150, Blind 75, and SDE sheets with automated test runners, hint assistance, and solution breakdowns.
               </p>
             </div>
@@ -795,7 +795,7 @@ export default function PracticeHubPage() {
               <h1 className="text-2xl font-bold tracking-tight text-white">
                 {selectedSubject === "dsa" ? "Data Structures & Algorithms Sheets" : "Core CS Fundamentals"}
               </h1>
-              <p className="text-xs text-[#8B92A0] mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5">
                 Choose a structured curriculum that matches your timeline and interview target.
               </p>
             </div>
@@ -803,7 +803,7 @@ export default function PracticeHubPage() {
             <button
               type="button"
               onClick={() => setCurrentView("hub")}
-              className="px-3.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] text-xs text-slate-400 hover:text-white transition-all cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 inline mr-1" /> Back to Overview
             </button>
@@ -820,7 +820,7 @@ export default function PracticeHubPage() {
                 <div
                   key={sheet.id}
                   onClick={() => openSheetPractice(sheet.id)}
-                  className="p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/50 hover:bg-[#101217] transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
+                  className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#327CF6]/50 hover:bg-[#101217] transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
@@ -839,7 +839,7 @@ export default function PracticeHubPage() {
                         {sheet.badge}
                       </span>
 
-                      <span className="text-xs font-mono text-[#525866]">
+                      <span className="text-xs font-mono text-slate-500">
                         {sheet.estimatedHours}
                       </span>
                     </div>
@@ -857,7 +857,7 @@ export default function PracticeHubPage() {
 
                   <div className="mt-6 pt-4 border-t border-[#181A20]">
                     <div className="flex items-center justify-between text-xs mb-2">
-                      <span className="text-[#8B92A0] font-medium">Progress</span>
+                      <span className="text-slate-400 font-medium">Progress</span>
                       <span className="font-mono text-white font-bold">
                         {pct}% ({solvedCountForSheet}/{sheetProblems.length})
                       </span>
@@ -872,7 +872,7 @@ export default function PracticeHubPage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono text-[#525866]">
+                      <span className="text-xs font-mono text-slate-500">
                         {sheet.problemCount} Problems
                       </span>
                       <span className="text-xs font-semibold text-[#327CF6] group-hover:translate-x-1 transition-transform flex items-center gap-1">
@@ -920,13 +920,13 @@ export default function PracticeHubPage() {
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-sans">
                 {currentSheet.title}
               </h1>
-              <p className="text-xs sm:text-[13px] text-[#8B92A0] mt-1 max-w-2xl leading-relaxed">
+              <p className="text-xs sm:text-[13px] text-slate-400 mt-1 max-w-2xl leading-relaxed">
                 {currentSheet.description}
               </p>
 
               {/* Seamless Sheet Switcher Bar (User can switch between Striver A2Z, NeetCode 150, Blind 75 without leaving!) */}
               <div className="flex items-center gap-2 pt-4 overflow-x-auto scrollbar-none">
-                <span className="text-xs text-[#525866] font-semibold shrink-0">Switch Sheet:</span>
+                <span className="text-xs text-slate-500 font-semibold shrink-0">Switch Sheet:</span>
                 {currentSubjectSheets.map((s) => (
                   <button
                     key={s.id}
@@ -936,7 +936,7 @@ export default function PracticeHubPage() {
                       "px-3 py-1.5 rounded-xl text-xs font-medium transition-all shrink-0 cursor-pointer border",
                       selectedSheetId === s.id
                         ? "bg-[#327CF6]/15 text-[#327CF6] border-[#327CF6]/40 font-semibold shadow-sm"
-                        : "bg-[#0D0E12] text-[#8B92A0] border-[#181A20] hover:text-white hover:border-[#262933]"
+                        : "bg-[#0D0E12] text-slate-400 border-[#181A20] hover:text-white hover:border-[#262933]"
                     )}
                   >
                     {s.title.split(" (")[0]}
@@ -946,8 +946,8 @@ export default function PracticeHubPage() {
             </div>
 
             {/* TUF Progress Card for Current Sheet */}
-            <div className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20] w-full lg:w-80 shrink-0">
-              <div className="flex items-center justify-between text-xs text-[#8B92A0] mb-2">
+            <div className="p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] w-full lg:w-80 shrink-0">
+              <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
                 <span className="font-semibold text-white">Your Progress</span>
                 <button
                   type="button"
@@ -960,7 +960,7 @@ export default function PracticeHubPage() {
 
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-extrabold text-white font-mono">{sheetProgressPercent} %</span>
-                <span className="text-xs text-[#525866]">({sheetSolvedCount}/{sheetTotalCount} solved)</span>
+                <span className="text-xs text-slate-500">({sheetSolvedCount}/{sheetTotalCount} solved)</span>
               </div>
 
               <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-[#181A20] text-center">
@@ -1065,15 +1065,15 @@ export default function PracticeHubPage() {
                           </span>
                         </div>
 
-                        <div className="col-span-2 hidden sm:flex items-center gap-1.5 text-[#525866]">
+                        <div className="col-span-2 hidden sm:flex items-center gap-1.5 text-slate-500">
                           <Lock className="w-3.5 h-3.5 text-[#327CF6]/70" />
-                          <span className="text-[11px] font-mono text-[#8B92A0]">
+                          <span className="text-[11px] font-mono text-slate-400">
                             {prob.companies[0]}
                           </span>
                         </div>
 
                         <div className="col-span-2 hidden sm:flex items-center gap-1.5 min-w-0">
-                          <span className="px-2 py-0.5 rounded-lg bg-[#14161C] text-[#8B92A0] text-[10px] font-mono border border-[#1E2229] truncate">
+                          <span className="px-2 py-0.5 rounded-lg bg-[#14161C] text-slate-400 text-[10px] font-mono border border-[#1E2229] truncate">
                             {prob.topic}
                           </span>
                         </div>
@@ -1086,7 +1086,7 @@ export default function PracticeHubPage() {
                               "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
                               bookmarkedSlugs.includes(prob.slug)
                                 ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
-                                : "bg-[#08090C] border-[#181A20] text-[#525866] hover:text-[#22C55E] hover:border-[#22C55E]/30"
+                                : "bg-[#08090C] border-[#181A20] text-slate-500 hover:text-[#22C55E] hover:border-[#22C55E]/30"
                             )}
                             title={bookmarkedSlugs.includes(prob.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
                           >
@@ -1107,7 +1107,7 @@ export default function PracticeHubPage() {
                                 title: prob.title,
                               })
                             }
-                            className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-[#525866] hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                            className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-slate-500 hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
                             title="Notes & Hints Notepad"
                           >
                             <NotebookPen className="w-3.5 h-3.5" />
@@ -1132,7 +1132,7 @@ export default function PracticeHubPage() {
 
             {/* Right Sidebar: Top Companies */}
             <div className="lg:col-span-3 space-y-5">
-              <div className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20]">
+              <div className="p-5 rounded-2xl bg-[#11131A] border border-white/[0.07]">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                     Target Company Assessment Sets
@@ -1146,7 +1146,7 @@ export default function PracticeHubPage() {
                   </button>
                 </div>
                 
-                <p className="text-[#8B92A0] text-xs mb-4">
+                <p className="text-slate-400 text-xs mb-4">
                   Questions organized by company, recency, and interview ask rate.
                 </p>
 
@@ -1162,7 +1162,7 @@ export default function PracticeHubPage() {
                           "px-3 py-1.5 rounded-full border text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer",
                           selectedCompany === comp.name
                             ? "bg-[#327CF6] text-white border-[#327CF6]"
-                            : "bg-[#08090C] text-[#8B92A0] border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
+                            : "bg-[#08090C] text-slate-400 border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
                         )}
                       >
                         {logo && (
@@ -1175,7 +1175,7 @@ export default function PracticeHubPage() {
                         <span>{comp.name}</span>
                         <span className={cn(
                           "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
-                          selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-[#525866]"
+                          selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-slate-500"
                         )}>
                           {comp.count}
                         </span>
@@ -1215,7 +1215,7 @@ export default function PracticeHubPage() {
                   470+ Verified Companies
                 </span>
               </h1>
-              <p className="text-xs text-[#8B92A0] mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5">
                 Questions organized by company, recency, and interview ask rate with automated Judge0 evaluation.
               </p>
             </div>
@@ -1223,16 +1223,16 @@ export default function PracticeHubPage() {
             <button
               type="button"
               onClick={() => setCurrentView("hub")}
-              className="px-3.5 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#262933] text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] text-xs text-slate-400 hover:text-white transition-all cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 inline mr-1" /> Back to Prephub
             </button>
           </div>
 
           {/* Company Picker Bar */}
-          <div className="p-5 rounded-2xl bg-[#0D0E12] border border-[#181A20]">
+          <div className="p-5 rounded-2xl bg-[#11131A] border border-white/[0.07]">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-[#8B92A0] uppercase tracking-wider flex items-center gap-2">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                 {getCompanyLogo(selectedCompany) ? (
                   <img
                     src={getCompanyLogo(selectedCompany)!}
@@ -1244,7 +1244,7 @@ export default function PracticeHubPage() {
                 )}
                 Target Company: <strong className="text-white font-bold">{selectedCompany}</strong>
               </span>
-              <span className="text-xs text-[#525866] font-mono">
+              <span className="text-xs text-slate-500 font-mono">
                 {companyQuestionsData?.totalCount || 0} questions available
               </span>
             </div>
@@ -1261,7 +1261,7 @@ export default function PracticeHubPage() {
                       "px-3 py-1.5 rounded-full border text-[11px] font-medium transition-all flex items-center gap-1.5 cursor-pointer",
                       selectedCompany === comp.name
                         ? "bg-[#327CF6] text-white border-[#327CF6] shadow-sm shadow-[#327CF6]/30"
-                        : "bg-[#08090C] text-[#8B92A0] border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
+                        : "bg-[#08090C] text-slate-400 border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
                     )}
                   >
                     {logo ? (
@@ -1276,7 +1276,7 @@ export default function PracticeHubPage() {
                     <span>{comp.name}</span>
                     <span className={cn(
                       "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
-                      selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-[#525866]"
+                      selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-slate-500"
                     )}>
                       {comp.totalProblems}
                     </span>
@@ -1288,7 +1288,7 @@ export default function PracticeHubPage() {
 
           {/* Timeframe & Search Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs self-start sm:self-auto">
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-[#11131A] border border-white/[0.07] text-xs self-start sm:self-auto">
               {[
                 { id: "thirtyDays", label: "ðŸ”¥ Last 30 Days" },
                 { id: "threeMonths", label: "3 Months" },
@@ -1311,7 +1311,7 @@ export default function PracticeHubPage() {
             </div>
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="flex items-center p-1 rounded-xl bg-[#0D0E12] border border-[#181A20] self-start sm:self-auto">
+              <div className="flex items-center p-1 rounded-xl bg-[#11131A] border border-white/[0.07] self-start sm:self-auto">
                 {["ALL", "SOLVED", "UNSOLVED"].map((status) => (
                   <button
                     key={status}
@@ -1329,13 +1329,13 @@ export default function PracticeHubPage() {
               </div>
 
               <div className="relative flex-1 sm:flex-none sm:w-72">
-                <Search className="w-4 h-4 text-[#525866] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder={`Search ${selectedCompany} questions...`}
                   value={companySearchQuery}
                   onChange={(e) => setCompanySearchQuery(e.target.value)}
-                  className="w-full bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-[#525866] outline-none transition-all"
+                  className="w-full bg-[#11131A] border border-white/[0.07] focus:border-[#327CF6] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-[#525866] outline-none transition-all"
                 />
               </div>
             </div>
@@ -1352,7 +1352,7 @@ export default function PracticeHubPage() {
                   {companyQuestionsData?.totalCount || 0} questions
                 </span>
               </div>
-              <span className="text-[11px] text-[#525866] font-mono">
+              <span className="text-[11px] text-slate-500 font-mono">
                 Ranked by interview ask rate
               </span>
             </div>
@@ -1360,7 +1360,7 @@ export default function PracticeHubPage() {
             {isCompanyLoading ? (
               <div className="p-16 flex flex-col items-center justify-center gap-3">
                 <div className="w-7 h-7 rounded-full border-2 border-[#327CF6] border-t-transparent animate-spin" />
-                <p className="text-xs text-[#8B92A0] font-mono">Loading questions for {selectedCompany}...</p>
+                <p className="text-xs text-slate-400 font-mono">Loading questions for {selectedCompany}...</p>
               </div>
             ) : (
               <div className="divide-y divide-[#181A20]">
@@ -1429,7 +1429,7 @@ export default function PracticeHubPage() {
                           {q.topics.slice(0, 4).map((t, i) => (
                             <span
                               key={i}
-                              className="px-1.5 py-0.5 rounded bg-[#08090C] text-[#8B92A0] text-[10px] font-mono border border-[#181A20]"
+                              className="px-1.5 py-0.5 rounded bg-[#08090C] text-slate-400 text-[10px] font-mono border border-[#181A20]"
                             >
                               {t}
                             </span>
@@ -1440,7 +1440,7 @@ export default function PracticeHubPage() {
                       <div className="flex items-center gap-4 self-end sm:self-auto shrink-0 pl-2">
                         {q.frequency > 0 && (
                           <div className="text-right flex flex-col items-end">
-                            <span className="text-[9px] text-[#525866] font-mono block leading-none mb-1">Ask Rate</span>
+                            <span className="text-[9px] text-slate-500 font-mono block leading-none mb-1">Ask Rate</span>
                             <span className="text-xs font-bold text-[#F59E0B] font-mono leading-none">
                               {q.frequency}%
                             </span>
@@ -1454,7 +1454,7 @@ export default function PracticeHubPage() {
                             "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
                             bookmarkedSlugs.includes(q.slug)
                               ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
-                              : "bg-[#08090C] border-[#181A20] text-[#525866] hover:text-[#22C55E] hover:border-[#22C55E]/30"
+                              : "bg-[#08090C] border-[#181A20] text-slate-500 hover:text-[#22C55E] hover:border-[#22C55E]/30"
                           )}
                           title={bookmarkedSlugs.includes(q.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
                         >
@@ -1475,7 +1475,7 @@ export default function PracticeHubPage() {
                               title: q.title,
                             })
                           }
-                          className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-[#525866] hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                          className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-slate-500 hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
                           title="Notes & Hints Notepad"
                         >
                           <NotebookPen className="w-3.5 h-3.5" />

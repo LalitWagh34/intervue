@@ -250,7 +250,7 @@ export default function Sidebar({
                     Intervue
                   </span>
                 </div>
-                <p className="text-[10px] text-[#525866] font-mono tracking-wide -mt-0.5 truncate">
+                <p className="text-[10px] text-slate-500 font-mono tracking-wide -mt-0.5 truncate">
                   placement suite
                 </p>
               </div>
@@ -268,7 +268,7 @@ export default function Sidebar({
             type="button"
             onClick={onMobileClose}
             title="Close menu"
-            className="md:hidden w-7 h-7 rounded-lg flex items-center justify-center text-[#8B92A0] hover:text-white hover:bg-[#14161C] border border-[#1E2229] transition-all cursor-pointer"
+            className="md:hidden w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-[#14161C] border border-[#1E2229] transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -279,7 +279,7 @@ export default function Sidebar({
             onClick={onToggle}
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={cn(
-              "hidden md:flex w-7 h-7 rounded-lg items-center justify-center text-[#8B92A0] hover:text-white hover:bg-[#14161C] border border-transparent hover:border-[#1E2229] transition-all cursor-pointer",
+              "hidden md:flex w-7 h-7 rounded-lg items-center justify-center text-slate-400 hover:text-white hover:bg-[#14161C] border border-transparent hover:border-[#1E2229] transition-all cursor-pointer",
               isCollapsed && "mx-auto mt-2"
             )}
           >
@@ -303,7 +303,7 @@ export default function Sidebar({
           return (
             <div key={sIdx}>
               {!isCollapsed && section.title && (
-                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-[#525866] mb-1.5 font-mono">
+                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 font-mono">
                   {section.title}
                 </p>
               )}
@@ -330,19 +330,19 @@ export default function Sidebar({
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all group relative cursor-pointer",
                         isActive
-                          ? "bg-[#327CF6]/15 text-[#327CF6] font-semibold border border-[#327CF6]/30 shadow-sm"
-                          : "text-[#8B92A0] hover:text-white hover:bg-[#12141B] border border-transparent"
+                          ? "bg-white/[0.06] text-white font-semibold border border-white/[0.08] shadow-sm"
+                          : "text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent"
                       )}
                     >
                       {/* Active Left Indicator Bar (TUF style) */}
                       {isActive && (
-                        <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[#327CF6] shadow-[0_0_10px_#327CF6]" />
+                        <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-gradient-to-b from-[#6366F1] to-[#3B82F6] shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
                       )}
 
                       <Icon
                         className={cn(
                           "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
-                          isActive ? "text-[#327CF6]" : "text-[#8B92A0] group-hover:text-white",
+                          isActive ? "text-indigo-400" : "text-slate-400 group-hover:text-white",
                           isCollapsed && "mx-auto"
                         )}
                       />
@@ -441,7 +441,7 @@ export default function Sidebar({
                 <p className="text-xs font-semibold text-white truncate group-hover:text-[#327CF6] transition-colors">
                   {user?.name || "Candidate"}
                 </p>
-                <p className="text-[10px] text-[#525866] truncate font-mono">
+                <p className="text-[10px] text-slate-500 truncate font-mono">
                   {user?.email || "Pro Student"}
                 </p>
               </div>
@@ -450,7 +450,7 @@ export default function Sidebar({
             <button
               onClick={handleSignOut}
               title="Sign Out"
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#525866] hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
             </button>

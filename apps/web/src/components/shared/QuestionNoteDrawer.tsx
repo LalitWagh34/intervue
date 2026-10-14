@@ -75,21 +75,21 @@ export function QuestionNoteDrawer({
       />
 
       {/* Drawer Panel */}
-      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-[#0D0E12] border-l border-[#1E2229] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-[#11131A] border-l border-white/[0.12] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2229] shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/10 border border-[#F59E0B]/25 flex items-center justify-center">
               <NotebookPen className="w-4 h-4 text-[#F59E0B]" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-[#F5F7FA] leading-tight">My Note</h2>
-              <p className="text-[11px] text-[#707784] font-mono truncate max-w-[240px]">{problemTitle}</p>
+              <p className="text-[11px] text-slate-400 font-mono truncate max-w-[240px]">{problemTitle}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-[#707784] hover:text-[#F5F7FA] hover:bg-[#1E2229] transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#F5F7FA] hover:bg-[#1E2229] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -114,7 +114,7 @@ export function QuestionNoteDrawer({
                   );
                   setIsDirty(true);
                 }}
-                className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-[#14161B] border border-[#272B33] text-[#A1A7B3] hover:text-[#F5F7FA] hover:border-[#327CF6]/40 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-[#1A1D27] border border-white/[0.08] text-slate-300 hover:text-white hover:border-white/[0.2] transition-colors cursor-pointer"
               >
                 <tpl.icon className={cn("w-3.5 h-3.5", tpl.color)} />
                 <span>{tpl.label}</span>
@@ -135,25 +135,25 @@ export function QuestionNoteDrawer({
                 setIsDirty(true);
               }}
               placeholder={`Write your hint, approach, or edge cases for "${problemTitle}"...\n\nExamples:\n• Use two pointers — left starts at 0, right at n-1\n• O(n) time, O(1) space\n• Handle empty array case first`}
-              className="flex-1 w-full bg-[#08090C] border border-[#1E2229] focus:border-[#327CF6]/50 rounded-xl p-4 text-sm text-[#E0E2E8] placeholder:text-[#525866] font-mono resize-none outline-none transition-colors leading-relaxed"
+              className="flex-1 w-full bg-[#08090C] border border-white/[0.08] focus:border-[#327CF6]/50 rounded-xl p-4 text-sm text-[#E0E2E8] placeholder:text-slate-500 font-mono resize-none outline-none transition-colors leading-relaxed"
               autoFocus
             />
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-5 py-4 border-t border-[#1E2229] shrink-0 gap-3">
+        <div className="flex items-center justify-between px-5 py-4 border-t border-white/[0.08] shrink-0 gap-3">
           {note ? (
             <button
               onClick={handleDelete}
               disabled={deleteNote.isPending}
-              className="flex items-center gap-1.5 text-xs font-medium text-[#707784] hover:text-[#EF4444] transition-colors cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-[#EF4444] transition-colors cursor-pointer disabled:opacity-50"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Delete
             </button>
           ) : (
-            <span className="text-[11px] text-[#525866]">
+            <span className="text-[11px] text-slate-500">
               {content ? "Unsaved" : "No note yet"}
             </span>
           )}
@@ -161,7 +161,7 @@ export function QuestionNoteDrawer({
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-xs font-medium text-[#707784] hover:text-[#F5F7FA] transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-[#F5F7FA] transition-colors cursor-pointer"
             >
               Cancel
             </button>

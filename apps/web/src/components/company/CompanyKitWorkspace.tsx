@@ -189,7 +189,7 @@ export function CompanyKitWorkspace({
   return (
     <div className="space-y-6">
       {/* ─── Top Breadcrumb Bar ──────────────────────────────────────── */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#181A20]">
+      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
         <div className="flex items-center gap-2 text-xs text-[#7A808C]">
           <button
             type="button"
@@ -209,14 +209,14 @@ export function CompanyKitWorkspace({
         <button
           type="button"
           onClick={onBack}
-          className="px-3 py-1 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-zinc-700 text-xs text-[#8B92A0] hover:text-white transition-all cursor-pointer font-mono"
+          className="px-3 py-1 rounded-xl bg-[#11131A] border border-white/[0.07] hover:border-zinc-700 text-xs text-slate-400 hover:text-white transition-all cursor-pointer font-mono"
         >
           ← All Kits
         </button>
       </div>
 
       {/* ─── Company Header Banner ───────────────────────────────────── */}
-      <div className="p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] relative overflow-hidden">
+      <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl bg-[#141720] border border-[#222634] p-2.5 flex items-center justify-center shrink-0 shadow-xl">
@@ -237,7 +237,7 @@ export function CompanyKitWorkspace({
                   Updated 2 days ago
                 </span>
               </div>
-              <p className="text-xs text-[#8B92A0] mt-1 max-w-2xl leading-relaxed">
+              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
                 {kit.description}
               </p>
               <div className="flex items-center gap-2 mt-2.5 text-[11px] font-mono text-zinc-400">
@@ -283,7 +283,7 @@ export function CompanyKitWorkspace({
       </div>
 
       {/* ─── Timeframe Filter Pills ──────────────────────────────────── */}
-      <div className="flex items-center gap-2 p-1 rounded-xl bg-[#0D0E12] border border-[#181A20] w-fit">
+      <div className="flex items-center gap-2 p-1 rounded-xl bg-[#11131A] border border-white/[0.07] w-fit">
         {TIMEFRAMES.map((tf) => (
           <button
             key={tf.id}
@@ -321,7 +321,7 @@ export function CompanyKitWorkspace({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-zinc-400 font-mono">Curated Scope:</span>
-              <div className="flex items-center p-0.5 rounded-lg bg-[#0D0E12] border border-[#181A20] text-xs">
+              <div className="flex items-center p-0.5 rounded-lg bg-[#11131A] border border-white/[0.07] text-xs">
                 <button
                   type="button"
                   onClick={() => setScopeMode("TOP_200")}
@@ -353,16 +353,16 @@ export function CompanyKitWorkspace({
         )}
 
         {/* Table Filters Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-xl bg-[#11131A] border border-white/[0.07]">
           {/* Search bar */}
           <div className="relative flex-1 max-w-sm">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[#525866]" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-500" />
             <input
               type="text"
               placeholder={`Search ${companyName} questions or topics...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#07080B] border border-[#181A20] text-xs text-white placeholder-[#525866] focus:border-blue-500/60 outline-none font-sans"
+              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-100 placeholder:text-slate-500 focus:border-blue-500/60 outline-none font-sans"
             />
           </div>
 
@@ -372,7 +372,7 @@ export function CompanyKitWorkspace({
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="h-8 rounded-lg bg-[#07080B] border border-[#181A20] text-xs text-zinc-300 px-2.5 outline-none font-mono"
+              className="h-8 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-200 px-2.5 outline-none font-mono"
             >
               <option value="ALL">All Difficulties</option>
               <option value="EASY">Easy</option>
@@ -384,7 +384,7 @@ export function CompanyKitWorkspace({
             <select
               value={selectedPopularity}
               onChange={(e) => setSelectedPopularity(e.target.value)}
-              className="h-8 rounded-lg bg-[#07080B] border border-[#181A20] text-xs text-zinc-300 px-2.5 outline-none font-mono"
+              className="h-8 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-200 px-2.5 outline-none font-mono"
             >
               <option value="ALL">All Ask Rates</option>
               <option value="VERY_HOT">🔥 Very Hot Only</option>
@@ -395,7 +395,7 @@ export function CompanyKitWorkspace({
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value as any)}
-              className="h-8 rounded-lg bg-[#07080B] border border-[#181A20] text-xs text-zinc-300 px-2.5 outline-none font-mono"
+              className="h-8 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-200 px-2.5 outline-none font-mono"
             >
               <option value="ALL">All Status</option>
               <option value="SOLVED">Solved</option>
@@ -407,7 +407,7 @@ export function CompanyKitWorkspace({
               <select
                 value={selectedTopic}
                 onChange={(e) => setSelectedTopic(e.target.value)}
-                className="h-8 rounded-lg bg-[#07080B] border border-[#181A20] text-xs text-zinc-300 px-2.5 outline-none font-mono max-w-[140px]"
+                className="h-8 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-200 px-2.5 outline-none font-mono max-w-[140px]"
               >
                 <option value="ALL">All Topics</option>
                 {availableTopics.map((t) => (
@@ -439,18 +439,18 @@ export function CompanyKitWorkspace({
 
         {/* Table Rows */}
         {isLoading ? (
-          <div className="p-12 text-center rounded-2xl bg-[#0D0E12] border border-[#181A20] text-xs text-zinc-400">
+          <div className="p-12 text-center rounded-2xl bg-[#11131A] border border-white/[0.07] text-xs text-zinc-400">
             <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             Loading {companyName} curated technical loop problems...
           </div>
         ) : filteredQuestions.length === 0 ? (
-          <div className="p-12 text-center rounded-2xl bg-[#0D0E12] border border-[#181A20] text-xs text-zinc-400">
+          <div className="p-12 text-center rounded-2xl bg-[#11131A] border border-white/[0.07] text-xs text-zinc-400">
             No questions found matching your filter criteria.
           </div>
         ) : (
-          <div className="rounded-2xl border border-[#181A20] overflow-x-auto bg-[#0D0E12]">
+          <div className="rounded-2xl border border-white/[0.07] overflow-x-auto bg-[#0D0E12]">
             <table className="w-full text-left text-xs min-w-[620px]">
-              <thead className="bg-[#101217] border-b border-[#181A20] text-zinc-400 font-mono text-[11px]">
+              <thead className="bg-[#1A1D27]/90 border-b border-white/[0.07] text-slate-400 font-mono text-[11px]">
                 <tr>
                   <th className="p-3.5 w-10 text-center">Status</th>
                   <th className="p-3.5">Problem Title</th>
@@ -460,7 +460,7 @@ export function CompanyKitWorkspace({
                   <th className="p-3.5 w-28 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#181A20]/70">
+              <tbody className="divide-y divide-white/[0.04]">
                 {filteredQuestions.map((q) => {
                   const isSolved = Boolean(
                     solvedProblems[q.slug] || (q.nativeId && solvedProblems[String(q.nativeId)])
@@ -476,7 +476,7 @@ export function CompanyKitWorkspace({
                   return (
                     <tr
                       key={q.slug}
-                      className={`hover:bg-[#12151E]/60 transition-colors ${
+                      className={`hover:bg-[#1A1D27]/50 transition-colors ${
                         isSolved ? "bg-[#10B981]/[0.02]" : ""
                       }`}
                     >
@@ -576,7 +576,7 @@ export function CompanyKitWorkspace({
                           <button
                             type="button"
                             onClick={() => onOpenNotes({ slug: q.slug, title: q.title })}
-                            className="p-1.5 rounded-lg border border-[#181A20] text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg border border-white/[0.07] text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors cursor-pointer"
                             title="Notes & Hints"
                           >
                             <NotebookPen className="w-3.5 h-3.5" />
@@ -589,7 +589,7 @@ export function CompanyKitWorkspace({
                             className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
                               isSaved
                                 ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
-                                : "border-[#181A20] text-zinc-400 hover:text-white hover:border-zinc-700"
+                                : "border-white/[0.07] text-zinc-400 hover:text-white hover:border-zinc-700"
                             }`}
                             title="Bookmark for Revision"
                           >
@@ -601,7 +601,7 @@ export function CompanyKitWorkspace({
                             href={leetcodeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-2.5 py-1.5 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 border border-[#FFA116]/30 hover:border-[#FFA116]/50 text-[#FFA116] text-[11px] font-semibold transition-all flex items-center gap-1.5 shadow-sm shadow-[#FFA116]/5 group cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#6366F1] to-[#3B82F6] hover:from-[#4F46E5] hover:to-[#2563EB] border border-white/10 text-white shadow-sm shadow-indigo-500/15 text-[11px] font-semibold transition-all flex items-center gap-1.5 shadow-sm shadow-[#FFA116]/5 group cursor-pointer"
                             title="Solve on LeetCode"
                           >
                             <span>Solve</span>

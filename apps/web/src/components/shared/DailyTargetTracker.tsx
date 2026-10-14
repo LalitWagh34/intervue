@@ -63,7 +63,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
   return (
     <div
       className={cn(
-        "rounded-2xl bg-[#0A0C10] border border-[#181A20] p-5 sm:p-6 shadow-sm space-y-4",
+        "rounded-2xl bg-[#11131A] border border-white/[0.07] p-5 sm:p-6 shadow-sm space-y-4",
         className
       )}
     >
@@ -86,7 +86,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
               </h3>
             </div>
           </div>
-          <p className="text-xs text-[#8B92A0]">
+          <p className="text-xs text-slate-400">
             Set daily focus goals. 
           </p>
         </div>
@@ -94,7 +94,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
         {/* Counter Pill */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <div className="px-3 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] flex items-center gap-2 font-mono text-xs">
-            <span className="text-[#8B92A0]">Progress:</span>
+            <span className="text-slate-400">Progress:</span>
             <span className="text-white font-bold">
               {completedCount}/{totalCount}
             </span>
@@ -137,12 +137,12 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
             onChange={(e) => setInputTitle(e.target.value)}
             placeholder="Add new daily target (e.g. Solve 2 Trees problems)..."
             style={{ minWidth: 0, flex: 1 }}
-            className="min-w-0 flex-1 px-3.5 py-2.5 rounded-xl bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs sm:text-sm text-white placeholder:text-zinc-600 transition-colors"
+            className="min-w-0 flex-1 px-3.5 py-2.5 rounded-xl bg-[#1A1D27] border border-white/[0.12] focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none text-xs sm:text-sm text-white placeholder:text-slate-500 transition-colors"
           />
           <button
             type="submit"
             style={{ flexShrink: 0 }}
-            className="shrink-0 flex-shrink-0 px-4 py-2.5 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-[#327CF6]/20 cursor-pointer"
+            className="shrink-0 flex-shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#3B82F6] hover:from-[#4F46E5] hover:to-[#2563EB] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-indigo-500/20 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Target</span>
@@ -151,7 +151,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
 
         {/* Category Pill selector */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-[11px] text-zinc-500 font-mono mr-1">Category:</span>
+          <span className="text-[11px] text-slate-500 font-mono mr-1">Category:</span>
           {(["DSA", "System Design", "Core CS", "Behavioral", "General"] as const).map((cat) => (
             <button
               key={cat}
@@ -160,8 +160,8 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
               className={cn(
                 "px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors cursor-pointer",
                 selectedCategory === cat
-                  ? "bg-[#327CF6]/20 text-[#327CF6] border border-[#327CF6]/40 font-semibold"
-                  : "bg-[#0D0E12] text-zinc-500 hover:text-zinc-300 border border-transparent"
+                  ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-semibold shadow-sm"
+                  : "bg-[#1A1D27] text-slate-400 hover:text-white border border-white/[0.08]"
               )}
             >
               {cat}
@@ -172,7 +172,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
 
       {/* Quick Suggestions Strip */}
       {/* <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
-        <span className="text-zinc-500 flex items-center gap-1">
+        <span className="text-slate-500 flex items-center gap-1">
           <Flame className="w-3 h-3 text-amber-500" />
           Quick add:
         </span>
@@ -202,7 +202,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
       {/* Target Items List */}
       <div className="space-y-2 pt-2 divide-y divide-[#181A20]/40">
         {targets.length === 0 ? (
-          <div className="p-6 rounded-xl bg-[#0D0E12] border border-dashed border-[#181A20] text-center text-zinc-500 text-xs">
+          <div className="p-6 rounded-xl bg-[#0D0E12] border border-dashed border-[#181A20] text-center text-slate-500 text-xs">
             No daily targets set for today. Add your first goal above to start tracking!
           </div>
         ) : (
@@ -253,7 +253,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                     <button
                       type="button"
                       onClick={() => setEditingId(null)}
-                      className="p-1 text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                      className="p-1 text-slate-500 hover:text-zinc-300 cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -265,7 +265,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                       className={cn(
                         "text-xs sm:text-sm cursor-pointer transition-colors select-none truncate",
                         target.completed
-                          ? "line-through text-zinc-500"
+                          ? "line-through text-slate-500"
                           : "text-zinc-200 group-hover:text-white"
                       )}
                     >
@@ -285,7 +285,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                 <button
                   type="button"
                   onClick={() => handleStartEdit(target)}
-                  className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-[#181A20] transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-zinc-300 hover:bg-[#181A20] transition-colors cursor-pointer"
                   title="Edit target"
                 >
                   <Edit2 className="w-3 h-3" />
@@ -293,7 +293,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                 <button
                   type="button"
                   onClick={() => deleteTarget(target.id)}
-                  className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-[#181A20] transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-[#181A20] transition-colors cursor-pointer"
                   title="Delete target"
                 >
                   <Trash2 className="w-3 h-3" />
