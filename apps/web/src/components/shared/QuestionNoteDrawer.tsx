@@ -1,5 +1,15 @@
-﻿import { useState, useEffect } from "react";
-import { X, NotebookPen, Trash2, Save, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import {
+  X,
+  NotebookPen,
+  Trash2,
+  Save,
+  Loader2,
+  Lightbulb,
+  Clock,
+  AlertTriangle,
+  Layers,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNote, useSaveNote, useDeleteNote } from "@/hooks/useNotes";
 import { toast } from "sonner";
@@ -90,22 +100,24 @@ export function QuestionNoteDrawer({
           {/* Quick Template Hints */}
           <div className="flex gap-2 flex-wrap">
             {[
-              "?? Key Intuition",
-              "? Complexity",
-              "?? Edge Case",
-              "?? Pattern",
-            ].map((tag) => (
+              { label: "Key Intuition", icon: Lightbulb, color: "text-amber-400", insert: "💡 Key Intuition: " },
+              { label: "Complexity", icon: Clock, color: "text-blue-400", insert: "⏱️ Complexity: " },
+              { label: "Edge Case", icon: AlertTriangle, color: "text-rose-400", insert: "⚠️ Edge Case: " },
+              { label: "Pattern", icon: Layers, color: "text-purple-400", insert: "🧩 Pattern: " },
+            ].map((tpl) => (
               <button
-                key={tag}
+                key={tpl.label}
+                type="button"
                 onClick={() => {
                   setContent((prev) =>
-                    prev ? `${prev}\n\n${tag}: ` : `${tag}: `
+                    prev ? `${prev}\n\n${tpl.insert}` : `${tpl.insert}`
                   );
                   setIsDirty(true);
                 }}
-                className="text-[11px] px-2.5 py-1 rounded-md bg-[#14161B] border border-[#272B33] text-[#A1A7B3] hover:text-[#F5F7FA] hover:border-[#327CF6]/40 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-[#14161B] border border-[#272B33] text-[#A1A7B3] hover:text-[#F5F7FA] hover:border-[#327CF6]/40 transition-colors cursor-pointer"
               >
-                {tag}
+                <tpl.icon className={cn("w-3.5 h-3.5", tpl.color)} />
+                <span>{tpl.label}</span>
               </button>
             ))}
           </div>
@@ -122,7 +134,7 @@ export function QuestionNoteDrawer({
                 setContent(e.target.value);
                 setIsDirty(true);
               }}
-              placeholder={`Write your hint, approach, or edge cases for "${problemTitle}"...\n\nExamples:\n?? Use two pointers — left starts at 0, right at n-1\n? O(n) time, O(1) space\n?? Handle empty array case first`}
+              placeholder={`Write your hint, approach, or edge cases for "${problemTitle}"...\n\nExamples:\n• Use two pointers — left starts at 0, right at n-1\n• O(n) time, O(1) space\n• Handle empty array case first`}
               className="flex-1 w-full bg-[#08090C] border border-[#1E2229] focus:border-[#327CF6]/50 rounded-xl p-4 text-sm text-[#E0E2E8] placeholder:text-[#525866] font-mono resize-none outline-none transition-colors leading-relaxed"
               autoFocus
             />

@@ -26,6 +26,7 @@ import { useSession, getSessionToken } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { Analytics } from "@vercel/analytics/react";
 import { SessionVerificationLoader } from "@/components/shared/SessionVerificationLoader";
+import { toast } from "sonner";
 // import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -58,6 +59,16 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   const { data: session, isPending: isSessionPending } = useSession();
   const { data: profileStats, isLoading: isStatsLoading } = useProfileStats();
 
+  const isAdmin = (session?.user as any)?.role === "admin" || profileStats?.user?.role === "admin";
+
+  useEffect(() => {
+    if (!isSessionPending && !isStatsLoading && session && !isAdmin) {
+      toast.error("Admin access required", {
+        description: "You need administrator privileges to access the Admin Management CMS.",
+      });
+    }
+  }, [isSessionPending, isStatsLoading, session, isAdmin]);
+
   if (isSessionPending || isStatsLoading) {
     return (
       <SessionVerificationLoader
@@ -68,8 +79,6 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!session) return <Navigate to="/login" replace />;
-
-  const isAdmin = (session?.user as any)?.role === "admin" || profileStats?.user?.role === "admin";
 
   if (!isAdmin) {
     return <Navigate to="/dashboard" replace />;

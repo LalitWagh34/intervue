@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -428,6 +429,7 @@ export default function ChatPage() {
                   ) : msg.content ? (
                     <div className="space-y-2">
                       <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
                         components={{
                           h1: ({ children }) => (
                             <h1 className="text-base sm:text-lg font-bold text-white mt-3 mb-2 border-b border-zinc-800 pb-1">
@@ -474,6 +476,38 @@ export default function ChatPage() {
                               {children}
                             </blockquote>
                           ),
+                          table: ({ children }) => (
+                            <div className="overflow-x-auto my-3 rounded-xl border border-[#1E2229] bg-[#0A0B0E]">
+                              <table className="w-full text-left text-xs text-zinc-300 border-collapse">
+                                {children}
+                              </table>
+                            </div>
+                          ),
+                          thead: ({ children }) => (
+                            <thead className="bg-[#12141A] border-b border-[#1E2229] text-white font-semibold">
+                              {children}
+                            </thead>
+                          ),
+                          tbody: ({ children }) => (
+                            <tbody className="divide-y divide-[#1E2229]/60">
+                              {children}
+                            </tbody>
+                          ),
+                          tr: ({ children }) => (
+                            <tr className="hover:bg-zinc-800/20 transition-colors">
+                              {children}
+                            </tr>
+                          ),
+                          th: ({ children }) => (
+                            <th className="px-3.5 py-2.5 font-bold text-white text-xs">
+                              {children}
+                            </th>
+                          ),
+                          td: ({ children }) => (
+                            <td className="px-3.5 py-2 text-zinc-300 text-xs">
+                              {children}
+                            </td>
+                          ),
                           code: ({ className, children, ...props }) => {
                             const isInline = !className && typeof children === "string" && !children.includes("\n");
                             if (isInline) {
@@ -493,11 +527,14 @@ export default function ChatPage() {
                       >
                         {msg.content}
                       </ReactMarkdown>
+                      {isStreaming && i === messages.length - 1 && (
+                        <span className="inline-block w-1.5 h-3.5 bg-purple-400 ml-1 animate-pulse align-middle" />
+                      )}
                     </div>
                   ) : isStreaming && i === messages.length - 1 ? (
                     <span className="flex items-center gap-1.5 text-zinc-400">
                       <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-                      <span>Mentor is responding...</span>
+                      <span>Mentor is formulating advice...</span>
                     </span>
                   ) : (
                     ""

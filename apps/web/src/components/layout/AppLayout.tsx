@@ -279,19 +279,23 @@ export default function AppLayout() {
 
                     <Link
                       to="/practice"
+                      onClick={() => setIsProfileOpen(false)}
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#8B92A0] hover:text-white hover:bg-[#12141B] transition-colors"
                     >
                       <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
                       <span>Prep Hub & Curriculums</span>
                     </Link>
 
-                    <Link
-                      to="/admin"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#8B92A0] hover:text-white hover:bg-[#12141B] transition-colors"
-                    >
-                      <Settings className="w-4 h-4 text-[#525866]" />
-                      <span>Admin Management CMS</span>
-                    </Link>
+                    {((session?.user as any)?.role === "admin" || stats?.user?.role === "admin") && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-purple-300 hover:text-white hover:bg-purple-500/10 border border-purple-500/20 transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-purple-400" />
+                        <span>Admin Management CMS</span>
+                      </Link>
+                    )}
 
                     <button
                       type="button"

@@ -30,6 +30,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -1099,12 +1101,45 @@ export default function InterviewPage() {
                 className={cn(
                   "max-w-[85%] sm:max-w-[78%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-sm",
                   isUser
-                    ? "bg-[#327CF6] text-white rounded-tr-none font-medium"
-                    : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none whitespace-pre-wrap"
+                    ? "bg-[#327CF6] text-white rounded-tr-none font-medium whitespace-pre-wrap"
+                    : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none"
                 )}
               >
-                {msg.content ? (
+                {isUser ? (
                   msg.content
+                ) : msg.content ? (
+                  <div className="space-y-1.5">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p: ({ children }) => <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>,
+                        strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                        ul: ({ children }) => <ul className="list-disc pl-4 space-y-0.5 my-1.5">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-4 space-y-0.5 my-1.5">{children}</ol>,
+                        li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                        code: ({ className, children }) => {
+                          const isInline = !className && typeof children === "string" && !children.includes("\n");
+                          if (isInline) {
+                            return (
+                              <code className="bg-[#181A20] text-cyan-300 px-1 py-0.5 rounded font-mono text-[11px] border border-zinc-800">
+                                {children}
+                              </code>
+                            );
+                          }
+                          return (
+                            <pre className="bg-[#090A0E] border border-zinc-800/80 rounded-xl p-2.5 my-2 overflow-x-auto text-xs font-mono text-zinc-200">
+                              <code>{children}</code>
+                            </pre>
+                          );
+                        },
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                    {isStreaming && i === messages.length - 1 && (
+                      <span className="inline-block w-1.5 h-3.5 bg-cyan-400 ml-1 animate-pulse align-middle" />
+                    )}
+                  </div>
                 ) : isStreaming && i === messages.length - 1 ? (
                   <span className="flex items-center gap-1.5 text-zinc-400">
                     <span className="w-2 h-2 rounded-full bg-[#327CF6] animate-ping" />
