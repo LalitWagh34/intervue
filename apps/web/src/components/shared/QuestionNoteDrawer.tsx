@@ -100,17 +100,37 @@ export function QuestionNoteDrawer({
           {/* Quick Template Hints */}
           <div className="flex gap-2 flex-wrap">
             {[
-              { label: "Key Intuition", icon: Lightbulb, color: "text-amber-400", insert: "💡 Key Intuition: " },
-              { label: "Complexity", icon: Clock, color: "text-blue-400", insert: "⏱️ Complexity: " },
-              { label: "Edge Case", icon: AlertTriangle, color: "text-rose-400", insert: "⚠️ Edge Case: " },
-              { label: "Pattern", icon: Layers, color: "text-purple-400", insert: "🧩 Pattern: " },
+              {
+                label: "Key Intuition",
+                icon: Lightbulb,
+                color: "text-amber-400",
+                snippet: "### Key Intuition\n- Core observation: \n",
+              },
+              {
+                label: "Complexity",
+                icon: Clock,
+                color: "text-blue-400",
+                snippet: "### Complexity\n- **Time:** O()\n- **Space:** O()\n",
+              },
+              {
+                label: "Edge Case",
+                icon: AlertTriangle,
+                color: "text-rose-400",
+                snippet: "### Edge Cases\n- Empty / single-element input:\n- Overflow / boundary constraints:\n",
+              },
+              {
+                label: "Pattern",
+                icon: Layers,
+                color: "text-emerald-400",
+                snippet: "### Algorithmic Pattern\n- Category: \n",
+              },
             ].map((tpl) => (
               <button
                 key={tpl.label}
                 type="button"
                 onClick={() => {
                   setContent((prev) =>
-                    prev ? `${prev}\n\n${tpl.insert}` : `${tpl.insert}`
+                    prev ? `${prev}\n\n${tpl.snippet}` : `${tpl.snippet}`
                   );
                   setIsDirty(true);
                 }}

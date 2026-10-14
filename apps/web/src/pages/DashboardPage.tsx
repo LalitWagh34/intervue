@@ -220,15 +220,19 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* ─── Target Company Readiness Tracker ──────────────────── */}
-        <section className="rounded-2xl bg-[#11131A] border border-white/[0.07] p-6 shadow-sm">
-          <TargetCompanyTracker />
-        </section>
+        {/* ─── Main Cockpit Grid: 7 Cols Readiness Tracker, 5 Cols Daily Targets & Scorecards ─── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column (7 Cols): Target Company Readiness Tracker */}
+          <div className="lg:col-span-7 space-y-6">
+            <section className="rounded-2xl bg-[#11131A] border border-white/[0.07] p-6 shadow-sm">
+              <TargetCompanyTracker />
+            </section>
+          </div>
 
-        {/* ─── Dual Column: Recent Evaluations & Skill Readiness ──── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column (2 Cols): Recent Interview Scorecards */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Right Column (5 Cols): Daily Targets & Recent Scorecards */}
+          <div className="lg:col-span-5 space-y-6">
+            <DailyTargetTracker />
+
             <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -329,11 +333,6 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Right Column (1 Col): Track Your Daily Targets */}
-          <div className="space-y-6">
-            <DailyTargetTracker />
           </div>
         </div>
       </div>

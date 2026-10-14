@@ -537,36 +537,43 @@ export function CompanyKitWorkspace({
                         </a>
                       </td>
 
-                      {/* Difficulty */}
+                      {/* Difficulty: Plain colored text with zero background pill */}
                       <td className="p-3.5 font-mono text-xs">
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                          className={
                             q.difficulty === "EASY"
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              ? "text-emerald-400 font-medium"
                               : q.difficulty === "MEDIUM"
-                              ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                              : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                          }`}
+                              ? "text-amber-400 font-medium"
+                              : "text-rose-400 font-medium"
+                          }
                         >
-                          {q.difficulty}
+                          {q.difficulty === "EASY" ? "Easy" : q.difficulty === "MEDIUM" ? "Med." : "Hard"}
                         </span>
                       </td>
 
-                      {/* Ask Rate / Popularity */}
+                      {/* Ask Rate / Popularity (48px × 4px horizontal progress bar) */}
                       <td className="p-3.5">
-                        {isVeryHot ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
-                            <Flame className="w-3 h-3" /> Very Hot
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-12 h-1 rounded-full bg-white/[0.08] overflow-hidden"
+                            title={isVeryHot ? "Very Hot (>85% ask rate)" : isHot ? "Frequent (>60% ask rate)" : "Standard"}
+                          >
+                            <div
+                              className={cn(
+                                "h-full rounded-full",
+                                isVeryHot
+                                  ? "w-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.5)]"
+                                  : isHot
+                                  ? "w-3/4 bg-amber-400"
+                                  : "w-1/3 bg-slate-500"
+                              )}
+                            />
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-500">
+                            {isVeryHot ? "Hot" : isHot ? "Freq" : "Std"}
                           </span>
-                        ) : isHot ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                            ⚡ Frequent
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-mono text-zinc-500">
-                            Standard
-                          </span>
-                        )}
+                        </div>
                       </td>
 
                       {/* Actions */}
