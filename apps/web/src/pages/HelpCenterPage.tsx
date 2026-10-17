@@ -153,7 +153,7 @@ const ARTICLES: GuideArticle[] = [
       "Track your progress per sheet with real-time percentage rings and breakdown stats.",
     ],
     actionLabel: "Browse Sheets",
-    actionHref: "/practice",
+    actionHref: "/practice?view=sheets_catalog&subject=dsa",
   },
   {
     id: "how-workspace-works",

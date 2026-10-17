@@ -157,11 +157,15 @@ export default function PracticeHubPage() {
     } else if (viewParam === "company_wise") {
       if (companyParam) setSelectedCompany(companyParam);
       setCurrentView("company_wise");
-    } else if (
-      viewParam === "coming_soon" ||
-      viewParam === "sheets_catalog" ||
-      viewParam === "sheet_practice"
-    ) {
+    } else if (viewParam === "sheets_catalog") {
+      const subjectParam = searchParams.get("subject") as "dsa" | "core_cs";
+      if (subjectParam) setSelectedSubject(subjectParam);
+      setCurrentView("sheets_catalog");
+    } else if (viewParam === "sheet_practice") {
+      const sheetParam = searchParams.get("sheet");
+      if (sheetParam) setSelectedSheetId(sheetParam);
+      setCurrentView("sheet_practice");
+    } else if (viewParam === "coming_soon") {
       setCurrentView("coming_soon");
     }
   }, [searchParams]);
@@ -473,10 +477,10 @@ export default function PracticeHubPage() {
                 </div>
               </div>
 
-              {/* Subject 3: DSA Problem Sheets (Coming Soon) */}
+              {/* Subject 3: DSA Problem Sheets (Live Flagship Curriculums) */}
               <div
-                onClick={() => openComingSoon("dsa")}
-                className="p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-amber-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
+                onClick={() => openSubject("dsa")}
+                className="p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-emerald-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
@@ -484,22 +488,22 @@ export default function PracticeHubPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                      <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-400 transition-colors leading-snug">
+                      <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-emerald-400 transition-colors leading-snug">
                         DSA Problem Sheets
                       </h3>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap shrink-0">
-                        Coming Soon
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0">
+                        {dynamicSheets.filter((s) => s.subjectId === "dsa").length || 4} Flagship Sheets
                       </span>
                     </div>
                     <p className="text-xs sm:text-[13px] text-[#7A808C] mt-0.5 line-clamp-1">
-                      Striver A2Z, NeetCode 150, Blind 75 & Striver's SDE Sheet. In active preparation for V2.
+                      Striver A2Z, NeetCode 150, Blind 75 & Striver's SDE Sheet with step-by-step progress tracking.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium text-amber-400/80 group-hover:text-amber-400 shrink-0 pl-1 sm:pl-4">
-                  <span className="hidden sm:inline">Coming Soon</span>
-                  <ChevronRight className="w-4 h-4 text-amber-500/50 group-hover:translate-x-0.5 transition-transform" />
+                <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium text-emerald-400 group-hover:text-emerald-300 shrink-0 pl-1 sm:pl-4">
+                  <span className="hidden sm:inline">Browse Sheets</span>
+                  <ChevronRight className="w-4 h-4 text-emerald-500 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
 
