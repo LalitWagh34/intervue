@@ -57,6 +57,7 @@ app.get("/", async (c) => {
           topic: sp.problem.tags.length > 0 ? sp.problem.tags[0] : "General",
           moreTopics: sp.problem.tags.length > 1 ? sp.problem.tags.length - 1 : 0,
           companies: sp.problem.company,
+          link: `https://leetcode.com/problems/${sp.problem.slug}`,
         })),
       }));
     }

@@ -62,6 +62,8 @@ export interface DsaProblem {
   moreTopics?: number;
   companies: string[];
   isPotd?: boolean;
+  link?: string;
+  videoUrl?: string;
 }
 
 export interface SheetMeta {
@@ -973,7 +975,7 @@ export default function PracticeHubPage() {
 
                           <div className="flex items-center gap-2 min-w-0">
                             <a
-                              href={`https://leetcode.com/problems/${prob.slug}`}
+                              href={prob.link || (prob.slug.startsWith("http") ? prob.slug : `https://leetcode.com/problems/${prob.slug}`)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className={cn(
@@ -1056,7 +1058,7 @@ export default function PracticeHubPage() {
                           </button>
 
                           <a
-                            href={`https://leetcode.com/problems/${prob.slug}`}
+                            href={prob.link || (prob.slug.startsWith("http") ? prob.slug : `https://leetcode.com/problems/${prob.slug}`)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] flex items-center justify-center transition-colors shrink-0"

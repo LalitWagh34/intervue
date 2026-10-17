@@ -7,6 +7,8 @@ export interface CuratedProblem {
   topic: string;
   moreTopics: number;
   companies: string[];
+  link?: string;
+  videoUrl?: string;
 }
 
 export interface CuratedSheet {
@@ -175,19 +177,8 @@ export const STRIVER_SDE_PROBLEMS: CuratedProblem[] = [
   { id: "sde-75", index: 75, title: "Minimum Cost to Cut a Stick", slug: "minimum-cost-to-cut-a-stick", difficulty: "Hard", topic: "Dynamic Programming", moreTopics: 1, companies: ["Google", "Amazon"] },
 ];
 
-export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
-  ...STRIVER_SDE_PROBLEMS,
-  { id: "a2z-76", index: 76, title: "Check if Array Is Sorted and Rotated", slug: "check-if-array-is-sorted-and-rotated", difficulty: "Basic", topic: "Arrays & Hashing", moreTopics: 1, companies: ["Amazon", "Infosys"] },
-  { id: "a2z-77", index: 77, title: "Remove Duplicates from Sorted Array", slug: "remove-duplicates-from-sorted-array", difficulty: "Basic", topic: "Two Pointers", moreTopics: 1, companies: ["Amazon", "Microsoft", "Meta"] },
-  { id: "a2z-78", index: 78, title: "Rotate Array", slug: "rotate-array", difficulty: "Core", topic: "Arrays & Hashing", moreTopics: 1, companies: ["Amazon", "Microsoft"] },
-  { id: "a2z-79", index: 79, title: "Move Zeroes", slug: "move-zeroes", difficulty: "Basic", topic: "Two Pointers", moreTopics: 1, companies: ["Meta", "Amazon"] },
-  { id: "a2z-80", index: 80, title: "Max Consecutive Ones", slug: "max-consecutive-ones", difficulty: "Basic", topic: "Arrays & Hashing", moreTopics: 1, companies: ["Google", "Amazon"] },
-  { id: "a2z-81", index: 81, title: "Single Number", slug: "single-number", difficulty: "Basic", topic: "Bit Manipulation", moreTopics: 1, companies: ["Amazon", "Google"] },
-  { id: "a2z-82", index: 82, title: "Subarray Sum Equals K", slug: "subarray-sum-equals-k", difficulty: "Core", topic: "Arrays & Hashing", moreTopics: 1, companies: ["Meta", "Amazon", "Google"] },
-  { id: "a2z-83", index: 83, title: "Find the Duplicate Number", slug: "find-the-duplicate-number", difficulty: "Core", topic: "Two Pointers", moreTopics: 1, companies: ["Amazon", "Microsoft"] },
-  { id: "a2z-84", index: 84, title: "Repeat and Missing Number Array", slug: "repeat-and-missing-number-array", difficulty: "Core", topic: "Math", moreTopics: 1, companies: ["Amazon", "Google"] },
-  { id: "a2z-85", index: 85, title: "Count Inversions", slug: "count-inversions", difficulty: "Core", topic: "Divide and Conquer", moreTopics: 1, companies: ["Amazon", "Google"] },
-];
+import { STRIVER_A2Z_PROBLEMS } from "./striverA2ZData";
+export { STRIVER_A2Z_PROBLEMS };
 
 export const CURATED_FLAGSHIP_SHEETS: CuratedSheet[] = [
   {
