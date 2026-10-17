@@ -36,6 +36,8 @@ import {
   Sparkles,
   ExternalLink,
   ChevronLeft,
+  ChevronsLeft,
+  ChevronsRight,
   Filter,
   Shuffle,
   Clock,
@@ -135,6 +137,12 @@ export default function PracticeHubPage() {
   const [companySearchQuery, setCompanySearchQuery] = useState<string>("");
   const [companyStatusFilter, setCompanyStatusFilter] = useState<"ALL" | "SOLVED" | "UNSOLVED">("ALL");
   const [companyTabFilter, setCompanyTabFilter] = useState<"global" | "indian">("global");
+  const [companyPage, setCompanyPage] = useState<number>(1);
+  const [companyPageSize, setCompanyPageSize] = useState<number>(25);
+
+  useEffect(() => {
+    setCompanyPage(1);
+  }, [selectedCompany, selectedTimeframe, companySearchQuery, companyStatusFilter]);
 
   // Deep linking and URL synchronization
   useEffect(() => {
@@ -1292,143 +1300,214 @@ export default function PracticeHubPage() {
                 <div className="w-7 h-7 rounded-full border-2 border-[#327CF6] border-t-transparent animate-spin" />
                 <p className="text-xs text-slate-400 font-mono">Loading questions for {selectedCompany}...</p>
               </div>
-            ) : (
-              <div className="divide-y divide-[#181A20]">
-                {(companyQuestionsData?.questions || [])
-                  .filter((q) => {
-                    const solvedKey = q.nativeId ? String(q.nativeId) : q.slug;
-                    const isSolved = Boolean(solvedProblems[solvedKey]);
-                    
-                    if (companyStatusFilter === "SOLVED" && !isSolved) return false;
-                    if (companyStatusFilter === "UNSOLVED" && isSolved) return false;
+            ) : (() => {
+                const filteredCompanyQuestions = (companyQuestionsData?.questions || []).filter((q) => {
+                  const solvedKey = q.nativeId ? String(q.nativeId) : q.slug;
+                  const isSolved = Boolean(solvedProblems[solvedKey]);
+                  
+                  if (companyStatusFilter === "SOLVED" && !isSolved) return false;
+                  if (companyStatusFilter === "UNSOLVED" && isSolved) return false;
 
-                    if (!companySearchQuery) return true;
-                    const qLower = companySearchQuery.toLowerCase();
-                    return (
-                      q.title.toLowerCase().includes(qLower) ||
-                      q.topics.some((t) => t.toLowerCase().includes(qLower)) ||
-                      q.difficulty.toLowerCase().includes(qLower)
-                    );
-                  })
-                  .slice(0, 100)
-                  .map((q, idx) => (
-                    <div
-                      key={idx}
-                      className="px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#111318] transition-colors"
-                    >
-                      <div className="space-y-1 min-w-0 flex-1 pr-4">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {(() => {
-                            const solvedKey = q.nativeId ? String(q.nativeId) : q.slug;
-                            const isSolved = Boolean(solvedProblems[solvedKey]);
-                            return (
-                              <button
-                                onClick={(e) => toggleSolved(solvedKey, e, q.difficulty, q.topics)}
+                  if (!companySearchQuery) return true;
+                  const qLower = companySearchQuery.toLowerCase();
+                  return (
+                    q.title.toLowerCase().includes(qLower) ||
+                    q.topics.some((t) => t.toLowerCase().includes(qLower)) ||
+                    q.difficulty.toLowerCase().includes(qLower)
+                  );
+                });
+
+                const totalCount = filteredCompanyQuestions.length;
+                const totalPages = Math.max(1, Math.ceil(totalCount / companyPageSize));
+                const safePage = Math.min(Math.max(1, companyPage), totalPages);
+                const startIndex = totalCount === 0 ? 0 : (safePage - 1) * companyPageSize;
+                const endIndex = Math.min(startIndex + companyPageSize, totalCount);
+                const paginated = filteredCompanyQuestions.slice(startIndex, endIndex);
+
+                if (totalCount === 0) {
+                  return (
+                    <div className="p-12 text-center text-xs text-slate-400 font-mono">
+                      No questions found matching your filter criteria.
+                    </div>
+                  );
+                }
+
+                return (
+                  <div>
+                    <div className="divide-y divide-[#181A20]">
+                      {paginated.map((q, idx) => (
+                        <div
+                          key={idx}
+                          className="px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#111318] transition-colors"
+                        >
+                          <div className="space-y-1 min-w-0 flex-1 pr-4">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {(() => {
+                                const solvedKey = q.nativeId ? String(q.nativeId) : q.slug;
+                                const isSolved = Boolean(solvedProblems[solvedKey]);
+                                return (
+                                  <button
+                                    onClick={(e) => toggleSolved(solvedKey, e, q.difficulty, q.topics)}
+                                    className={cn(
+                                      "w-4 h-4 rounded border flex items-center justify-center transition-all cursor-pointer shrink-0",
+                                      isSolved
+                                        ? "bg-[#327CF6] border-[#327CF6] text-white"
+                                        : "border-[#272B33] text-transparent hover:border-[#327CF6]"
+                                    )}
+                                  >
+                                    <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                  </button>
+                                );
+                              })()}
+                              <span className={cn(
+                                "font-medium text-xs sm:text-sm truncate",
+                                Boolean(solvedProblems[q.nativeId ? String(q.nativeId) : q.slug]) ? "text-[#7A808C] line-through" : "text-white"
+                              )}>
+                                {q.title}
+                              </span>
+                              <span
                                 className={cn(
-                                  "w-4 h-4 rounded border flex items-center justify-center transition-all cursor-pointer shrink-0",
-                                  isSolved
-                                    ? "bg-[#327CF6] border-[#327CF6] text-white"
-                                    : "border-[#272B33] text-transparent hover:border-[#327CF6]"
+                                  "px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0",
+                                  q.difficulty === "EASY"
+                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                    : q.difficulty === "MEDIUM"
+                                    ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                    : "bg-red-500/10 text-red-400 border border-red-500/20"
                                 )}
                               >
-                                <Check className="w-2.5 h-2.5 stroke-[3]" />
-                              </button>
-                            );
-                          })()}
-                          <span className={cn(
-                            "font-medium text-xs sm:text-sm truncate",
-                            Boolean(solvedProblems[q.nativeId ? String(q.nativeId) : q.slug]) ? "text-[#7A808C] line-through" : "text-white"
-                          )}>
-                            {q.title}
-                          </span>
-                          <span
-                            className={cn(
-                              "px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0",
-                              q.difficulty === "EASY"
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : q.difficulty === "MEDIUM"
-                                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                : "bg-red-500/10 text-red-400 border border-red-500/20"
-                            )}
-                          >
-                            {q.difficulty}
-                          </span>
-                        </div>
+                                {q.difficulty}
+                              </span>
+                            </div>
 
-                        <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                          {q.topics.slice(0, 4).map((t, i) => (
-                            <span
-                              key={i}
-                              className="px-1.5 py-0.5 rounded bg-[#08090C] text-slate-400 text-[10px] font-mono border border-[#181A20]"
-                            >
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4 self-end sm:self-auto shrink-0 pl-2">
-                        {q.frequency > 0 && (
-                          <div className="text-right flex flex-col items-end">
-                            <span className="text-[9px] text-slate-500 font-mono block leading-none mb-1">Ask Rate</span>
-                            <span className="text-xs font-bold text-[#F59E0B] font-mono leading-none">
-                              {q.frequency}%
-                            </span>
+                            <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                              {q.topics.slice(0, 4).map((t, i) => (
+                                <span
+                                  key={i}
+                                  className="px-1.5 py-0.5 rounded bg-[#08090C] text-slate-400 text-[10px] font-mono border border-[#181A20]"
+                                >
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                        )}
 
-                        <button
-                          type="button"
-                          onClick={(e) => handleToggleBookmark(q.slug, q.title, q.difficulty, e)}
-                          className={cn(
-                            "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
-                            bookmarkedSlugs.includes(q.slug)
-                              ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
-                              : "bg-[#08090C] border-[#181A20] text-slate-500 hover:text-[#22C55E] hover:border-[#22C55E]/30"
-                          )}
-                          title={bookmarkedSlugs.includes(q.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
-                        >
-                          <Bookmark
-                            className={cn(
-                              "w-3.5 h-3.5",
-                              bookmarkedSlugs.includes(q.slug) && "fill-[#22C55E]"
+                          <div className="flex items-center gap-4 self-end sm:self-auto shrink-0 pl-2">
+                            {q.frequency > 0 && (
+                              <div className="text-right flex flex-col items-end">
+                                <span className="text-[9px] text-slate-500 font-mono block leading-none mb-1">Ask Rate</span>
+                                <span className="text-xs font-bold text-[#F59E0B] font-mono leading-none">
+                                  {q.frequency}%
+                                </span>
+                              </div>
                             )}
-                          />
-                        </button>
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setActiveNoteTarget({
-                              isOpen: true,
-                              slug: q.slug,
-                              title: q.title,
-                            })
-                          }
-                          className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-slate-500 hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
-                          title="Notes & Hints Notepad"
-                        >
-                          <NotebookPen className="w-3.5 h-3.5" />
-                        </button>
+                            <button
+                              type="button"
+                              onClick={(e) => handleToggleBookmark(q.slug, q.title, q.difficulty, e)}
+                              className={cn(
+                                "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
+                                bookmarkedSlugs.includes(q.slug)
+                                  ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
+                                  : "bg-[#08090C] border-[#181A20] text-slate-500 hover:text-[#22C55E] hover:border-[#22C55E]/30"
+                              )}
+                              title={bookmarkedSlugs.includes(q.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
+                            >
+                              <Bookmark
+                                className={cn(
+                                  "w-3.5 h-3.5",
+                                  bookmarkedSlugs.includes(q.slug) && "fill-[#22C55E]"
+                                )}
+                              />
+                            </button>
 
-                        <a
-                          href={q.link || (q.slug ? `https://leetcode.com/problems/${q.slug}` : "#")}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-8 h-8 rounded-xl bg-[#141620] hover:bg-[#FFA116]/15 border border-[#232736] hover:border-[#FFA116]/50 text-[#FFA116] flex items-center justify-center transition-all shrink-0 group/lc cursor-pointer shadow-sm"
-                          title="Solve on LeetCode"
-                        >
-                          <img
-                            src="/leetcode.svg"
-                            alt="LeetCode"
-                            className="w-4 h-4 object-contain opacity-80 group-hover/lc:opacity-100 group-hover/lc:scale-115 transition-all"
-                          />
-                        </a>
-                      </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setActiveNoteTarget({
+                                  isOpen: true,
+                                  slug: q.slug,
+                                  title: q.title,
+                                })
+                              }
+                              className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-slate-500 hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                              title="Notes & Hints Notepad"
+                            >
+                              <NotebookPen className="w-3.5 h-3.5" />
+                            </button>
+
+                            <a
+                              href={q.link || (q.slug ? `https://leetcode.com/problems/${q.slug}` : "#")}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-8 h-8 rounded-xl bg-[#141620] hover:bg-[#FFA116]/15 border border-[#232736] hover:border-[#FFA116]/50 text-[#FFA116] flex items-center justify-center transition-all shrink-0 group/lc cursor-pointer shadow-sm"
+                              title="Solve on LeetCode"
+                            >
+                              <img
+                                src="/leetcode.svg"
+                                alt="LeetCode"
+                                className="w-4 h-4 object-contain opacity-80 group-hover/lc:opacity-100 group-hover/lc:scale-115 transition-all"
+                              />
+                            </a>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-              </div>
-            )}
+
+                    {/* Pagination Bar */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 border-t border-[#181A20] bg-[#08090C] text-xs text-slate-400">
+                      <span className="font-mono text-[11px]">
+                        Showing <strong className="text-white">{startIndex + 1}–{endIndex}</strong> of{" "}
+                        <strong className="text-white">{totalCount.toLocaleString()}</strong> questions
+                      </span>
+
+                      {totalPages > 1 && (
+                        <div className="flex items-center gap-1 font-mono">
+                          <button
+                            type="button"
+                            onClick={() => setCompanyPage(1)}
+                            disabled={safePage === 1}
+                            className="p-1.5 rounded-lg border border-[#181A20] bg-[#11131A] text-slate-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                            title="First Page"
+                          >
+                            <ChevronsLeft className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCompanyPage(safePage - 1)}
+                            disabled={safePage === 1}
+                            className="px-2 py-1 rounded-lg border border-[#181A20] bg-[#11131A] text-slate-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer text-[11px]"
+                          >
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                            <span>Prev</span>
+                          </button>
+                          <span className="px-2 text-[11px] text-slate-300">
+                            Page <strong className="text-white font-bold">{safePage}</strong> of{" "}
+                            <strong className="text-white font-bold">{totalPages}</strong>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setCompanyPage(safePage + 1)}
+                            disabled={safePage === totalPages}
+                            className="px-2 py-1 rounded-lg border border-[#181A20] bg-[#11131A] text-slate-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer text-[11px]"
+                          >
+                            <span>Next</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCompanyPage(totalPages)}
+                            disabled={safePage === totalPages}
+                            className="p-1.5 rounded-lg border border-[#181A20] bg-[#11131A] text-slate-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                            title="Last Page"
+                          >
+                            <ChevronsRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
           </div>
         </div>
       )}

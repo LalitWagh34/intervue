@@ -1,6 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Building2,
   Search,
   CheckCircle2,
@@ -53,7 +56,7 @@ export function CompanyKitWorkspace({
   const logo = getCompanyLogo(companyName) || getCompanyLogo(kit.slug);
 
   const setTargetMutation = useSetTargetCompany();
-  
+
   const currentTargets = useMemo(() => {
     if (targetCompanies && targetCompanies.length > 0) return targetCompanies;
     if (activeTargetCompany) return [activeTargetCompany];
@@ -85,7 +88,17 @@ export function CompanyKitWorkspace({
   const [scopeMode, setScopeMode] = useState<"TOP_200" | "ALL">("TOP_200");
   const HIGH_YIELD_CAP = 200;
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(25);
+  const tableTopRef = useRef<HTMLDivElement>(null);
+
   const rawQuestions = questionsData?.questions || [];
+
+  // Reset to page 1 whenever any filter or scope changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedDifficulty, selectedTopic, selectedPopularity, selectedStatus, scopeMode, timeframe]);
 
   // If questions are more than 200, cut short to top 200 high-yield questions by default
   const curatedQuestions = useMemo(() => {
@@ -167,6 +180,39 @@ export function CompanyKitWorkspace({
       return true;
     });
   }, [curatedQuestions, search, selectedDifficulty, selectedTopic, selectedPopularity, selectedStatus, solvedProblems]);
+
+  const totalItems = filteredQuestions.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const startIndex = totalItems === 0 ? 0 : (safeCurrentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalItems);
+
+  const paginatedQuestions = useMemo(() => {
+    return filteredQuestions.slice(startIndex, endIndex);
+  }, [filteredQuestions, startIndex, endIndex]);
+
+  const handlePageChange = (newPage: number) => {
+    const valid = Math.min(Math.max(1, newPage), totalPages);
+    setCurrentPage(valid);
+    tableTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const pageNumbers = useMemo(() => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (safeCurrentPage <= 4) {
+        pages.push(1, 2, 3, 4, 5, "...", totalPages);
+      } else if (safeCurrentPage >= totalPages - 3) {
+        pages.push(1, "...", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, "...", safeCurrentPage - 1, safeCurrentPage, safeCurrentPage + 1, "...", totalPages);
+      }
+    }
+    return pages;
+  }, [totalPages, safeCurrentPage]);
 
   const handleToggleTarget = async () => {
     try {
@@ -254,11 +300,10 @@ export function CompanyKitWorkspace({
               onClick={handleToggleTarget}
               disabled={setTargetMutation.isPending}
               title={isCurrentTarget ? "Click to remove from your target companies" : "Click to add to your target companies"}
-              className={`h-9 px-4 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
-                isCurrentTarget
+              className={`h-9 px-4 text-xs font-semibold rounded-xl transition-all cursor-pointer ${isCurrentTarget
                   ? "group bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-rose-500/10 hover:border-rose-500/40 hover:text-rose-400"
                   : "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20"
-              }`}
+                }`}
             >
               {isCurrentTarget ? (
                 <>
@@ -288,11 +333,10 @@ export function CompanyKitWorkspace({
           <button
             key={tf.id}
             onClick={() => setTimeframe(tf.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-              timeframe === tf.id
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${timeframe === tf.id
                 ? "bg-[#181C26] text-white border border-blue-500/40 shadow-sm font-semibold"
                 : "text-[#7A808C] hover:text-white"
-            }`}
+              }`}
           >
             {tf.label}
           </button>
@@ -315,7 +359,7 @@ export function CompanyKitWorkspace({
       </div>
 
       {/* ─── Curated Assessment Matrix Table ─────────────────────────── */}
-      <div className="space-y-4 pt-2">
+      <div ref={tableTopRef} className="space-y-4 pt-2">
         {/* Scope Selector: Top 200 High-Yield (default) vs All Questions */}
         {rawQuestions.length > HIGH_YIELD_CAP && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
@@ -325,22 +369,20 @@ export function CompanyKitWorkspace({
                 <button
                   type="button"
                   onClick={() => setScopeMode("TOP_200")}
-                  className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${
-                    scopeMode === "TOP_200"
+                  className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${scopeMode === "TOP_200"
                       ? "bg-[#FFA116]/15 text-[#FFA116] border border-[#FFA116]/30 font-semibold shadow-sm"
                       : "text-zinc-400 hover:text-white"
-                  }`}
+                    }`}
                 >
                   ⭐ Top 200 High-Yield (Recommended)
                 </button>
                 <button
                   type="button"
                   onClick={() => setScopeMode("ALL")}
-                  className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${
-                    scopeMode === "ALL"
+                  className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${scopeMode === "ALL"
                       ? "bg-zinc-800 text-white font-semibold shadow-sm"
                       : "text-zinc-400 hover:text-white"
-                  }`}
+                    }`}
                 >
                   All {rawQuestions.length} Questions
                 </button>
@@ -351,6 +393,25 @@ export function CompanyKitWorkspace({
             </span>
           </div>
         )}
+
+        {/* Live Filter Range & Page Summary */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-zinc-400 text-[11px]">
+              Showing <strong className="text-white font-semibold">{totalItems > 0 ? startIndex + 1 : 0}–{endIndex}</strong> of{" "}
+              <strong className="text-white font-semibold">{totalItems.toLocaleString()}</strong> questions
+              {scopeMode === "TOP_200" && rawQuestions.length > HIGH_YIELD_CAP && (
+                <span className="text-[#FFA116] ml-1.5 font-medium">(Top 200 High-Yield)</span>
+              )}
+            </span>
+          </div>
+          {totalPages > 1 && (
+            <span className="font-mono text-zinc-400 text-[11px]">
+              Page <strong className="text-white font-semibold">{safeCurrentPage}</strong> of{" "}
+              <strong className="text-white font-semibold">{totalPages}</strong>
+            </span>
+          )}
+        </div>
 
         {/* Table Filters Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-xl bg-[#11131A] border border-white/[0.07]">
@@ -461,7 +522,7 @@ export function CompanyKitWorkspace({
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
-                {filteredQuestions.map((q) => {
+                {paginatedQuestions.map((q) => {
                   const isSolved = Boolean(
                     solvedProblems[q.slug] || (q.nativeId && solvedProblems[String(q.nativeId)])
                   );
@@ -476,20 +537,18 @@ export function CompanyKitWorkspace({
                   return (
                     <tr
                       key={q.slug}
-                      className={`hover:bg-[#1A1D27]/50 transition-colors ${
-                        isSolved ? "bg-[#10B981]/[0.02]" : ""
-                      }`}
+                      className={`hover:bg-[#1A1D27]/50 transition-colors ${isSolved ? "bg-[#10B981]/[0.02]" : ""
+                        }`}
                     >
                       {/* Solved Checkbox */}
                       <td className="p-3.5 text-center">
                         <button
                           type="button"
                           onClick={(e) => onToggleSolved(q.slug, e, q.difficulty)}
-                          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors cursor-pointer ${
-                            isSolved
+                          className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors cursor-pointer ${isSolved
                               ? "bg-emerald-500 border-emerald-500 text-black"
                               : "border-zinc-700 bg-zinc-900/60 hover:border-zinc-500"
-                          }`}
+                            }`}
                         >
                           {isSolved && <CheckCircle2 className="w-3.5 h-3.5 text-black stroke-[3]" />}
                         </button>
@@ -537,43 +596,35 @@ export function CompanyKitWorkspace({
                         </a>
                       </td>
 
-                      {/* Difficulty: Plain colored text with zero background pill */}
+                      {/* Difficulty */}
                       <td className="p-3.5 font-mono text-xs">
                         <span
-                          className={
-                            q.difficulty === "EASY"
-                              ? "text-emerald-400 font-medium"
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${q.difficulty === "EASY"
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                               : q.difficulty === "MEDIUM"
-                              ? "text-amber-400 font-medium"
-                              : "text-rose-400 font-medium"
-                          }
+                                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                            }`}
                         >
-                          {q.difficulty === "EASY" ? "Easy" : q.difficulty === "MEDIUM" ? "Med." : "Hard"}
+                          {q.difficulty}
                         </span>
                       </td>
 
-                      {/* Ask Rate / Popularity (48px × 4px horizontal progress bar) */}
+                      {/* Ask Rate / Popularity */}
                       <td className="p-3.5">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-12 h-1 rounded-full bg-white/[0.08] overflow-hidden"
-                            title={isVeryHot ? "Very Hot (>85% ask rate)" : isHot ? "Frequent (>60% ask rate)" : "Standard"}
-                          >
-                            <div
-                              className={cn(
-                                "h-full rounded-full",
-                                isVeryHot
-                                  ? "w-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.5)]"
-                                  : isHot
-                                  ? "w-3/4 bg-amber-400"
-                                  : "w-1/3 bg-slate-500"
-                              )}
-                            />
-                          </div>
-                          <span className="text-[10px] font-mono text-slate-500">
-                            {isVeryHot ? "Hot" : isHot ? "Freq" : "Std"}
+                        {isVeryHot ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                            <Flame className="w-3 h-3" /> Very Hot
                           </span>
-                        </div>
+                        ) : isHot ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                            ⚡ Frequent
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-mono text-zinc-500">
+                            Standard
+                          </span>
+                        )}
                       </td>
 
                       {/* Actions */}
@@ -593,11 +644,10 @@ export function CompanyKitWorkspace({
                           <button
                             type="button"
                             onClick={() => onToggleBookmark(q.slug, q.title, q.difficulty)}
-                            className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                              isSaved
+                            className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${isSaved
                                 ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
                                 : "border-white/[0.07] text-zinc-400 hover:text-white hover:border-zinc-700"
-                            }`}
+                              }`}
                             title="Bookmark for Revision"
                           >
                             <Bookmark className="w-3.5 h-3.5" />
@@ -621,6 +671,112 @@ export function CompanyKitWorkspace({
                 })}
               </tbody>
             </table>
+
+            {/* ─── Pagination Bar ─── */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 border-t border-white/[0.07] bg-[#11131A] text-xs text-zinc-400">
+              {/* Range & Page Size */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="font-mono text-[11px]">
+                  Showing <strong className="text-white">{totalItems > 0 ? startIndex + 1 : 0}–{endIndex}</strong> of{" "}
+                  <strong className="text-white">{totalItems.toLocaleString()}</strong> questions
+                </span>
+                <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                  <span className="text-zinc-500">Per page:</span>
+                  {[25, 50, 100].map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all cursor-pointer ${
+                        pageSize === size
+                          ? "bg-blue-600 text-white font-bold"
+                          : "bg-[#1A1D27] text-zinc-400 hover:text-white hover:bg-zinc-800 border border-white/[0.07]"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1">
+                  {/* First Page */}
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(1)}
+                    disabled={safeCurrentPage === 1}
+                    className="p-1.5 rounded-lg border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                    title="First Page"
+                  >
+                    <ChevronsLeft className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Previous Page */}
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(safeCurrentPage - 1)}
+                    disabled={safeCurrentPage === 1}
+                    className="px-2.5 py-1 rounded-lg border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer font-mono text-[11px]"
+                    title="Previous Page"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Prev</span>
+                  </button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center gap-1">
+                    {pageNumbers.map((p, idx) =>
+                      p === "..." ? (
+                        <span key={`dots-${idx}`} className="px-1 text-zinc-500 font-mono text-xs">
+                          …
+                        </span>
+                      ) : (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => handlePageChange(p as number)}
+                          className={`min-w-7 h-7 px-1.5 rounded-lg text-[11px] font-mono transition-all cursor-pointer flex items-center justify-center ${
+                            safeCurrentPage === p
+                              ? "bg-blue-600 text-white font-bold shadow-sm shadow-blue-500/20"
+                              : "border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white hover:bg-zinc-800"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                  </div>
+
+                  {/* Next Page */}
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(safeCurrentPage + 1)}
+                    disabled={safeCurrentPage === totalPages}
+                    className="px-2.5 py-1 rounded-lg border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer font-mono text-[11px]"
+                    title="Next Page"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Last Page */}
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={safeCurrentPage === totalPages}
+                    className="p-1.5 rounded-lg border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                    title="Last Page"
+                  >
+                    <ChevronsRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

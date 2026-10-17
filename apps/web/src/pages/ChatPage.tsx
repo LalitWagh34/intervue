@@ -23,14 +23,6 @@ import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-function closeUnbalancedBoldTokens(markdown: string): string {
-  const matches = markdown.match(/\*\*/g);
-  if (matches && matches.length % 2 !== 0) {
-    return `${markdown}**`;
-  }
-  return markdown;
-}
-
 type Msg = { role: "user" | "assistant"; content: string };
 
 const MENTOR_SUGGESTIONS = [
@@ -179,7 +171,7 @@ export default function ChatPage() {
         try {
           const errData = await res.json();
           if (errData.error) errMessage = errData.error;
-        } catch {}
+        } catch { }
         throw new Error(errMessage);
       }
 
@@ -211,7 +203,7 @@ export default function ChatPage() {
               }
               return updated;
             });
-          } catch {}
+          } catch { }
         }
       }
     } catch (err: any) {
@@ -533,7 +525,7 @@ export default function ChatPage() {
                           },
                         }}
                       >
-                        {closeUnbalancedBoldTokens(msg.content)}
+                        {msg.content}
                       </ReactMarkdown>
                       {isStreaming && i === messages.length - 1 && (
                         <span className="inline-block w-1.5 h-3.5 bg-purple-400 ml-1 animate-pulse align-middle" />
