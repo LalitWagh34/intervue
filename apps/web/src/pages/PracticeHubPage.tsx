@@ -130,7 +130,7 @@ export default function PracticeHubPage() {
   const [selectedSubject, setSelectedSubject] = useState<"dsa" | "core_cs">("dsa");
 
   // Selected Sheet inside subject
-  const [selectedSheetId, setSelectedSheetId] = useState<string>("striver_a2z");
+  const [selectedSheetId, setSelectedSheetId] = useState<string>("striver-a2z");
 
   // Company-Wise State
   const { data: featuredCompaniesData } = useFeaturedCompanies();
@@ -165,7 +165,7 @@ export default function PracticeHubPage() {
       setCurrentView("sheets_catalog");
     } else if (viewParam === "sheet_practice") {
       const sheetParam = searchParams.get("sheet");
-      if (sheetParam) setSelectedSheetId(sheetParam);
+      if (sheetParam) setSelectedSheetId(sheetParam.replace(/_/g, "-"));
       setCurrentView("sheet_practice");
     } else if (viewParam === "coming_soon") {
       setCurrentView("coming_soon");
