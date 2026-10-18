@@ -36,9 +36,7 @@ export function SessionVerificationLoader({
     if (elapsed < 2000) {
       return "Verifying secure credentials & workspace...";
     }
-    if (elapsed < 5000) {
-      return "Connecting to secure cloud engine...";
-    }
+
     return "Waking up cloud service (first load may take a moment)...";
   };
 
@@ -77,10 +75,7 @@ export function SessionVerificationLoader({
         </div>
 
         {/* Security Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0D0E12] border border-[#181A20] text-[11px] text-[#7A808C]">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span>256-Bit SSL Encrypted Verification</span>
-        </div>
+
 
         {/* Escape Hatch (Appears if Render cold-start takes > 7s) */}
         {showEscape && (

@@ -45,6 +45,7 @@ import {
   LayoutGrid,
   Zap,
   NotebookPen,
+  Play,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -951,6 +952,18 @@ export default function PracticeHubPage() {
                 <div className="divide-y divide-[#181A20]">
                   {filteredSheetProblems.map((prob) => {
                     const isSolved = Boolean(solvedProblems[prob.id]);
+                    const isLeetCode = prob.link
+                      ? prob.link.includes("leetcode.com")
+                      : (!prob.slug.includes("takeuforward") &&
+                         !prob.slug.includes("input-output") &&
+                         !prob.slug.includes("cpp") &&
+                         !prob.slug.includes("pattern") &&
+                         !prob.slug.includes("stl") &&
+                         !prob.slug.includes("hashing") &&
+                         !prob.slug.includes("data-type"));
+                    const isTakeUForward = prob.link ? prob.link.includes("takeuforward.org") : !isLeetCode;
+                    const destinationUrl = prob.link || (isLeetCode ? `https://leetcode.com/problems/${prob.slug}` : `https://takeuforward.org/practice/dsa/${prob.slug}`);
+
                     return (
                       <div
                         key={prob.id}
@@ -975,7 +988,7 @@ export default function PracticeHubPage() {
 
                           <div className="flex items-center gap-2 min-w-0">
                             <a
-                              href={prob.link || (prob.slug.startsWith("http") ? prob.slug : `https://leetcode.com/problems/${prob.slug}`)}
+                              href={destinationUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                               className={cn(
@@ -1057,15 +1070,49 @@ export default function PracticeHubPage() {
                             <NotebookPen className="w-3.5 h-3.5" />
                           </button>
 
-                          <a
-                            href={prob.link || (prob.slug.startsWith("http") ? prob.slug : `https://leetcode.com/problems/${prob.slug}`)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] flex items-center justify-center transition-colors shrink-0"
-                            title="Solve on LeetCode"
-                          >
-                            <img src="/leetcode.svg" alt="LeetCode" className="w-3.5 h-3.5 object-contain" />
-                          </a>
+                          {prob.videoUrl && (
+                            <a
+                              href={prob.videoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 flex items-center justify-center transition-colors shrink-0"
+                              title="Watch takeUforward Video Solution"
+                            >
+                              <Play className="w-3 h-3 fill-red-400 text-red-400" />
+                            </a>
+                          )}
+
+                          {isTakeUForward ? (
+                            <a
+                              href={destinationUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-7 h-7 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/25 flex items-center justify-center transition-colors shrink-0 p-1"
+                              title="Practice on takeUforward"
+                            >
+                              <img src="/takeUforwardicon.png" alt="takeUforward" className="w-4 h-4 rounded-full object-contain" />
+                            </a>
+                          ) : isLeetCode ? (
+                            <a
+                              href={destinationUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] border border-[#FFA116]/25 flex items-center justify-center transition-colors shrink-0"
+                              title="Solve on LeetCode"
+                            >
+                              <img src="/leetcode.svg" alt="LeetCode" className="w-3.5 h-3.5 object-contain" />
+                            </a>
+                          ) : (
+                            <a
+                              href={destinationUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 flex items-center justify-center transition-colors shrink-0"
+                              title="Open Practice Problem"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          )}
                         </div>
                       </div>
                     );

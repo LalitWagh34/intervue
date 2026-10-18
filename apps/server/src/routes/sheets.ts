@@ -35,6 +35,16 @@ app.get("/", async (c) => {
     if (sheets && sheets.length > 0) {
       const FLAGSHIP_ORDER = ["striver-a2z", "blind-75", "neetcode-150", "striver-sde"];
       
+      const CURATED_LINK_MAP = new Map<string, { link: string; videoUrl?: string }>();
+      for (const sheet of CURATED_FLAGSHIP_SHEETS) {
+        for (const prob of sheet.problems) {
+          if (prob.link) {
+            CURATED_LINK_MAP.set(prob.slug, { link: prob.link, videoUrl: prob.videoUrl });
+            CURATED_LINK_MAP.set(prob.title.toLowerCase().trim(), { link: prob.link, videoUrl: prob.videoUrl });
+          }
+        }
+      }
+
       formattedSheets = sheets
         .filter((sheet) => !sheet.slug.includes("mock") && !sheet.title.includes("Mock"))
         .map((sheet) => {
@@ -49,22 +59,35 @@ app.get("/", async (c) => {
             badgeColor: sheet.badgeColor,
             problemCount: sheet.problems.length,
             estimatedHours: sheet.estimatedHours,
-            problems: sheet.problems.map((sp, index) => ({
-              id: String(sp.id),
-              index: index + 1,
-              title: sp.problem.title,
-              slug: sp.problem.slug,
-              difficulty:
-                sp.problem.difficulty === "EASY"
-                  ? "Basic"
-                  : sp.problem.difficulty === "MEDIUM"
-                  ? "Core"
-                  : "Hard",
-              topic: sp.problem.tags.length > 0 ? sp.problem.tags[0] : "General",
-              moreTopics: sp.problem.tags.length > 1 ? sp.problem.tags.length - 1 : 0,
-              companies: sp.problem.company,
-              link: sp.problem.slug.startsWith("http") ? sp.problem.slug : `https://leetcode.com/problems/${sp.problem.slug}`,
-            })),
+            problems: sheet.problems.map((sp, index) => {
+              const curated =
+                CURATED_LINK_MAP.get(sp.problem.slug) ||
+                CURATED_LINK_MAP.get(sp.problem.title.toLowerCase().trim());
+              const link =
+                curated?.link ||
+                (sp.problem.slug.startsWith("http")
+                  ? sp.problem.slug
+                  : `https://takeuforward.org/practice/dsa/${sp.problem.slug}`);
+              const videoUrl = curated?.videoUrl || "";
+
+              return {
+                id: String(sp.id),
+                index: index + 1,
+                title: sp.problem.title,
+                slug: sp.problem.slug,
+                difficulty:
+                  sp.problem.difficulty === "EASY"
+                    ? "Basic"
+                    : sp.problem.difficulty === "MEDIUM"
+                    ? "Core"
+                    : "Hard",
+                topic: sp.problem.tags.length > 0 ? sp.problem.tags[0] : "General",
+                moreTopics: sp.problem.tags.length > 1 ? sp.problem.tags.length - 1 : 0,
+                companies: sp.problem.company,
+                link,
+                videoUrl,
+              };
+            }),
           };
         })
         .sort((a, b) => {

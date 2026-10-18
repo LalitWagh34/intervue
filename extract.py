@@ -5,7 +5,7 @@ import re
 
 # 1. First, fetch TakeUForward official A2Z syllabus to extract Striver's official LeetCode URLs
 print("Fetching TakeUForward official syllabus to extract LeetCode URLs...")
-tuf_url = "https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/"
+tuf_url = "https://takeuforward.org/prep-hub/strivers-180-master-dsa-patterns?page=sheet"
 tuf_headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
