@@ -130,24 +130,38 @@ export async function fetchCompanyQuestions(
   // 3. Fetch from GitHub repository
   let parsedQuestions: RawCompanyQuestion[] = [];
   try {
-    const url = `https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/main/${encodeURIComponent(
-      companyName
-    )}/${fileName}`;
+    const variations = [
+      companyName,
+      companyName.charAt(0).toUpperCase() + companyName.slice(1),
+      companyName.toUpperCase(),
+    ];
+    const uniqueNames = Array.from(new Set(variations));
 
-    const res = await fetch(url);
-    if (!res.ok) {
+    let foundText = "";
+    for (const name of uniqueNames) {
+      const url = `https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/main/${encodeURIComponent(
+        name
+      )}/${fileName}`;
+
+      const res = await fetch(url);
+      if (res.ok) {
+        foundText = await res.text();
+        break;
+      }
+
       // Fallback to "5. All.csv"
       const fallbackUrl = `https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/main/${encodeURIComponent(
-        companyName
+        name
       )}/5.%20All.csv`;
       const fallbackRes = await fetch(fallbackUrl);
       if (fallbackRes.ok) {
-        const text = await fallbackRes.text();
-        parsedQuestions = processCSV(text);
+        foundText = await fallbackRes.text();
+        break;
       }
-    } else {
-      const text = await res.text();
-      parsedQuestions = processCSV(text);
+    }
+
+    if (foundText) {
+      parsedQuestions = processCSV(foundText);
     }
   } catch (err) {
     console.error(`Error fetching questions for company ${companyName}:`, err);

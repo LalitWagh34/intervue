@@ -200,6 +200,23 @@ export const COMPANY_KITS: CompanyKitMeta[] = [
       { topic: "Graphs & Topological Sort", percentage: 16.1, count: 26, color: "#EC4899" },
     ],
   },
+  {
+    name: "Accenture",
+    slug: "accenture",
+    tagline: "High-Frequency Assessment & Core Problem Solving",
+    description:
+      "Targeted interview and assessment question set for Accenture. Covers essential arrays, string algorithms, sorting, two pointers, hashing, and dynamic programming.",
+    interviewFormat: "Cognitive & Technical Assessment + Coding Round (2 Questions) + Technical Interview",
+    totalQuestions: 130,
+    difficultySplit: { easy: 55, medium: 65, hard: 10 },
+    topPatterns: [
+      { topic: "Arrays & Strings", percentage: 32.0, count: 42, color: "#3B82F6" },
+      { topic: "Sorting & Searching", percentage: 22.0, count: 29, color: "#10B981" },
+      { topic: "Hash Tables & Math", percentage: 18.0, count: 23, color: "#06B6D4" },
+      { topic: "Dynamic Programming", percentage: 15.0, count: 20, color: "#8B5CF6" },
+      { topic: "Trees & Recursion", percentage: 13.0, count: 16, color: "#F59E0B" },
+    ],
+  },
 ];
 
 export function getCompanyKit(nameOrSlug?: string | null): CompanyKitMeta {

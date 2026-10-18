@@ -97,6 +97,7 @@ const TOP_COMPANIES_PRESET = [
   { name: "Apple", count: 400, global: true },
   { name: "Adobe", count: 404, global: true },
   { name: "Netflix", count: 120, global: true },
+  { name: "Accenture", count: 130, global: true },
   { name: "Flipkart", count: 260, global: false },
   { name: "Swiggy", count: 185, global: false },
   { name: "Zomato", count: 140, global: false },

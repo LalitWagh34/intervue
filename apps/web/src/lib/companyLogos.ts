@@ -2,6 +2,7 @@
  * Centralized mapping for company logos and brand icons stored in /public
  */
 export const COMPANY_LOGOS: Record<string, string> = {
+  accenture: "/Accenture.png",
   adobe: "/adobe.png",
   amazon: "/amazon.png",
   apple: "/apple_dark.png",
@@ -77,6 +78,7 @@ export function getCompanyLogo(company?: string | null): string | null {
   if (compact.includes("ibm")) return "/ibm_light.svg";
   if (compact.includes("cisco")) return "/cisco.svg";
   if (compact.includes("phonepe")) return "/phonepe-icon.webp";
+  if (compact.includes("accenture")) return "/Accenture.png";
 
 
 

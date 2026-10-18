@@ -34,6 +34,7 @@ export const FEATURED_COMPANIES = [
   { name: "TikTok", slug: "tiktok", totalProblems: 351, icon: "TT" },
   { name: "PhonePe", slug: "phonepe", totalProblems: 93, icon: "PP" },
   { name: "Cisco", slug: "cisco", totalProblems: 87, icon: "CS" },
+  { name: "Accenture", slug: "accenture", totalProblems: 130, icon: "AC" },
 ];
 
 // Use companyService for questions fetching and caching

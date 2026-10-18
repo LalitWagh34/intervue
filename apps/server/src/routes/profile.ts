@@ -927,6 +927,7 @@ const TARGET_COMPANIES = [
   { name: "Cisco", slug: "cisco", icon: "CS", color: "#1BA0D7" },
   { name: "PhonePe", slug: "phonepe", icon: "PP", color: "#5F259F" },
   { name: "TikTok", slug: "tiktok", icon: "TT", color: "#000000" },
+  { name: "Accenture", slug: "accenture", icon: "AC", color: "#A100FF" },
 ];
 
 // ─── GET /api/profile/target-company/readiness ─────────────────────────
