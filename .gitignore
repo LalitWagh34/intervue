@@ -53,7 +53,14 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .idea
 # Finder (MacOS) folder config
 .DS_Store
-
 tuf_ui
 scratch
 apps/server/data/
+
+# Local extraction tools and scratch data
+extract.py
+extract_other_sheets.py
+strivers_a2z_with_links.json
+intervue_solutions_and_redesign_approach.md
+intervue-banner.jpg
+*.code-workspace

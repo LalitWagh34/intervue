@@ -7,7 +7,7 @@
 <br/>
 
 <a href="https://intervue-mu.vercel.app" target="_blank">
-  <img src="./intervue-banner.jpg" alt="interVue Hero Banner" width="100%" />
+  <img src="./apps/web/public/og-image.jpg" alt="interVue Hero Banner" width="100%" />
 </a>
 
 <br/>
