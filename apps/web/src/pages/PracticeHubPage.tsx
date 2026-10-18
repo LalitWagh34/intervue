@@ -60,6 +60,7 @@ export interface DsaProblem {
   slug: string;
   difficulty: "Basic" | "Core" | "Hard";
   topic: string;
+  subtopic?: string;
   moreTopics?: number;
   companies: string[];
   isPotd?: boolean;
@@ -303,6 +304,147 @@ export default function PracticeHubPage() {
     filteredProblems: filteredSheetProblems, 
     filterOptions 
   } = useProblemFilter(activeSheetProblems, solvedProblems);
+
+  // Group problems into takeUforward syllabus hierarchy (Topics -> Subtopics -> Problems)
+  interface SubtopicGroup {
+    name: string;
+    problems: DsaProblem[];
+    total: number;
+    solved: number;
+  }
+
+  interface TopicGroup {
+    name: string;
+    total: number;
+    solved: number;
+    subtopics: SubtopicGroup[];
+  }
+
+  const groupedTopics = useMemo<TopicGroup[]>(() => {
+    const topicOrder: string[] = [];
+    const topicMap = new Map<
+      string,
+      {
+        name: string;
+        subtopicOrder: string[];
+        subtopicMap: Map<string, DsaProblem[]>;
+      }
+    >();
+
+    for (const prob of filteredSheetProblems) {
+      const topicName = prob.topic || "General Problems";
+      const subtopicName = prob.subtopic || "";
+
+      if (!topicMap.has(topicName)) {
+        topicOrder.push(topicName);
+        topicMap.set(topicName, {
+          name: topicName,
+          subtopicOrder: [],
+          subtopicMap: new Map(),
+        });
+      }
+
+      const t = topicMap.get(topicName)!;
+      if (!t.subtopicMap.has(subtopicName)) {
+        t.subtopicOrder.push(subtopicName);
+        t.subtopicMap.set(subtopicName, []);
+      }
+      t.subtopicMap.get(subtopicName)!.push(prob);
+    }
+
+    return topicOrder.map((topicName) => {
+      const t = topicMap.get(topicName)!;
+      const subtopics: SubtopicGroup[] = t.subtopicOrder.map((subName) => {
+        const probs = t.subtopicMap.get(subName) || [];
+        const solved = probs.filter((p) => Boolean(solvedProblems[p.id])).length;
+        return {
+          name: subName,
+          problems: probs,
+          total: probs.length,
+          solved,
+        };
+      });
+
+      const total = subtopics.reduce((acc, s) => acc + s.total, 0);
+      const solved = subtopics.reduce((acc, s) => acc + s.solved, 0);
+
+      return {
+        name: t.name,
+        total,
+        solved,
+        subtopics,
+      };
+    });
+  }, [filteredSheetProblems, solvedProblems]);
+
+  const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({});
+  const [expandedSubtopics, setExpandedSubtopics] = useState<Record<string, boolean>>({});
+
+  // Auto-expand all when active search or filters are applied
+  const isFiltering = Boolean(
+    filters.searchQuery ||
+    filters.difficulty.length > 0 ||
+    filters.status.length > 0 ||
+    filters.topics.length > 0
+  );
+
+  const toggleTopicExpand = (topicName: string) => {
+    setExpandedTopics((prev) => {
+      const current = prev[topicName] ?? false;
+      return { ...prev, [topicName]: !current };
+    });
+  };
+
+  const toggleSubtopicExpand = (subKey: string) => {
+    setExpandedSubtopics((prev) => {
+      const current = prev[subKey] ?? false;
+      return { ...prev, [subKey]: !current };
+    });
+  };
+
+  const expandAll = () => {
+    const allT: Record<string, boolean> = {};
+    const allS: Record<string, boolean> = {};
+    groupedTopics.forEach((t) => {
+      allT[t.name] = true;
+      t.subtopics.forEach((s) => {
+        allS[`${t.name}:::${s.name}`] = true;
+      });
+    });
+    setExpandedTopics(allT);
+    setExpandedSubtopics(allS);
+  };
+
+  const collapseAll = () => {
+    const allT: Record<string, boolean> = {};
+    const allS: Record<string, boolean> = {};
+    groupedTopics.forEach((t) => {
+      allT[t.name] = false;
+      t.subtopics.forEach((s) => {
+        allS[`${t.name}:::${s.name}`] = false;
+      });
+    });
+    setExpandedTopics(allT);
+    setExpandedSubtopics(allS);
+  };
+
+  // Expand first topic by default when changing sheets
+  useEffect(() => {
+    if (groupedTopics.length > 0) {
+      const firstT = groupedTopics[0];
+      setExpandedTopics((prev) => ({
+        ...prev,
+        [firstT.name]: prev[firstT.name] ?? true,
+      }));
+      if (firstT.subtopics.length > 0) {
+        const firstSubKey = `${firstT.name}:::${firstT.subtopics[0].name}`;
+        setExpandedSubtopics((prev) => ({
+          ...prev,
+          [firstSubKey]: prev[firstSubKey] ?? true,
+        }));
+      }
+    }
+  }, [selectedSheetId, groupedTopics]);
 
   // Handler to open a subject catalog
   const openSubject = (subjectId: "dsa" | "core_cs") => {
@@ -925,257 +1067,437 @@ export default function PracticeHubPage() {
             </div>
           </div>
 
-          {/* Table Area (9 cols) + Top Companies Sidebar (3 cols) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div className="lg:col-span-9 space-y-4">
-              {/* Search & Counter Bar */}
-              <div className="flex items-center justify-between gap-3 bg-[#0D0E12] p-2 rounded-xl border border-[#181A20]">
-                <AdvancedFilterPopover 
-                  filters={filters}
-                  updateFilter={updateFilter}
-                  clearFilters={clearFilters}
-                  options={filterOptions}
-                  resultCount={filteredSheetProblems.length}
-                />
-              </div>
+          {/* TakeUForward Accordion Syllabus View */}
+          <div className="space-y-4">
+            {/* Search, Filter & Expand Toolbar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#0D0E12] p-2.5 rounded-xl border border-[#181A20]">
+              <AdvancedFilterPopover 
+                filters={filters}
+                updateFilter={updateFilter}
+                clearFilters={clearFilters}
+                options={filterOptions}
+                resultCount={filteredSheetProblems.length}
+              />
 
-              {/* 48px Sleek Data Table */}
-              <div className="rounded-2xl border border-[#181A20] bg-[#0D0E12] overflow-hidden shadow-sm">
-                <div className="px-5 py-3 border-b border-[#181A20] text-[11px] font-semibold text-[#7A808C] grid grid-cols-12 gap-3 items-center bg-[#090A0D]">
-                  <div className="col-span-6 sm:col-span-5">Problem</div>
-                  <div className="col-span-2 text-center">Difficulty</div>
-                  <div className="col-span-2 hidden sm:block">Companies</div>
-                  <div className="col-span-2 hidden sm:block">Topics</div>
-                  <div className="col-span-4 sm:col-span-1 text-right">Action</div>
-                </div>
-
-                <div className="divide-y divide-[#181A20]">
-                  {filteredSheetProblems.map((prob) => {
-                    const isSolved = Boolean(solvedProblems[prob.id]);
-                    const isLeetCode = prob.link
-                      ? prob.link.includes("leetcode.com")
-                      : (!prob.slug.includes("takeuforward") &&
-                         !prob.slug.includes("input-output") &&
-                         !prob.slug.includes("cpp") &&
-                         !prob.slug.includes("pattern") &&
-                         !prob.slug.includes("stl") &&
-                         !prob.slug.includes("hashing") &&
-                         !prob.slug.includes("data-type"));
-                    const isTakeUForward = prob.link ? prob.link.includes("takeuforward.org") : !isLeetCode;
-                    const destinationUrl = prob.link || (isLeetCode ? `https://leetcode.com/problems/${prob.slug}` : `https://takeuforward.org/practice/dsa/${prob.slug}`);
-
-                    return (
-                      <div
-                        key={prob.id}
-                        className="px-5 py-3 grid grid-cols-12 gap-3 items-center hover:bg-[#111318] transition-colors text-xs"
-                      >
-                        <div className="col-span-6 sm:col-span-5 flex items-center gap-3 min-w-0">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              const diff = prob.difficulty === "Basic" ? "EASY" : prob.difficulty === "Core" ? "MEDIUM" : "HARD";
-                              toggleSolved(prob.id, e, diff, [prob.topic]);
-                            }}
-                            className={cn(
-                              "w-4 h-4 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 border",
-                              isSolved
-                                ? "bg-[#327CF6] border-[#327CF6] text-white"
-                                : "border-[#272B33] text-transparent hover:border-[#327CF6]"
-                            )}
-                          >
-                            <Check className="w-2.5 h-2.5 stroke-[3]" />
-                          </button>
-
-                          <div className="flex items-center gap-2 min-w-0">
-                            <a
-                              href={destinationUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={cn(
-                                "font-medium hover:text-[#327CF6] transition-colors truncate cursor-pointer",
-                                isSolved ? "text-[#7A808C] line-through" : "text-[#EDEDED]"
-                              )}
-                            >
-                              {prob.index}. {prob.title}
-                            </a>
-
-                            {prob.isPotd && (
-                              <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30 shrink-0">
-                                &lt;&gt; POTD
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="col-span-2 flex justify-center">
-                          <span
-                            className={cn(
-                              "px-2 py-0.5 rounded-full text-[10px] font-medium tracking-wide",
-                              prob.difficulty === "Basic"
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : prob.difficulty === "Core"
-                                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                : "bg-red-500/10 text-red-400 border border-red-500/20"
-                            )}
-                          >
-                            {prob.difficulty}
-                          </span>
-                        </div>
-
-                        <div className="col-span-2 hidden sm:flex items-center gap-1.5 text-slate-500">
-                          <Lock className="w-3.5 h-3.5 text-[#327CF6]/70" />
-                          <span className="text-[11px] font-mono text-slate-400">
-                            {prob.companies[0]}
-                          </span>
-                        </div>
-
-                        <div className="col-span-2 hidden sm:flex items-center gap-1.5 min-w-0">
-                          <span className="px-2 py-0.5 rounded-lg bg-[#14161C] text-slate-400 text-[10px] font-mono border border-[#1E2229] truncate">
-                            {prob.topic}
-                          </span>
-                        </div>
-
-                        <div className="col-span-4 sm:col-span-1 flex items-center justify-end gap-1.5 text-[#7A808C]">
-                          <button
-                            type="button"
-                            onClick={(e) => handleToggleBookmark(prob.slug, prob.title, prob.difficulty, e)}
-                            className={cn(
-                              "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
-                              bookmarkedSlugs.includes(prob.slug)
-                                ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
-                                : "bg-[#08090C] border-[#181A20] text-slate-500 hover:text-[#22C55E] hover:border-[#22C55E]/30"
-                            )}
-                            title={bookmarkedSlugs.includes(prob.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
-                          >
-                            <Bookmark
-                              className={cn(
-                                "w-3.5 h-3.5",
-                                bookmarkedSlugs.includes(prob.slug) && "fill-[#22C55E]"
-                              )}
-                            />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setActiveNoteTarget({
-                                isOpen: true,
-                                slug: prob.slug,
-                                title: prob.title,
-                              })
-                            }
-                            className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-slate-500 hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
-                            title="Notes & Hints Notepad"
-                          >
-                            <NotebookPen className="w-3.5 h-3.5" />
-                          </button>
-
-                          {prob.videoUrl && (
-                            <a
-                              href={prob.videoUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 flex items-center justify-center transition-colors shrink-0"
-                              title="Watch takeUforward Video Solution"
-                            >
-                              <Play className="w-3 h-3 fill-red-400 text-red-400" />
-                            </a>
-                          )}
-
-                          {isTakeUForward ? (
-                            <a
-                              href={destinationUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-7 h-7 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/25 flex items-center justify-center transition-colors shrink-0 p-1"
-                              title="Practice on takeUforward"
-                            >
-                              <img src="/takeUforwardicon.png" alt="takeUforward" className="w-4 h-4 rounded-full object-contain" />
-                            </a>
-                          ) : isLeetCode ? (
-                            <a
-                              href={destinationUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] border border-[#FFA116]/25 flex items-center justify-center transition-colors shrink-0"
-                              title="Solve on LeetCode"
-                            >
-                              <img src="/leetcode.svg" alt="LeetCode" className="w-3.5 h-3.5 object-contain" />
-                            </a>
-                          ) : (
-                            <a
-                              href={destinationUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 flex items-center justify-center transition-colors shrink-0"
-                              title="Open Practice Problem"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <button
+                  type="button"
+                  onClick={expandAll}
+                  className="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-[#14161C] hover:bg-[#1C2028] border border-[#222630] rounded-lg transition-colors cursor-pointer"
+                >
+                  Expand All
+                </button>
+                <button
+                  type="button"
+                  onClick={collapseAll}
+                  className="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-[#14161C] hover:bg-[#1C2028] border border-[#222630] rounded-lg transition-colors cursor-pointer"
+                >
+                  Collapse All
+                </button>
               </div>
             </div>
 
-            {/* Right Sidebar: Top Companies */}
-            <div className="lg:col-span-3 space-y-5">
-              <div className="p-5 rounded-2xl bg-[#11131A] border border-white/[0.07]">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Target Company Assessment Sets
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => openCompanyWise()}
-                    className="text-[10px] text-[#327CF6] hover:underline whitespace-nowrap"
-                  >
-                    View 470+ <ArrowUpRight className="w-3 h-3 inline ml-0.5" />
-                  </button>
-                </div>
-                
-                <p className="text-slate-400 text-xs mb-4">
-                  Questions organized by company, recency, and interview ask rate.
-                </p>
+            {/* Syllabus Topic Accordions */}
+            {groupedTopics.length === 0 ? (
+              <div className="p-12 text-center rounded-2xl border border-[#181A20] bg-[#0D0E12]">
+                <p className="text-sm text-slate-400">No problems match your current filters.</p>
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="mt-3 px-3.5 py-1.5 text-xs font-medium text-[#327CF6] bg-[#327CF6]/10 hover:bg-[#327CF6]/20 border border-[#327CF6]/30 rounded-lg transition-colors cursor-pointer"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {groupedTopics.map((topic) => {
+                  const isTopicExpanded = isFiltering ? true : Boolean(expandedTopics[topic.name]);
+                  const hasNamedSubtopics = topic.subtopics.some((s) => Boolean(s.name && s.name.trim()));
 
-                <div className="flex flex-wrap gap-2">
-                  {TOP_COMPANIES_PRESET.slice(0, 20).map((comp) => {
-                    const logo = getCompanyLogo(comp.name);
-                    return (
+                  return (
+                    <div
+                      key={topic.name}
+                      className="rounded-2xl border border-[#181A20] bg-[#0D0E12] overflow-hidden transition-all shadow-sm"
+                    >
+                      {/* Topic Accordion Header */}
                       <button
-                        key={comp.name}
                         type="button"
-                        onClick={() => openCompanyWise(comp.name)}
-                        className={cn(
-                          "px-3 py-1.5 rounded-full border text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer",
-                          selectedCompany === comp.name
-                            ? "bg-[#327CF6] text-white border-[#327CF6]"
-                            : "bg-[#08090C] text-slate-400 border-[#181A20] hover:border-[#327CF6]/50 hover:text-white"
-                        )}
+                        onClick={() => toggleTopicExpand(topic.name)}
+                        className="w-full px-5 py-4 bg-[#0D0E12] hover:bg-[#12141B] flex items-center justify-between text-left transition-colors cursor-pointer select-none"
                       >
-                        {logo && (
-                          <img
-                            src={logo}
-                            alt=""
-                            className="w-3.5 h-3.5 object-contain shrink-0"
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <ChevronRight
+                            className={cn(
+                              "w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0",
+                              isTopicExpanded && "rotate-90 text-[#327CF6]"
+                            )}
                           />
-                        )}
-                        <span>{comp.name}</span>
-                        <span className={cn(
-                          "text-[10px] px-1.5 py-0.5 rounded-full font-mono",
-                          selectedCompany === comp.name ? "bg-white/20 text-white" : "bg-[#14161C] text-slate-500"
-                        )}>
-                          {comp.count}
-                        </span>
+                          <span className="font-semibold text-sm text-[#F1F3F5] tracking-tight truncate">
+                            {topic.name}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-4 shrink-0 pl-3">
+                          <div className="w-24 sm:w-32 hidden sm:block bg-[#161820] h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                              style={{
+                                width: `${Math.round((topic.solved / Math.max(topic.total, 1)) * 100)}%`,
+                              }}
+                            />
+                          </div>
+                          <span className="text-xs font-mono font-medium text-[#7A808C]">
+                            {topic.solved}/{topic.total}
+                          </span>
+                        </div>
                       </button>
-                    );
-                  })}
-                </div>
+
+                      {/* Topic Accordion Body */}
+                      {isTopicExpanded && (
+                        <div className="border-t border-[#181A20] bg-[#090A0D] p-3 sm:p-4 space-y-3">
+                          {hasNamedSubtopics ? (
+                            topic.subtopics.map((sub) => {
+                              const subKey = `${topic.name}:::${sub.name}`;
+                              const isSubExpanded = isFiltering ? true : Boolean(expandedSubtopics[subKey]);
+
+                              return (
+                                <div
+                                  key={subKey}
+                                  className="rounded-xl border border-[#1A1D24] bg-[#0D0E12] overflow-hidden"
+                                >
+                                  {sub.name ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => toggleSubtopicExpand(subKey)}
+                                      className="w-full px-4 py-3 bg-[#0D0E12] hover:bg-[#111319] flex items-center justify-between text-left transition-colors cursor-pointer select-none"
+                                    >
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        <ChevronRight
+                                          className={cn(
+                                            "w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0",
+                                            isSubExpanded && "rotate-90 text-emerald-400"
+                                          )}
+                                        />
+                                        <span className="font-medium text-xs text-slate-200 tracking-tight truncate">
+                                          {sub.name}
+                                        </span>
+                                      </div>
+
+                                      <div className="flex items-center gap-3 shrink-0 pl-2">
+                                        <span className="text-xs font-mono text-slate-400">
+                                          {sub.solved}/{sub.total}
+                                        </span>
+                                      </div>
+                                    </button>
+                                  ) : null}
+
+                                  {(isSubExpanded || !sub.name) && (
+                                    <div className="border-t border-[#181A20] divide-y divide-[#181A20]">
+                                      {sub.problems.map((prob) => {
+                                        const isSolved = Boolean(solvedProblems[prob.id]);
+                                        const isLeetCode = prob.link
+                                          ? prob.link.includes("leetcode.com")
+                                          : (!prob.slug.includes("takeuforward") &&
+                                             !prob.slug.includes("input-output") &&
+                                             !prob.slug.includes("cpp") &&
+                                             !prob.slug.includes("pattern") &&
+                                             !prob.slug.includes("stl") &&
+                                             !prob.slug.includes("hashing") &&
+                                             !prob.slug.includes("data-type"));
+                                        const isTakeUForward = prob.link ? prob.link.includes("takeuforward.org") : !isLeetCode;
+                                        const destinationUrl = prob.link || (isLeetCode ? `https://leetcode.com/problems/${prob.slug}` : `https://takeuforward.org/practice/dsa/${prob.slug}`);
+
+                                        return (
+                                          <div
+                                            key={prob.id}
+                                            className="px-4 py-3 flex items-center justify-between gap-3 hover:bg-[#111319] transition-colors text-xs"
+                                          >
+                                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  const diff = prob.difficulty === "Basic" ? "EASY" : prob.difficulty === "Core" ? "MEDIUM" : "HARD";
+                                                  toggleSolved(prob.id, e, diff, [prob.topic]);
+                                                }}
+                                                className={cn(
+                                                  "w-4 h-4 rounded flex items-center justify-center transition-colors cursor-pointer shrink-0 border",
+                                                  isSolved
+                                                    ? "bg-[#327CF6] border-[#327CF6] text-white"
+                                                    : "border-[#2A2E38] text-transparent hover:border-[#327CF6]"
+                                                )}
+                                              >
+                                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                              </button>
+
+                                              <div className="flex items-center gap-2.5 min-w-0 flex-wrap sm:flex-nowrap">
+                                                <a
+                                                  href={destinationUrl}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className={cn(
+                                                    "font-medium hover:text-[#327CF6] transition-colors truncate cursor-pointer",
+                                                    isSolved ? "text-[#7A808C] line-through" : "text-[#EDEDED]"
+                                                  )}
+                                                >
+                                                  {prob.title}
+                                                </a>
+
+                                                <span
+                                                  className={cn(
+                                                    "px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide shrink-0",
+                                                    prob.difficulty === "Basic"
+                                                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                                                      : prob.difficulty === "Core"
+                                                      ? "bg-amber-500/15 text-amber-400 border border-amber-500/20"
+                                                      : "bg-red-500/15 text-red-400 border border-red-500/20"
+                                                  )}
+                                                >
+                                                  {prob.difficulty}
+                                                </span>
+
+                                                {prob.isPotd && (
+                                                  <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30 shrink-0">
+                                                    POTD
+                                                  </span>
+                                                )}
+                                              </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-1.5 sm:gap-2 text-[#7A808C] shrink-0">
+                                              {isTakeUForward && (
+                                                <a
+                                                  href={destinationUrl}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className="w-7 h-7 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/25 flex items-center justify-center transition-colors shrink-0 p-1"
+                                                  title="Practice on takeUforward"
+                                                >
+                                                  <img src="/takeUforwardicon.png" alt="takeUforward" className="w-4 h-4 rounded-full object-contain" />
+                                                </a>
+                                              )}
+
+                                              {isLeetCode && (
+                                                <a
+                                                  href={destinationUrl}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] border border-[#FFA116]/25 flex items-center justify-center transition-colors shrink-0"
+                                                  title="Solve on LeetCode"
+                                                >
+                                                  <img src="/leetcode.svg" alt="LeetCode" className="w-3.5 h-3.5 object-contain" />
+                                                </a>
+                                              )}
+
+                                              {prob.videoUrl && (
+                                                <a
+                                                  href={prob.videoUrl}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 flex items-center justify-center transition-colors shrink-0"
+                                                  title="Watch YouTube Video Solution"
+                                                >
+                                                  <img src="/yt.png" alt="YouTube" className="w-4 h-3.5 object-contain" />
+                                                </a>
+                                              )}
+
+                                              <button
+                                                type="button"
+                                                onClick={() =>
+                                                  setActiveNoteTarget({
+                                                    isOpen: true,
+                                                    slug: prob.slug,
+                                                    title: prob.title,
+                                                  })
+                                                }
+                                                className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-slate-500 hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                                                title="Notes & Hints Notepad"
+                                              >
+                                                <NotebookPen className="w-3.5 h-3.5" />
+                                              </button>
+
+                                              <button
+                                                type="button"
+                                                onClick={(e) => handleToggleBookmark(prob.slug, prob.title, prob.difficulty, e)}
+                                                className={cn(
+                                                  "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
+                                                  bookmarkedSlugs.includes(prob.slug)
+                                                    ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
+                                                    : "bg-[#08090C] border-[#181A20] text-slate-500 hover:text-[#22C55E] hover:border-[#22C55E]/30"
+                                                )}
+                                                title={bookmarkedSlugs.includes(prob.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
+                                              >
+                                                <Bookmark
+                                                  className={cn(
+                                                    "w-3.5 h-3.5",
+                                                    bookmarkedSlugs.includes(prob.slug) && "fill-[#22C55E]"
+                                                  )}
+                                                />
+                                              </button>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <div className="rounded-xl border border-[#1A1D24] bg-[#0D0E12] divide-y divide-[#181A20] overflow-hidden">
+                              {topic.subtopics.flatMap((s) => s.problems).map((prob) => {
+                                const isSolved = Boolean(solvedProblems[prob.id]);
+                                const isLeetCode = prob.link
+                                  ? prob.link.includes("leetcode.com")
+                                  : (!prob.slug.includes("takeuforward") &&
+                                     !prob.slug.includes("input-output") &&
+                                     !prob.slug.includes("cpp") &&
+                                     !prob.slug.includes("pattern") &&
+                                     !prob.slug.includes("stl") &&
+                                     !prob.slug.includes("hashing") &&
+                                     !prob.slug.includes("data-type"));
+                                const isTakeUForward = prob.link ? prob.link.includes("takeuforward.org") : !isLeetCode;
+                                const destinationUrl = prob.link || (isLeetCode ? `https://leetcode.com/problems/${prob.slug}` : `https://takeuforward.org/practice/dsa/${prob.slug}`);
+
+                                return (
+                                  <div
+                                    key={prob.id}
+                                    className="px-4 py-3 flex items-center justify-between gap-3 hover:bg-[#111319] transition-colors text-xs"
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          const diff = prob.difficulty === "Basic" ? "EASY" : prob.difficulty === "Core" ? "MEDIUM" : "HARD";
+                                          toggleSolved(prob.id, e, diff, [prob.topic]);
+                                        }}
+                                        className={cn(
+                                          "w-4 h-4 rounded flex items-center justify-center transition-colors cursor-pointer shrink-0 border",
+                                          isSolved
+                                            ? "bg-[#327CF6] border-[#327CF6] text-white"
+                                            : "border-[#2A2E38] text-transparent hover:border-[#327CF6]"
+                                        )}
+                                      >
+                                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                      </button>
+
+                                      <div className="flex items-center gap-2.5 min-w-0 flex-wrap sm:flex-nowrap">
+                                        <a
+                                          href={destinationUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className={cn(
+                                            "font-medium hover:text-[#327CF6] transition-colors truncate cursor-pointer",
+                                            isSolved ? "text-[#7A808C] line-through" : "text-[#EDEDED]"
+                                          )}
+                                        >
+                                          {prob.title}
+                                        </a>
+
+                                        <span
+                                          className={cn(
+                                            "px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide shrink-0",
+                                            prob.difficulty === "Basic"
+                                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                                              : prob.difficulty === "Core"
+                                              ? "bg-amber-500/15 text-amber-400 border border-amber-500/20"
+                                              : "bg-red-500/15 text-red-400 border border-red-500/20"
+                                          )}
+                                        >
+                                          {prob.difficulty}
+                                        </span>
+
+                                        {prob.isPotd && (
+                                          <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30 shrink-0">
+                                            POTD
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 sm:gap-2 text-[#7A808C] shrink-0">
+                                      {isTakeUForward && (
+                                        <a
+                                          href={destinationUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="w-7 h-7 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/25 flex items-center justify-center transition-colors shrink-0 p-1"
+                                          title="Practice on takeUforward"
+                                        >
+                                          <img src="/takeUforwardicon.png" alt="takeUforward" className="w-4 h-4 rounded-full object-contain" />
+                                        </a>
+                                      )}
+
+                                      {isLeetCode && (
+                                        <a
+                                          href={destinationUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="w-7 h-7 rounded-lg bg-[#FFA116]/10 hover:bg-[#FFA116]/20 text-[#FFA116] border border-[#FFA116]/25 flex items-center justify-center transition-colors shrink-0"
+                                          title="Solve on LeetCode"
+                                        >
+                                          <img src="/leetcode.svg" alt="LeetCode" className="w-3.5 h-3.5 object-contain" />
+                                        </a>
+                                      )}
+
+                                      {prob.videoUrl && (
+                                        <a
+                                          href={prob.videoUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="w-7 h-7 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 flex items-center justify-center transition-colors shrink-0"
+                                          title="Watch YouTube Video Solution"
+                                        >
+                                          <img src="/yt.png" alt="YouTube" className="w-4 h-3.5 object-contain" />
+                                        </a>
+                                      )}
+
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setActiveNoteTarget({
+                                            isOpen: true,
+                                            slug: prob.slug,
+                                            title: prob.title,
+                                          })
+                                        }
+                                        className="w-7 h-7 rounded-lg bg-[#08090C] border border-[#181A20] hover:border-[#F59E0B]/40 text-slate-500 hover:text-[#F59E0B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+                                        title="Notes & Hints Notepad"
+                                      >
+                                        <NotebookPen className="w-3.5 h-3.5" />
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        onClick={(e) => handleToggleBookmark(prob.slug, prob.title, prob.difficulty, e)}
+                                        className={cn(
+                                          "w-7 h-7 rounded-lg flex items-center justify-center transition-all shrink-0 cursor-pointer border",
+                                          bookmarkedSlugs.includes(prob.slug)
+                                            ? "bg-[#22C55E]/15 border-[#22C55E]/40 text-[#22C55E]"
+                                            : "bg-[#08090C] border-[#181A20] text-slate-500 hover:text-[#22C55E] hover:border-[#22C55E]/30"
+                                        )}
+                                        title={bookmarkedSlugs.includes(prob.slug) ? "Remove Bookmark" : "Bookmark for Revision"}
+                                      >
+                                        <Bookmark
+                                          className={cn(
+                                            "w-3.5 h-3.5",
+                                            bookmarkedSlugs.includes(prob.slug) && "fill-[#22C55E]"
+                                          )}
+                                        />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-// AUTO-GENERATED FROM strivers_a2z_with_links.json (455 authentic curated problems)
+// AUTO-GENERATED FROM strivers_a2z_with_links.json with clean takeUforward topic names
 import { CuratedProblem } from "./flagshipSheetsData";
 
 export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
@@ -8,13 +8,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "C++ Input / Output",
     "slug": "input-output",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/input-output",
     "videoUrl": "https://youtu.be/EAR7De6Goz4?t=250"
   },
@@ -24,13 +21,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "What are arrays, strings?",
     "slug": "cpp",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/plus/dsa/problems/cpp",
     "videoUrl": ""
   },
@@ -40,13 +34,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Patterns",
     "slug": "must-do-pattern-problems-before-starting-dsa",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Build-up Logical Thinking",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/strivers-a2z-dsa-course/must-do-pattern-problems-before-starting-dsa/",
     "videoUrl": ""
   },
@@ -56,13 +47,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "C++ STL",
     "slug": "c-stl-tutorial-most-frequent-used-stl-containers",
     "difficulty": "Core",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn STL/Java-Collections or similar thing in your language",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/c/c-stl-tutorial-most-frequent-used-stl-containers/",
     "videoUrl": ""
   },
@@ -72,13 +60,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Hashing Theory",
     "slug": "hashing-data-structures",
     "difficulty": "Core",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Hashing",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/blogs/data-structure-and-algorithm/hashing-data-structures",
     "videoUrl": ""
   },
@@ -88,13 +73,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Data Type",
     "slug": "data-types",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/data-structure/data-types",
     "videoUrl": "https://youtu.be/EAR7De6Goz4?t=755"
   },
@@ -104,13 +86,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Decision Making in Java",
     "slug": "if-elseif",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/if-elseif",
     "videoUrl": "https://youtu.be/EAR7De6Goz4?t=1259"
   },
@@ -120,13 +99,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Java Switch Case statement",
     "slug": "switch-case",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/switch-case",
     "videoUrl": "https://youtu.be/EAR7De6Goz4"
   },
@@ -136,13 +112,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Nth Fibonacci Number",
     "slug": "understanding-for-loop",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/for-loop/understanding-for-loop/",
     "videoUrl": "https://youtu.be/EAR7De6Goz4?t=3096"
   },
@@ -152,13 +125,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "While loop- printTable - Java",
     "slug": "while-loops-in-programming",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/while-loop/while-loops-in-programming/",
     "videoUrl": "https://youtu.be/EAR7De6Goz4?t=3459"
   },
@@ -168,13 +138,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "c tutorial functions",
     "slug": "c-tutorial-functions",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://www.hackerrank.com/challenges/c-tutorial-functions/problem?isFullScreen=true",
     "videoUrl": "https://youtu.be/EAR7De6Goz4?t=3677"
   },
@@ -184,13 +151,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Digits",
     "slug": "count-all-digits-of-a-number",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Know Basic Maths",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/count-all-digits-of-a-number",
     "videoUrl": "https://youtu.be/1xNbjMdbjug"
   },
@@ -200,13 +164,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse Integer",
     "slug": "reverse-integer",
     "difficulty": "Core",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Know Basic Maths",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-integer",
     "videoUrl": "https://youtu.be/1xNbjMdbjug?t=930"
   },
@@ -216,13 +177,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Palindrome Number",
     "slug": "palindrome-number",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Know Basic Maths",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/palindrome-number",
     "videoUrl": "https://youtu.be/1xNbjMdbjug?t=1230"
   },
@@ -232,13 +190,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "LCM And GCD",
     "slug": "gcd-of-two-numbers",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Know Basic Maths",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/gcd-of-two-numbers",
     "videoUrl": "https://youtu.be/1xNbjMdbjug?t=2684"
   },
@@ -248,13 +203,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Armstrong Number",
     "slug": "armstrong-number",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Know Basic Maths",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/armstrong-number",
     "videoUrl": "https://youtu.be/1xNbjMdbjug?t=1418"
   },
@@ -264,13 +216,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "All divisors of a Number",
     "slug": "divisors-of-a-number",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Know Basic Maths",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/divisors-of-a-number",
     "videoUrl": "https://youtu.be/1xNbjMdbjug?t=1580"
   },
@@ -280,13 +229,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Jumps",
     "slug": "check-for-prime-number",
     "difficulty": "Core",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Know Basic Maths",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/check-for-prime-number",
     "videoUrl": "https://youtu.be/1xNbjMdbjug?t=2381"
   },
@@ -296,13 +242,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Print 1 To N Using Recursion",
     "slug": "print-1-to-n-using-recursion",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/print-1-to-n-using-recursion",
     "videoUrl": "https://www.youtube.com/watch?v=yVdKa8dnKiE&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9"
   },
@@ -312,13 +255,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Print name N times using recursion",
     "slug": "print-name-n-times-using-recursion",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/recursion/print-name-n-times-using-recursion/",
     "videoUrl": "https://www.youtube.com/watch?v=un6PLygfXrA&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=2"
   },
@@ -328,13 +268,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Understand Recursion by printing something N times",
     "slug": "introduction-to-recursion-understand-recursion-by-printing-something-n-times",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/recursion/introduction-to-recursion-understand-recursion-by-printing-something-n-times/",
     "videoUrl": "https://www.youtube.com/watch?v=un6PLygfXrA&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=2"
   },
@@ -344,13 +281,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Print N to 1 Using Recursion",
     "slug": "print-n-to-1-using-recursion",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/print-n-to-1-using-recursion",
     "videoUrl": "https://www.youtube.com/watch?v=un6PLygfXrA&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=2"
   },
@@ -360,13 +294,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Java Collections",
     "slug": "java-collections",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn STL/Java-Collections or similar thing in your language",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "#",
     "videoUrl": ""
   },
@@ -376,13 +307,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sum of first n terms",
     "slug": "sum-of-first-n-numbers",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/sum-of-first-n-numbers",
     "videoUrl": "https://www.youtube.com/watch?v=69ZCDFy-OUo&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=3"
   },
@@ -392,13 +320,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Factorial of a Given Numbe",
     "slug": "factorial-of-a-given-number-i",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/factorial-of-a-given-number-i",
     "videoUrl": "https://www.youtube.com/watch?v=69ZCDFy-OUo&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=3"
   },
@@ -408,13 +333,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse String",
     "slug": "reverse-string",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-string",
     "videoUrl": "https://www.youtube.com/watch?v=twuC1F6gLI8&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=4"
   },
@@ -424,13 +346,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Valid Palindrome",
     "slug": "valid-palindrome",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/valid-palindrome",
     "videoUrl": "https://www.youtube.com/watch?v=twuC1F6gLI8&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=4"
   },
@@ -440,13 +359,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Fibonacci Number",
     "slug": "fibonacci-number",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Recursion",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/fibonacci-number",
     "videoUrl": "https://www.youtube.com/watch?v=kvRjNm4rVBE&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=5"
   },
@@ -456,13 +372,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Frequencies in a Limited Array",
     "slug": "counting-frequencies-of-array-elements",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Hashing",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/counting-frequencies-of-array-elements",
     "videoUrl": ""
   },
@@ -472,13 +385,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Frequency of the Most Frequent Element",
     "slug": "frequency-of-the-most-frequent-element",
     "difficulty": "Core",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Learn Basic Hashing",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/frequency-of-the-most-frequent-element",
     "videoUrl": ""
   },
@@ -488,13 +398,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Time Complexity [Learn Basics, and then analyse in next Steps]",
     "slug": "time-and-space-complexity-strivers-a2z-dsa-course",
     "difficulty": "Basic",
-    "topic": "Step 1: Learn the basics",
+    "topic": "Beginner Problems",
+    "subtopic": "Things to Know in C++/Java/Python or any language",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/time-complexity/time-and-space-complexity-strivers-a2z-dsa-course/",
     "videoUrl": ""
   },
@@ -504,13 +411,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Selection Sort",
     "slug": "selection-sort",
     "difficulty": "Basic",
-    "topic": "Step 2: Learn Important Sorting Techniques",
+    "topic": "Sorting",
+    "subtopic": "Sorting-I",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/selection-sort",
     "videoUrl": "https://youtu.be/HGk_ypEuS24?t=167"
   },
@@ -520,13 +424,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Bubble Sort",
     "slug": "bubble-sort",
     "difficulty": "Basic",
-    "topic": "Step 2: Learn Important Sorting Techniques",
+    "topic": "Sorting",
+    "subtopic": "Sorting-I",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/bubble-sort",
     "videoUrl": "https://youtu.be/HGk_ypEuS24?t=1061"
   },
@@ -536,13 +437,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Recursive Insertion Sort",
     "slug": "recursive-insertion-sort",
     "difficulty": "Basic",
-    "topic": "Step 2: Learn Important Sorting Techniques",
+    "topic": "Sorting",
+    "subtopic": "Sorting-I",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/recursive-insertion-sort",
     "videoUrl": "https://youtu.be/HGk_ypEuS24?t=1900"
   },
@@ -552,13 +450,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Merge Sort",
     "slug": "merge-sorting",
     "difficulty": "Core",
-    "topic": "Step 2: Learn Important Sorting Techniques",
+    "topic": "Sorting",
+    "subtopic": "Sorting-II",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/merge-sorting",
     "videoUrl": "https://youtu.be/ogjf7ORKfd8"
   },
@@ -568,13 +463,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Recursive Bubble Sort",
     "slug": "recursive-bubble-sort",
     "difficulty": "Basic",
-    "topic": "Step 2: Learn Important Sorting Techniques",
+    "topic": "Sorting",
+    "subtopic": "Sorting-II",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/recursive-bubble-sort",
     "videoUrl": ""
   },
@@ -584,13 +476,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Recursive Insertion Sort",
     "slug": "recursive-insertion-sort",
     "difficulty": "Basic",
-    "topic": "Step 2: Learn Important Sorting Techniques",
+    "topic": "Sorting",
+    "subtopic": "Sorting-II",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/recursive-insertion-sort",
     "videoUrl": ""
   },
@@ -600,13 +489,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Quick Sort",
     "slug": "quick-sorting",
     "difficulty": "Core",
-    "topic": "Step 2: Learn Important Sorting Techniques",
+    "topic": "Sorting",
+    "subtopic": "Sorting-II",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/quick-sorting",
     "videoUrl": "https://youtu.be/WIrA4YexLRQ"
   },
@@ -616,13 +502,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Largest Element in Array",
     "slug": "largest-element",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/largest-element",
     "videoUrl": "https://youtu.be/37E9ckMDdTk?t=526"
   },
@@ -632,13 +515,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Second Largest",
     "slug": "second-largest-element",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/second-largest-element",
     "videoUrl": "https://youtu.be/37E9ckMDdTk?t=810"
   },
@@ -648,13 +528,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Check if Array Is Sorted and Rotated",
     "slug": "check-if-array-is-sorted-and-rotated",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/check-if-array-is-sorted-and-rotated",
     "videoUrl": "https://youtu.be/37E9ckMDdTk?t=17224"
   },
@@ -664,13 +541,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Remove Duplicates from Sorted Array",
     "slug": "remove-duplicates-from-sorted-array",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/remove-duplicates-from-sorted-array",
     "videoUrl": "https://youtu.be/37E9ckMDdTk?t=1887"
   },
@@ -680,13 +554,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Rotate Array",
     "slug": "rotate-array",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/rotate-array",
     "videoUrl": "https://youtu.be/wvcQg43_V8U?t=61"
   },
@@ -696,13 +567,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Rotate Array",
     "slug": "rotate-array",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/rotate-array",
     "videoUrl": "https://youtu.be/wvcQg43_V8U?t=485"
   },
@@ -712,13 +580,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Move Zeroes",
     "slug": "move-zeroes",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/move-zeroes",
     "videoUrl": "https://youtu.be/wvcQg43_V8U?t=1633"
   },
@@ -728,13 +593,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sorted Array Search",
     "slug": "linear-search",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/linear-search",
     "videoUrl": "https://youtu.be/wvcQg43_V8U?t=2465"
   },
@@ -744,13 +606,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Union of 2 Sorted Arrays",
     "slug": "union-of-two-sorted-arrays",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/union-of-two-sorted-arrays",
     "videoUrl": "https://youtu.be/wvcQg43_V8U?t=2584"
   },
@@ -760,13 +619,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Missing Number",
     "slug": "missing-number",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/missing-number",
     "videoUrl": "https://youtu.be/bYWLJb3vCWY?t=57"
   },
@@ -776,13 +632,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Max Consecutive Ones",
     "slug": "max-consecutive-ones",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/max-consecutive-ones",
     "videoUrl": "https://youtu.be/bYWLJb3vCWY?t=1124"
   },
@@ -792,13 +645,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Single Number",
     "slug": "single-number",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/single-number",
     "videoUrl": "https://youtu.be/bYWLJb3vCWY?t=1369"
   },
@@ -808,13 +658,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Subarray with Sum K",
     "slug": "maximum-size-subarray-sum-equals-k",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-size-subarray-sum-equals-k",
     "videoUrl": "https://www.youtube.com/watch?v=frf7qxiN2qU&feature=youtu.be"
   },
@@ -824,13 +671,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Subarray with Sum K",
     "slug": "maximum-size-subarray-sum-equals-k",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Easy",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-size-subarray-sum-equals-k",
     "videoUrl": "https://www.youtube.com/watch?v=frf7qxiN2qU"
   },
@@ -840,13 +684,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Two Sum",
     "slug": "two-sum",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/two-sum",
     "videoUrl": "https://youtu.be/UXDSeD9mN-k"
   },
@@ -856,13 +697,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sort Colors",
     "slug": "sort-colors",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sort-colors",
     "videoUrl": "https://youtu.be/tp8JIuCXBaU"
   },
@@ -872,13 +710,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Majority Element",
     "slug": "majority-element",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/majority-element",
     "videoUrl": "https://youtu.be/nP_ns3uSh80"
   },
@@ -888,13 +723,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum Subarray",
     "slug": "maximum-subarray",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-subarray",
     "videoUrl": "https://www.youtube.com/watch?v=w_KEocd__20&list=PLgUwDviBIf0rPG3Ictpu74YWBQ1CaBkm2&index=5"
   },
@@ -904,13 +736,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Max Score from Subarray Mins",
     "slug": "maximum-subarray",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-subarray",
     "videoUrl": "https://youtu.be/AHZpyENo7k4"
   },
@@ -920,13 +749,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Best Time to Buy and Sell Stock",
     "slug": "best-time-to-buy-and-sell-stock",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock",
     "videoUrl": "https://youtu.be/excAOvwF_Wk"
   },
@@ -936,13 +762,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Rearrange Array Elements by Sign",
     "slug": "rearrange-array-elements-by-sign",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/rearrange-array-elements-by-sign",
     "videoUrl": "https://youtu.be/h4aBagy4Uok"
   },
@@ -952,13 +775,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Next Permutation",
     "slug": "next-permutation",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/next-permutation",
     "videoUrl": "https://youtu.be/JDOXKqF60RQ"
   },
@@ -968,13 +788,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Array Leaders",
     "slug": "buildings-with-an-ocean-view",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/buildings-with-an-ocean-view",
     "videoUrl": "https://youtu.be/cHrH9CQ8pmY"
   },
@@ -984,13 +801,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Consecutive Sequence",
     "slug": "longest-consecutive-sequence",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-consecutive-sequence",
     "videoUrl": "https://youtu.be/oO5uLE7EUlM"
   },
@@ -1000,13 +814,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Set Matrix Zeroes",
     "slug": "set-matrix-zeroes",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/set-matrix-zeroes",
     "videoUrl": "https://youtu.be/N0MgLvceX7M"
   },
@@ -1016,13 +827,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Rotate Image",
     "slug": "rotate-image",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/rotate-image",
     "videoUrl": "https://youtu.be/Z0R2u6gd3GU"
   },
@@ -1032,13 +840,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Spiral Matrix",
     "slug": "spiral-matrix",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/spiral-matrix",
     "videoUrl": "https://youtu.be/3Zv-s9UUrFM"
   },
@@ -1048,13 +853,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Subarray Sum Equals K",
     "slug": "subarray-sum-equals-k",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Medium",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/subarray-sum-equals-k",
     "videoUrl": "https://www.youtube.com/watch?v=xvNwoz-ufXA&list=PLgUwDviBIf0oF6QL8m22w1hIDC1vJ_BHz&index=32"
   },
@@ -1064,13 +866,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Pascal's Triangle",
     "slug": "pascals-triangle",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/pascals-triangle",
     "videoUrl": "https://youtu.be/bR7mQgwQ_o8"
   },
@@ -1080,13 +879,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Majority Element II",
     "slug": "majority-element-ii",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/majority-element-ii",
     "videoUrl": "https://youtu.be/vwZj1K0e9U8"
   },
@@ -1096,13 +892,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "3Sum",
     "slug": "3sum",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/3sum",
     "videoUrl": "https://youtu.be/DhFh8Kw7ymk"
   },
@@ -1112,13 +905,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "4Sum",
     "slug": "4sum",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/4sum",
     "videoUrl": "https://youtu.be/eD95WRfh81c"
   },
@@ -1128,13 +918,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Largest subarray with 0 sum",
     "slug": "maximum-size-subarray-sum-equals-k",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-size-subarray-sum-equals-k",
     "videoUrl": "https://www.youtube.com/watch?v=xmguZ6GbatA&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=23"
   },
@@ -1144,13 +931,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Subarray with given XOR",
     "slug": "subarray-with-given-xor",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://www.interviewbit.com/problems/subarray-with-given-xor",
     "videoUrl": "https://youtu.be/eZr-6p0B7ME"
   },
@@ -1160,13 +944,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Merge Intervals",
     "slug": "merge-intervals",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/merge-intervals",
     "videoUrl": "https://youtu.be/IexN60k62jo"
   },
@@ -1176,13 +957,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Merge Sorted Array",
     "slug": "merge-sorted-array",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/merge-sorted-array",
     "videoUrl": "https://youtu.be/n7uwj04E0I4"
   },
@@ -1192,13 +970,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Missing And Repeating",
     "slug": "find-the-repeating-and-missing-number",
     "difficulty": "Basic",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/find-the-repeating-and-missing-number",
     "videoUrl": "https://youtu.be/2D0D8HE6uak"
   },
@@ -1208,13 +983,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Inversions",
     "slug": "count-inversions",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/count-inversions",
     "videoUrl": "https://youtu.be/AseUmwVNaoY"
   },
@@ -1224,13 +996,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse Pairs",
     "slug": "reverse-pairs",
     "difficulty": "Hard",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-pairs",
     "videoUrl": "https://youtu.be/0e4bZaP3MDI"
   },
@@ -1240,13 +1009,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum Product Subarray",
     "slug": "maximum-product-subarray",
     "difficulty": "Core",
-    "topic": "Step 3: Solve Problems on Arrays",
+    "topic": "Arrays",
+    "subtopic": "Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-product-subarray",
     "videoUrl": "https://youtu.be/hnswaLJvr6g"
   },
@@ -1256,13 +1022,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Search",
     "slug": "binary-search",
     "difficulty": "Basic",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-search",
     "videoUrl": "https://youtu.be/MHf6awe89xw"
   },
@@ -1272,13 +1035,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Floor in a Sorted Array",
     "slug": "lower-bound-",
     "difficulty": "Basic",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/lower-bound-",
     "videoUrl": "https://youtu.be/6zhGS79oQ4k"
   },
@@ -1288,13 +1048,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Upper Bound",
     "slug": "upper-bound",
     "difficulty": "Basic",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/upper-bound",
     "videoUrl": "https://youtu.be/6zhGS79oQ4k"
   },
@@ -1304,13 +1061,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Search Insert Position",
     "slug": "search-insert-position",
     "difficulty": "Basic",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/search-insert-position",
     "videoUrl": "https://youtu.be/6zhGS79oQ4k"
   },
@@ -1320,13 +1074,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Floor and Ceil in Sorted Array",
     "slug": "floor-and-ceil-in-sorted-array",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/floor-and-ceil-in-sorted-array",
     "videoUrl": "https://www.youtube.com/watch?v=6zhGS79oQ4k&list=PLgUwDviBIf0pMFMWuuvDNMAkoQFi-h0ZF&index=3"
   },
@@ -1336,13 +1087,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find First and Last Position of Element in Sorted Array",
     "slug": "find-first-and-last-position-of-element-in-sorted-array",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array",
     "videoUrl": "https://youtu.be/hjR1IYVx9lY"
   },
@@ -1352,13 +1100,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of occurrence",
     "slug": "count-occurrences-in-a-sorted-array",
     "difficulty": "Basic",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/count-occurrences-in-a-sorted-array",
     "videoUrl": "https://youtu.be/hjR1IYVx9lY"
   },
@@ -1368,13 +1113,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Search in Rotated Sorted Array",
     "slug": "search-in-rotated-sorted-array",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/search-in-rotated-sorted-array",
     "videoUrl": "https://youtu.be/5qGrJbHhqFs"
   },
@@ -1384,13 +1126,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Search in Rotated Sorted Array II",
     "slug": "search-in-rotated-sorted-array-ii",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/search-in-rotated-sorted-array-ii",
     "videoUrl": "https://youtu.be/w2G2W8l__pc"
   },
@@ -1400,13 +1139,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find Minimum in Rotated Sorted Array",
     "slug": "find-minimum-in-rotated-sorted-array",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array",
     "videoUrl": "https://youtu.be/nhEMDKMB44g"
   },
@@ -1416,13 +1152,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find Kth Rotation",
     "slug": "find-out-how-many-times-the-array-is-rotated",
     "difficulty": "Basic",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/find-out-how-many-times-the-array-is-rotated",
     "videoUrl": "https://youtu.be/jtSiWTPLwd0"
   },
@@ -1432,13 +1165,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Single Element in a Sorted Array",
     "slug": "single-element-in-a-sorted-array",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/single-element-in-a-sorted-array",
     "videoUrl": "https://youtu.be/AZOmHuHadxQ"
   },
@@ -1448,13 +1178,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find Peak Element",
     "slug": "find-peak-element",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 1D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-peak-element",
     "videoUrl": "https://youtu.be/cXxmbemS6XM"
   },
@@ -1464,13 +1191,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Square Root",
     "slug": "sqrtx",
     "difficulty": "Basic",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sqrtx",
     "videoUrl": "https://youtu.be/Bsv3FPUX_BA"
   },
@@ -1480,13 +1204,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find nth root of m",
     "slug": "find-nth-root-of-a-number",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/find-nth-root-of-a-number",
     "videoUrl": "https://youtu.be/rjEJeYCasHs"
   },
@@ -1496,13 +1217,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Koko Eating Bananas",
     "slug": "koko-eating-bananas",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/koko-eating-bananas",
     "videoUrl": "https://youtu.be/qyfekrNni90"
   },
@@ -1512,13 +1230,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Number of Days to Make m Bouquets",
     "slug": "minimum-number-of-days-to-make-m-bouquets",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets",
     "videoUrl": "https://youtu.be/TXAuxeYBTdg"
   },
@@ -1528,13 +1243,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find the Smallest Divisor Given a Threshold",
     "slug": "find-the-smallest-divisor-given-a-threshold",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold",
     "videoUrl": "https://youtu.be/UvBKTVaG6U8"
   },
@@ -1544,13 +1256,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Capacity To Ship Packages Within D Days",
     "slug": "capacity-to-ship-packages-within-d-days",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days",
     "videoUrl": "https://youtu.be/MG-Ac4TAvTY"
   },
@@ -1560,13 +1269,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Kth Missing Positive Number",
     "slug": "kth-missing-positive-number",
     "difficulty": "Basic",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/kth-missing-positive-number",
     "videoUrl": "https://youtu.be/uZ0N_hZpyps"
   },
@@ -1576,13 +1282,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "AGGRCOW",
     "slug": "aggrcow",
     "difficulty": "Hard",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://www.spoj.com/problems/AGGRCOW/",
     "videoUrl": "https://youtu.be/R_Mfw4ew-Vo"
   },
@@ -1592,13 +1295,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Allocate Books",
     "slug": "split-array-largest-sum",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/split-array-largest-sum",
     "videoUrl": "https://youtu.be/Z0hwjftStI4"
   },
@@ -1608,13 +1308,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Split Array Largest Sum",
     "slug": "split-array-largest-sum",
     "difficulty": "Hard",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/split-array-largest-sum",
     "videoUrl": "https://www.youtube.com/watch?v=thUd_WJn6wk&list=PLgUwDviBIf0pMFMWuuvDNMAkoQFi-h0ZF&index=20"
   },
@@ -1624,13 +1321,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Painter's Partition Problem",
     "slug": "split-array-largest-sum",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/split-array-largest-sum",
     "videoUrl": "https://www.youtube.com/watch?v=thUd_WJn6wk&list=PLgUwDviBIf0pMFMWuuvDNMAkoQFi-h0ZF&index=20"
   },
@@ -1640,13 +1334,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimize Max Distance to Gas Station",
     "slug": "minimize-max-distance-to-gas-station",
     "difficulty": "Hard",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimize-max-distance-to-gas-station",
     "videoUrl": "https://www.youtube.com/watch?v=kMSBvlZ-_HA&list=PLgUwDviBIf0pMFMWuuvDNMAkoQFi-h0ZF&index=21"
   },
@@ -1656,13 +1347,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Median of Two Sorted Arrays",
     "slug": "median-of-two-sorted-arrays",
     "difficulty": "Hard",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/median-of-two-sorted-arrays",
     "videoUrl": "https://youtu.be/C2rRzz-JDk8"
   },
@@ -1672,13 +1360,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "K-th element of two  Arrays",
     "slug": "kth-element-of-2-sorted-arrays",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on Answers",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/kth-element-of-2-sorted-arrays",
     "videoUrl": "https://youtu.be/D1oDwWCq50g"
   },
@@ -1688,13 +1373,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Row with max 1s",
     "slug": "find-row-with-maximum-1's",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 2D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/find-row-with-maximum-1's",
     "videoUrl": "https://youtu.be/SCz-1TtYxDI"
   },
@@ -1704,13 +1386,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Search a 2D Matrix",
     "slug": "search-a-2d-matrix",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 2D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/search-a-2d-matrix",
     "videoUrl": "https://youtu.be/JXU4Akft7yk"
   },
@@ -1720,13 +1399,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Search a 2D Matrix II",
     "slug": "search-a-2d-matrix-ii",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 2D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/search-a-2d-matrix-ii",
     "videoUrl": "https://youtu.be/9ZbB397jU4k"
   },
@@ -1736,13 +1412,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find a Peak Element II",
     "slug": "find-a-peak-element-ii",
     "difficulty": "Core",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 2D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-a-peak-element-ii",
     "videoUrl": "https://youtu.be/nGGp5XBzC4g?si=WCop5C6Azj5gAELH"
   },
@@ -1752,13 +1425,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Median in a row-wise sorted Matrix",
     "slug": "median-of-a-row-wise-sorted-matrix",
     "difficulty": "Hard",
-    "topic": "Step 4: Binary Search",
+    "topic": "Binary Search",
+    "subtopic": "BS on 2D Arrays",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/median-of-a-row-wise-sorted-matrix",
     "videoUrl": "https://youtu.be/Q9wXgdxJq48?si=ScI_0uzJh7yg8nrX"
   },
@@ -1768,13 +1438,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Remove Outermost Parentheses",
     "slug": "remove-outermost-parentheses",
     "difficulty": "Basic",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Basic and Easy String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/remove-outermost-parentheses",
     "videoUrl": ""
   },
@@ -1784,13 +1451,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse Words in a String",
     "slug": "reverse-words-in-a-string",
     "difficulty": "Core",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Basic and Easy String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-words-in-a-string",
     "videoUrl": ""
   },
@@ -1800,13 +1464,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Largest Odd Number in String",
     "slug": "largest-odd-number-in-string",
     "difficulty": "Basic",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Basic and Easy String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/largest-odd-number-in-string",
     "videoUrl": ""
   },
@@ -1816,13 +1477,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Common Prefix",
     "slug": "longest-common-prefix",
     "difficulty": "Basic",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Basic and Easy String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-common-prefix",
     "videoUrl": ""
   },
@@ -1832,13 +1490,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Isomorphic Strings",
     "slug": "isomorphic-strings",
     "difficulty": "Basic",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Basic and Easy String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/isomorphic-strings",
     "videoUrl": ""
   },
@@ -1848,13 +1503,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Rotate String",
     "slug": "rotate-string",
     "difficulty": "Basic",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Basic and Easy String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/rotate-string",
     "videoUrl": ""
   },
@@ -1864,13 +1516,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Valid Anagram",
     "slug": "valid-anagram",
     "difficulty": "Basic",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Basic and Easy String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/valid-anagram",
     "videoUrl": ""
   },
@@ -1880,13 +1529,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sort Characters By Frequency",
     "slug": "sort-characters-by-frequency",
     "difficulty": "Core",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Medium String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sort-characters-by-frequency",
     "videoUrl": ""
   },
@@ -1896,13 +1542,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum Nesting Depth of the Parentheses",
     "slug": "maximum-nesting-depth-of-the-parentheses",
     "difficulty": "Basic",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Medium String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-nesting-depth-of-the-parentheses",
     "videoUrl": ""
   },
@@ -1912,13 +1555,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Roman to Integer",
     "slug": "roman-to-integer",
     "difficulty": "Basic",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Medium String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/roman-to-integer",
     "videoUrl": ""
   },
@@ -1928,13 +1568,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "String to Integer (atoi)",
     "slug": "string-to-integer-atoi",
     "difficulty": "Core",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Medium String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/string-to-integer-atoi",
     "videoUrl": ""
   },
@@ -1944,13 +1581,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Subarrays with K Different Integers",
     "slug": "subarrays-with-k-different-integers",
     "difficulty": "Hard",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Medium String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/subarrays-with-k-different-integers",
     "videoUrl": ""
   },
@@ -1960,13 +1594,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Palindromic Substring",
     "slug": "longest-palindromic-substring",
     "difficulty": "Core",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Medium String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-palindromic-substring",
     "videoUrl": ""
   },
@@ -1976,13 +1607,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sum of Beauty of All Substrings",
     "slug": "sum-of-beauty-of-all-substrings",
     "difficulty": "Core",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Medium String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sum-of-beauty-of-all-substrings",
     "videoUrl": ""
   },
@@ -1992,13 +1620,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse Words in a String",
     "slug": "reverse-words-in-a-string",
     "difficulty": "Core",
-    "topic": "Step 5: Strings",
+    "topic": "Strings (Basic and Medium)",
+    "subtopic": "Medium String Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-words-in-a-string",
     "videoUrl": ""
   },
@@ -2008,13 +1633,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Array to Linked List",
     "slug": "singly-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn 1D LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/blogs/data-structure-and-algorithm/singly-linked-list",
     "videoUrl": "https://youtu.be/Nq7ok-OyEpg?si=9PR1o8OPRWil7fRA"
   },
@@ -2024,13 +1646,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Linked List Insertion At End",
     "slug": "insertion-at-the-head-of-ll",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn 1D LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/insertion-at-the-head-of-ll",
     "videoUrl": "https://youtu.be/VaECK03Dz-g?si=vHSwdf9jhE05adKM&t=1934"
   },
@@ -2040,13 +1659,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Delete Node in a Linked List",
     "slug": "delete-node-in-a-linked-list",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn 1D LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/delete-node-in-a-linked-list",
     "videoUrl": "https://youtu.be/VaECK03Dz-g?si=CRaBHbOo2bHFbOT5"
   },
@@ -2056,13 +1672,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find Length of Linked List",
     "slug": "find-the-length-of-the-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn 1D LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/find-the-length-of-the-linked-list",
     "videoUrl": "https://youtu.be/Nq7ok-OyEpg?si=xqQbukLfo2oZ6C6s&t=2240"
   },
@@ -2072,13 +1685,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Search in Linked List",
     "slug": "search-in-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn 1D LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/search-in-linked-list",
     "videoUrl": "https://youtu.be/Nq7ok-OyEpg?si=WNXcIaXZ_B6cNq0s&t=2524"
   },
@@ -2088,13 +1698,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Introduction to Doubly Linked List",
     "slug": "doubly-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn Doubly LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/blogs/data-structure-and-algorithm/doubly-linked-list",
     "videoUrl": "https://youtu.be/0eKMU10uEDI?si=uDnoj_C5ghEpNLvP"
   },
@@ -2104,13 +1711,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Insertion at doubly linked list",
     "slug": "insert-node-before-head-in-dll",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn Doubly LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/insert-node-before-head-in-dll",
     "videoUrl": "https://youtu.be/0eKMU10uEDI?si=J5a0pQTosimcO_aA&t=2684"
   },
@@ -2120,13 +1724,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Delete in a Doubly Linked List",
     "slug": "delete-head-of-dll",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn Doubly LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/delete-head-of-dll",
     "videoUrl": "https://youtu.be/0eKMU10uEDI?si=sE7jqrW46lfRHVLd&t=853"
   },
@@ -2136,13 +1737,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse a Doubly Linked List",
     "slug": "reverse-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Learn Doubly LinkedList",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-linked-list",
     "videoUrl": "https://youtu.be/u3WUW2qe6ww?si=96Wwlju72IvmzkxE"
   },
@@ -2152,13 +1750,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Middle of the Linked List",
     "slug": "middle-of-the-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/middle-of-the-linked-list",
     "videoUrl": "https://youtu.be/7LjQ57RqgEc?si=ir_rRDio38rhamU_"
   },
@@ -2168,13 +1763,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse Linked List",
     "slug": "reverse-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-linked-list",
     "videoUrl": "https://youtu.be/D2vI2DNJGd8?si=RCaLSx01qR21IBdh"
   },
@@ -2184,13 +1776,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse Linked List",
     "slug": "reverse-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-linked-list",
     "videoUrl": "https://youtu.be/D2vI2DNJGd8?si=RCaLSx01qR21IBdh"
   },
@@ -2200,13 +1789,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Linked List Cycle",
     "slug": "linked-list-cycle",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/linked-list-cycle",
     "videoUrl": "https://youtu.be/wiOo4DC5GGA?si=zagt6O6tFXc4_3cx"
   },
@@ -2216,13 +1802,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Linked List Cycle II",
     "slug": "linked-list-cycle-ii",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/linked-list-cycle-ii",
     "videoUrl": "https://youtu.be/2Kd0KKmmHFc?si=7UreDPRjRvapeVB0"
   },
@@ -2232,13 +1815,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find length of Loop",
     "slug": "length-of-loop-in-ll",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/length-of-loop-in-ll",
     "videoUrl": "https://youtu.be/I4g1qbkTPus?si=ONktpqewvx57T8pF"
   },
@@ -2248,13 +1828,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Palindrome Linked List",
     "slug": "palindrome-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/palindrome-linked-list",
     "videoUrl": "https://youtu.be/lRY_G-u_8jk?si=BpM8hRYvXSYyjl-G"
   },
@@ -2264,13 +1841,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Odd Even Linked List",
     "slug": "odd-even-linked-list",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/odd-even-linked-list",
     "videoUrl": "https://youtu.be/qf6qp7GzD5Q?si=JozAyXUdT8EJMSCQ"
   },
@@ -2280,13 +1854,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Remove Nth Node From End of List",
     "slug": "remove-nth-node-from-end-of-list",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/remove-nth-node-from-end-of-list",
     "videoUrl": "https://youtu.be/3kMKYQ2wNIU?si=DtFDnPU7z9HMz_GM"
   },
@@ -2296,13 +1867,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Delete the Middle Node of a Linked List",
     "slug": "delete-the-middle-node-of-a-linked-list",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list",
     "videoUrl": "https://youtu.be/ePpV-_pfOeI?si=Au9GsZkVO57j6SiN"
   },
@@ -2312,13 +1880,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sort List",
     "slug": "sort-list",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sort-list",
     "videoUrl": "https://youtu.be/8ocB7a_c-Cc?si=Gv-Y8q8-WyARoV35"
   },
@@ -2328,13 +1893,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sort a linked list of 0s, 1s and 2s",
     "slug": "sort-a-ll-of-0's-1's-and-2's",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/sort-a-ll-of-0's-1's-and-2's",
     "videoUrl": "https://youtu.be/gRII7LhdJWc?si=l3qRC7w3NhY7OAqw"
   },
@@ -2344,13 +1906,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Intersection of Two Linked Lists",
     "slug": "intersection-of-two-linked-lists",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/intersection-of-two-linked-lists",
     "videoUrl": "https://youtu.be/0DYoPz2Tpt4?si=L-uJs5yXUxj4VJM2"
   },
@@ -2360,13 +1919,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Add 1 to a Linked List Number",
     "slug": "plus-one-linked-list",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/plus-one-linked-list",
     "videoUrl": "https://youtu.be/aXQWhbvT3w0?si=uRgU9S4r5cVmnUy7"
   },
@@ -2376,13 +1932,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Add Two Numbers",
     "slug": "add-two-numbers",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/add-two-numbers",
     "videoUrl": "https://youtu.be/XmRrGzR6udg?si=VYuZYUcaVCrZCgpA"
   },
@@ -2392,13 +1945,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Delete all occurrences of a given key in a doubly linked list",
     "slug": "delete-all-occurrences-of-a-key-in-dll",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of DLL",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/delete-all-occurrences-of-a-key-in-dll",
     "videoUrl": "https://youtu.be/Mh0NH_SD92k?si=tCYshBRi1upMqSVz"
   },
@@ -2408,13 +1958,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find pairs with given sum in doubly linked list",
     "slug": "find-pairs-with-given-sum-in-doubly-linked-list",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of DLL",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/find-pairs-with-given-sum-in-doubly-linked-list",
     "videoUrl": "https://youtu.be/YitR4dQsddE?si=iZAC259hdngV_OxC"
   },
@@ -2424,13 +1971,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Remove duplicates from a sorted doubly linked list",
     "slug": "remove-duplicated-from-sorted-dll",
     "difficulty": "Basic",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Medium Problems of DLL",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/remove-duplicated-from-sorted-dll",
     "videoUrl": "https://youtu.be/YJKVTnOJXSY?si=AsZoNUoewetsBjr0"
   },
@@ -2440,13 +1984,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse Nodes in k-Group",
     "slug": "reverse-nodes-in-k-group",
     "difficulty": "Hard",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Hard Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/reverse-nodes-in-k-group",
     "videoUrl": "https://youtu.be/lIar1skcQYI?si=_jFghHKX4eaK36a1"
   },
@@ -2456,13 +1997,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Rotate List",
     "slug": "rotate-list",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Hard Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/rotate-list",
     "videoUrl": "https://youtu.be/uT7YI7XbTY8?si=ZaChW3a68c_v54Is"
   },
@@ -2472,13 +2010,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Flattening a Linked List",
     "slug": "merge-k-sorted-lists",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Hard Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/merge-k-sorted-lists",
     "videoUrl": "https://youtu.be/ykelywHJWLg?si=InMg9MmTHzY22NSR"
   },
@@ -2488,13 +2023,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Copy List with Random Pointer",
     "slug": "copy-list-with-random-pointer",
     "difficulty": "Core",
-    "topic": "Step 6: Learn LinkedList",
+    "topic": "Linked-List",
+    "subtopic": "Hard Problems of LL",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/copy-list-with-random-pointer",
     "videoUrl": "https://youtu.be/q570bKdrnlw?si=epZtpWvtNwuTf23o"
   },
@@ -2504,13 +2036,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "String to Integer (atoi)",
     "slug": "string-to-integer-atoi",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Get a Strong Hold",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/string-to-integer-atoi",
     "videoUrl": ""
   },
@@ -2520,13 +2049,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Pow(x, n)",
     "slug": "powx-n",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Get a Strong Hold",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/powx-n",
     "videoUrl": "https://youtu.be/l0YC3876qxg"
   },
@@ -2536,13 +2062,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Good Numbers",
     "slug": "count-good-numbers",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Get a Strong Hold",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/count-good-numbers",
     "videoUrl": ""
   },
@@ -2552,13 +2075,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sort a stack",
     "slug": "sort-a-stack",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Get a Strong Hold",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/sort-a-stack",
     "videoUrl": ""
   },
@@ -2568,13 +2088,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Reverse a Stack",
     "slug": "reverse-a-stack",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Get a Strong Hold",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/reverse-a-stack",
     "videoUrl": ""
   },
@@ -2584,13 +2101,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Generate Binary String With Consecutive 1s",
     "slug": "generate-binary-strings-without-consecutive-1s",
     "difficulty": "Basic",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/generate-binary-strings-without-consecutive-1s",
     "videoUrl": ""
   },
@@ -2600,13 +2114,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Generate Parentheses",
     "slug": "generate-parentheses",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/generate-parentheses",
     "videoUrl": ""
   },
@@ -2616,13 +2127,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Subsets",
     "slug": "subsets",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/subsets",
     "videoUrl": "https://youtu.be/b7AYbpM5YrE"
   },
@@ -2632,13 +2140,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Distinct Subsequences II",
     "slug": "distinct-subsequences-ii",
     "difficulty": "Hard",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/distinct-subsequences-ii",
     "videoUrl": "https://www.youtube.com/watch?v=eQCS_v3bw0Q&list=PLgUwDviBIf0rGlzIn_7rsaR2FQ5e6ZOL9&index=7"
   },
@@ -2648,13 +2153,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Perfect Sum Problem",
     "slug": "count-all-subsequences-with-sum-k",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/count-all-subsequences-with-sum-k",
     "videoUrl": ""
   },
@@ -2664,13 +2166,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Check if there exists a subsequence with sum K",
     "slug": "check-if-there-exists-a-subsequence-with-sum-k",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/check-if-there-exists-a-subsequence-with-sum-k",
     "videoUrl": ""
   },
@@ -2680,13 +2179,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Combination Sum",
     "slug": "combination-sum",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/combination-sum",
     "videoUrl": "https://www.youtube.com/watch?v=OyZFFqQtu98&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=49"
   },
@@ -2696,13 +2192,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Combination Sum II",
     "slug": "combination-sum-ii",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/combination-sum-ii",
     "videoUrl": "https://www.youtube.com/watch?v=G1fRTGRxXU8&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=50"
   },
@@ -2712,13 +2205,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Subset Sums",
     "slug": "subsets",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/subsets",
     "videoUrl": "https://www.youtube.com/watch?v=rYkfBRtMJr8&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=52"
   },
@@ -2728,13 +2218,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Subsets II",
     "slug": "subsets-ii",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/subsets-ii",
     "videoUrl": "https://www.youtube.com/watch?v=RIn3gOkbhQE&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=53"
   },
@@ -2744,13 +2231,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Combination Sum III",
     "slug": "combination-sum-iii",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/combination-sum-iii",
     "videoUrl": ""
   },
@@ -2760,13 +2244,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Letter Combinations of a Phone Number",
     "slug": "letter-combinations-of-a-phone-number",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Subsequences Pattern",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/letter-combinations-of-a-phone-number",
     "videoUrl": ""
   },
@@ -2776,13 +2257,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Palindrome Partitioning",
     "slug": "palindrome-partitioning",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Trying out all Combos / Hard",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/palindrome-partitioning",
     "videoUrl": "https://www.youtube.com/watch?v=WBgsABoClE0&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=51"
   },
@@ -2792,13 +2270,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Word Search",
     "slug": "word-search",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Trying out all Combos / Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/word-search",
     "videoUrl": ""
   },
@@ -2808,13 +2283,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "N-Queens",
     "slug": "n-queens",
     "difficulty": "Hard",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Trying out all Combos / Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/n-queens",
     "videoUrl": "https://www.youtube.com/watch?v=i05Ju7AftcM&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=57"
   },
@@ -2824,13 +2296,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Rat in a Maze Problem - I",
     "slug": "rat-in-a-maze",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Trying out all Combos / Hard",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/rat-in-a-maze",
     "videoUrl": "https://www.youtube.com/watch?v=bLGZhJlt4y0&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=60"
   },
@@ -2840,13 +2309,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Word Break",
     "slug": "word-break",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Trying out all Combos / Hard",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/word-break",
     "videoUrl": ""
   },
@@ -2856,13 +2322,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "M-Coloring Problem",
     "slug": "m-coloring-problem",
     "difficulty": "Core",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Trying out all Combos / Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/m-coloring-problem",
     "videoUrl": "https://www.youtube.com/watch?v=wuVwUK25Rfc&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=59"
   },
@@ -2872,13 +2335,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sudoku Solver",
     "slug": "sudoku-solver",
     "difficulty": "Hard",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Trying out all Combos / Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sudoku-solver",
     "videoUrl": "https://www.youtube.com/watch?v=FWAIf_EVUKE&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=58"
   },
@@ -2888,13 +2348,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Expression Add Operators",
     "slug": "expression-add-operators",
     "difficulty": "Hard",
-    "topic": "Step 7: Recursion",
+    "topic": "Recursion",
+    "subtopic": "Trying out all Combos / Hard",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/expression-add-operators",
     "videoUrl": ""
   },
@@ -2904,13 +2361,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Bit Manipulation",
     "slug": "bit-manipulation",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Learn Bit Manipulation",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://www.youtube.com/watch?v=qQd-ViW7bfk",
     "videoUrl": "https://youtu.be/qQd-ViW7bfk?si=QtdNaRhHmZb08Mr8"
   },
@@ -2920,13 +2374,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Check K-th Bit",
     "slug": "check-if-the-i-th-bit-is-set-or-not",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Learn Bit Manipulation",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/check-if-the-i-th-bit-is-set-or-not",
     "videoUrl": "https://youtu.be/nttpF8kwgd4?si=x9o8PsYaA2XVZ9rV"
   },
@@ -2936,13 +2387,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Odd or Even",
     "slug": "check-if-a-number-is-odd-or-not",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Learn Bit Manipulation",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/check-if-a-number-is-odd-or-not",
     "videoUrl": "https://youtu.be/nttpF8kwgd4?si=x9o8PsYaA2XVZ9rV"
   },
@@ -2952,13 +2400,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Power of Two",
     "slug": "power-of-two",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Learn Bit Manipulation",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/power-of-two",
     "videoUrl": "https://youtu.be/nttpF8kwgd4?si=x9o8PsYaA2XVZ9rV"
   },
@@ -2968,13 +2413,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count set bits",
     "slug": "number-of-1-bits",
     "difficulty": "Core",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Learn Bit Manipulation",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-1-bits",
     "videoUrl": "https://youtu.be/nttpF8kwgd4?si=x9o8PsYaA2XVZ9rV"
   },
@@ -2984,13 +2426,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximizing XOR",
     "slug": "maximizing-xor",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Learn Bit Manipulation",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://www.hackerrank.com/challenges/maximizing-xor",
     "videoUrl": "https://youtu.be/nttpF8kwgd4?si=x9o8PsYaA2XVZ9rV"
   },
@@ -3000,13 +2439,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Swap two numbers",
     "slug": "swap-two-numbers",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Learn Bit Manipulation",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/swap-two-numbers",
     "videoUrl": "https://youtu.be/nttpF8kwgd4?si=x9o8PsYaA2XVZ9rV"
   },
@@ -3016,13 +2452,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Divide Two Integers",
     "slug": "divide-two-integers",
     "difficulty": "Core",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Learn Bit Manipulation",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/divide-two-integers",
     "videoUrl": "https://youtu.be/pBD4B1tzgVc?si=G9c5pEE-RrzeU6sz"
   },
@@ -3032,13 +2465,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Bit Flips to Convert Number",
     "slug": "minimum-bit-flips-to-convert-number",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Interview Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-bit-flips-to-convert-number",
     "videoUrl": "https://youtu.be/OOdrmcfZXd8?si=rnkRVz1UiVBKWC69"
   },
@@ -3048,13 +2478,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Single Number",
     "slug": "single-number",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Interview Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/single-number",
     "videoUrl": "https://youtu.be/sFBCAl8yBfE?si=fETk-BA0cvmF02rR"
   },
@@ -3064,13 +2491,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Subsets",
     "slug": "subsets",
     "difficulty": "Core",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Interview Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/subsets",
     "videoUrl": "https://youtu.be/LqKaUv1G3_I?si=UXU_T5OsHiokPRvP"
   },
@@ -3080,13 +2504,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find XOR of numbers from L to R.",
     "slug": "xor-of-numbers-in-a-given-range",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Interview Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/xor-of-numbers-in-a-given-range",
     "videoUrl": "https://youtu.be/WqGb7159h7Q?si=uGUEbNUUaIN_6Vvr"
   },
@@ -3096,13 +2517,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Two odd Occuring",
     "slug": "single-number-iii",
     "difficulty": "Core",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Interview Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/single-number-iii",
     "videoUrl": "https://youtu.be/UA5JnV1J2sI?si=VFBRJyb3boZvx_r1"
   },
@@ -3112,13 +2530,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Prime Factorization using Sieve",
     "slug": "prime-factorisation-of-a-number",
     "difficulty": "Core",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Advanced Maths",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/prime-factorisation-of-a-number",
     "videoUrl": "https://youtu.be/LT7XhVdeRyg?si=6HkjQokJRPTFai21"
   },
@@ -3128,13 +2543,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "All divisors of a Number",
     "slug": "divisors-of-a-number",
     "difficulty": "Basic",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Advanced Maths",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/divisors-of-a-number",
     "videoUrl": "https://youtu.be/Ae_Ag_saG9s?si=QQoDTW5DxyZ3Lfjg"
   },
@@ -3144,13 +2556,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Primes",
     "slug": "count-primes",
     "difficulty": "Core",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Advanced Maths",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/count-primes",
     "videoUrl": "https://youtu.be/g5Fuxn_AvSk?si=fv6Q-Po7wrMW0a5n"
   },
@@ -3160,13 +2569,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Prime Factorization using Sieve",
     "slug": "prime-factorisation-of-a-number",
     "difficulty": "Core",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Advanced Maths",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/prime-factorisation-of-a-number",
     "videoUrl": "https://youtu.be/glKWkmKFlMw?si=3k5K5oq3FvKVrWLB"
   },
@@ -3176,13 +2582,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Pow(x, n)",
     "slug": "powx-n",
     "difficulty": "Core",
-    "topic": "Step 8: Bit Manipulation",
+    "topic": "Bit Manipulation",
+    "subtopic": "Advanced Maths",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/powx-n",
     "videoUrl": "https://youtu.be/hFWckDXE-K8?si=lBoOx3qYcmGo_j5b"
   },
@@ -3192,13 +2595,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Implement stack using array",
     "slug": "implement-stack-using-arrays",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/implement-stack-using-arrays",
     "videoUrl": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w"
   },
@@ -3208,13 +2608,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Queue Using Array",
     "slug": "implement-queue-using-arrays",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/implement-queue-using-arrays",
     "videoUrl": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w"
   },
@@ -3224,13 +2621,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Implement Stack using Queues",
     "slug": "implement-stack-using-queues",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/implement-stack-using-queues",
     "videoUrl": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w"
   },
@@ -3240,13 +2634,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Implement Queue using Stacks",
     "slug": "implement-queue-using-stacks",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/implement-queue-using-stacks",
     "videoUrl": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w"
   },
@@ -3256,13 +2647,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Stack using Linked List",
     "slug": "implement-stack-using-linkedlist",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/implement-stack-using-linkedlist",
     "videoUrl": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w"
   },
@@ -3272,13 +2660,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Queue using Linked List",
     "slug": "implement-queue-using-linkedlist",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/implement-queue-using-linkedlist",
     "videoUrl": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w"
   },
@@ -3288,13 +2673,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Valid Parentheses",
     "slug": "valid-parentheses",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/valid-parentheses",
     "videoUrl": "https://youtu.be/xwjS0iZhw4I?si=UoyKpFn4Q3nf5h2R"
   },
@@ -3304,13 +2686,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Min Stack",
     "slug": "min-stack",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/min-stack",
     "videoUrl": "https://youtu.be/NdDIaH91P0g?si=4_Jbsq5trFvfSdUY"
   },
@@ -3320,13 +2699,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Infix to Postfix Conversion",
     "slug": "infix-to-postfix-conversion",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Prefix, Infix, PostFix Conversion Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/infix-to-postfix-conversion",
     "videoUrl": "https://youtu.be/4pIc9UBHJtk?si=ryeVvQWpCgwbTQrh"
   },
@@ -3336,13 +2712,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Prefix to Infix Conversion",
     "slug": "prefix-to-infix-conversion",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Prefix, Infix, PostFix Conversion Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/prefix-to-infix-conversion",
     "videoUrl": "https://youtu.be/4pIc9UBHJtk?si=ryeVvQWpCgwbTQrh"
   },
@@ -3352,13 +2725,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Prefix to Postfix Conversion",
     "slug": "prefix-to-postfix-conversion",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Prefix, Infix, PostFix Conversion Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/prefix-to-postfix-conversion",
     "videoUrl": "https://youtu.be/4pIc9UBHJtk?si=0pWtyDC1GhbiYP3P"
   },
@@ -3368,13 +2738,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Postfix to Prefix Conversion",
     "slug": "postfix-to-prefix-conversion",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Prefix, Infix, PostFix Conversion Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/postfix-to-prefix-conversion",
     "videoUrl": "https://youtu.be/4pIc9UBHJtk?si=0pWtyDC1GhbiYP3P"
   },
@@ -3384,13 +2751,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "ques 14 d10",
     "slug": "ques-14-d10",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Prefix, Infix, PostFix Conversion Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://www.hackerrank.com/contests/ds-day-10/challenges/ques-14-d10/problem",
     "videoUrl": "https://youtu.be/4pIc9UBHJtk?si=0pWtyDC1GhbiYP3P"
   },
@@ -3400,13 +2764,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Infix to Postfix Conversion",
     "slug": "infix-to-postfix-conversion",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Prefix, Infix, PostFix Conversion Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/infix-to-postfix-conversion",
     "videoUrl": "https://youtu.be/4pIc9UBHJtk?si=0pWtyDC1GhbiYP3P"
   },
@@ -3416,13 +2777,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Next Greater Element I",
     "slug": "next-greater-element-i",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/next-greater-element-i",
     "videoUrl": "https://youtu.be/e7XQLtOQM3I?si=QdcHpTtx6gAHsext"
   },
@@ -3432,13 +2790,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Next Greater Element II",
     "slug": "next-greater-element-ii",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/next-greater-element-ii",
     "videoUrl": "https://youtu.be/7PrncD7v9YQ?si=UkBc7eVy9HGlBpeW"
   },
@@ -3448,13 +2803,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Nearest Smaller Element",
     "slug": "nearest-smaller-element",
     "difficulty": "Basic",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://www.interviewbit.com/problems/nearest-smaller-element",
     "videoUrl": ""
   },
@@ -3464,13 +2816,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of greater elements to the right",
     "slug": "number-of-greater-elements-to-the-right",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/number-of-greater-elements-to-the-right",
     "videoUrl": ""
   },
@@ -3480,13 +2829,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Trapping Rain Water",
     "slug": "trapping-rain-water",
     "difficulty": "Hard",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/trapping-rain-water",
     "videoUrl": "https://youtu.be/1_5VuquLbXg?si=NFG6df318_6OtGvg"
   },
@@ -3496,13 +2842,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sum of Subarray Minimums",
     "slug": "sum-of-subarray-minimums",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sum-of-subarray-minimums",
     "videoUrl": "https://youtu.be/v0e8p9JCgRc?si=XAU7ekECgS5nboRw"
   },
@@ -3512,13 +2855,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Asteroid Collision",
     "slug": "asteroid-collision",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/asteroid-collision",
     "videoUrl": "https://youtu.be/_eYGqw_VDR4?si=YyxibcHq800RqgIQ"
   },
@@ -3528,13 +2868,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sum of Subarray Ranges",
     "slug": "sum-of-subarray-ranges",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sum-of-subarray-ranges",
     "videoUrl": "https://youtu.be/gIrMptNPf5M?si=Q_GHuBvzZVs27X_U"
   },
@@ -3544,13 +2881,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Remove K Digits",
     "slug": "remove-k-digits",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/remove-k-digits",
     "videoUrl": "https://youtu.be/jmbuRzYPGrg?si=WN387gwQ7aXWkUao"
   },
@@ -3560,13 +2894,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Largest Rectangle in Histogram",
     "slug": "largest-rectangle-in-histogram",
     "difficulty": "Hard",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/largest-rectangle-in-histogram",
     "videoUrl": "https://youtu.be/Bzat9vgD0fs?si=DiBlLejXcr6EJoyB"
   },
@@ -3576,13 +2907,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximal Rectangle",
     "slug": "maximal-rectangle",
     "difficulty": "Hard",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Monotonic Stack/Queue Problems [VVV. Imp]",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximal-rectangle",
     "videoUrl": "https://youtu.be/ttVu6G7Ayik?si=RhyeKepNwjRUYp7A"
   },
@@ -3592,13 +2920,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Sliding Window Maximum",
     "slug": "sliding-window-maximum",
     "difficulty": "Hard",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Implementation Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/sliding-window-maximum",
     "videoUrl": "https://youtu.be/NwBvene4Imo?si=eU1PY-bcQfk5wdog"
   },
@@ -3608,13 +2933,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Online Stock Span",
     "slug": "online-stock-span",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Implementation Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/online-stock-span",
     "videoUrl": "https://youtu.be/eay-zoSRkVc?si=deNNe5i38BOAntha"
   },
@@ -3624,13 +2946,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "The Celebrity Problem",
     "slug": "word-break",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Implementation Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/word-break",
     "videoUrl": "https://youtu.be/cEadsbTeze4?si=olXYfOs7l-SEn2zl"
   },
@@ -3640,13 +2959,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "LRU Cache",
     "slug": "lru-cache",
     "difficulty": "Core",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Implementation Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/lru-cache",
     "videoUrl": "https://youtu.be/z9bJUPxzFOw?si=IUo_d35rXBD0CBAF"
   },
@@ -3656,13 +2972,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "LFU Cache",
     "slug": "lfu-cache",
     "difficulty": "Hard",
-    "topic": "Step 9: Stack and Queues",
+    "topic": "Stack / Queues",
+    "subtopic": "Implementation Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/lfu-cache",
     "videoUrl": "https://www.youtube.com/watch?v=0PSB9y8ehbk&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=79"
   },
@@ -3672,13 +2985,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Substring Without Repeating Characters",
     "slug": "longest-substring-without-repeating-characters",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-substring-without-repeating-characters",
     "videoUrl": "https://youtu.be/-zSxTJkcdAo?si=I2zfR-vlDMg0zU9z"
   },
@@ -3688,13 +2998,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Max Consecutive Ones III",
     "slug": "max-consecutive-ones-iii",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/max-consecutive-ones-iii",
     "videoUrl": "https://youtu.be/3E4JBHSLpYk?si=SoOW64pP6otEKxBw"
   },
@@ -3704,13 +3011,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest subarray with Atmost two distinct integers",
     "slug": "fruit-into-baskets",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/fruit-into-baskets",
     "videoUrl": "https://youtu.be/e3bs0uA1NhQ?si=gR8pO62u-nJeFAXk"
   },
@@ -3720,13 +3024,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Repeating Character Replacement",
     "slug": "longest-repeating-character-replacement",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-repeating-character-replacement",
     "videoUrl": "https://youtu.be/_eNhaDCr6P0?si=pBWcEjozF5poom0p"
   },
@@ -3736,13 +3037,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Subarrays With Sum",
     "slug": "binary-subarrays-with-sum",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-subarrays-with-sum",
     "videoUrl": "https://youtu.be/XnMdNUkX6VM?si=Nyt8EveeLUg8lmty"
   },
@@ -3752,13 +3050,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Number of Nice Subarrays",
     "slug": "count-number-of-nice-subarrays",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/count-number-of-nice-subarrays",
     "videoUrl": "https://youtu.be/j_QOv9OT9Og?si=Oq5-5hyFkzVSOZpP"
   },
@@ -3768,13 +3063,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Substrings Containing All Three Characters",
     "slug": "number-of-substrings-containing-all-three-characters",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-substrings-containing-all-three-characters",
     "videoUrl": "https://youtu.be/xtqN4qlgr8s?si=kuaLHVOLXhh5Z2tW"
   },
@@ -3784,13 +3076,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum Points You Can Obtain from Cards",
     "slug": "maximum-points-you-can-obtain-from-cards",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards",
     "videoUrl": "https://youtu.be/pBWCOCS636U?si=-X64rY67noxvOwrG"
   },
@@ -3800,13 +3089,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Substring with At Most K Distinct Characters",
     "slug": "longest-substring-with-at-most-k-distinct-characters",
     "difficulty": "Core",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters",
     "videoUrl": "https://youtu.be/teM9ZsVRQyc?si=Kh0_u6aCkkBU3Q33"
   },
@@ -3816,13 +3102,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Subarrays with K Different Integers",
     "slug": "subarrays-with-k-different-integers",
     "difficulty": "Hard",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/subarrays-with-k-different-integers",
     "videoUrl": "https://youtu.be/7wYGbV_LsX4?si=KWa48RgLDCvdNqRb"
   },
@@ -3832,13 +3115,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Window Substring",
     "slug": "minimum-window-substring",
     "difficulty": "Hard",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-window-substring",
     "videoUrl": "https://youtu.be/WJaij9ffOIY?si=-xnsWIH84zWU0ICd"
   },
@@ -3848,13 +3128,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Window Subsequence",
     "slug": "minimum-window-subsequence",
     "difficulty": "Hard",
-    "topic": "Step 10: Sliding Window & Two Pointer Combined Problems",
+    "topic": "Sliding Window / 2 Pointer",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-window-subsequence",
     "videoUrl": ""
   },
@@ -3864,13 +3141,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Implementation of Priority Queue using Binary Heap",
     "slug": "introduction-to-priority-queues-using-binary-heaps",
     "difficulty": "Basic",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/data-structure/introduction-to-priority-queues-using-binary-heaps",
     "videoUrl": ""
   },
@@ -3880,13 +3154,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Heap Operations",
     "slug": "implement-min-heap",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/implement-min-heap",
     "videoUrl": ""
   },
@@ -3896,13 +3167,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Does array represent Heap",
     "slug": "check-if-an-array-represents-a-min-heap-",
     "difficulty": "Basic",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/check-if-an-array-represents-a-min-heap-",
     "videoUrl": ""
   },
@@ -3912,13 +3180,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Convert Min Heap to Max Heap",
     "slug": "convert-min-heap-to-max-heap",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/convert-min-heap-to-max-heap",
     "videoUrl": ""
   },
@@ -3928,13 +3193,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Kth Largest Element in an Array",
     "slug": "kth-largest-element-in-an-array",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/kth-largest-element-in-an-array",
     "videoUrl": ""
   },
@@ -3944,13 +3206,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Kth Smallest",
     "slug": "kth-largest-element-in-an-array",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/kth-largest-element-in-an-array",
     "videoUrl": ""
   },
@@ -3960,13 +3219,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Merge k Sorted Lists",
     "slug": "merge-k-sorted-lists",
     "difficulty": "Hard",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/merge-k-sorted-lists",
     "videoUrl": ""
   },
@@ -3976,13 +3232,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Merge k Sorted Lists",
     "slug": "merge-k-sorted-lists",
     "difficulty": "Hard",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/merge-k-sorted-lists",
     "videoUrl": ""
   },
@@ -3992,13 +3245,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Replace elements by its rank in the array",
     "slug": "rank-transform-of-an-array",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/rank-transform-of-an-array",
     "videoUrl": ""
   },
@@ -4008,13 +3258,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Task Scheduler",
     "slug": "task-scheduler",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/task-scheduler",
     "videoUrl": ""
   },
@@ -4024,13 +3271,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Hand of Straights",
     "slug": "hand-of-straights",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/hand-of-straights",
     "videoUrl": ""
   },
@@ -4040,13 +3284,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Design Twitter",
     "slug": "design-twitter",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/design-twitter",
     "videoUrl": ""
   },
@@ -4056,13 +3297,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Cost to Connect Sticks",
     "slug": "minimum-cost-to-connect-sticks",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-cost-to-connect-sticks",
     "videoUrl": ""
   },
@@ -4072,13 +3310,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Kth Largest Element in a Stream",
     "slug": "kth-largest-element-in-a-stream",
     "difficulty": "Basic",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/kth-largest-element-in-a-stream",
     "videoUrl": ""
   },
@@ -4088,13 +3323,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum Sum Combinations",
     "slug": "maximum-sum-combinations",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://www.interviewbit.com/problems/maximum-sum-combinations",
     "videoUrl": ""
   },
@@ -4104,13 +3336,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find Median from Data Stream",
     "slug": "find-median-from-data-stream",
     "difficulty": "Hard",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-median-from-data-stream",
     "videoUrl": ""
   },
@@ -4120,13 +3349,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Top K Frequent Elements",
     "slug": "top-k-frequent-elements",
     "difficulty": "Core",
-    "topic": "Step 11: Heaps",
+    "topic": "Heaps",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/top-k-frequent-elements",
     "videoUrl": ""
   },
@@ -4136,13 +3362,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Assign Cookies",
     "slug": "assign-cookies",
     "difficulty": "Basic",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Easy Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/assign-cookies",
     "videoUrl": "https://youtu.be/DIX2p7vb9co?si=GofAIDimue-Av0Fi"
   },
@@ -4152,13 +3375,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Fractional Knapsack",
     "slug": "fractional-knapsack",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Easy Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/fractional-knapsack",
     "videoUrl": "https://youtu.be/1ibsQrnuEEg?si=8R2By3wpHo0zZVHE"
   },
@@ -4168,13 +3388,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find Minimum Number Of Coins That Make A Change",
     "slug": "coin-change",
     "difficulty": "Basic",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Easy Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/coin-change",
     "videoUrl": "https://www.youtube.com/watch?v=mVg9CfJvayM&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=48"
   },
@@ -4184,13 +3401,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Lemonade Change",
     "slug": "lemonade-change",
     "difficulty": "Basic",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Easy Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/lemonade-change",
     "videoUrl": "https://youtu.be/n_tmibEhO6Q?si=q1NW8MfPy0QU6fIl"
   },
@@ -4200,13 +3414,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Valid Parenthesis String",
     "slug": "valid-parenthesis-string",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Easy Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/valid-parenthesis-string",
     "videoUrl": "https://youtu.be/cHT6sG_hUZI?si=XRHeyh7jOaLaTy3g"
   },
@@ -4216,13 +3427,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "N meetings in one room",
     "slug": "n-meetings-in-one-room",
     "difficulty": "Basic",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/n-meetings-in-one-room",
     "videoUrl": "https://youtu.be/mKfhTotEguk?si=2RELeq18mpmIIN3Q"
   },
@@ -4232,13 +3440,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Jump Game",
     "slug": "jump-game",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/jump-game",
     "videoUrl": "https://youtu.be/tZAa_jJ3SwQ?si=voKd7n9VTLDRRNzJ"
   },
@@ -4248,13 +3453,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Jump Game II",
     "slug": "jump-game-ii",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/jump-game-ii",
     "videoUrl": "https://youtu.be/7SBVnw7GSTk?si=9uUouBELh9K3m2jZ"
   },
@@ -4264,13 +3466,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Platforms",
     "slug": "divide-intervals-into-minimum-number-of-groups",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/divide-intervals-into-minimum-number-of-groups",
     "videoUrl": "https://youtu.be/AsGzwR_FWok?si=165acXU_dtqOHuo9"
   },
@@ -4280,13 +3479,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Job Sequencing Problem",
     "slug": "job-sequencing-problem",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/job-sequencing-problem",
     "videoUrl": "https://youtu.be/QbwltemZbRg?si=wvcemJ5BLPlTRmkG"
   },
@@ -4296,13 +3492,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Candy",
     "slug": "candy",
     "difficulty": "Hard",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/candy",
     "videoUrl": "https://youtu.be/IIqVFvKE6RY?si=EjmuXZJNLQLUkEd7"
   },
@@ -4312,13 +3505,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Shortest Job first",
     "slug": "shortest-job-first",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/shortest-job-first",
     "videoUrl": "https://youtu.be/3-QbX1iDbXs?si=IH8QZUblr01F7UoQ"
   },
@@ -4328,13 +3518,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Page Faults in LRU",
     "slug": "lru-cache",
     "difficulty": "Basic",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/lru-cache",
     "videoUrl": ""
   },
@@ -4344,13 +3531,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Insert Interval",
     "slug": "insert-interval",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/insert-interval",
     "videoUrl": "https://youtu.be/xxRE-46OCC8?si=a7aPuIw16zDx2lAa"
   },
@@ -4360,13 +3544,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Merge Intervals",
     "slug": "merge-intervals",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/merge-intervals",
     "videoUrl": "https://www.youtube.com/watch?v=2JzRBPFYbKE&list=PLgUwDviBIf0rPG3Ictpu74YWBQ1CaBkm2&index=6"
   },
@@ -4376,13 +3557,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Non-overlapping Intervals",
     "slug": "non-overlapping-intervals",
     "difficulty": "Core",
-    "topic": "Step 12: Greedy Algorithms",
+    "topic": "Greedy Algorithms",
+    "subtopic": "Medium/Hard",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/non-overlapping-intervals",
     "videoUrl": "https://youtu.be/HDHQ8lAWakY?si=JVtLqboGdpUTOVjf"
   },
@@ -4392,13 +3570,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Introduction to Trees",
     "slug": "introduction-to-trees",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/binary-tree/introduction-to-trees/",
     "videoUrl": "https://youtu.be/_ANrF3FJm7I"
   },
@@ -4408,13 +3583,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Representation",
     "slug": "binary-tree-representation-in-c",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/binary-tree/binary-tree-representation-in-c/",
     "videoUrl": "https://youtu.be/ctCpP0RFDFc"
   },
@@ -4424,13 +3596,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Representation In Java",
     "slug": "binary-tree-representation-in-java",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/binary-tree/binary-tree-representation-in-java/",
     "videoUrl": "https://youtu.be/hyLyW7rP24I"
   },
@@ -4440,13 +3609,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Tree Traversals",
     "slug": "pre%2C-post%2C-inorder-in-one-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/pre%2C-post%2C-inorder-in-one-traversal",
     "videoUrl": "https://youtu.be/jmy0LaGET1I"
   },
@@ -4456,13 +3622,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Preorder Traversal",
     "slug": "binary-tree-preorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-preorder-traversal",
     "videoUrl": "https://youtu.be/RlUu72JrOCQ"
   },
@@ -4472,13 +3635,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Inorder Traversal",
     "slug": "binary-tree-inorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-inorder-traversal",
     "videoUrl": "https://youtu.be/Z_NEgBgbRVI"
   },
@@ -4488,13 +3648,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Postorder Traversal",
     "slug": "binary-tree-postorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-postorder-traversal",
     "videoUrl": "https://youtu.be/COQOU6klsBg"
   },
@@ -4504,13 +3661,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Level Order Traversal",
     "slug": "binary-tree-level-order-traversal",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-level-order-traversal",
     "videoUrl": "https://youtu.be/EoAsWbO7sqg"
   },
@@ -4520,13 +3674,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Preorder Traversal",
     "slug": "binary-tree-preorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-preorder-traversal",
     "videoUrl": "https://youtu.be/Bfqd8BsPVuw"
   },
@@ -4536,13 +3687,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Inorder Traversal",
     "slug": "binary-tree-inorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-inorder-traversal",
     "videoUrl": "https://youtu.be/lxTGsVXjwvM"
   },
@@ -4552,13 +3700,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Postorder Traversal",
     "slug": "binary-tree-postorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-postorder-traversal",
     "videoUrl": "https://youtu.be/2YBhNLodD8Q"
   },
@@ -4568,13 +3713,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Postorder Traversal",
     "slug": "binary-tree-postorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-postorder-traversal",
     "videoUrl": "https://youtu.be/NzIGLLwZBS8"
   },
@@ -4584,13 +3726,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Iterative Postorder",
     "slug": "pre,-post,-inorder-in-one-traversal",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Traversals",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/pre,-post,-inorder-in-one-traversal",
     "videoUrl": "https://youtu.be/ySp2epYvgTE"
   },
@@ -4600,13 +3739,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum Depth of Binary Tree",
     "slug": "maximum-depth-of-binary-tree",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-depth-of-binary-tree",
     "videoUrl": "https://youtu.be/eD3tmO66aBA"
   },
@@ -4616,13 +3752,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Balanced Binary Tree",
     "slug": "balanced-binary-tree",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/balanced-binary-tree",
     "videoUrl": "https://youtu.be/Yt50Jfbd8Po"
   },
@@ -4632,13 +3765,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Diameter of Binary Tree",
     "slug": "diameter-of-binary-tree",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/diameter-of-binary-tree",
     "videoUrl": "https://youtu.be/Rezetez59Nk"
   },
@@ -4648,13 +3778,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Maximum Path Sum",
     "slug": "binary-tree-maximum-path-sum",
     "difficulty": "Hard",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-maximum-path-sum",
     "videoUrl": "https://youtu.be/WszrfSwMz58"
   },
@@ -4664,13 +3791,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Same Tree",
     "slug": "same-tree",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/same-tree",
     "videoUrl": "https://youtu.be/BhuvF_-PWS0"
   },
@@ -4680,13 +3804,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Zigzag Level Order Traversal",
     "slug": "binary-tree-zigzag-level-order-traversal",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal",
     "videoUrl": "https://youtu.be/3OXWEdlIGl4"
   },
@@ -4696,13 +3817,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Boundary of Binary Tree",
     "slug": "boundary-of-binary-tree",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/boundary-of-binary-tree",
     "videoUrl": "https://youtu.be/0ca1nvR0be4"
   },
@@ -4712,13 +3830,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Vertical Order Traversal of a Binary Tree",
     "slug": "vertical-order-traversal-of-a-binary-tree",
     "difficulty": "Hard",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree",
     "videoUrl": "https://youtu.be/q_a6lpbKJdw"
   },
@@ -4728,13 +3843,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Top View of Binary Tree",
     "slug": "top-view-of-bt",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/top-view-of-bt",
     "videoUrl": "https://youtu.be/Et9OCDNvJ78"
   },
@@ -4744,13 +3856,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Bottom View of Binary Tree",
     "slug": "bottom-view-of-bt",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/bottom-view-of-bt",
     "videoUrl": "https://youtu.be/0FtVY6I4pB8"
   },
@@ -4760,13 +3869,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Right Side View",
     "slug": "binary-tree-right-side-view",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-right-side-view",
     "videoUrl": "https://youtu.be/KV4mRzTjlAk"
   },
@@ -4776,13 +3882,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Symmetric Tree",
     "slug": "symmetric-tree",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Medium Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/symmetric-tree",
     "videoUrl": "https://youtu.be/nKggiEpBE"
   },
@@ -4792,13 +3895,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Root to Leaf Paths",
     "slug": "print-root-to-leaf-path-in-bt",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/print-root-to-leaf-path-in-bt",
     "videoUrl": "https://youtu.be/fmflMqVOC7k"
   },
@@ -4808,13 +3908,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Lowest Common Ancestor of a Binary Tree",
     "slug": "lowest-common-ancestor-of-a-binary-tree",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree",
     "videoUrl": "https://youtu.be/_-QHfMDde90"
   },
@@ -4824,13 +3921,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum Width of Binary Tree",
     "slug": "maximum-width-of-binary-tree",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-width-of-binary-tree",
     "videoUrl": "https://youtu.be/ZbybYvcVLks"
   },
@@ -4840,13 +3934,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Children Sum in a Binary Tree",
     "slug": "children-sum-property-in-binary-tree",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/children-sum-property-in-binary-tree",
     "videoUrl": "https://youtu.be/fnmisPM6cVo"
   },
@@ -4856,13 +3947,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "All Nodes Distance K in Binary Tree",
     "slug": "all-nodes-distance-k-in-binary-tree",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree",
     "videoUrl": "https://youtu.be/i9ORlEy6EsI"
   },
@@ -4872,13 +3960,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Burning Tree",
     "slug": "minimum-time-taken-to-burn-the-bt-from-a-given-node",
     "difficulty": "Hard",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/minimum-time-taken-to-burn-the-bt-from-a-given-node",
     "videoUrl": "https://youtu.be/2r5wLmQfD6g"
   },
@@ -4888,13 +3973,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Complete Tree Nodes",
     "slug": "count-complete-tree-nodes",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/count-complete-tree-nodes",
     "videoUrl": "https://youtu.be/u-yWemKGWO0"
   },
@@ -4904,13 +3986,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Unique Binary Tree Requirements",
     "slug": "requirements-needed-to-construct-a-unique-bt",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/requirements-needed-to-construct-a-unique-bt",
     "videoUrl": "https://youtu.be/9GMECGQgWrQ"
   },
@@ -4920,13 +3999,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Construct Binary Tree from Preorder and Inorder Traversal",
     "slug": "construct-binary-tree-from-preorder-and-inorder-traversal",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal",
     "videoUrl": "https://youtu.be/aZNaLrVebKQ"
   },
@@ -4936,13 +4012,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Construct Binary Tree from Inorder and Postorder Traversal",
     "slug": "construct-binary-tree-from-inorder-and-postorder-traversal",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal",
     "videoUrl": "https://youtu.be/LgLRTaEMRVc"
   },
@@ -4952,13 +4025,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Serialize and Deserialize Binary Tree",
     "slug": "serialize-and-deserialize-binary-tree",
     "difficulty": "Hard",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree",
     "videoUrl": "https://youtu.be/-YbXySKJsX8"
   },
@@ -4968,13 +4038,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Inorder Traversal",
     "slug": "binary-tree-inorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-inorder-traversal",
     "videoUrl": "https://youtu.be/80Zug6D1_r4"
   },
@@ -4984,13 +4051,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Tree Inorder Traversal",
     "slug": "binary-tree-inorder-traversal",
     "difficulty": "Basic",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-tree-inorder-traversal",
     "videoUrl": "https://youtu.be/80Zug6D1_r4"
   },
@@ -5000,13 +4064,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Flatten Binary Tree to Linked List",
     "slug": "flatten-binary-tree-to-linked-list",
     "difficulty": "Core",
-    "topic": "Step 13: Binary Trees",
+    "topic": "Binary Trees",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/flatten-binary-tree-to-linked-list",
     "videoUrl": "https://youtu.be/sWf7k1x9XR4"
   },
@@ -5016,13 +4077,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Search Trees",
     "slug": "binary-search-tree",
     "difficulty": "Basic",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Concepts",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/blogs/data-structure-and-algorithm/binary-search-tree",
     "videoUrl": "https://youtu.be/p7-9UvDQZ3w"
   },
@@ -5032,13 +4090,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Search in a Binary Search Tree",
     "slug": "search-in-a-binary-search-tree",
     "difficulty": "Basic",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Concepts",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/search-in-a-binary-search-tree",
     "videoUrl": "https://youtu.be/KcNt6v_56cc"
   },
@@ -5048,13 +4103,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum element in BST",
     "slug": "minimum-element-in-bst",
     "difficulty": "Basic",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Concepts",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://www.hackerrank.com/contests/17cs1102/challenges/9a-implement-binary-search-tree",
     "videoUrl": ""
   },
@@ -5064,13 +4116,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Floor in BST",
     "slug": "floor-and-ceil-in-a-bst",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/floor-and-ceil-in-a-bst",
     "videoUrl": "https://youtu.be/KSsk8AhdOZA"
   },
@@ -5080,13 +4129,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Floor in BST",
     "slug": "floor-and-ceil-in-a-bst",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/floor-and-ceil-in-a-bst",
     "videoUrl": "https://youtu.be/xm_W1ub-K-w"
   },
@@ -5096,13 +4142,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Insert into a Binary Search Tree",
     "slug": "insert-into-a-binary-search-tree",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/insert-into-a-binary-search-tree",
     "videoUrl": "https://youtu.be/FiFiNvM29ps"
   },
@@ -5112,13 +4155,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Delete Node in a BST",
     "slug": "delete-node-in-a-bst",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/delete-node-in-a-bst",
     "videoUrl": "https://youtu.be/kouxiP_H5WE"
   },
@@ -5128,13 +4168,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Kth Smallest Element in a BST",
     "slug": "kth-smallest-element-in-a-bst",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/kth-smallest-element-in-a-bst",
     "videoUrl": "https://youtu.be/9TJYWh0adfk"
   },
@@ -5144,13 +4181,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Validate Binary Search Tree",
     "slug": "validate-binary-search-tree",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/validate-binary-search-tree",
     "videoUrl": "https://youtu.be/f-sj7I5oXEI"
   },
@@ -5160,13 +4194,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Lowest Common Ancestor of a Binary Search Tree",
     "slug": "lowest-common-ancestor-of-a-binary-search-tree",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree",
     "videoUrl": "https://youtu.be/cX_kPV_foZc"
   },
@@ -5176,13 +4207,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Construct Binary Search Tree from Preorder Traversal",
     "slug": "construct-binary-search-tree-from-preorder-traversal",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/construct-binary-search-tree-from-preorder-traversal",
     "videoUrl": "https://youtu.be/UmJT3j26t1I"
   },
@@ -5192,13 +4220,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Inorder Successor in BST",
     "slug": "inorder-successor-in-bst",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/inorder-successor-in-bst",
     "videoUrl": "https://youtu.be/SXKAD2svfmI"
   },
@@ -5208,13 +4233,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Binary Search Tree Iterator",
     "slug": "binary-search-tree-iterator",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/binary-search-tree-iterator",
     "videoUrl": "https://youtu.be/D2jMcmxU4bs"
   },
@@ -5224,13 +4246,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Two Sum IV - Input is a BST",
     "slug": "two-sum-iv-input-is-a-bst",
     "difficulty": "Basic",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/two-sum-iv-input-is-a-bst",
     "videoUrl": "https://youtu.be/ssL3sHwPeb4"
   },
@@ -5240,13 +4259,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Recover Binary Search Tree",
     "slug": "recover-binary-search-tree",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/recover-binary-search-tree",
     "videoUrl": "https://youtu.be/ZWGW7FminDM"
   },
@@ -5256,13 +4272,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Largest BST",
     "slug": "largest-bst-subtree",
     "difficulty": "Core",
-    "topic": "Step 14: Binary Search Trees",
+    "topic": "Binary Search Trees",
+    "subtopic": "Practice Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/largest-bst-subtree",
     "videoUrl": "https://youtu.be/X0oXMdtUDwo"
   },
@@ -5272,13 +4285,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Graph and Vertices",
     "slug": "introduction-to-graph",
     "difficulty": "Basic",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/graph/introduction-to-graph/",
     "videoUrl": "https://youtu.be/M3_pLsDdeuU"
   },
@@ -5288,13 +4298,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Graph Representation in C++",
     "slug": "graph-representation-in-c",
     "difficulty": "Basic",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/graph/graph-representation-in-c/",
     "videoUrl": "https://youtu.be/3oI-34aPMWM"
   },
@@ -5304,13 +4311,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Print adjacency list",
     "slug": "print-adjacency-list",
     "difficulty": "Basic",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://www.hackerrank.com/contests/vit-bhopal/challenges/adjacency-list-representation-1/problem",
     "videoUrl": "https://youtu.be/3oI-34aPMWM"
   },
@@ -5320,13 +4324,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Connected Components in an Undirected Graph",
     "slug": "number-of-connected-components-in-an-undirected-graph",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph",
     "videoUrl": "https://youtu.be/lea-Wl_uWXY"
   },
@@ -5336,13 +4337,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "BFS of graph",
     "slug": "traversal-techniques",
     "difficulty": "Basic",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/traversal-techniques",
     "videoUrl": "https://youtu.be/-tgVpUgsQ5k"
   },
@@ -5352,13 +4350,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "BFS of graph",
     "slug": "traversal-techniques",
     "difficulty": "Basic",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Learning",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/traversal-techniques",
     "videoUrl": "https://youtu.be/Qzf1a--rhp8"
   },
@@ -5368,13 +4363,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Provinces",
     "slug": "number-of-provinces",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-provinces",
     "videoUrl": "https://youtu.be/ACzkVtewUYA"
   },
@@ -5384,13 +4376,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Provinces",
     "slug": "number-of-provinces",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-provinces",
     "videoUrl": ""
   },
@@ -5400,13 +4389,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Rotting Oranges",
     "slug": "rotting-oranges",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/rotting-oranges",
     "videoUrl": "https://www.youtube.com/watch?v=yf3oUhkvqA0"
   },
@@ -5416,13 +4402,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Flood Fill",
     "slug": "flood-fill",
     "difficulty": "Basic",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/flood-fill",
     "videoUrl": "https://youtu.be/C-2_uSRli8o"
   },
@@ -5432,13 +4415,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Undirected Graph Cycle",
     "slug": "course-schedule",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/course-schedule",
     "videoUrl": "https://youtu.be/BPlrALf1LDU"
   },
@@ -5448,13 +4428,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Undirected Graph Cycle",
     "slug": "course-schedule",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/course-schedule",
     "videoUrl": "https://youtu.be/zQ3zgFypzX4"
   },
@@ -5464,13 +4441,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "01 Matrix",
     "slug": "01-matrix",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/01-matrix",
     "videoUrl": "https://youtu.be/edXdVwkYHF8"
   },
@@ -5480,13 +4454,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Surrounded Regions",
     "slug": "surrounded-regions",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/surrounded-regions",
     "videoUrl": "https://youtu.be/BtdgAys4yMk"
   },
@@ -5496,13 +4467,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Enclaves",
     "slug": "number-of-enclaves",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-enclaves",
     "videoUrl": "https://youtu.be/rxKcepXQgU4"
   },
@@ -5512,13 +4480,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Word Ladder",
     "slug": "word-ladder",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/word-ladder",
     "videoUrl": "https://youtu.be/tRPda0rcf8E"
   },
@@ -5528,13 +4493,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Word Ladder II",
     "slug": "word-ladder-ii",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/word-ladder-ii",
     "videoUrl": "https://youtu.be/tRPda0rcf8E"
   },
@@ -5544,13 +4506,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Distinct Islands II",
     "slug": "number-of-distinct-islands-ii",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-distinct-islands-ii",
     "videoUrl": "https://youtu.be/muncqlKJrH0"
   },
@@ -5560,13 +4519,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Is Graph Bipartite?",
     "slug": "is-graph-bipartite",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/is-graph-bipartite",
     "videoUrl": "https://youtu.be/KG5YFfR0j8A"
   },
@@ -5576,13 +4532,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Course Schedule II",
     "slug": "course-schedule-ii",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Problems on BFS/DFS",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/course-schedule-ii",
     "videoUrl": "https://youtu.be/9twcmtQj4DU"
   },
@@ -5592,13 +4545,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Topological sort",
     "slug": "topological-sort-or-kahns-algorithm",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Topo Sort and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/topological-sort-or-kahns-algorithm",
     "videoUrl": "https://youtu.be/5lZ0iJMrUMk"
   },
@@ -5608,13 +4558,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Topological sort",
     "slug": "topological-sort-or-kahns-algorithm",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Topo Sort and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/topological-sort-or-kahns-algorithm",
     "videoUrl": "https://youtu.be/73sneFXuTEg"
   },
@@ -5624,13 +4571,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Directed Graph Cycle",
     "slug": "course-schedule",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Topo Sort and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/course-schedule",
     "videoUrl": "https://youtu.be/iTBaI90lpDQ"
   },
@@ -5640,13 +4584,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Course Schedule",
     "slug": "course-schedule",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Topo Sort and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/course-schedule",
     "videoUrl": "https://youtu.be/WAOfKpxYHR8"
   },
@@ -5656,13 +4597,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Course Schedule II",
     "slug": "course-schedule-ii",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Topo Sort and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/course-schedule-ii",
     "videoUrl": "https://youtu.be/WAOfKpxYHR8"
   },
@@ -5672,13 +4610,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find Eventual Safe States",
     "slug": "find-eventual-safe-states",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Topo Sort and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-eventual-safe-states",
     "videoUrl": "https://youtu.be/2gtg3VsDGyc"
   },
@@ -5688,13 +4623,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Alien Dictionary",
     "slug": "alien-dictionary",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Topo Sort and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/alien-dictionary",
     "videoUrl": "https://youtu.be/U3N_je7tWAs"
   },
@@ -5704,13 +4636,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Shortest Path in Undirected Graph",
     "slug": "shortest-path-in-undirected-graph-with-unit-weights",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/shortest-path-in-undirected-graph-with-unit-weights",
     "videoUrl": "https://www.youtube.com/watch?v=C4gxoTaI71U&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=28"
   },
@@ -5720,13 +4649,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Shortest path in Directed Acyclic Graph",
     "slug": "shortest-path-in-dag",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/shortest-path-in-dag",
     "videoUrl": "https://www.youtube.com/watch?v=ZUFQfFaU-8U&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=27"
   },
@@ -5736,13 +4662,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Dijkstra Algorithm",
     "slug": "dijkstra's-algorithm",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/dijkstra's-algorithm",
     "videoUrl": "https://www.youtube.com/watch?v=rp1SMw7HSO8&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=35"
   },
@@ -5752,13 +4675,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Dijkstra Algorithm",
     "slug": "dijkstra's-algorithm",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/dijkstra's-algorithm",
     "videoUrl": "https://www.youtube.com/watch?v=rp1SMw7HSO8&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=35"
   },
@@ -5768,13 +4688,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Shortest Path in Binary Matrix",
     "slug": "shortest-path-in-binary-matrix",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/shortest-path-in-binary-matrix",
     "videoUrl": "https://www.youtube.com/watch?v=U5Mw4eyUmw4&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=36"
   },
@@ -5784,13 +4701,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Path With Minimum Effort",
     "slug": "path-with-minimum-effort",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/path-with-minimum-effort",
     "videoUrl": "https://youtu.be/0ytpZyiZFhA"
   },
@@ -5800,13 +4714,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Cheapest Flights Within K Stops",
     "slug": "cheapest-flights-within-k-stops",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/cheapest-flights-within-k-stops",
     "videoUrl": "https://youtu.be/9XybHVqTHcQ"
   },
@@ -5816,13 +4727,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Network Delay Time",
     "slug": "network-delay-time",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/network-delay-time",
     "videoUrl": ""
   },
@@ -5832,13 +4740,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Ways to Arrive at Destination",
     "slug": "number-of-ways-to-arrive-at-destination",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-ways-to-arrive-at-destination",
     "videoUrl": "https://youtu.be/_-0mx0SmYxA"
   },
@@ -5848,13 +4753,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Multiplications to reach End",
     "slug": "minimum-multiplications-to-reach-end",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/minimum-multiplications-to-reach-end",
     "videoUrl": "https://www.youtube.com/watch?v=_BvEJ3VIDWw&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=39"
   },
@@ -5864,13 +4766,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Bellman-Ford",
     "slug": "bellman-ford-algorithm",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/bellman-ford-algorithm",
     "videoUrl": "https://youtu.be/0vVofAhAYjc"
   },
@@ -5880,13 +4779,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Floyd Warshall",
     "slug": "floyd-warshall-algorithm",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/floyd-warshall-algorithm",
     "videoUrl": "https://youtu.be/YbY8cVwWAvw"
   },
@@ -5896,13 +4792,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find the City With the Smallest Number of Neighbors at a Threshold Distance",
     "slug": "find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Shortest Path Algorithms and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance",
     "videoUrl": "https://youtu.be/9XybHVqTHcQ"
   },
@@ -5912,13 +4805,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find the MST Weight",
     "slug": "connecting-cities-with-minimum-cost",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/connecting-cities-with-minimum-cost",
     "videoUrl": "https://youtu.be/ZSPjZuZWCME"
   },
@@ -5928,13 +4818,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find the MST Weight",
     "slug": "connecting-cities-with-minimum-cost",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/connecting-cities-with-minimum-cost",
     "videoUrl": "https://youtu.be/mJcZjjKzeqk"
   },
@@ -5944,13 +4831,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Disjoint set (Union-Find)",
     "slug": "disjoint-set-",
     "difficulty": "Basic",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/disjoint-set-",
     "videoUrl": "https://youtu.be/aBxjDBC4M1U"
   },
@@ -5960,13 +4844,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Disjoint set (Union-Find)",
     "slug": "disjoint-set-",
     "difficulty": "Basic",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/disjoint-set-",
     "videoUrl": "https://youtu.be/aBxjDBC4M1U"
   },
@@ -5976,13 +4857,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find the MST Weight",
     "slug": "connecting-cities-with-minimum-cost",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/connecting-cities-with-minimum-cost",
     "videoUrl": "https://youtu.be/DMnDM_sxVig"
   },
@@ -5992,13 +4870,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Operations to Make Network Connected",
     "slug": "number-of-operations-to-make-network-connected",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-operations-to-make-network-connected",
     "videoUrl": "https://youtu.be/FYrl7iz9_ZU"
   },
@@ -6008,13 +4883,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Most Stones Removed with Same Row or Column",
     "slug": "most-stones-removed-with-same-row-or-column",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/most-stones-removed-with-same-row-or-column",
     "videoUrl": "https://youtu.be/OwMNX8SPavM"
   },
@@ -6024,13 +4896,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Accounts Merge",
     "slug": "accounts-merge",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/accounts-merge",
     "videoUrl": "https://youtu.be/FMwpt_aQOGw"
   },
@@ -6040,13 +4909,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Islands II",
     "slug": "number-of-islands-ii",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-islands-ii",
     "videoUrl": "https://youtu.be/Rn6B-Q4SNyA"
   },
@@ -6056,13 +4922,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Making A Large Island",
     "slug": "making-a-large-island",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/making-a-large-island",
     "videoUrl": "https://youtu.be/lgiz0Oup6gM"
   },
@@ -6072,13 +4935,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Swim in Rising Water",
     "slug": "swim-in-rising-water",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "MinimumSpanningTree/Disjoint Set and Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/swim-in-rising-water",
     "videoUrl": ""
   },
@@ -6088,13 +4948,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Critical Connections in a Network",
     "slug": "critical-connections-in-a-network",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Other Algorithms",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/critical-connections-in-a-network",
     "videoUrl": "https://youtu.be/qrAub5z8FeA"
   },
@@ -6104,13 +4961,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Articulation Point - I",
     "slug": "articulation-point-in-graph",
     "difficulty": "Hard",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Other Algorithms",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/articulation-point-in-graph",
     "videoUrl": "https://youtu.be/j1QDfU21iZk"
   },
@@ -6120,13 +4974,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Strongly Connected",
     "slug": "maximum-number-of-non-overlapping-substrings",
     "difficulty": "Core",
-    "topic": "Step 15: Graphs",
+    "topic": "Graphs",
+    "subtopic": "Other Algorithms",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-number-of-non-overlapping-substrings",
     "videoUrl": "https://youtu.be/R6uoSjZ2imo"
   },
@@ -6136,13 +4987,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Introduction to DP",
     "slug": "dynamic-programming-memoization-tabulation",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "Introduction to DP",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/blogs/data-structure-and-algorithm/dynamic-programming-memoization-tabulation",
     "videoUrl": "https://youtu.be/tyB0ztf0DNY"
   },
@@ -6152,13 +5000,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Climbing Stairs",
     "slug": "climbing-stairs",
     "difficulty": "Basic",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "1D DP",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/climbing-stairs",
     "videoUrl": "https://youtu.be/mLfjzJsN8us"
   },
@@ -6168,13 +5013,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Frog Jump",
     "slug": "frog-jump",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "1D DP",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/frog-jump",
     "videoUrl": "https://www.youtube.com/watch?v=EgG3jsGoPvQ"
   },
@@ -6184,13 +5026,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimal Cost",
     "slug": "frog-jump-with-k-distances",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "1D DP",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/frog-jump-with-k-distances",
     "videoUrl": "https://www.youtube.com/watch?v=Kmh3rhyEtB8"
   },
@@ -6200,13 +5039,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "House Robber",
     "slug": "house-robber",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "1D DP",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/house-robber",
     "videoUrl": "https://www.youtube.com/watch?v=GrMBfJNk_NY"
   },
@@ -6216,13 +5052,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "House Robber II",
     "slug": "house-robber-ii",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "1D DP",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/house-robber-ii",
     "videoUrl": "https://www.youtube.com/watch?v=3WaxQMELSkw"
   },
@@ -6232,13 +5065,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Geek's Training",
     "slug": "ninja's-training",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "2D/3D DP and DP on Grids",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/ninja's-training",
     "videoUrl": "https://www.youtube.com/watch?v=AE39gJYuRog"
   },
@@ -6248,13 +5078,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Unique Paths",
     "slug": "unique-paths",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "2D/3D DP and DP on Grids",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/unique-paths",
     "videoUrl": "https://www.youtube.com/watch?v=sdE0A2Oxofw"
   },
@@ -6264,13 +5091,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Unique Paths II",
     "slug": "unique-paths-ii",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "2D/3D DP and DP on Grids",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/unique-paths-ii",
     "videoUrl": "https://www.youtube.com/watch?v=TmhpgXScLyY"
   },
@@ -6280,13 +5104,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Path Sum",
     "slug": "minimum-path-sum",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "2D/3D DP and DP on Grids",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-path-sum",
     "videoUrl": "https://www.youtube.com/watch?v=_rgTlyky1uQ"
   },
@@ -6296,13 +5117,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Triangle",
     "slug": "triangle",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "2D/3D DP and DP on Grids",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/triangle",
     "videoUrl": "https://www.youtube.com/watch?v=SrP-PiLSYC0"
   },
@@ -6312,13 +5130,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Falling Path Sum",
     "slug": "minimum-falling-path-sum",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "2D/3D DP and DP on Grids",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-falling-path-sum",
     "videoUrl": "https://www.youtube.com/watch?v=N_aJ5qQbYA0"
   },
@@ -6328,13 +5143,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Chocolates Pickup",
     "slug": "ninja-and-his-friends",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "2D/3D DP and DP on Grids",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/ninja-and-his-friends",
     "videoUrl": "https://www.youtube.com/watch?v=QGfn7JeXK54"
   },
@@ -6344,13 +5156,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Check if there exists a subsequence with sum K",
     "slug": "check-if-there-exists-a-subsequence-with-sum-k",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/check-if-there-exists-a-subsequence-with-sum-k",
     "videoUrl": "https://www.youtube.com/watch?v=fWX9xDmIzRI"
   },
@@ -6360,13 +5169,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Partition Equal Subset Sum",
     "slug": "partition-equal-subset-sum",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/partition-equal-subset-sum",
     "videoUrl": "https://www.youtube.com/watch?v=7win3dcgo3k"
   },
@@ -6376,13 +5182,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Partition Array Into Two Arrays to Minimize Sum Difference",
     "slug": "partition-array-into-two-arrays-to-minimize-sum-difference",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/partition-array-into-two-arrays-to-minimize-sum-difference",
     "videoUrl": "https://www.youtube.com/watch?v=GS_OqZb2CWc"
   },
@@ -6392,13 +5195,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Perfect Sum Problem",
     "slug": "count-all-subsequences-with-sum-k",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/count-all-subsequences-with-sum-k",
     "videoUrl": "https://www.youtube.com/watch?v=ZHyb-A2Mte4"
   },
@@ -6408,13 +5208,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Partitions with Given Difference",
     "slug": "count-partitions-with-given-difference",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/count-partitions-with-given-difference",
     "videoUrl": "https://www.youtube.com/watch?v=zoilQD1kYSg"
   },
@@ -6424,13 +5221,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Assign Cookies",
     "slug": "assign-cookies",
     "difficulty": "Basic",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/assign-cookies",
     "videoUrl": "https://youtu.be/DIX2p7vb9co?si=6G7JzMZ2TSP_LWSG"
   },
@@ -6440,13 +5234,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Coin Change",
     "slug": "coin-change",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/coin-change",
     "videoUrl": "https://www.youtube.com/watch?v=myPeWb3Y68A"
   },
@@ -6456,13 +5247,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Target Sum",
     "slug": "target-sum",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/target-sum",
     "videoUrl": "https://www.youtube.com/watch?v=b3GD8263-PQ"
   },
@@ -6472,13 +5260,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Coin Change II",
     "slug": "coin-change-ii",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/coin-change-ii",
     "videoUrl": "https://www.youtube.com/watch?v=HgyouUi11zk"
   },
@@ -6488,13 +5273,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Knapsack with Duplicate Items",
     "slug": "unbounded-knapsack",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/unbounded-knapsack",
     "videoUrl": "https://youtu.be/OgvOZ6OrJoY"
   },
@@ -6504,13 +5286,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Cost to Connect Sticks",
     "slug": "minimum-cost-to-connect-sticks",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Subsequences",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-cost-to-connect-sticks",
     "videoUrl": "https://youtu.be/mO8XpGoJwuo"
   },
@@ -6520,13 +5299,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Common Subsequence",
     "slug": "longest-common-subsequence",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-common-subsequence",
     "videoUrl": "https://youtu.be/NPZn9jBrX8U"
   },
@@ -6536,13 +5312,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Print all LCS sequences",
     "slug": "longest-common-subsequence",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-common-subsequence",
     "videoUrl": "https://youtu.be/-zI4mrF2Pb4"
   },
@@ -6552,13 +5325,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Common Substring",
     "slug": "longest-common-substring",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/longest-common-substring",
     "videoUrl": "https://youtu.be/_wP9mWNPL5w"
   },
@@ -6568,13 +5338,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Palindromic Subsequence",
     "slug": "longest-palindromic-subsequence",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-palindromic-subsequence",
     "videoUrl": "https://youtu.be/6i_T5kkfv4A"
   },
@@ -6584,13 +5351,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Insertion Steps to Make a String Palindrome",
     "slug": "minimum-insertion-steps-to-make-a-string-palindrome",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-insertion-steps-to-make-a-string-palindrome",
     "videoUrl": "https://www.youtube.com/watch?v=xPBLEj41rFU"
   },
@@ -6600,13 +5364,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Delete Operation for Two Strings",
     "slug": "delete-operation-for-two-strings",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/delete-operation-for-two-strings",
     "videoUrl": "https://www.youtube.com/watch?v=yMnH0jrir0Q"
   },
@@ -6616,13 +5377,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Shortest Common Supersequence",
     "slug": "shortest-common-supersequence",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/shortest-common-supersequence",
     "videoUrl": "https://youtu.be/xElxAuBcvsU"
   },
@@ -6632,13 +5390,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Distinct Subsequences",
     "slug": "distinct-subsequences",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/distinct-subsequences",
     "videoUrl": "https://youtu.be/nVG7eTiD2bY"
   },
@@ -6648,13 +5403,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Edit Distance",
     "slug": "edit-distance",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/edit-distance",
     "videoUrl": "https://youtu.be/fJaKO8FbDdo"
   },
@@ -6664,13 +5416,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Wildcard Matching",
     "slug": "wildcard-matching",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Strings",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/wildcard-matching",
     "videoUrl": "https://youtu.be/ZmlQ3vgAOMo"
   },
@@ -6680,13 +5429,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Best Time to Buy and Sell Stock",
     "slug": "best-time-to-buy-and-sell-stock",
     "difficulty": "Basic",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Stocks",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock",
     "videoUrl": "https://youtu.be/excAOvwF_Wk"
   },
@@ -6696,13 +5442,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Best Time to Buy and Sell Stock II",
     "slug": "best-time-to-buy-and-sell-stock-ii",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Stocks",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii",
     "videoUrl": "https://youtu.be/nGJmxkUJQGs"
   },
@@ -6712,13 +5455,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Best Time to Buy and Sell Stock III",
     "slug": "best-time-to-buy-and-sell-stock-iii",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Stocks",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii",
     "videoUrl": "https://youtu.be/-uQGzhYj8BQ"
   },
@@ -6728,13 +5468,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Best Time to Buy and Sell Stock IV",
     "slug": "best-time-to-buy-and-sell-stock-iv",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Stocks",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv",
     "videoUrl": "https://youtu.be/IV1dHbk5CDc"
   },
@@ -6744,13 +5481,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Best Time to Buy and Sell Stock with Cooldown",
     "slug": "best-time-to-buy-and-sell-stock-with-cooldown",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Stocks",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown",
     "videoUrl": "https://youtu.be/IGIe46xw3YY"
   },
@@ -6760,13 +5494,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Best Time to Buy and Sell Stock with Transaction Fee",
     "slug": "best-time-to-buy-and-sell-stock-with-transaction-fee",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Stocks",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee",
     "videoUrl": "https://youtu.be/k4eK-vEmnKg"
   },
@@ -6776,13 +5507,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Increasing Subsequence",
     "slug": "longest-increasing-subsequence",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on LIS",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-increasing-subsequence",
     "videoUrl": "https://youtu.be/ekcwMsSIzVc"
   },
@@ -6792,13 +5520,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Print Longest Increasing Subsequence",
     "slug": "print-longest-increasing-subsequence",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on LIS",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/print-longest-increasing-subsequence",
     "videoUrl": "https://youtu.be/IFfYfonAFGc"
   },
@@ -6808,13 +5533,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Increasing Subsequence",
     "slug": "longest-increasing-subsequence",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on LIS",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-increasing-subsequence",
     "videoUrl": "https://youtu.be/on2hvxBXJH4"
   },
@@ -6824,13 +5546,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Largest Divisible Subset",
     "slug": "largest-divisible-subset",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on LIS",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/largest-divisible-subset",
     "videoUrl": "https://youtu.be/gDuZwBW9VvM"
   },
@@ -6840,13 +5559,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest String Chain",
     "slug": "longest-string-chain",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on LIS",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-string-chain",
     "videoUrl": "https://youtu.be/YY8iBaYcc4g"
   },
@@ -6856,13 +5572,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Bitonic subsequence",
     "slug": "longest-bitonic-subsequence",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on LIS",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/longest-bitonic-subsequence",
     "videoUrl": "https://youtu.be/y4vN0WNdrlg"
   },
@@ -6872,13 +5585,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Number of Longest Increasing Subsequence",
     "slug": "number-of-longest-increasing-subsequence",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on LIS",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-longest-increasing-subsequence",
     "videoUrl": "https://youtu.be/cKVl1TFdNXg"
   },
@@ -6888,13 +5598,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Matrix Chain Multiplication",
     "slug": "matrix-chain-multiplication",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "MCM DP | Partition DP",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/matrix-chain-multiplication",
     "videoUrl": "https://youtu.be/vRVfmbCFW7Y"
   },
@@ -6904,13 +5611,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Matrix Chain Multiplication",
     "slug": "matrix-chain-multiplication",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "MCM DP | Partition DP",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://takeuforward.org/practice/dsa/matrix-chain-multiplication",
     "videoUrl": "https://youtu.be/pDCXsbAw5Cg"
   },
@@ -6920,13 +5624,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Cost to Cut a Stick",
     "slug": "minimum-cost-to-cut-a-stick",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "MCM DP | Partition DP",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-cost-to-cut-a-stick",
     "videoUrl": "https://youtu.be/xwomavsC86c"
   },
@@ -6936,13 +5637,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Burst Balloons",
     "slug": "burst-balloons",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "MCM DP | Partition DP",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/burst-balloons",
     "videoUrl": "https://youtu.be/Yz4LlDSlkns"
   },
@@ -6952,13 +5650,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Parsing A Boolean Expression",
     "slug": "parsing-a-boolean-expression",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "MCM DP | Partition DP",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/parsing-a-boolean-expression",
     "videoUrl": "https://youtu.be/MM7fXopgyjw"
   },
@@ -6968,13 +5663,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Palindrome Partitioning II",
     "slug": "palindrome-partitioning-ii",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "MCM DP | Partition DP",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/palindrome-partitioning-ii",
     "videoUrl": "https://youtu.be/_H8V5hJUGd0"
   },
@@ -6984,13 +5676,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Partition Array for Maximum Sum",
     "slug": "partition-array-for-maximum-sum",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "MCM DP | Partition DP",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/partition-array-for-maximum-sum",
     "videoUrl": "https://youtu.be/PhWWJmaKfMc"
   },
@@ -7000,13 +5689,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximal Rectangle",
     "slug": "maximal-rectangle",
     "difficulty": "Hard",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Squares",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximal-rectangle",
     "videoUrl": "https://youtu.be/tOylVCugy9k"
   },
@@ -7016,13 +5702,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Square Submatrices with All Ones",
     "slug": "count-square-submatrices-with-all-ones",
     "difficulty": "Core",
-    "topic": "Step 16: Dynamic Programming",
+    "topic": "Dynamic Programming",
+    "subtopic": "DP on Squares",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/count-square-submatrices-with-all-ones",
     "videoUrl": "https://youtu.be/auS1fynpnjo"
   },
@@ -7032,13 +5715,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Implement Trie (Prefix Tree)",
     "slug": "implement-trie-prefix-tree",
     "difficulty": "Core",
-    "topic": "Step 17: Tries",
+    "topic": "Tries",
+    "subtopic": "Theory",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/implement-trie-prefix-tree",
     "videoUrl": "https://www.youtube.com/watch?v=dBGUmUQhjaM&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp"
   },
@@ -7048,13 +5728,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Implement Trie ll",
     "slug": "implement-trie-ii-prefix-tree",
     "difficulty": "Core",
-    "topic": "Step 17: Tries",
+    "topic": "Tries",
+    "subtopic": "Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/implement-trie-ii-prefix-tree",
     "videoUrl": ""
   },
@@ -7064,13 +5741,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Complete String",
     "slug": "longest-word-with-all-prefixes",
     "difficulty": "Hard",
-    "topic": "Step 17: Tries",
+    "topic": "Tries",
+    "subtopic": "Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-word-with-all-prefixes",
     "videoUrl": "https://www.youtube.com/watch?v=AWnBa91lThI&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp&index=3"
   },
@@ -7080,13 +5754,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Distinct Substrings",
     "slug": "number-of-distinct-substrings-in-a-string",
     "difficulty": "Core",
-    "topic": "Step 17: Tries",
+    "topic": "Tries",
+    "subtopic": "Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/number-of-distinct-substrings-in-a-string",
     "videoUrl": "https://www.youtube.com/watch?v=RV0QeTyHZxo&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp&index=4"
   },
@@ -7096,13 +5767,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Single Number",
     "slug": "single-number",
     "difficulty": "Basic",
-    "topic": "Step 17: Tries",
+    "topic": "Tries",
+    "subtopic": "Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/single-number",
     "videoUrl": "https://youtu.be/5iyuU4hQFrw"
   },
@@ -7112,13 +5780,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum XOR of Two Numbers in an Array",
     "slug": "maximum-xor-of-two-numbers-in-an-array",
     "difficulty": "Core",
-    "topic": "Step 17: Tries",
+    "topic": "Tries",
+    "subtopic": "Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array",
     "videoUrl": "https://www.youtube.com/watch?v=EIhAwfHubE8&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp&index=6"
   },
@@ -7128,13 +5793,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Maximum XOR With an Element From Array",
     "slug": "maximum-xor-with-an-element-from-array",
     "difficulty": "Hard",
-    "topic": "Step 17: Tries",
+    "topic": "Tries",
+    "subtopic": "Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/maximum-xor-with-an-element-from-array",
     "videoUrl": "https://www.youtube.com/watch?v=Q8LhG9Pi5KM&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp&index=7"
   },
@@ -7144,13 +5806,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Minimum Add to Make Parentheses Valid",
     "slug": "minimum-add-to-make-parentheses-valid",
     "difficulty": "Core",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/minimum-add-to-make-parentheses-valid",
     "videoUrl": ""
   },
@@ -7160,13 +5819,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count and Say",
     "slug": "count-and-say",
     "difficulty": "Core",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/count-and-say",
     "videoUrl": ""
   },
@@ -7176,13 +5832,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find the Index of the First Occurrence in a String",
     "slug": "find-the-index-of-the-first-occurrence-in-a-string",
     "difficulty": "Basic",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Microsoft",
-      "Apple"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string",
     "videoUrl": ""
   },
@@ -7192,13 +5845,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Repeated String Match",
     "slug": "repeated-string-match",
     "difficulty": "Core",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Meta",
-      "Google",
-      "Uber"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/repeated-string-match",
     "videoUrl": ""
   },
@@ -7208,13 +5858,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find the Index of the First Occurrence in a String",
     "slug": "find-the-index-of-the-first-occurrence-in-a-string",
     "difficulty": "Basic",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Microsoft",
-      "Amazon",
-      "Bloomberg"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string",
     "videoUrl": ""
   },
@@ -7224,13 +5871,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Find the Index of the First Occurrence in a String",
     "slug": "find-the-index-of-the-first-occurrence-in-a-string",
     "difficulty": "Basic",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Apple",
-      "Adobe"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string",
     "videoUrl": ""
   },
@@ -7240,13 +5884,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Shortest Palindrome",
     "slug": "shortest-palindrome",
     "difficulty": "Hard",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Amazon",
-      "Meta",
-      "Netflix"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/shortest-palindrome",
     "videoUrl": ""
   },
@@ -7256,13 +5897,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Longest Happy Prefix",
     "slug": "longest-happy-prefix",
     "difficulty": "Hard",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Uber",
-      "Google",
-      "Microsoft"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/longest-happy-prefix",
     "videoUrl": ""
   },
@@ -7272,13 +5910,10 @@ export const STRIVER_A2Z_PROBLEMS: CuratedProblem[] = [
     "title": "Count Palindromic Subsequences",
     "slug": "count-palindromic-subsequences",
     "difficulty": "Core",
-    "topic": "Step 18: Strings",
+    "topic": "Strings (Advanced Algo)",
+    "subtopic": "Hard Problems",
     "moreTopics": 1,
-    "companies": [
-      "Google",
-      "Amazon",
-      "Meta"
-    ],
+    "companies": [],
     "link": "https://leetcode.com/problems/count-palindromic-subsequences",
     "videoUrl": ""
   }

@@ -35,13 +35,11 @@ app.get("/", async (c) => {
     if (sheets && sheets.length > 0) {
       const FLAGSHIP_ORDER = ["striver-a2z", "blind-75", "neetcode-150", "striver-sde"];
       
-      const CURATED_LINK_MAP = new Map<string, { link: string; videoUrl?: string }>();
+      const CURATED_PROB_MAP = new Map<string, any>();
       for (const sheet of CURATED_FLAGSHIP_SHEETS) {
         for (const prob of sheet.problems) {
-          if (prob.link) {
-            CURATED_LINK_MAP.set(prob.slug, { link: prob.link, videoUrl: prob.videoUrl });
-            CURATED_LINK_MAP.set(prob.title.toLowerCase().trim(), { link: prob.link, videoUrl: prob.videoUrl });
-          }
+          CURATED_PROB_MAP.set(prob.slug, prob);
+          CURATED_PROB_MAP.set(prob.title.toLowerCase().trim(), prob);
         }
       }
 
@@ -61,14 +59,16 @@ app.get("/", async (c) => {
             estimatedHours: sheet.estimatedHours,
             problems: sheet.problems.map((sp, index) => {
               const curated =
-                CURATED_LINK_MAP.get(sp.problem.slug) ||
-                CURATED_LINK_MAP.get(sp.problem.title.toLowerCase().trim());
+                CURATED_PROB_MAP.get(sp.problem.slug) ||
+                CURATED_PROB_MAP.get(sp.problem.title.toLowerCase().trim());
               const link =
                 curated?.link ||
                 (sp.problem.slug.startsWith("http")
                   ? sp.problem.slug
                   : `https://takeuforward.org/practice/dsa/${sp.problem.slug}`);
               const videoUrl = curated?.videoUrl || "";
+              const cleanTopic = curated?.topic || (sp.problem.tags.length > 0 ? sp.problem.tags[0] : "General");
+              const cleanSubtopic = curated?.subtopic || cleanTopic;
 
               return {
                 id: String(sp.id),
@@ -81,9 +81,10 @@ app.get("/", async (c) => {
                     : sp.problem.difficulty === "MEDIUM"
                     ? "Core"
                     : "Hard",
-                topic: sp.problem.tags.length > 0 ? sp.problem.tags[0] : "General",
-                moreTopics: sp.problem.tags.length > 1 ? sp.problem.tags.length - 1 : 0,
-                companies: sp.problem.company,
+                topic: cleanTopic,
+                subtopic: cleanSubtopic,
+                moreTopics: 0,
+                companies: [], // Companies removed per user request
                 link,
                 videoUrl,
               };

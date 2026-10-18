@@ -5,6 +5,7 @@ export interface CuratedProblem {
   slug: string;
   difficulty: "Basic" | "Core" | "Hard";
   topic: string;
+  subtopic?: string;
   moreTopics: number;
   companies: string[];
   link?: string;
