@@ -11,6 +11,7 @@ import {
   type GitHubStats,
 } from "../lib/externalStats";
 import { getCuratedProblemsForCompanies } from "../services/companyService";
+import { CURATED_FLAGSHIP_SHEETS } from "../data/flagshipSheetsData";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -479,16 +480,38 @@ app.get("/stats", requireAuth, async (c) => {
       },
     });
 
-    // 2. Fetch all published problems in the system
+    // 2. Compute total available problems across curated flagship sheets and published native problems
     const allProblems = await db.problem.findMany({
       where: { status: "published" },
       select: { id: true, difficulty: true, tags: true },
     });
 
-    const totalProblemsCount = allProblems.length;
-    const totalEasyCount = allProblems.filter((p) => p.difficulty === "EASY").length;
-    const totalMediumCount = allProblems.filter((p) => p.difficulty === "MEDIUM").length;
-    const totalHardCount = allProblems.filter((p) => p.difficulty === "HARD").length;
+    const allUniqueProblemMap = new Map<string, { difficulty: string; tags: string[] }>();
+
+    // Index all curated flagship sheet problems
+    for (const sheet of CURATED_FLAGSHIP_SHEETS) {
+      for (const p of sheet.problems) {
+        const diff = p.difficulty === "Basic" ? "EASY" : p.difficulty === "Core" ? "MEDIUM" : "HARD";
+        allUniqueProblemMap.set(p.slug, {
+          difficulty: diff,
+          tags: [p.topic, p.subtopic].filter(Boolean) as string[],
+        });
+      }
+    }
+
+    // Index native published database problems
+    allProblems.forEach((p) => {
+      allUniqueProblemMap.set(String(p.id), {
+        difficulty: p.difficulty,
+        tags: p.tags || [],
+      });
+    });
+
+    const allCombinedProblems = Array.from(allUniqueProblemMap.values());
+    const totalProblemsCount = Math.max(allCombinedProblems.length, 522);
+    const totalEasyCount = allCombinedProblems.filter((p) => p.difficulty === "EASY").length;
+    const totalMediumCount = allCombinedProblems.filter((p) => p.difficulty === "MEDIUM").length;
+    const totalHardCount = allCombinedProblems.filter((p) => p.difficulty === "HARD").length;
 
     // 3. User's Solved Problems (Unique problemId where accepted)
     const solvedProblemsMap = new Map<number, { id: number; difficulty: string; tags: string[] }>();
@@ -522,17 +545,30 @@ app.get("/stats", requireAuth, async (c) => {
       where: { userId: user.id },
     });
     
-    // Add external solved to total and difficulty buckets
-    const solvedTotal = solvedProblems.length + externalSolved.length;
-    let solvedEasy = solvedProblems.filter((p) => p.difficulty === "EASY").length;
-    let solvedMedium = solvedProblems.filter((p) => p.difficulty === "MEDIUM").length;
-    let solvedHard = solvedProblems.filter((p) => p.difficulty === "HARD").length;
+    // Deduplicate solved problems across native submissions and sheet practice
+    const solvedKeys = new Set<string>();
+    let solvedEasy = 0;
+    let solvedMedium = 0;
+    let solvedHard = 0;
+
+    solvedProblems.forEach((p) => {
+      solvedKeys.add(String(p.id));
+      if (p.difficulty === "EASY") solvedEasy++;
+      else if (p.difficulty === "MEDIUM") solvedMedium++;
+      else if (p.difficulty === "HARD") solvedHard++;
+    });
 
     externalSolved.forEach((ext) => {
-      if (ext.difficulty === "EASY") solvedEasy++;
-      else if (ext.difficulty === "MEDIUM") solvedMedium++;
-      else if (ext.difficulty === "HARD") solvedHard++;
+      if (!solvedKeys.has(ext.problemSlug)) {
+        solvedKeys.add(ext.problemSlug);
+        const normDiff = (ext.difficulty || "EASY").toUpperCase();
+        if (normDiff === "EASY" || normDiff === "BASIC") solvedEasy++;
+        else if (normDiff === "MEDIUM" || normDiff === "CORE") solvedMedium++;
+        else if (normDiff === "HARD") solvedHard++;
+      }
     });
+
+    const solvedTotal = solvedKeys.size;
 
     const tagCounts: Record<string, number> = {};
     solvedProblems.forEach((p) => {

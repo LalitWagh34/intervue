@@ -167,26 +167,35 @@ export default function ProfilePage() {
   const ghStats = stats?.githubStats;
 
   let wheelTotalSolved = stats?.dsaProgress?.totalSolved ?? 0;
-  let wheelTotalAvailable = Math.max(stats?.dsaProgress?.totalProblems ?? 1, 1);
+  let wheelTotalAvailable = Math.max(stats?.dsaProgress?.totalProblems ?? 522, 1);
   let wheelEasy = stats?.dsaProgress?.easy?.solved ?? 0;
+  let wheelEasyTotal = stats?.dsaProgress?.easy?.total ?? 159;
   let wheelMedium = stats?.dsaProgress?.medium?.solved ?? 0;
+  let wheelMediumTotal = stats?.dsaProgress?.medium?.total ?? 301;
   let wheelHard = stats?.dsaProgress?.hard?.solved ?? 0;
+  let wheelHardTotal = stats?.dsaProgress?.hard?.total ?? 62;
 
   if (wheelMode === "LEETCODE") {
     wheelTotalSolved = lcStats?.totalSolved ?? 0;
     wheelTotalAvailable = 3300;
     wheelEasy = lcStats?.easySolved ?? 0;
+    wheelEasyTotal = 850;
     wheelMedium = lcStats?.mediumSolved ?? 0;
+    wheelMediumTotal = 1750;
     wheelHard = lcStats?.hardSolved ?? 0;
+    wheelHardTotal = 700;
   } else if (wheelMode === "COMBINED") {
     wheelTotalSolved = stats?.combinedProgress?.totalSolved ?? wheelTotalSolved;
     wheelTotalAvailable = Math.max(
-      (stats?.dsaProgress?.totalProblems ?? 0) + (lcStats?.totalSolved ? 3300 : 0),
+      (stats?.dsaProgress?.totalProblems ?? 522) + (lcStats?.totalSolved ? 3300 : 0),
       wheelTotalSolved || 1
     );
     wheelEasy = stats?.combinedProgress?.easy?.solved ?? wheelEasy;
+    wheelEasyTotal = wheelEasyTotal + (lcStats?.totalSolved ? 850 : 0);
     wheelMedium = stats?.combinedProgress?.medium?.solved ?? wheelMedium;
+    wheelMediumTotal = wheelMediumTotal + (lcStats?.totalSolved ? 1750 : 0);
     wheelHard = stats?.combinedProgress?.hard?.solved ?? wheelHard;
+    wheelHardTotal = wheelHardTotal + (lcStats?.totalSolved ? 700 : 0);
   }
 
   // SVG circular progress calculations
@@ -642,11 +651,13 @@ export default function ProfilePage() {
                       {wheelMode === "LEETCODE"
                         ? "LC Solved"
                         : wheelMode === "COMBINED"
-                        ? "Total Solved"
+                        ? `/ ${wheelTotalAvailable} Total`
                         : `/ ${wheelTotalAvailable} Solved`}
                     </span>
                     <span className="text-[10px] font-semibold text-[#2F80ED] mt-1 uppercase tracking-wider">
-                      {Math.round((wheelTotalSolved / wheelTotalAvailable) * 100)}% Complete
+                      {wheelTotalSolved > 0
+                        ? `${((wheelTotalSolved / wheelTotalAvailable) * 100).toFixed(1)}% Complete`
+                        : "0% Complete"}
                     </span>
                   </div>
                 </div>
@@ -662,7 +673,7 @@ export default function ProfilePage() {
                       Basic (Easy)
                     </span>
                     <span className="font-mono text-[#F5F7FA] font-medium">
-                      {wheelEasy}
+                      {wheelEasy} <span className="text-[#707784] font-normal text-[11px]">/ {wheelEasyTotal}</span>
                     </span>
                   </div>
                   <div className="w-full h-1.5 rounded-full bg-[#14161B] overflow-hidden">
@@ -670,7 +681,7 @@ export default function ProfilePage() {
                       className="h-full bg-[#22C55E] rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(
-                          (wheelEasy / Math.max(wheelTotalSolved || 1, 1)) * 100,
+                          (wheelEasy / Math.max(wheelEasyTotal, 1)) * 100,
                           100
                         )}%`,
                       }}
@@ -686,7 +697,7 @@ export default function ProfilePage() {
                       Core (Medium)
                     </span>
                     <span className="font-mono text-[#F5F7FA] font-medium">
-                      {wheelMedium}
+                      {wheelMedium} <span className="text-[#707784] font-normal text-[11px]">/ {wheelMediumTotal}</span>
                     </span>
                   </div>
                   <div className="w-full h-1.5 rounded-full bg-[#14161B] overflow-hidden">
@@ -694,7 +705,7 @@ export default function ProfilePage() {
                       className="h-full bg-[#F59E0B] rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(
-                          (wheelMedium / Math.max(wheelTotalSolved || 1, 1)) * 100,
+                          (wheelMedium / Math.max(wheelMediumTotal, 1)) * 100,
                           100
                         )}%`,
                       }}
@@ -710,7 +721,7 @@ export default function ProfilePage() {
                       Pro (Hard)
                     </span>
                     <span className="font-mono text-[#F5F7FA] font-medium">
-                      {wheelHard}
+                      {wheelHard} <span className="text-[#707784] font-normal text-[11px]">/ {wheelHardTotal}</span>
                     </span>
                   </div>
                   <div className="w-full h-1.5 rounded-full bg-[#14161B] overflow-hidden">
@@ -718,7 +729,7 @@ export default function ProfilePage() {
                       className="h-full bg-[#EF4444] rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(
-                          (wheelHard / Math.max(wheelTotalSolved || 1, 1)) * 100,
+                          (wheelHard / Math.max(wheelHardTotal, 1)) * 100,
                           100
                         )}%`,
                       }}
