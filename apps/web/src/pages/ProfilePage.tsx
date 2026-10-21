@@ -267,70 +267,78 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Card Body */}
-        <div className="px-6 sm:px-8 pb-8 pt-0 relative flex flex-col sm:flex-row sm:items-end justify-between gap-6">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-12 sm:-mt-14 relative z-10">
-            {/* Avatar */}
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#08090C] border border-[#181A20] p-1 shadow-lg shrink-0 overflow-hidden relative">
-              <div className="w-full h-full rounded-xl overflow-hidden relative bg-[#14161C]">
-                {profile?.avatarUrl || stats?.user?.image || session?.user?.image ? (
-                  <img
-                    src={profile?.avatarUrl || stats?.user?.image || session?.user?.image || ""}
-                    alt={displayName}
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#327CF6] to-[#1E3A8A] flex items-center justify-center text-4xl font-bold text-white shadow-inner">
-                    {displayName[0]?.toUpperCase() || "C"}
-                  </div>
-                )}
+        <div className="px-6 sm:px-8 pb-7 pt-0 relative">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-12 sm:-mt-14 relative z-10">
+              {/* Avatar */}
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#08090C] border border-[#181A20] p-1 shadow-lg shrink-0 overflow-hidden relative">
+                <div className="w-full h-full rounded-xl overflow-hidden relative bg-[#14161C]">
+                  {profile?.avatarUrl || stats?.user?.image || session?.user?.image ? (
+                    <img
+                      src={profile?.avatarUrl || stats?.user?.image || session?.user?.image || ""}
+                      alt={displayName}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#327CF6] to-[#1E3A8A] flex items-center justify-center text-4xl font-bold text-white shadow-inner">
+                      {displayName[0]?.toUpperCase() || "C"}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* User Meta */}
+              <div className="pt-2 sm:pb-1">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                    {displayName}
+                  </h1>
+                </div>
+                <p className="text-xs text-[#525866] font-mono mt-1">@{displayHandle}</p>
+                <div className="flex items-center gap-2 mt-3.5 flex-wrap">
+                  <span className="text-[11px] text-[#F3F4F6] font-medium flex items-center gap-1.5 bg-[#14161C] px-3 py-1 rounded-full border border-[#1E2229] shadow-sm shadow-black/20">
+                    <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+                    {profile?.targetRole || "Software Engineer"}
+                  </span>
+                  <span className="text-[11px] text-[#8B92A0] bg-[#14161C] px-3 py-1 rounded-full border border-[#1E2229] capitalize shadow-sm shadow-black/20">
+                    {profile?.experienceLevel || "Mid-Level"}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* User Meta */}
-            <div className="pt-2 sm:pb-1">
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  {displayName}
-                </h1>
-              </div>
-              <p className="text-xs text-[#525866] font-mono mt-1">@{displayHandle}</p>
-              {profile?.bio && (
-                <p className="text-sm text-[#8B92A0] mt-3 max-w-lg leading-relaxed">{profile.bio}</p>
-              )}
-              <div className="flex items-center gap-2 mt-4 flex-wrap">
-                <span className="text-[11px] text-[#F3F4F6] font-medium flex items-center gap-1.5 bg-[#14161C] px-3 py-1 rounded-full border border-[#1E2229] shadow-sm shadow-black/20">
-                  <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
-                  {profile?.targetRole || "Software Engineer"}
-                </span>
-                <span className="text-[11px] text-[#8B92A0] bg-[#14161C] px-3 py-1 rounded-full border border-[#1E2229] capitalize shadow-sm shadow-black/20">
-                  {profile?.experienceLevel || "Mid-Level"}
-                </span>
-              </div>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2.5 pt-4 sm:pt-0 pb-1 w-full sm:w-auto">
+              <button
+                onClick={() => syncAllMutation.mutate()}
+                disabled={syncAllMutation.isPending}
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-[#08090C] border border-[#181A20] hover:border-[#327CF6]/50 text-xs font-medium text-[#8B92A0] hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                title="Sync all connected platforms"
+              >
+                <RefreshCw
+                  className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#327CF6]")}
+                />
+                <span>{syncAllMutation.isPending ? "Syncing..." : "Sync All"}</span>
+              </button>
+              <Link
+                to="/profile-setup"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white shadow-sm shadow-[#327CF6]/20 transition-all cursor-pointer text-center"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                <span>Edit Profile</span>
+              </Link>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 pt-4 sm:pt-0 pb-1 w-full sm:w-auto">
-            <button
-              onClick={() => syncAllMutation.mutate()}
-              disabled={syncAllMutation.isPending}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-[#08090C] border border-[#181A20] hover:border-[#327CF6]/50 text-xs font-medium text-[#8B92A0] hover:text-white transition-all cursor-pointer disabled:opacity-50"
-              title="Sync all connected platforms"
-            >
-              <RefreshCw
-                className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#327CF6]")}
-              />
-              <span>{syncAllMutation.isPending ? "Syncing..." : "Sync All"}</span>
-            </button>
-            <Link
-              to="/profile-setup"
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white shadow-sm shadow-[#327CF6]/20 transition-all cursor-pointer text-center"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-              <span>Edit Profile</span>
-            </Link>
-          </div>
+          {/* Bio Row */}
+          {profile?.bio && (
+            <div className="mt-5 pt-4 border-t border-[#181A20]/80">
+              <p className="text-sm text-[#9CA3AF] max-w-3xl leading-relaxed whitespace-pre-wrap">
+                {profile.bio}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
