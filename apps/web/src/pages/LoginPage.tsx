@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { signIn, signUp, useSession } from "@/lib/auth";
+import { signIn, signUp, useSession, setSessionToken } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -86,12 +86,10 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       if (authMode === "signup") {
-        const callbackURL = `${window.location.origin}/dashboard`;
         const result = await signUp.email({
           email: email.trim(),
           password: password,
           name: name.trim() || email.split("@")[0],
-          callbackURL,
         });
 
         if (result.error) {
@@ -104,23 +102,17 @@ export default function LoginPage() {
           (result.data as any)?.sessionToken ||
           (result as any)?.token;
         if (sessionToken) {
-          try {
-            localStorage.setItem("intervue_session_token", sessionToken);
-          } catch {}
+          setSessionToken(sessionToken);
         }
 
         toast.success("Account created successfully!", {
           description: "Welcome to Intervue! Redirecting to your dashboard...",
         });
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 400);
+        window.location.replace("/dashboard");
       } else {
-        const callbackURL = `${window.location.origin}/dashboard`;
         const result = await signIn.email({
           email: email.trim(),
           password: password,
-          callbackURL,
         });
 
         if (result.error) {
@@ -133,17 +125,13 @@ export default function LoginPage() {
           (result.data as any)?.sessionToken ||
           (result as any)?.token;
         if (sessionToken) {
-          try {
-            localStorage.setItem("intervue_session_token", sessionToken);
-          } catch {}
+          setSessionToken(sessionToken);
         }
 
         toast.success("Welcome back!", {
           description: "Signed in successfully. Redirecting...",
         });
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 400);
+        window.location.replace("/dashboard");
       }
     } catch (err: any) {
       console.error("Auth submit error:", err);

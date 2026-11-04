@@ -22,7 +22,7 @@ import NotepadPage from "./pages/NotepadPage";
 import BookmarksPage from "./pages/BookmarksPage";
 import HelpCenterPage from "./pages/HelpCenterPage";
 import FeedbackPage from "./pages/FeedbackPage";
-import { useSession, getSessionToken } from "@/lib/auth";
+import { useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { Analytics } from "@vercel/analytics/react";
 import { SessionVerificationLoader } from "@/components/shared/SessionVerificationLoader";
@@ -30,13 +30,6 @@ import { toast } from "sonner";
 // import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const hasToken = typeof window !== "undefined" && !!getSessionToken();
-
-  // Instant fast-path: If user has no session token at all, avoid waiting for server timeout
-  if (!hasToken) {
-    return <Navigate to="/login" replace />;
-  }
-
   const { data: session, isPending } = useSession();
 
   if (isPending) {
@@ -49,13 +42,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
-  const hasToken = typeof window !== "undefined" && !!getSessionToken();
-
-  // Instant fast-path
-  if (!hasToken) {
-    return <Navigate to="/login" replace />;
-  }
-
   const { data: session, isPending: isSessionPending } = useSession();
   const { data: profileStats, isLoading: isStatsLoading } = useProfileStats();
 
@@ -89,13 +75,6 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 // Redirects logged-in users away from public pages (like Landing and Login)
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const hasToken = typeof window !== "undefined" && !!getSessionToken();
-
-  // Instant fast-path: Guest visitors with no saved token see the landing page instantly
-  if (!hasToken) {
-    return <>{children}</>;
-  }
-
   const { data: session, isPending } = useSession();
 
   if (isPending) {
