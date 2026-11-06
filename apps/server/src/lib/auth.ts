@@ -3,6 +3,11 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { bearer } from "better-auth/plugins";
 import { db } from "@intervue/db";
 
+const defaultFrontendUrl =
+  process.env.FRONTEND_URL ||
+  process.env.CLIENT_URL ||
+  (process.env.NODE_ENV === "production" ? "https://intervue-mu.vercel.app" : "http://localhost:5173");
+
 export const auth = betterAuth({
   baseURL:
     process.env.RENDER_EXTERNAL_URL ||
@@ -14,6 +19,15 @@ export const auth = betterAuth({
   plugins: [bearer()],
   emailAndPassword: {
     enabled: true,
+  },
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google"],
+    },
+  },
+  onAPIError: {
+    errorURL: `${defaultFrontendUrl}/login`,
   },
   user: {
     additionalFields: {

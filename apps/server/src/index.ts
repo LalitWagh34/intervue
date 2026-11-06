@@ -90,7 +90,10 @@ app.use(
 app.get("/", (c) => {
   const accept = c.req.header("accept") || "";
   if (accept.includes("text/html")) {
-    const frontendUrl = process.env.FRONTEND_URL || "https://intervue-mu.vercel.app";
+    const frontendUrl =
+      process.env.FRONTEND_URL ||
+      process.env.CLIENT_URL ||
+      (process.env.NODE_ENV === "production" ? "https://intervue-mu.vercel.app" : "http://localhost:5173");
     return c.redirect(frontendUrl);
   }
   return c.json({ status: "healthy", service: "intervue-backend", timestamp: new Date().toISOString() });
@@ -109,6 +112,25 @@ app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
   const location = res.headers.get("location");
   if (location && res.status >= 300 && res.status < 400) {
     try {
+      const defaultFrontend =
+        process.env.FRONTEND_URL ||
+        process.env.CLIENT_URL ||
+        (process.env.NODE_ENV === "production" ? "https://intervue-mu.vercel.app" : "http://localhost:5173");
+
+      // Handle OAuth errors redirected to /api/auth/error or containing error query param
+      if (location.includes("/api/auth/error") || location.includes("error=")) {
+        const errorUrl = new URL(location, defaultFrontend);
+        const errorCode = errorUrl.searchParams.get("error") || "auth_failed";
+        const redirectTarget = new URL("/login", defaultFrontend);
+        redirectTarget.searchParams.set("error", errorCode);
+        const headers = new Headers(res.headers);
+        headers.set("location", redirectTarget.toString());
+        return new Response(null, {
+          status: 302,
+          headers,
+        });
+      }
+
       const rawCookie = res.headers.get("set-cookie") || "";
       const cookieMatch = rawCookie.match(/(?:better-auth\.session_token|__Secure-better-auth\.session_token|better-auth_session_token)=([^;]+)/i);
       const token =
@@ -117,8 +139,11 @@ app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
         (cookieMatch ? cookieMatch[1] : null);
 
       if (token && !location.includes("accounts.google.com") && !location.includes("/api/auth")) {
-        const baseUrl = process.env.FRONTEND_URL || "https://intervue-mu.vercel.app";
-        const url = new URL(location, baseUrl);
+        const url = new URL(location, defaultFrontend);
+        // Guarantee redirect goes to /dashboard instead of root landing page
+        if (url.pathname === "/" || url.pathname === "") {
+          url.pathname = "/dashboard";
+        }
         url.searchParams.set("session_token", decodeURIComponent(token));
         const headers = new Headers(res.headers);
         headers.set("location", url.toString());

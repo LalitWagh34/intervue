@@ -34,8 +34,16 @@ if (typeof window !== "undefined") {
       params.delete("session_token");
       params.delete("token");
       const newSearch = params.toString();
-      const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : "") + window.location.hash;
-      window.history.replaceState({}, document.title, newUrl);
+      const targetPath =
+        window.location.pathname === "/" || !window.location.pathname
+          ? "/dashboard"
+          : window.location.pathname;
+      const newUrl = targetPath + (newSearch ? `?${newSearch}` : "") + window.location.hash;
+      if (window.location.pathname === "/" || !window.location.pathname) {
+        window.location.replace(newUrl);
+      } else {
+        window.history.replaceState({}, document.title, newUrl);
+      }
     }
   } catch {}
 }

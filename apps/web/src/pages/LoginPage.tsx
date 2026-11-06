@@ -59,11 +59,25 @@ export default function LoginPage() {
     }
   }, [refParam]);
 
-  // Handle OAuth state mismatch error
+  // Handle OAuth error params
   useEffect(() => {
+    if (!errorParam) return;
+
     if (errorParam === "state_mismatch") {
       toast.error("Sign-in session expired. Please click below to try again.", {
         description: "Google verification state mismatched. Avoid double clicking the sign-in button.",
+      });
+    } else if (errorParam === "account_not_linked") {
+      toast.error("Account already exists with this email.", {
+        description: "Please sign in with your email & password or link your Google account.",
+      });
+    } else if (errorParam === "access_denied") {
+      toast.info("Google sign-in was cancelled.", {
+        description: "You chose not to complete the Google authentication.",
+      });
+    } else {
+      toast.error("Google sign-in failed.", {
+        description: `Authentication error: ${errorParam.replace(/_/g, " ")}. Please try again.`,
       });
     }
   }, [errorParam]);
@@ -148,6 +162,8 @@ export default function LoginPage() {
       const res = await signIn.social({
         provider: "google",
         callbackURL: `${window.location.origin}/dashboard`,
+        newUserCallbackURL: `${window.location.origin}/dashboard`,
+        errorCallbackURL: `${window.location.origin}/login`,
       });
       if (res?.error) {
         console.error("Google sign in response error:", res.error);
