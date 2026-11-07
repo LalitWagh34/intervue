@@ -306,3 +306,4 @@ All API endpoints adhere to the RFC 7807 specification for structured error payl
 * **Frontend**: Deployed to **Vercel** with automatic preview deployments, Brotli/Gzip edge compression, and global CDN caching.
 * **Backend**: Packaged via a multi-stage Docker container (`oven/bun:1.2-slim`) and hosted on **Render** with auto-healing and WebSocket connection upgrades.
 * **Database**: Hosted on **Neon Serverless PostgreSQL** with connection pooling enabled.
+
