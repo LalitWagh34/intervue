@@ -25,6 +25,7 @@ export const auth = betterAuth({
       enabled: true,
       trustedProviders: ["google"],
     },
+    skipStateCookieCheck: true,
   },
   onAPIError: {
     errorURL: `${defaultFrontendUrl}/login`,
