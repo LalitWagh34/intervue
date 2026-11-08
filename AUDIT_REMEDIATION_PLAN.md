@@ -17,15 +17,15 @@
 
 ---
 
-## 🌊 Wave 1: Critical Authorization & Data Protection (Immediate)
+## 🌊 Wave 1: Critical Authorization & Data Protection (Immediate) [COMPLETED]
 
-### 🔴 Task 1.1: Secure WebSocket Authentication on `/ws/rooms`
-- [ ] **Files to touch:**
+### 🔴 Task 1.1: Secure WebSocket Authentication on `/ws/rooms` [COMPLETED]
+- [x] **Files to touch:**
   - `apps/server/src/index.ts` (WebSocket upgrade handling)
   - `apps/server/src/services/roomSocket.ts` (Event handlers & connection pool)
   - `apps/web/src/hooks/useRoomSocket.ts` (Client handshake authentication)
-- [ ] **Vulnerability:** `/ws/rooms` accepts connections without authenticating the upgrade request. Any user knowing a `participantId` and `roomCode` can impersonate a participant, trigger fake anti-cheat strikes, overwrite code snapshots, or disconnect legitimate sockets.
-- [ ] **Fix Specification:**
+- [x] **Vulnerability:** `/ws/rooms` accepts connections without authenticating the upgrade request. Any user knowing a `participantId` and `roomCode` can impersonate a participant, trigger fake anti-cheat strikes, overwrite code snapshots, or disconnect legitimate sockets.
+- [x] **Fix Specification:**
   1. Validate Better-Auth session token during the WebSocket HTTP upgrade handshake (`upgradeWebSocket`).
   2. Extract `userId` authoritatively from the verified session rather than trusting client-supplied payloads.
   3. Fail closed on database lookups (`RoomParticipant` check must reject and terminate socket if DB error occurs).
@@ -33,12 +33,12 @@
 
 ---
 
-### 🔴 Task 1.2: Restrict & Secure Feedback API (`GET /api/feedback`)
-- [ ] **Files to touch:**
+### 🔴 Task 1.2: Restrict & Secure Feedback API (`GET /api/feedback`) [COMPLETED]
+- [x] **Files to touch:**
   - `apps/server/src/routes/feedback.ts`
   - `packages/db/prisma/schema.prisma` (Add `Feedback` model)
-- [ ] **Vulnerability:** `GET /api/feedback` has no authentication or authorization checks. It dumps all submitted feedback including names, email addresses, and timestamps publicly.
-- [ ] **Fix Specification:**
+- [x] **Vulnerability:** `GET /api/feedback` has no authentication or authorization checks. It dumps all submitted feedback including names, email addresses, and timestamps publicly.
+- [x] **Fix Specification:**
   1. Protect `GET /api/feedback` with `requireAuth` and `requireAdmin` middleware.
   2. Migrate storage from the ephemeral, unencrypted `feedback.json` file to a dedicated `Feedback` model in PostgreSQL.
   3. Strip PII from unprivileged internal server logs.
@@ -172,3 +172,4 @@
   1. Configure production headers in `vercel.json` (`Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`).
   2. Fix "Forgot password" UI to properly handle password reset requests or direct users to email support.
   3. Turn off noisy Prisma query logging in production (`log: process.env.NODE_ENV === "production" ? ["error", "warn"] : ["query", "error", "warn"]`).
+

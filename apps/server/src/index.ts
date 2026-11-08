@@ -19,6 +19,7 @@ import bookmarksRoutes from "./routes/bookmarks";
 import rewardsRoutes from "./routes/rewards";
 import feedbackRoutes from "./routes/feedback";
 import { roomSocketManager } from "./services/roomSocket";
+import { db } from "@intervue/db";
 import { register, httpRequestDurationMicroseconds } from "./lib/metrics";
 import { logger as pinoLogger } from "./lib/logger";
 
@@ -184,12 +185,82 @@ app.get("/metrics", async (c) => {
 // Real-Time Competitive Rooms WebSocket
 app.get(
   "/ws/rooms",
+  async (c, next) => {
+    // 1. Extract session token from query string, authorization header, or cookies
+    const queryToken = c.req.query("token");
+    const authHeader = c.req.header("authorization");
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, "");
+    const token = queryToken || bearerToken || "";
+
+    const headers = new Headers(c.req.raw.headers);
+    if (token && !headers.has("authorization")) {
+      headers.set("authorization", `Bearer ${token}`);
+    }
+
+    let user: any = null;
+    try {
+      const session = await auth.api.getSession({ headers });
+      if (session?.user) {
+        user = session.user;
+      }
+    } catch (_) {}
+
+    // Fallback: Check DB Session directly if token was passed as param
+    if (!user && token) {
+      try {
+        const dbSession = await db.session.findUnique({
+          where: { token },
+          include: { user: true },
+        });
+        if (dbSession && new Date(dbSession.expiresAt) > new Date()) {
+          user = dbSession.user;
+        }
+      } catch (err) {
+        console.error("[WS Upgrade] DB session lookup error:", err);
+      }
+    }
+
+    if (!user) {
+      return c.json({ error: "Unauthorized: Valid session required for WebSocket connection" }, 401);
+    }
+
+    c.set("user", user);
+    await next();
+  },
   upgradeWebSocket((c) => {
+    const verifiedUser = c.get("user");
     return {
       onOpen(event, ws) {
-        console.log("[WS] Client connected to /ws/rooms");
+        (ws as any).user = verifiedUser;
+        (ws as any).msgCount = 0;
+        (ws as any).lastMsgReset = Date.now();
+        console.log(`[WS] Authenticated client connected to /ws/rooms: ${verifiedUser.id} (${verifiedUser.name || "Anonymous"})`);
       },
       onMessage: async (event, ws) => {
+        const authUser = (ws as any).user || verifiedUser;
+        if (!authUser?.id) {
+          try {
+            ws.send(JSON.stringify({ type: "error", message: "Unauthorized socket" }));
+            ws.close();
+          } catch (_) {}
+          return;
+        }
+
+        // Rate limit: max 40 messages per second per socket connection
+        const now = Date.now();
+        const wsData = ws as any;
+        if (now - (wsData.lastMsgReset || 0) > 1000) {
+          wsData.msgCount = 0;
+          wsData.lastMsgReset = now;
+        }
+        wsData.msgCount = (wsData.msgCount || 0) + 1;
+        if (wsData.msgCount > 40) {
+          try {
+            ws.send(JSON.stringify({ type: "error", message: "Rate limit exceeded. Too many WebSocket messages." }));
+          } catch (_) {}
+          return;
+        }
+
         try {
           let raw: string;
           if (typeof event.data === "string") {
@@ -205,7 +276,17 @@ app.get(
           const { event: eventName, data } = message;
 
           if (eventName === "room:join") {
-            roomSocketManager.joinRoom(ws, data);
+            if (!data?.roomCode) {
+              ws.send(JSON.stringify({ type: "error", message: "Missing roomCode" }));
+              return;
+            }
+            // Discard client-supplied userId to prevent identity spoofing
+            await roomSocketManager.joinRoom(ws, {
+              userId: authUser.id,
+              roomCode: data.roomCode,
+              name: authUser.name || data.name || "Anonymous",
+              image: authUser.image || data.image,
+            });
           } else if (eventName === "room:leave") {
             roomSocketManager.leaveRoom(ws);
           } else if (eventName === "time:sync") {
@@ -213,12 +294,14 @@ app.get(
               roomSocketManager.sendRoomSync(ws, data.roomCode);
             }
           } else if (eventName === "anticheat:violation") {
-            if (data?.roomCode && data?.userId && data?.type) {
-              await roomSocketManager.recordViolation(data.roomCode, data.userId, data.type, data.details);
+            // Anti-cheat violations can strictly only be recorded for the authenticated user themselves
+            if (data?.roomCode && data?.type) {
+              await roomSocketManager.recordViolation(data.roomCode, authUser.id, data.type, data.details);
             }
           } else if (eventName === "code:sync") {
-            if (data?.roomCode && data?.userId && data?.sourceCode !== undefined) {
-              await roomSocketManager.updateCodeSnapshot(data.roomCode, data.userId, {
+            // Code snapshot updates MUST be bound to the authenticated user's ID
+            if (data?.roomCode && data?.sourceCode !== undefined) {
+              await roomSocketManager.updateCodeSnapshot(data.roomCode, authUser.id, {
                 problemId: data.problemId,
                 sourceCode: data.sourceCode,
                 language: data.language,
@@ -226,6 +309,12 @@ app.get(
             }
           } else if (eventName === "code:inspect") {
             if (data?.roomCode && data?.targetUserId) {
+              // Ensure inspecting user is in the room
+              const isParticipant = roomSocketManager.isUserInRoom(data.roomCode, authUser.id);
+              if (!isParticipant) {
+                ws.send(JSON.stringify({ type: "error", message: "Forbidden: Not in room" }));
+                return;
+              }
               const snapshot = await roomSocketManager.getCodeSnapshot(data.roomCode, data.targetUserId);
               roomSocketManager.sendToClient(ws, "code:inspect_result", {
                 targetUserId: data.targetUserId,

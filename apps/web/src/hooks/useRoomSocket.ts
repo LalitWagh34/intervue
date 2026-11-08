@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { toast } from "sonner";
+import { getSessionToken } from "@/lib/auth";
 
 export interface Participant {
   rank?: number;
@@ -106,6 +107,11 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const host = window.location.hostname || "localhost";
       wsUrl = `${protocol}//${host}:3000/ws/rooms`;
+    }
+
+    const sessionToken = getSessionToken();
+    if (sessionToken) {
+      wsUrl += `${wsUrl.includes("?") ? "&" : "?"}token=${encodeURIComponent(sessionToken)}`;
     }
 
     try {

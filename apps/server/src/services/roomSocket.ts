@@ -149,6 +149,21 @@ class RoomSocketManager {
   }
 
   /**
+   * Check if a user is currently connected to a room
+   */
+  public isUserInRoom(roomCode: string, userId: string): boolean {
+    const code = roomCode.toUpperCase();
+    const roomSet = this.rooms.get(code);
+    if (!roomSet) return false;
+    for (const ws of roomSet) {
+      if (this.clients.get(ws)?.userId === userId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Register a new client connection to a room
    */
   public async joinRoom(ws: any, clientData: { userId: string; roomCode: string; name?: string; image?: string }) {
@@ -177,6 +192,11 @@ class RoomSocketManager {
       }
     } catch (err) {
       console.error("[Socket] Error verifying user participation:", err);
+      try {
+        ws.send(JSON.stringify({ type: "error", message: "Server error verifying room authorization." }));
+        ws.close();
+      } catch (_) {}
+      return;
     }
 
     if (!this.rooms.has(code)) {
