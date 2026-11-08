@@ -12,6 +12,7 @@ export interface ConnectedClient {
   name?: string;
   image?: string;
   connectedAt: number;
+  lastMembershipVerifiedAt?: number;
 }
 
 export interface LeaderboardEntry {
@@ -71,7 +72,7 @@ class RoomSocketManager {
 
   constructor() {
     // Setup Redis Pub/Sub for horizontal scaling synchronization
-    redisSubscriber.on("connect", () => {
+    const setupSubscription = () => {
       try {
         redisSubscriber.subscribe("room_events", (err) => {
           if (err) console.error("[Socket] Failed to subscribe to room_events:", err);
@@ -80,7 +81,13 @@ class RoomSocketManager {
       } catch (err) {
         console.error("[Socket] Failed to subscribe to Redis:", err);
       }
-    });
+    };
+
+    if (isRedisConnected || redisSubscriber.status === "ready" || redisSubscriber.status === "connect") {
+      setupSubscription();
+    }
+    redisSubscriber.on("connect", setupSubscription);
+    redisSubscriber.on("ready", setupSubscription);
 
     redisSubscriber.on("message", (channel, message) => {
       if (channel === "room_events") {
@@ -427,8 +434,16 @@ class RoomSocketManager {
     const boundUserId = client.userId;
 
     // 5. Sensitive events require active database membership verification (Fail-Closed)
-    if (eventName === "anticheat:violation" || eventName === "code:sync" || eventName === "code:inspect") {
-      const isStillMember = await this.verifyActiveMembership(ws);
+    // High-frequency events (code:sync) use a 5-second verification cache to prevent excessive DB load.
+    // Sensitive control/sync events (time:sync, anticheat:violation, code:inspect) always verify strictly against DB.
+    if (
+      eventName === "anticheat:violation" ||
+      eventName === "code:sync" ||
+      eventName === "code:inspect" ||
+      eventName === "time:sync"
+    ) {
+      const cacheTtlMs = eventName === "code:sync" ? 5000 : 0;
+      const isStillMember = await this.verifyActiveMembership(ws, cacheTtlMs);
       if (!isStillMember) {
         return;
       }
@@ -509,6 +524,10 @@ class RoomSocketManager {
         }
       }
     }
+
+    // Delete live code snapshot of revoked participant
+    await this.deleteCodeSnapshot(code, userId);
+
     this.broadcastToRoom(code, "participant:revoked", {
       userId,
       reason,
@@ -517,11 +536,32 @@ class RoomSocketManager {
   }
 
   /**
+   * Delete code snapshot for a participant (used upon revocation or leave)
+   */
+  public async deleteCodeSnapshot(roomCode: string, userId: string): Promise<void> {
+    const code = roomCode.toUpperCase();
+    if (isRedisConnected) {
+      await redis.hdel(`room:${code}:codeSnapshots`, userId).catch(() => {});
+    }
+    this.codeSnapshots.get(code)?.delete(userId);
+  }
+
+  /**
    * Verify whether the socket's client still has active membership in the room
    */
-  public async verifyActiveMembership(ws: any): Promise<boolean> {
+  public async verifyActiveMembership(ws: any, maxCacheAgeMs = 0): Promise<boolean> {
     const client = this.clients.get(ws);
     if (!client || !client.roomCode) return false;
+
+    const now = Date.now();
+    if (
+      maxCacheAgeMs > 0 &&
+      client.lastMembershipVerifiedAt &&
+      now - client.lastMembershipVerifiedAt < maxCacheAgeMs
+    ) {
+      return true;
+    }
+
     try {
       const member = await db.room.findFirst({
         where: {
@@ -537,6 +577,7 @@ class RoomSocketManager {
         await this.revokeMembership(client.roomCode, client.userId, "Room membership no longer active.");
         return false;
       }
+      client.lastMembershipVerifiedAt = now;
       return true;
     } catch (err) {
       console.error("[Socket] DB error in verifyActiveMembership (Failing Closed):", err);
@@ -855,8 +896,8 @@ class RoomSocketManager {
         rank: idx + 1,
         participantId: p.id,
         userId: p.userId,
-        name: p.user.name || "Anonymous",
-        image: p.user.image,
+        name: p.user?.name || "Anonymous",
+        image: p.user?.image,
         role: p.role,
         score: p.score,
         solvedCount: p.solvedCount,
@@ -905,8 +946,8 @@ class RoomSocketManager {
         rank: idx + 1,
         participantId: p.id,
         userId: p.userId,
-        name: p.user.name || "Anonymous",
-        image: p.user.image,
+        name: p.user?.name || "Anonymous",
+        image: p.user?.image,
         role: p.role,
         score: p.score,
         solvedCount: p.solvedCount,
@@ -1012,8 +1053,8 @@ class RoomSocketManager {
         rank: idx + 1,
         participantId: p.id,
         userId: p.userId,
-        name: p.user.name || "Anonymous",
-        image: p.user.image,
+        name: p.user?.name || "Anonymous",
+        image: p.user?.image,
         role: p.role,
         score: p.score,
         solvedCount: p.solvedCount,

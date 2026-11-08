@@ -15,8 +15,20 @@ import { roomSocketManager } from "../services/roomSocket";
 import { requireRoomMember, requireRoomHost } from "../middleware/authorize";
 import { idempotency } from "../middleware/idempotency";
 import { judgeSemaphore } from "../lib/semaphore";
+import { AppError } from "../lib/errors";
 
 const app = new Hono<{ Variables: AuthVariables }>();
+
+// Standard RFC 7807 problem details handler for room router errors
+app.onError((err, c) => {
+  if (err instanceof AppError) {
+    if (err.details?.retryAfter) {
+      c.header("Retry-After", String(err.details.retryAfter));
+    }
+    return c.json(err.toJSON(c.req.path), (err.statusCode as any) || 500);
+  }
+  return c.json({ error: err.message || "Internal server error" }, 500);
+});
 
 // Helper to generate a unique 6-character uppercase alphanumeric code
 function generateRoomCode(): string {
@@ -1304,6 +1316,16 @@ app.get("/:code/participant-code/:userId", requireAuth, requireRoomMember, async
   const code = (c.req.param("code") || "").toUpperCase();
   const targetUserId = c.req.param("userId");
   if (!targetUserId) return c.json({ snapshot: null });
+
+  const room = (c as any).get("authorizedRoom") || (c as any).get("room");
+  const isTargetInRoom =
+    room?.hostId === targetUserId ||
+    room?.participants?.some((p: any) => p.userId === targetUserId);
+
+  if (!isTargetInRoom) {
+    return c.json({ snapshot: null });
+  }
+
   const snapshot = await roomSocketManager.getCodeSnapshot(code, targetUserId);
   return c.json({ snapshot });
 });
@@ -1314,7 +1336,7 @@ app.post("/:code/leave", requireAuth, requireRoomMember, async (c) => {
   try {
     const user = c.get("user");
     const code = (c.req.param("code") || "").toUpperCase();
-    const room = (c as any).get("room");
+    const room = (c as any).get("authorizedRoom") || (c as any).get("room");
 
     if (room.hostId === user.id) {
       return c.json({ error: "Host cannot leave room. Use end contest instead." }, 400);
@@ -1339,7 +1361,7 @@ app.post("/:code/kick/:targetUserId", requireAuth, requireRoomHost, async (c) =>
   try {
     const code = (c.req.param("code") || "").toUpperCase();
     const targetUserId = c.req.param("targetUserId");
-    const room = (c as any).get("room");
+    const room = (c as any).get("authorizedRoom") || (c as any).get("room");
 
     if (targetUserId === room.hostId) {
       return c.json({ error: "Cannot kick the room host" }, 400);
