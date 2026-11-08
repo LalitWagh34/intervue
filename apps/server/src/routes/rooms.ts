@@ -1308,5 +1308,59 @@ app.get("/:code/participant-code/:userId", requireAuth, requireRoomMember, async
   return c.json({ snapshot });
 });
 
+// ─── POST /api/rooms/:code/leave ─────────────────────────────────────────
+// Participant voluntarily leaves room: removes DB participation & revokes socket
+app.post("/:code/leave", requireAuth, requireRoomMember, async (c) => {
+  try {
+    const user = c.get("user");
+    const code = (c.req.param("code") || "").toUpperCase();
+    const room = (c as any).get("room");
+
+    if (room.hostId === user.id) {
+      return c.json({ error: "Host cannot leave room. Use end contest instead." }, 400);
+    }
+
+    await db.roomParticipant.deleteMany({
+      where: { roomId: room.id, userId: user.id },
+    });
+
+    await roomSocketManager.revokeMembership(code, user.id, "Participant left the room");
+
+    return c.json({ success: true, message: "Left room successfully" });
+  } catch (err: any) {
+    console.error("Error leaving room:", err);
+    return c.json({ error: "Failed to leave room" }, 500);
+  }
+});
+
+// ─── POST /api/rooms/:code/kick/:targetUserId ────────────────────────────
+// Host kicks participant: removes DB participation & disconnects socket
+app.post("/:code/kick/:targetUserId", requireAuth, requireRoomHost, async (c) => {
+  try {
+    const code = (c.req.param("code") || "").toUpperCase();
+    const targetUserId = c.req.param("targetUserId");
+    const room = (c as any).get("room");
+
+    if (targetUserId === room.hostId) {
+      return c.json({ error: "Cannot kick the room host" }, 400);
+    }
+
+    const deleted = await db.roomParticipant.deleteMany({
+      where: { roomId: room.id, userId: targetUserId },
+    });
+
+    if (deleted.count === 0) {
+      return c.json({ error: "Participant not found in room" }, 404);
+    }
+
+    await roomSocketManager.revokeMembership(code, targetUserId, "Kicked by room host");
+
+    return c.json({ success: true, message: "Participant kicked from room" });
+  } catch (err: any) {
+    console.error("Error kicking participant:", err);
+    return c.json({ error: "Failed to kick participant" }, 500);
+  }
+});
+
 export default app;
 

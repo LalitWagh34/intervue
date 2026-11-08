@@ -32,6 +32,10 @@ class MockWebSocket {
   findMessage(predicate: (msg: any) => boolean) {
     return this.sentMessages.find(predicate);
   }
+
+  filterMessages(predicate: (msg: any) => boolean) {
+    return this.sentMessages.filter(predicate);
+  }
 }
 
 describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
@@ -41,11 +45,11 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
   const roomBravoCode = "ROOM_BRAVO";
 
   beforeEach(() => {
-    // Reset db.room.findFirst mock
+    // Reset mocks
     mock.restore();
   });
 
-  it("registers a connection with roomCode: null prior to joining", () => {
+  it("registers a connection with roomCode: null and CONNECTED state prior to joining", () => {
     const ws = new MockWebSocket();
     roomSocketManager.registerConnection(ws, userA);
 
@@ -53,6 +57,7 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
     expect(client).toBeDefined();
     expect(client?.userId).toBe(userA.id);
     expect(client?.roomCode).toBeNull();
+    expect(client?.state).toBe("CONNECTED");
 
     // Clean up
     roomSocketManager.leaveRoom(ws);
@@ -82,6 +87,15 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
     await roomSocketManager.handleMessage(ws, "anticheat:violation", {
       roomCode: roomAlphaCode,
       type: "TAB_SWITCH",
+    });
+    lastMsg = ws.getLastMessage();
+    expect(lastMsg?.event).toBe("error");
+    expect(lastMsg?.data?.code).toBe("PRE_JOIN_FORBIDDEN");
+
+    // Attempt code:inspect before joining
+    await roomSocketManager.handleMessage(ws, "code:inspect", {
+      roomCode: roomAlphaCode,
+      targetUserId: userB.id,
     });
     lastMsg = ws.getLastMessage();
     expect(lastMsg?.event).toBe("error");
@@ -137,6 +151,7 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
 
     const client = roomSocketManager.getClient(ws);
     expect(client?.roomCode).toBe(roomAlphaCode);
+    expect(client?.state).toBe("JOINED");
     expect(ws.closed).toBe(false);
 
     // Verifies room sync was dispatched
@@ -148,9 +163,45 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
     roomSocketManager.leaveRoom(ws);
   });
 
-  it("enforces rule 4: restricts connection to one room and forbids room switching", async () => {
+  it("Priority 2: Rejects concurrent double-join races via Promise.all", async () => {
     const ws = new MockWebSocket();
     roomSocketManager.registerConnection(ws, userA);
+
+    db.room.findFirst = mock(async () => {
+      // Simulate microtask delay to expose race conditions
+      await new Promise((r) => setTimeout(r, 10));
+      return { id: "room_1", status: "WAITING" } as any;
+    });
+    db.room.findUnique = mock(async () => ({
+      id: "room_1",
+      code: roomAlphaCode,
+      status: "WAITING",
+      duration: 30,
+      endTime: null,
+      participants: [],
+      submissions: [],
+    } as any));
+
+    // Fire two simultaneous join requests on the same socket
+    const [res1, res2] = await Promise.all([
+      roomSocketManager.joinRoom(ws, { roomCode: roomAlphaCode }),
+      roomSocketManager.joinRoom(ws, { roomCode: roomAlphaCode }),
+    ]);
+
+    // Exactly one should succeed and one should fail
+    expect(res1 !== res2).toBe(true);
+
+    const raceError = ws.findMessage(
+      (m) => m.event === "error" && (m.data?.code === "CONCURRENT_JOIN_FORBIDDEN" || m.data?.code === "ROOM_SWITCH_FORBIDDEN")
+    );
+    expect(raceError).toBeDefined();
+
+    roomSocketManager.leaveRoom(ws);
+  });
+
+  it("Priority 3: Reconnection behavior replaces duplicate socket with close code 4409 (non-retriable)", async () => {
+    const tab1 = new MockWebSocket();
+    const tab2 = new MockWebSocket();
 
     db.room.findFirst = mock(async () => ({ id: "room_1", status: "WAITING" } as any));
     db.room.findUnique = mock(async () => ({
@@ -163,21 +214,148 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
       submissions: [],
     } as any));
 
-    // Join room Alpha
+    // Tab 1 joins
+    roomSocketManager.registerConnection(tab1, userA);
+    await roomSocketManager.handleMessage(tab1, "room:join", { roomCode: roomAlphaCode });
+    expect(roomSocketManager.getClient(tab1)?.state).toBe("JOINED");
+    expect(tab1.closed).toBe(false);
+
+    // Tab 2 opens and joins the same room with same user
+    roomSocketManager.registerConnection(tab2, userA);
+    await roomSocketManager.handleMessage(tab2, "room:join", { roomCode: roomAlphaCode });
+
+    // Tab 1 must be closed with non-retriable code 4409
+    expect(tab1.closed).toBe(true);
+    expect(tab1.closeCode).toBe(4409);
+    expect(tab1.closeReason).toContain("Superseded by new session");
+
+    // Tab 2 is active and healthy
+    expect(tab2.closed).toBe(false);
+    expect(roomSocketManager.getClient(tab2)?.state).toBe("JOINED");
+
+    roomSocketManager.leaveRoom(tab2);
+  });
+
+  it("Priority 4: Spectator inspection authorizes via DB and works for disconnected participants", async () => {
+    const spectatorWs = new MockWebSocket();
+    roomSocketManager.registerConnection(spectatorWs, userB);
+
+    db.room.findFirst = mock(async () => ({ id: "room_1", status: "ACTIVE" } as any));
+    db.room.findUnique = mock(async () => ({
+      id: "room_1",
+      code: roomAlphaCode,
+      status: "ACTIVE",
+      duration: 30,
+      endTime: null,
+      participants: [],
+      submissions: [],
+    } as any));
+
+    // User A previously submitted a code snapshot
+    await roomSocketManager.updateCodeSnapshot(roomAlphaCode, userA.id, {
+      problemId: 101,
+      sourceCode: "function solve() { return 42; }",
+      language: "typescript",
+    });
+
+    // Notice: User A does NOT have an open WebSocket connection (offline/disconnected)
+    expect(roomSocketManager.isUserInRoom(roomAlphaCode, userA.id)).toBe(false);
+
+    // Mock DB: spectator User B is an active participant in roomAlpha
+    // Mock DB: target User A is an authorized participant in roomAlpha
+    db.roomParticipant.findFirst = mock(async (query: any) => {
+      // Both userB and userA belong to roomAlpha in DB
+      return { id: "participant_record" } as any;
+    });
+
+    // Spectator joins roomAlpha
+    await roomSocketManager.handleMessage(spectatorWs, "room:join", { roomCode: roomAlphaCode });
+
+    // Spectator inspects User A's code
+    await roomSocketManager.handleMessage(spectatorWs, "code:inspect", {
+      roomCode: roomAlphaCode,
+      targetUserId: userA.id,
+    });
+
+    const inspectResult = spectatorWs.findMessage((m) => m.event === "code:inspect_result");
+    expect(inspectResult).toBeDefined();
+    expect(inspectResult?.data?.targetUserId).toBe(userA.id);
+    expect(inspectResult?.data?.snapshot?.sourceCode).toBe("function solve() { return 42; }");
+
+    roomSocketManager.leaveRoom(spectatorWs);
+  });
+
+  it("Priority 1: Enforces active membership before sensitive events and revokes revoked users", async () => {
+    const ws = new MockWebSocket();
+    roomSocketManager.registerConnection(ws, userA);
+
+    db.room.findFirst = mock(async () => ({ id: "room_1", status: "ACTIVE" } as any));
+    db.room.findUnique = mock(async () => ({
+      id: "room_1",
+      code: roomAlphaCode,
+      status: "ACTIVE",
+      duration: 30,
+      endTime: null,
+      participants: [],
+      submissions: [],
+    } as any));
+
+    // Initially participant is in DB and joins
+    db.roomParticipant.findFirst = mock(async () => ({ id: "p1" } as any));
     await roomSocketManager.handleMessage(ws, "room:join", { roomCode: roomAlphaCode });
-    expect(roomSocketManager.getClient(ws)?.roomCode).toBe(roomAlphaCode);
 
-    // Attempt to join room Bravo on the same WebSocket connection
-    await roomSocketManager.handleMessage(ws, "room:join", { roomCode: roomBravoCode });
+    // Now participant is REMOVED from the database (e.g. host kicked them or admin deleted them)
+    db.room.findFirst = mock(async () => null as any);
 
-    const switchError = ws.findMessage((m) => m.event === "error" && m.data?.code === "ROOM_SWITCH_FORBIDDEN");
-    expect(switchError).toBeDefined();
-    expect(switchError?.data?.message).toContain("A WebSocket connection is restricted to one room");
+    // Socket attempts to send a sensitive code:sync event
+    await roomSocketManager.handleMessage(ws, "code:sync", {
+      roomCode: roomAlphaCode,
+      sourceCode: "console.log('tamper')",
+      language: "javascript",
+    });
 
-    // Ensure the socket is STILL bound to Room Alpha and did not switch
-    expect(roomSocketManager.getClient(ws)?.roomCode).toBe(roomAlphaCode);
+    // Verification must fail: socket receives room:kicked, is closed with 4403, and removed from room
+    const kickMsg = ws.findMessage((m) => m.event === "room:kicked");
+    expect(kickMsg).toBeDefined();
+    expect(ws.closed).toBe(true);
+    expect(ws.closeCode).toBe(4403);
+    expect(roomSocketManager.isUserInRoom(roomAlphaCode, userA.id)).toBe(false);
+  });
 
-    roomSocketManager.leaveRoom(ws);
+  it("Priority 1: Fails closed when database error occurs during active membership verification", async () => {
+    const ws = new MockWebSocket();
+    roomSocketManager.registerConnection(ws, userA);
+
+    db.room.findFirst = mock(async () => ({ id: "room_1", status: "ACTIVE" } as any));
+    db.room.findUnique = mock(async () => ({
+      id: "room_1",
+      code: roomAlphaCode,
+      status: "ACTIVE",
+      duration: 30,
+      endTime: null,
+      participants: [],
+      submissions: [],
+    } as any));
+
+    await roomSocketManager.handleMessage(ws, "room:join", { roomCode: roomAlphaCode });
+
+    // Simulate DB connection crash / failure during sensitive event
+    db.room.findFirst = mock(async () => {
+      throw new Error("Neon DB connection timeout");
+    });
+
+    await roomSocketManager.handleMessage(ws, "anticheat:violation", {
+      roomCode: roomAlphaCode,
+      type: "TAB_SWITCH",
+    });
+
+    // Must fail closed: send error and terminate connection with code 1011
+    const authFailMsg = ws.findMessage(
+      (m) => m.event === "error" && m.data?.code === "AUTH_VERIFICATION_FAILED"
+    );
+    expect(authFailMsg).toBeDefined();
+    expect(ws.closed).toBe(true);
+    expect(ws.closeCode).toBe(1011);
   });
 
   it("rejects cross-room events targeting a different room", async () => {
@@ -239,34 +417,5 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
     expect(spoofError).toBeDefined();
 
     roomSocketManager.leaveRoom(ws);
-  });
-
-  it("correctly handles membership revocation and kicks target sockets", async () => {
-    const ws = new MockWebSocket();
-    roomSocketManager.registerConnection(ws, userA);
-
-    db.room.findFirst = mock(async () => ({ id: "room_1", status: "WAITING" } as any));
-    db.room.findUnique = mock(async () => ({
-      id: "room_1",
-      code: roomAlphaCode,
-      status: "WAITING",
-      duration: 30,
-      endTime: null,
-      participants: [],
-      submissions: [],
-    } as any));
-
-    await roomSocketManager.handleMessage(ws, "room:join", { roomCode: roomAlphaCode });
-    expect(roomSocketManager.isUserInRoom(roomAlphaCode, userA.id)).toBe(true);
-
-    // Host or admin revokes userA membership
-    await roomSocketManager.revokeMembership(roomAlphaCode, userA.id, "Host removed participant");
-
-    const kickMsg = ws.findMessage((m) => m.event === "room:kicked");
-    expect(kickMsg).toBeDefined();
-    expect(kickMsg?.data?.reason).toBe("Host removed participant");
-    expect(ws.closed).toBe(true);
-    expect(ws.closeCode).toBe(4403);
-    expect(roomSocketManager.isUserInRoom(roomAlphaCode, userA.id)).toBe(false);
   });
 });

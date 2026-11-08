@@ -2,10 +2,13 @@ import { db } from "@intervue/db";
 import { redis, redisSubscriber, isRedisConnected } from "../lib/redis.js";
 import crypto from "crypto";
 
+export type SocketConnectionState = "CONNECTED" | "JOINING" | "JOINED" | "CLOSED";
+
 export interface ConnectedClient {
   ws: any;
   userId: string;
   roomCode: string | null;
+  state: SocketConnectionState;
   name?: string;
   image?: string;
   connectedAt: number;
@@ -101,6 +104,9 @@ class RoomSocketManager {
                 } catch (err) {}
               }
             }
+          } else if (msg.action === "REVOKE_MEMBERSHIP") {
+            const { userId, reason } = msg.payload;
+            this.revokeMembership(code, userId, reason, true);
           }
         } catch (err) {
           console.error("[Socket] Failed to process Redis pubsub message:", err);
@@ -172,6 +178,7 @@ class RoomSocketManager {
       ws,
       userId: user.id,
       roomCode: null,
+      state: "CONNECTED",
       name: user.name,
       image: user.image,
       connectedAt: Date.now(),
@@ -186,18 +193,29 @@ class RoomSocketManager {
   }
 
   /**
-   * Register a client connection to a room with strict authorization
+   * Register a client connection to a room with strict authorization & state machine:
+   * CONNECTED -> JOINING (synchronous before await) -> JOINED -> CLOSED
    */
   public async joinRoom(ws: any, clientData: { roomCode: string; name?: string; image?: string }): Promise<boolean> {
-    let client = this.clients.get(ws);
-    if (!client) {
-      this.sendToClient(ws, "error", { code: "UNREGISTERED_SOCKET", message: "Socket not registered." });
+    const client = this.clients.get(ws);
+    if (!client || client.state === "CLOSED") {
+      this.sendToClient(ws, "error", { code: "UNREGISTERED_SOCKET", message: "Socket not registered or already closed." });
       try { ws.close(4401, "Unregistered socket"); } catch (_) {}
       return false;
     }
 
-    // Rule: Restrict each WebSocket connection to one room. Switching rooms requires a new connection.
-    if (client.roomCode !== null) {
+    // Priority 2: Synchronously reject concurrent room join races
+    if (client.state === "JOINING") {
+      console.warn(`[Socket] Concurrent room join attempt rejected for user ${client.userId}`);
+      this.sendToClient(ws, "error", {
+        code: "CONCURRENT_JOIN_FORBIDDEN",
+        message: "Room join is already in progress.",
+      });
+      return false;
+    }
+
+    // Priority 2 / Rule 4: One-room-per-connection restriction
+    if (client.state === "JOINED" || client.roomCode !== null) {
       console.warn(`[Socket] Forbidden room switch attempt by user ${client.userId} from ${client.roomCode} to ${clientData.roomCode}`);
       this.sendToClient(ws, "error", {
         code: "ROOM_SWITCH_FORBIDDEN",
@@ -206,9 +224,12 @@ class RoomSocketManager {
       return false;
     }
 
+    // Synchronously set state to JOINING before any async operations
+    client.state = "JOINING";
+
     const code = clientData.roomCode.toUpperCase();
 
-    // Verify user is an authorized participant or host in the database (Fail-Closed)
+    // Verify user is an authorized participant or host in database (Fail-Closed)
     try {
       const isAuthorized = await db.room.findFirst({
         where: {
@@ -223,14 +244,18 @@ class RoomSocketManager {
 
       if (!isAuthorized) {
         console.warn(`[Socket] Unauthorized join attempt by user ${client.userId} for room ${code}`);
+        client.state = "CLOSED";
         this.sendToClient(ws, "error", { code: "UNAUTHORIZED_ROOM", message: "Unauthorized: You have not joined this room." });
         try { ws.close(4403, "Unauthorized room membership"); } catch (_) {}
+        this.leaveRoom(ws);
         return false;
       }
     } catch (err) {
       console.error("[Socket] Error verifying user participation:", err);
+      client.state = "CLOSED";
       this.sendToClient(ws, "error", { code: "SERVER_ERROR", message: "Server error verifying room authorization." });
       try { ws.close(1011, "Server error during authorization"); } catch (_) {}
+      this.leaveRoom(ws);
       return false;
     }
 
@@ -239,9 +264,9 @@ class RoomSocketManager {
     }
     const roomSet = this.rooms.get(code)!;
 
-    // Check if this userId already has an active socket in the room (reconnect or page navigation)
+    // Check if this userId already has an active socket in the room (multi-tab or reconnect)
     let alreadyInRoom = false;
-    for (const existingWs of roomSet) {
+    for (const existingWs of [...roomSet]) {
       if (existingWs === ws) continue;
       const meta = this.clients.get(existingWs);
       if (meta && meta.userId === client.userId) {
@@ -249,14 +274,25 @@ class RoomSocketManager {
         this.clients.delete(existingWs);
         roomSet.delete(existingWs);
         try {
-          existingWs.close(1000, "Superseded by new session");
+          // Priority 3: Use intentional close code 4409 ("Superseded by another connection")
+          // so the client recognizes it as NON-RETRIABLE, preventing multi-tab reconnection storms!
+          existingWs.close(4409, "Superseded by new session in another tab");
         } catch (_) {}
       }
     }
 
+    // Transition state to JOINED
+    client.state = "JOINED";
     client.roomCode = code;
     if (clientData.name) client.name = clientData.name;
     if (clientData.image) client.image = clientData.image;
+
+    // Ensure socket does not belong to any other room sets
+    for (const [rCode, rSet] of this.rooms.entries()) {
+      if (rCode !== code && rSet.has(ws)) {
+        rSet.delete(ws);
+      }
+    }
 
     roomSet.add(ws);
 
@@ -279,41 +315,53 @@ class RoomSocketManager {
   }
 
   /**
-   * Handle client disconnection
+   * Handle client disconnection and atomic cleanup across all room sets
    */
   public leaveRoom(ws: any) {
     const client = this.clients.get(ws);
-    if (!client) return;
+    if (!client) {
+      // Clean up any lingering references in room sets
+      for (const [code, rSet] of this.rooms.entries()) {
+        if (rSet.has(ws)) {
+          rSet.delete(ws);
+          if (rSet.size === 0) this.rooms.delete(code);
+        }
+      }
+      return;
+    }
 
     const { roomCode, userId } = client;
+    client.state = "CLOSED";
     this.clients.delete(ws);
 
+    // Remove from ALL room sets to ensure zero lingering socket references
+    for (const [code, rSet] of this.rooms.entries()) {
+      if (rSet.has(ws)) {
+        rSet.delete(ws);
+        if (rSet.size === 0) this.rooms.delete(code);
+      }
+    }
+
     if (!roomCode) {
-      // Socket was connected but never joined a room
       return;
     }
 
     const roomSet = this.rooms.get(roomCode);
     if (roomSet) {
-      roomSet.delete(ws);
-      if (roomSet.size === 0) {
-        this.rooms.delete(roomCode);
-      } else {
-        let userHasOtherSocket = false;
-        for (const remainingWs of roomSet) {
-          if (this.clients.get(remainingWs)?.userId === userId) {
-            userHasOtherSocket = true;
-            break;
-          }
+      let userHasOtherSocket = false;
+      for (const remainingWs of roomSet) {
+        if (this.clients.get(remainingWs)?.userId === userId) {
+          userHasOtherSocket = true;
+          break;
         }
+      }
 
-        if (!userHasOtherSocket) {
-          const totalUnique = this.getUniqueUserCount(roomCode);
-          this.broadcastToRoom(roomCode, "participant:left", {
-            userId,
-            totalConnected: totalUnique,
-          });
-        }
+      if (!userHasOtherSocket) {
+        const totalUnique = this.getUniqueUserCount(roomCode);
+        this.broadcastToRoom(roomCode, "participant:left", {
+          userId,
+          totalConnected: totalUnique,
+        });
       }
     }
 
@@ -328,8 +376,8 @@ class RoomSocketManager {
    */
   public async handleMessage(ws: any, eventName: string, data: any): Promise<void> {
     const client = this.clients.get(ws);
-    if (!client) {
-      this.sendToClient(ws, "error", { code: "UNREGISTERED_SOCKET", message: "Socket not registered." });
+    if (!client || client.state === "CLOSED") {
+      this.sendToClient(ws, "error", { code: "UNREGISTERED_SOCKET", message: "Socket not registered or closed." });
       try { ws.close(4401, "Unregistered socket"); } catch (_) {}
       return;
     }
@@ -348,8 +396,8 @@ class RoomSocketManager {
       return;
     }
 
-    // 2. Pre-join validation: all non-join events require active room membership
-    if (!client.roomCode) {
+    // 2. Pre-join validation: all non-join events require active JOINED state
+    if (client.state !== "JOINED" || !client.roomCode) {
       this.sendToClient(ws, "error", {
         code: "PRE_JOIN_FORBIDDEN",
         message: "Pre-join event rejected: you must join a room first.",
@@ -375,10 +423,18 @@ class RoomSocketManager {
       return;
     }
 
-    // 5. Dispatch validated room-scoped events
     const boundRoomCode = client.roomCode;
     const boundUserId = client.userId;
 
+    // 5. Sensitive events require active database membership verification (Fail-Closed)
+    if (eventName === "anticheat:violation" || eventName === "code:sync" || eventName === "code:inspect") {
+      const isStillMember = await this.verifyActiveMembership(ws);
+      if (!isStillMember) {
+        return;
+      }
+    }
+
+    // 6. Dispatch validated room-scoped events
     if (eventName === "room:leave") {
       this.leaveRoom(ws);
     } else if (eventName === "time:sync") {
@@ -397,14 +453,24 @@ class RoomSocketManager {
       }
     } else if (eventName === "code:inspect") {
       if (data?.targetUserId && typeof data.targetUserId === "string") {
-        const isTargetInRoom = this.isUserInRoom(boundRoomCode, data.targetUserId);
-        if (!isTargetInRoom) {
+        // Priority 4: Authorize inspection using actual database room membership
+        // Does NOT require target participant to have an active local socket!
+        const targetMember = await db.roomParticipant.findFirst({
+          where: {
+            userId: data.targetUserId,
+            room: { code: boundRoomCode },
+          },
+          select: { id: true },
+        });
+
+        if (!targetMember) {
           this.sendToClient(ws, "error", {
             code: "TARGET_NOT_IN_ROOM",
-            message: "Target participant is not in this room.",
+            message: "Target participant does not belong to this room.",
           });
           return;
         }
+
         const snapshot = await this.getCodeSnapshot(boundRoomCode, data.targetUserId);
         this.sendToClient(ws, "code:inspect_result", {
           targetUserId: data.targetUserId,
@@ -415,10 +481,21 @@ class RoomSocketManager {
   }
 
   /**
-   * Revoke membership of a participant, notify room, and kick active sockets
+   * Revoke membership of a participant, notify room, and kick active sockets across nodes
    */
-  public async revokeMembership(roomCode: string, userId: string, reason = "Membership revoked"): Promise<void> {
+  public async revokeMembership(roomCode: string, userId: string, reason = "Membership revoked", isFromRedis = false): Promise<void> {
     const code = roomCode.toUpperCase();
+
+    // Priority 1: Broadcast via Redis Pub/Sub for distributed horizontal sync across backend instances
+    if (!isFromRedis && isRedisConnected) {
+      redis.publish("room_events", JSON.stringify({
+        senderId: this.nodeId,
+        roomCode: code,
+        action: "REVOKE_MEMBERSHIP",
+        payload: { userId, reason },
+      })).catch(() => {});
+    }
+
     const roomSet = this.rooms.get(code);
     if (roomSet) {
       for (const ws of [...roomSet]) {
@@ -436,7 +513,7 @@ class RoomSocketManager {
       userId,
       reason,
       totalConnected: this.getUniqueUserCount(code),
-    });
+    }, isFromRedis);
   }
 
   /**
@@ -462,7 +539,15 @@ class RoomSocketManager {
       }
       return true;
     } catch (err) {
-      console.error("[Socket] DB error in verifyActiveMembership:", err);
+      console.error("[Socket] DB error in verifyActiveMembership (Failing Closed):", err);
+      this.sendToClient(ws, "error", {
+        code: "AUTH_VERIFICATION_FAILED",
+        message: "Failed to verify room membership. Connection terminated.",
+      });
+      try {
+        ws.close(1011, "Server verification error");
+      } catch (_) {}
+      this.leaveRoom(ws);
       return false;
     }
   }
@@ -604,29 +689,34 @@ class RoomSocketManager {
 
     let penaltyAdded = 0;
     let isDisqualified = false;
+    let participant: any = null;
 
-    const participant = await db.roomParticipant.findFirst({
-      where: {
-        userId,
-        room: { code },
-      },
-      include: {
-        user: { select: { name: true } },
-      },
-    });
+    try {
+      participant = await db.roomParticipant.findFirst({
+        where: {
+          userId,
+          room: { code },
+        },
+        include: {
+          user: { select: { name: true } },
+        },
+      });
 
-    const userName = participant?.user?.name || "Participant";
-
-    if (currentWarnings === 2) {
-      // Strike 2: Add +180s (+3 minutes) penalty to participant score in database
-      penaltyAdded = 180;
-      if (participant) {
+      if (currentWarnings === 2 && participant) {
+        // Strike 2: Add +180s (+3 minutes) penalty to participant score in database
+        penaltyAdded = 180;
         await db.roomParticipant.update({
           where: { id: participant.id },
           data: { penaltyTime: { increment: 180 } },
         });
       }
-    } else if (currentWarnings >= 3) {
+    } catch (dbErr) {
+      console.error(`[Socket] DB error in recordViolation for user ${userId} in ${code}:`, dbErr);
+    }
+
+    const userName = participant?.user?.name || "Participant";
+
+    if (currentWarnings >= 3) {
       // Strike 3: Automatic disqualification
       isDisqualified = true;
       if (isRedisConnected) {

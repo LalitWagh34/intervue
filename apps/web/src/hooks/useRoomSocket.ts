@@ -276,6 +276,13 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
               onContestEndRef.current?.(data.finalLeaderboard || []);
               break;
 
+            case "room:kicked":
+              toast.error("Removed from Contest Room", {
+                description: data.reason || "Your access to this room was revoked.",
+                duration: 6000,
+              });
+              break;
+
             default:
               break;
           }
@@ -284,8 +291,43 @@ export function useRoomSocket({ roomCode, user, onContestStart, onContestEnd }: 
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event: CloseEvent) => {
         setIsConnected(false);
+
+        // Non-retriable close codes:
+        // 4409: Superseded by another active session/tab
+        // 4403: Forbidden / membership revoked
+        // 4401: Unauthorized / session invalid
+        // 1000: Clean intentional close
+        if (event.code === 4409) {
+          toast.warning("Room Opened in Another Tab", {
+            description: "Disconnected because this room was opened in another browser tab.",
+            duration: 6000,
+          });
+          return;
+        }
+
+        if (event.code === 4403) {
+          toast.error("Room Access Revoked", {
+            description: "You no longer have access to this contest room.",
+            duration: 5000,
+          });
+          return;
+        }
+
+        if (event.code === 4401) {
+          toast.error("Authentication Required", {
+            description: "Please sign in again to access rooms.",
+            duration: 5000,
+          });
+          return;
+        }
+
+        if (event.code === 1000) {
+          return;
+        }
+
+        // Legitimate network disconnect (e.g. 1006 abnormal): retry reconnection after 3 seconds
         if (!isUnmountedRef.current) {
           if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
