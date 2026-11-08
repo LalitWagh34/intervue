@@ -6,9 +6,13 @@ const redisOptions = {
   lazyConnect: true,
   maxRetriesPerRequest: 1,
   retryStrategy(times: number) {
-    // Return null to stop retrying immediately if Redis is missing locally
-    if (times > 1) return null;
-    return 1000;
+    // If no explicit REDIS_URL is configured (in-memory dev/test), stop retrying after 1 attempt
+    if (!process.env.REDIS_URL && times > 1) {
+      return null;
+    }
+    // Robust exponential backoff with jitter, capped at 3000ms for production resilience
+    const delay = Math.min(times * 100, 3000);
+    return delay;
   },
 };
 

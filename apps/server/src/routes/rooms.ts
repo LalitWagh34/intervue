@@ -1317,10 +1317,14 @@ app.get("/:code/participant-code/:userId", requireAuth, requireRoomMember, async
   const targetUserId = c.req.param("userId");
   if (!targetUserId) return c.json({ snapshot: null });
 
-  const room = (c as any).get("authorizedRoom") || (c as any).get("room");
+  const room = (c as any).get("authorizedRoom");
+  if (!room) {
+    return c.json({ error: "Room authorization missing" }, 403);
+  }
+
   const isTargetInRoom =
-    room?.hostId === targetUserId ||
-    room?.participants?.some((p: any) => p.userId === targetUserId);
+    room.hostId === targetUserId ||
+    room.participants?.some((p: any) => p.userId === targetUserId);
 
   if (!isTargetInRoom) {
     return c.json({ snapshot: null });
@@ -1336,7 +1340,11 @@ app.post("/:code/leave", requireAuth, requireRoomMember, async (c) => {
   try {
     const user = c.get("user");
     const code = (c.req.param("code") || "").toUpperCase();
-    const room = (c as any).get("authorizedRoom") || (c as any).get("room");
+    const room = (c as any).get("authorizedRoom");
+
+    if (!room) {
+      return c.json({ error: "Room authorization missing" }, 403);
+    }
 
     if (room.hostId === user.id) {
       return c.json({ error: "Host cannot leave room. Use end contest instead." }, 400);
@@ -1361,7 +1369,11 @@ app.post("/:code/kick/:targetUserId", requireAuth, requireRoomHost, async (c) =>
   try {
     const code = (c.req.param("code") || "").toUpperCase();
     const targetUserId = c.req.param("targetUserId");
-    const room = (c as any).get("authorizedRoom") || (c as any).get("room");
+    const room = (c as any).get("authorizedRoom");
+
+    if (!room) {
+      return c.json({ error: "Room authorization missing" }, 403);
+    }
 
     if (targetUserId === room.hostId) {
       return c.json({ error: "Cannot kick the room host" }, 400);

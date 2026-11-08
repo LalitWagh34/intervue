@@ -13,6 +13,7 @@ export interface ConnectedClient {
   image?: string;
   connectedAt: number;
   lastMembershipVerifiedAt?: number;
+  membershipNeedsRevalidation?: boolean;
 }
 
 export interface LeaderboardEntry {
@@ -49,7 +50,13 @@ export interface CodeSnapshot {
   updatedAt: number;
 }
 
-class RoomSocketManager {
+export interface RoomSocketManagerOptions {
+  redisClient?: any;
+  redisSubscriber?: any;
+  isRedisConnected?: boolean;
+}
+
+export class RoomSocketManager {
   // roomCode -> Set of client sockets
   private rooms: Map<string, Set<any>> = new Map();
   // client socket -> metadata
@@ -69,12 +76,23 @@ class RoomSocketManager {
   private finishedUsers: Map<string, Set<string>> = new Map();
 
   private nodeId = crypto.randomUUID();
+  private redisClient: any;
+  private redisSub: any;
+  private isSubHealthy = false;
 
-  constructor() {
+  constructor(options?: RoomSocketManagerOptions) {
+    this.redisClient = options?.redisClient ?? redis;
+    this.redisSub = options?.redisSubscriber ?? redisSubscriber;
+
+    const isExplicitRedis = Boolean(options?.redisClient || process.env.REDIS_URL);
+    this.isSubHealthy = isExplicitRedis
+      ? Boolean(options?.isRedisConnected || this.redisSub.status === "ready" || this.redisSub.isConnected === true)
+      : true;
+
     // Setup Redis Pub/Sub for horizontal scaling synchronization
     const setupSubscription = () => {
       try {
-        redisSubscriber.subscribe("room_events", (err) => {
+        this.redisSub.subscribe("room_events", (err: any) => {
           if (err) console.error("[Socket] Failed to subscribe to room_events:", err);
           else console.log("[Socket] Subscribed to Redis room_events for distributed sync.");
         });
@@ -83,13 +101,33 @@ class RoomSocketManager {
       }
     };
 
-    if (isRedisConnected || redisSubscriber.status === "ready" || redisSubscriber.status === "connect") {
+    if (options?.isRedisConnected || isRedisConnected || this.redisSub.status === "ready" || this.redisSub.status === "connect") {
       setupSubscription();
     }
-    redisSubscriber.on("connect", setupSubscription);
-    redisSubscriber.on("ready", setupSubscription);
 
-    redisSubscriber.on("message", (channel, message) => {
+    const onSubReady = () => {
+      this.isSubHealthy = true;
+      setupSubscription();
+      // On reconnect/recovery, mark existing clients to require DB revalidation
+      // to ensure any missed revocations during downtime are caught before broadcasts resume!
+      for (const client of this.clients.values()) {
+        client.membershipNeedsRevalidation = true;
+      }
+    };
+
+    const onSubDown = () => {
+      this.isSubHealthy = false;
+      for (const client of this.clients.values()) {
+        client.membershipNeedsRevalidation = true;
+      }
+    };
+
+    this.redisSub.on("connect", onSubReady);
+    this.redisSub.on("ready", onSubReady);
+    this.redisSub.on("close", onSubDown);
+    this.redisSub.on("error", onSubDown);
+
+    this.redisSub.on("message", async (channel: string, message: string) => {
       if (channel === "room_events") {
         try {
           const msg = JSON.parse(message);
@@ -100,16 +138,10 @@ class RoomSocketManager {
           if (msg.action === "BROADCAST") {
             const { event, data, excludeUserId } = msg.payload;
 
-            // Broadcast to local WebSockets
+            // Broadcast to local WebSockets with verified membership check
             const roomSet = this.rooms.get(code);
             if (roomSet && roomSet.size > 0) {
-              const payloadStr = JSON.stringify({ event, data, timestamp: Date.now() });
-              for (const ws of roomSet) {
-                if (excludeUserId && this.clients.get(ws)?.userId === excludeUserId) continue;
-                try {
-                  ws.send(payloadStr);
-                } catch (err) {}
-              }
+              await this.deliverBroadcastToSockets(code, roomSet, event, data, excludeUserId);
             }
           } else if (msg.action === "REVOKE_MEMBERSHIP") {
             const { userId, reason } = msg.payload;
@@ -502,8 +534,8 @@ class RoomSocketManager {
     const code = roomCode.toUpperCase();
 
     // Priority 1: Broadcast via Redis Pub/Sub for distributed horizontal sync across backend instances
-    if (!isFromRedis && isRedisConnected) {
-      redis.publish("room_events", JSON.stringify({
+    if (!isFromRedis) {
+      this.redisClient.publish("room_events", JSON.stringify({
         senderId: this.nodeId,
         roomCode: code,
         action: "REVOKE_MEMBERSHIP",
@@ -596,12 +628,12 @@ class RoomSocketManager {
   /**
    * Broadcast an event and payload to all clients in a room
    */
-  public broadcastToRoom(roomCode: string, event: string, data: any, isFromRedis = false) {
+  public async broadcastToRoom(roomCode: string, event: string, data: any, isFromRedis = false) {
     const code = roomCode.toUpperCase();
     
     // Publish to Redis for other nodes
-    if (!isFromRedis && isRedisConnected) {
-      redis.publish("room_events", JSON.stringify({
+    if (!isFromRedis) {
+      this.redisClient.publish("room_events", JSON.stringify({
         senderId: this.nodeId,
         roomCode: code,
         action: "BROADCAST",
@@ -612,30 +644,18 @@ class RoomSocketManager {
     const roomSet = this.rooms.get(code);
     if (!roomSet || roomSet.size === 0) return;
 
-    const payload = JSON.stringify({
-      event,
-      data,
-      timestamp: Date.now(),
-    });
-
-    for (const ws of roomSet) {
-      try {
-        ws.send(payload);
-      } catch (err) {
-        console.error(`[Socket] Failed to send message to client in ${code}:`, err);
-      }
-    }
+    await this.deliverBroadcastToSockets(code, roomSet, event, data);
   }
 
   /**
    * Broadcast an event to all clients in a room except the sender
    */
-  public broadcastToRoomExcept(roomCode: string, excludeWs: any, event: string, data: any, isFromRedis = false) {
+  public async broadcastToRoomExcept(roomCode: string, excludeWs: any, event: string, data: any, isFromRedis = false) {
     const code = roomCode.toUpperCase();
+    const excludeUserId = this.clients.get(excludeWs)?.userId;
     
-    if (!isFromRedis && isRedisConnected) {
-      const excludeUserId = this.clients.get(excludeWs)?.userId;
-      redis.publish("room_events", JSON.stringify({
+    if (!isFromRedis) {
+      this.redisClient.publish("room_events", JSON.stringify({
         senderId: this.nodeId,
         roomCode: code,
         action: "BROADCAST",
@@ -646,20 +666,55 @@ class RoomSocketManager {
     const roomSet = this.rooms.get(code);
     if (!roomSet || roomSet.size === 0) return;
 
-    const payload = JSON.stringify({
-      event,
-      data,
-      timestamp: Date.now(),
-    });
+    await this.deliverBroadcastToSockets(code, roomSet, event, data, excludeUserId);
+  }
 
-    for (const ws of roomSet) {
-      if (ws === excludeWs) continue;
+  /**
+   * Authoritative broadcast deliverer with fail-closed active membership verification.
+   * If Redis subscriber is unhealthy or client needs revalidation, membership is strictly checked
+   * against the database before any room event data is sent to the socket.
+   */
+  public async deliverBroadcastToSockets(
+    roomCode: string,
+    sockets: Set<any>,
+    event: string,
+    data: any,
+    excludeUserId?: string
+  ): Promise<void> {
+    const payloadStr = JSON.stringify({ event, data, timestamp: Date.now() });
+
+    for (const ws of [...sockets]) {
+      const client = this.clients.get(ws);
+      if (!client || client.state !== "JOINED") continue;
+      if (excludeUserId && client.userId === excludeUserId) continue;
+
+      // Fail-closed authorization check:
+      // If subscriber is unhealthy, or client needs revalidation, or trust period expired (> 30s)
+      const isHealthy = this.isSubscriberHealthy();
+      const needsRevalidation =
+        client.membershipNeedsRevalidation ||
+        !isHealthy ||
+        Date.now() - (client.lastMembershipVerifiedAt || 0) > 30000;
+
+      if (needsRevalidation) {
+        const isStillMember = await this.verifyActiveMembership(ws);
+        if (!isStillMember) {
+          // Socket was revoked and closed by verifyActiveMembership. Skip delivery!
+          continue;
+        }
+        client.membershipNeedsRevalidation = false;
+      }
+
       try {
-        ws.send(payload);
+        ws.send(payloadStr);
       } catch (err) {
-        console.error(`[Socket] Failed to send message in ${code}:`, err);
+        console.error(`[Socket] Failed to send message to client in ${roomCode}:`, err);
       }
     }
+  }
+
+  public isSubscriberHealthy(): boolean {
+    return this.isSubHealthy;
   }
 
   /**
