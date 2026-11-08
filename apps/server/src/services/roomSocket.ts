@@ -76,11 +76,14 @@ export class RoomSocketManager {
   private finishedUsers: Map<string, Set<string>> = new Map();
 
   private nodeId = crypto.randomUUID();
+  private options?: RoomSocketManagerOptions;
   private redisClient: any;
   private redisSub: any;
   private isSubHealthy = false;
+  private isSubscribed = false;
 
   constructor(options?: RoomSocketManagerOptions) {
+    this.options = options;
     this.redisClient = options?.redisClient ?? redis;
     this.redisSub = options?.redisSubscriber ?? redisSubscriber;
 
@@ -89,14 +92,25 @@ export class RoomSocketManager {
       ? Boolean(options?.isRedisConnected || this.redisSub.status === "ready" || this.redisSub.isConnected === true)
       : true;
 
-    // Setup Redis Pub/Sub for horizontal scaling synchronization
+    // Setup Redis Pub/Sub for horizontal scaling synchronization (deduplicated)
+    let isSubscribing = false;
     const setupSubscription = () => {
+      if (!isExplicitRedis || this.isSubscribed || isSubscribing) return;
+      isSubscribing = true;
       try {
         this.redisSub.subscribe("room_events", (err: any) => {
-          if (err) console.error("[Socket] Failed to subscribe to room_events:", err);
-          else console.log("[Socket] Subscribed to Redis room_events for distributed sync.");
+          isSubscribing = false;
+          if (err) {
+            this.isSubscribed = false;
+            console.error("[Socket] Failed to subscribe to room_events:", err);
+          } else {
+            this.isSubscribed = true;
+            console.log("[Socket] Subscribed to Redis room_events for distributed sync.");
+          }
         });
       } catch (err) {
+        isSubscribing = false;
+        this.isSubscribed = false;
         console.error("[Socket] Failed to subscribe to Redis:", err);
       }
     };
@@ -117,6 +131,7 @@ export class RoomSocketManager {
 
     const onSubDown = () => {
       this.isSubHealthy = false;
+      this.isSubscribed = false;
       for (const client of this.clients.values()) {
         client.membershipNeedsRevalidation = true;
       }
@@ -528,13 +543,23 @@ export class RoomSocketManager {
   }
 
   /**
+   * Helper to check whether Redis publishing is enabled and available
+   */
+  private canPublishToRedis(): boolean {
+    if (this.options?.redisClient) {
+      return this.redisClient?.status !== "close";
+    }
+    return Boolean(process.env.REDIS_URL) && isRedisConnected;
+  }
+
+  /**
    * Revoke membership of a participant, notify room, and kick active sockets across nodes
    */
   public async revokeMembership(roomCode: string, userId: string, reason = "Membership revoked", isFromRedis = false): Promise<void> {
     const code = roomCode.toUpperCase();
 
     // Priority 1: Broadcast via Redis Pub/Sub for distributed horizontal sync across backend instances
-    if (!isFromRedis) {
+    if (!isFromRedis && this.canPublishToRedis()) {
       this.redisClient.publish("room_events", JSON.stringify({
         senderId: this.nodeId,
         roomCode: code,
@@ -631,8 +656,8 @@ export class RoomSocketManager {
   public async broadcastToRoom(roomCode: string, event: string, data: any, isFromRedis = false) {
     const code = roomCode.toUpperCase();
     
-    // Publish to Redis for other nodes
-    if (!isFromRedis) {
+    // Publish to Redis for other nodes (only when Redis is configured & available)
+    if (!isFromRedis && this.canPublishToRedis()) {
       this.redisClient.publish("room_events", JSON.stringify({
         senderId: this.nodeId,
         roomCode: code,
@@ -654,7 +679,8 @@ export class RoomSocketManager {
     const code = roomCode.toUpperCase();
     const excludeUserId = this.clients.get(excludeWs)?.userId;
     
-    if (!isFromRedis) {
+    // Publish to Redis for other nodes (only when Redis is configured & available)
+    if (!isFromRedis && this.canPublishToRedis()) {
       this.redisClient.publish("room_events", JSON.stringify({
         senderId: this.nodeId,
         roomCode: code,
@@ -689,12 +715,17 @@ export class RoomSocketManager {
       if (excludeUserId && client.userId === excludeUserId) continue;
 
       // Fail-closed authorization check:
-      // If subscriber is unhealthy, or client needs revalidation, or trust period expired (> 30s)
+      // Tighten freshness for high-sensitivity events (live competitor code snapshots, anti-cheat violations)
+      // to 5 seconds to bound data exposure while avoiding DB query storms during high-frequency typing.
+      // General room events (leaderboard updates, timers, presence) use 30 seconds.
+      const isHighSensitivity = event === "code:stream_update" || event === "anticheat:violation";
+      const maxTrustTtlMs = isHighSensitivity ? 5000 : 30000;
+
       const isHealthy = this.isSubscriberHealthy();
       const needsRevalidation =
         client.membershipNeedsRevalidation ||
         !isHealthy ||
-        Date.now() - (client.lastMembershipVerifiedAt || 0) > 30000;
+        Date.now() - (client.lastMembershipVerifiedAt || 0) > maxTrustTtlMs;
 
       if (needsRevalidation) {
         const isStillMember = await this.verifyActiveMembership(ws);
