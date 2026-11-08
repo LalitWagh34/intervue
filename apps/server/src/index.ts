@@ -234,6 +234,7 @@ app.get(
         (ws as any).user = verifiedUser;
         (ws as any).msgCount = 0;
         (ws as any).lastMsgReset = Date.now();
+        roomSocketManager.registerConnection(ws, verifiedUser);
         console.log(`[WS] Authenticated client connected to /ws/rooms: ${verifiedUser.id} (${verifiedUser.name || "Anonymous"})`);
       },
       onMessage: async (event, ws) => {
@@ -275,55 +276,11 @@ app.get(
           const message = JSON.parse(raw);
           const { event: eventName, data } = message;
 
-          if (eventName === "room:join") {
-            if (!data?.roomCode) {
-              ws.send(JSON.stringify({ type: "error", message: "Missing roomCode" }));
-              return;
-            }
-            // Discard client-supplied userId to prevent identity spoofing
-            await roomSocketManager.joinRoom(ws, {
-              userId: authUser.id,
-              roomCode: data.roomCode,
-              name: authUser.name || data.name || "Anonymous",
-              image: authUser.image || data.image,
-            });
-          } else if (eventName === "room:leave") {
-            roomSocketManager.leaveRoom(ws);
-          } else if (eventName === "time:sync") {
-            if (data?.roomCode) {
-              roomSocketManager.sendRoomSync(ws, data.roomCode);
-            }
-          } else if (eventName === "anticheat:violation") {
-            // Anti-cheat violations can strictly only be recorded for the authenticated user themselves
-            if (data?.roomCode && data?.type) {
-              await roomSocketManager.recordViolation(data.roomCode, authUser.id, data.type, data.details);
-            }
-          } else if (eventName === "code:sync") {
-            // Code snapshot updates MUST be bound to the authenticated user's ID
-            if (data?.roomCode && data?.sourceCode !== undefined) {
-              await roomSocketManager.updateCodeSnapshot(data.roomCode, authUser.id, {
-                problemId: data.problemId,
-                sourceCode: data.sourceCode,
-                language: data.language,
-              });
-            }
-          } else if (eventName === "code:inspect") {
-            if (data?.roomCode && data?.targetUserId) {
-              // Ensure inspecting user is in the room
-              const isParticipant = roomSocketManager.isUserInRoom(data.roomCode, authUser.id);
-              if (!isParticipant) {
-                ws.send(JSON.stringify({ type: "error", message: "Forbidden: Not in room" }));
-                return;
-              }
-              const snapshot = await roomSocketManager.getCodeSnapshot(data.roomCode, data.targetUserId);
-              roomSocketManager.sendToClient(ws, "code:inspect_result", {
-                targetUserId: data.targetUserId,
-                snapshot,
-              });
-            }
-          }
+          // Centralized room authorization, room-binding, and pre-join checks
+          await roomSocketManager.handleMessage(ws, eventName, data);
         } catch (err) {
           console.error("[WS] Error parsing client message:", err);
+          roomSocketManager.sendToClient(ws, "error", { code: "INVALID_JSON", message: "Malformed JSON payload" });
         }
       },
       onClose(event, ws) {

@@ -5,9 +5,10 @@ import crypto from "crypto";
 export interface ConnectedClient {
   ws: any;
   userId: string;
-  roomCode: string;
+  roomCode: string | null;
   name?: string;
   image?: string;
+  connectedAt: number;
 }
 
 export interface LeaderboardEntry {
@@ -164,39 +165,73 @@ class RoomSocketManager {
   }
 
   /**
-   * Register a new client connection to a room
+   * Register a newly established WebSocket connection (prior to room join)
    */
-  public async joinRoom(ws: any, clientData: { userId: string; roomCode: string; name?: string; image?: string }) {
+  public registerConnection(ws: any, user: { id: string; name?: string; image?: string }) {
+    this.clients.set(ws, {
+      ws,
+      userId: user.id,
+      roomCode: null,
+      name: user.name,
+      image: user.image,
+      connectedAt: Date.now(),
+    });
+  }
+
+  /**
+   * Get connected client metadata
+   */
+  public getClient(ws: any): ConnectedClient | undefined {
+    return this.clients.get(ws);
+  }
+
+  /**
+   * Register a client connection to a room with strict authorization
+   */
+  public async joinRoom(ws: any, clientData: { roomCode: string; name?: string; image?: string }): Promise<boolean> {
+    let client = this.clients.get(ws);
+    if (!client) {
+      this.sendToClient(ws, "error", { code: "UNREGISTERED_SOCKET", message: "Socket not registered." });
+      try { ws.close(4401, "Unregistered socket"); } catch (_) {}
+      return false;
+    }
+
+    // Rule: Restrict each WebSocket connection to one room. Switching rooms requires a new connection.
+    if (client.roomCode !== null) {
+      console.warn(`[Socket] Forbidden room switch attempt by user ${client.userId} from ${client.roomCode} to ${clientData.roomCode}`);
+      this.sendToClient(ws, "error", {
+        code: "ROOM_SWITCH_FORBIDDEN",
+        message: "A WebSocket connection is restricted to one room. Disconnect and open a new connection to join a different room.",
+      });
+      return false;
+    }
+
     const code = clientData.roomCode.toUpperCase();
 
-    // Verify user is an authorized participant or host
+    // Verify user is an authorized participant or host in the database (Fail-Closed)
     try {
       const isAuthorized = await db.room.findFirst({
         where: {
           code,
           OR: [
-            { hostId: clientData.userId },
-            { participants: { some: { userId: clientData.userId } } },
+            { hostId: client.userId },
+            { participants: { some: { userId: client.userId } } },
           ],
         },
-        select: { id: true },
+        select: { id: true, status: true },
       });
 
       if (!isAuthorized) {
-        console.warn(`[Socket] Unauthorized join attempt by user ${clientData.userId} for room ${code}`);
-        try {
-          ws.send(JSON.stringify({ type: "error", message: "Unauthorized: You have not joined this room." }));
-          ws.close();
-        } catch (_) {}
-        return;
+        console.warn(`[Socket] Unauthorized join attempt by user ${client.userId} for room ${code}`);
+        this.sendToClient(ws, "error", { code: "UNAUTHORIZED_ROOM", message: "Unauthorized: You have not joined this room." });
+        try { ws.close(4403, "Unauthorized room membership"); } catch (_) {}
+        return false;
       }
     } catch (err) {
       console.error("[Socket] Error verifying user participation:", err);
-      try {
-        ws.send(JSON.stringify({ type: "error", message: "Server error verifying room authorization." }));
-        ws.close();
-      } catch (_) {}
-      return;
+      this.sendToClient(ws, "error", { code: "SERVER_ERROR", message: "Server error verifying room authorization." });
+      try { ws.close(1011, "Server error during authorization"); } catch (_) {}
+      return false;
     }
 
     if (!this.rooms.has(code)) {
@@ -209,31 +244,26 @@ class RoomSocketManager {
     for (const existingWs of roomSet) {
       if (existingWs === ws) continue;
       const meta = this.clients.get(existingWs);
-      if (meta && meta.userId === clientData.userId) {
+      if (meta && meta.userId === client.userId) {
         alreadyInRoom = true;
         this.clients.delete(existingWs);
         roomSet.delete(existingWs);
         try {
-          existingWs.close();
+          existingWs.close(1000, "Superseded by new session");
         } catch (_) {}
       }
     }
 
-    const client: ConnectedClient = {
-      ws,
-      userId: clientData.userId,
-      roomCode: code,
-      name: clientData.name,
-      image: clientData.image,
-    };
+    client.roomCode = code;
+    if (clientData.name) client.name = clientData.name;
+    if (clientData.image) client.image = clientData.image;
 
-    this.clients.set(ws, client);
     roomSet.add(ws);
 
     const totalUnique = this.getUniqueUserCount(code);
-    console.log(`[Socket] User ${clientData.name || clientData.userId} connected to room ${code}. Total unique: ${totalUnique} (Sockets: ${roomSet.size})`);
+    console.log(`[Socket] User ${client.name || client.userId} successfully joined room ${code}. Total unique: ${totalUnique} (Sockets: ${roomSet.size})`);
 
-    // ONLY broadcast participant joined event to others if this user wasn't already in the room
+    // Broadcast participant joined event to others if this user wasn't already in the room
     if (!alreadyInRoom) {
       this.broadcastToRoomExcept(code, ws, "participant:joined", {
         userId: client.userId,
@@ -244,7 +274,8 @@ class RoomSocketManager {
     }
 
     // Send instant full room sync to the newly connected/reconnected client
-    this.sendRoomSync(ws, code);
+    await this.sendRoomSync(ws, code);
+    return true;
   }
 
   /**
@@ -256,6 +287,11 @@ class RoomSocketManager {
 
     const { roomCode, userId } = client;
     this.clients.delete(ws);
+
+    if (!roomCode) {
+      // Socket was connected but never joined a room
+      return;
+    }
 
     const roomSet = this.rooms.get(roomCode);
     if (roomSet) {
@@ -282,6 +318,153 @@ class RoomSocketManager {
     }
 
     console.log(`[Socket] User ${userId} disconnected from room ${roomCode}`);
+  }
+
+  /**
+   * Centralized message dispatcher with full authorization enforcement:
+   * - Enforces pre-join check for all non-join events
+   * - Enforces strict room binding (rejects cross-room events)
+   * - Enforces identity match (rejects identity spoofing)
+   */
+  public async handleMessage(ws: any, eventName: string, data: any): Promise<void> {
+    const client = this.clients.get(ws);
+    if (!client) {
+      this.sendToClient(ws, "error", { code: "UNREGISTERED_SOCKET", message: "Socket not registered." });
+      try { ws.close(4401, "Unregistered socket"); } catch (_) {}
+      return;
+    }
+
+    // 1. Handle room:join
+    if (eventName === "room:join") {
+      if (!data?.roomCode || typeof data.roomCode !== "string") {
+        this.sendToClient(ws, "error", { code: "INVALID_ROOM_CODE", message: "Missing or invalid roomCode." });
+        return;
+      }
+      await this.joinRoom(ws, {
+        roomCode: data.roomCode,
+        name: client.name || data.name,
+        image: client.image || data.image,
+      });
+      return;
+    }
+
+    // 2. Pre-join validation: all non-join events require active room membership
+    if (!client.roomCode) {
+      this.sendToClient(ws, "error", {
+        code: "PRE_JOIN_FORBIDDEN",
+        message: "Pre-join event rejected: you must join a room first.",
+      });
+      return;
+    }
+
+    // 3. Cross-room tamper validation: socket is strictly bound to client.roomCode
+    if (data?.roomCode && typeof data.roomCode === "string" && data.roomCode.toUpperCase() !== client.roomCode) {
+      this.sendToClient(ws, "error", {
+        code: "CROSS_ROOM_FORBIDDEN",
+        message: `Cross-room event rejected: socket is bound to room ${client.roomCode}.`,
+      });
+      return;
+    }
+
+    // 4. Identity spoofing validation: client cannot spoof another userId
+    if (data?.userId && typeof data.userId === "string" && data.userId !== client.userId) {
+      this.sendToClient(ws, "error", {
+        code: "IDENTITY_MISMATCH",
+        message: "Identity mismatch: cannot perform room actions for another user.",
+      });
+      return;
+    }
+
+    // 5. Dispatch validated room-scoped events
+    const boundRoomCode = client.roomCode;
+    const boundUserId = client.userId;
+
+    if (eventName === "room:leave") {
+      this.leaveRoom(ws);
+    } else if (eventName === "time:sync") {
+      await this.sendRoomSync(ws, boundRoomCode);
+    } else if (eventName === "anticheat:violation") {
+      if (data?.type) {
+        await this.recordViolation(boundRoomCode, boundUserId, data.type, data.details);
+      }
+    } else if (eventName === "code:sync") {
+      if (data?.sourceCode !== undefined) {
+        await this.updateCodeSnapshot(boundRoomCode, boundUserId, {
+          problemId: data.problemId,
+          sourceCode: data.sourceCode,
+          language: data.language,
+        });
+      }
+    } else if (eventName === "code:inspect") {
+      if (data?.targetUserId && typeof data.targetUserId === "string") {
+        const isTargetInRoom = this.isUserInRoom(boundRoomCode, data.targetUserId);
+        if (!isTargetInRoom) {
+          this.sendToClient(ws, "error", {
+            code: "TARGET_NOT_IN_ROOM",
+            message: "Target participant is not in this room.",
+          });
+          return;
+        }
+        const snapshot = await this.getCodeSnapshot(boundRoomCode, data.targetUserId);
+        this.sendToClient(ws, "code:inspect_result", {
+          targetUserId: data.targetUserId,
+          snapshot,
+        });
+      }
+    }
+  }
+
+  /**
+   * Revoke membership of a participant, notify room, and kick active sockets
+   */
+  public async revokeMembership(roomCode: string, userId: string, reason = "Membership revoked"): Promise<void> {
+    const code = roomCode.toUpperCase();
+    const roomSet = this.rooms.get(code);
+    if (roomSet) {
+      for (const ws of [...roomSet]) {
+        const client = this.clients.get(ws);
+        if (client?.userId === userId) {
+          this.sendToClient(ws, "room:kicked", { roomCode: code, reason });
+          try {
+            ws.close(4403, reason);
+          } catch (_) {}
+          this.leaveRoom(ws);
+        }
+      }
+    }
+    this.broadcastToRoom(code, "participant:revoked", {
+      userId,
+      reason,
+      totalConnected: this.getUniqueUserCount(code),
+    });
+  }
+
+  /**
+   * Verify whether the socket's client still has active membership in the room
+   */
+  public async verifyActiveMembership(ws: any): Promise<boolean> {
+    const client = this.clients.get(ws);
+    if (!client || !client.roomCode) return false;
+    try {
+      const member = await db.room.findFirst({
+        where: {
+          code: client.roomCode,
+          OR: [
+            { hostId: client.userId },
+            { participants: { some: { userId: client.userId } } },
+          ],
+        },
+        select: { id: true },
+      });
+      if (!member) {
+        await this.revokeMembership(client.roomCode, client.userId, "Room membership no longer active.");
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error("[Socket] DB error in verifyActiveMembership:", err);
+      return false;
+    }
   }
 
   /**
