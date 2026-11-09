@@ -45,10 +45,35 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<"name" | "email" | "password", string>>>({});
+  const [formError, setFormError] = useState("");
 
   // Loading States
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const switchAuthMode = (mode: "signin" | "signup") => {
+    setAuthMode(mode);
+    setFieldErrors({});
+    setFormError("");
+  };
+
+  const validateForm = () => {
+    const errors: Partial<Record<"name" | "email" | "password", string>> = {};
+    if (authMode === "signup" && !name.trim()) errors.name = "Enter your full name.";
+    if (!email.trim()) {
+      errors.email = "Enter your email address.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.email = "Enter a valid email address.";
+    }
+    if (!password) {
+      errors.password = "Enter your password.";
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters.";
+    }
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   // Referral code persistence
   useEffect(() => {
@@ -87,15 +112,8 @@ export default function LoginPage() {
     e.preventDefault();
     if (isSubmitting) return;
 
-    if (!email.trim() || !password.trim()) {
-      toast.error("Please enter both email and password.");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters long.");
-      return;
-    }
+    setFormError("");
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
     try {
@@ -149,7 +167,9 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error("Auth submit error:", err);
-      toast.error(err?.message || "Authentication failed. Please check your credentials.");
+      const message = err?.message || "Authentication failed. Please check your credentials.";
+      setFormError(message);
+      toast.error(message);
       setIsSubmitting(false);
     }
   };
@@ -178,7 +198,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-screen w-full bg-[#060709] text-white flex flex-col justify-between overflow-x-hidden overflow-y-auto lg:overflow-hidden px-4 sm:px-8 py-3 lg:py-4 relative selection:bg-blue-500/20 selection:text-blue-400">
+    <div className="min-h-[100dvh] w-full min-w-0 bg-[#060709] text-white flex flex-col justify-between overflow-x-clip overflow-y-auto lg:overflow-hidden px-4 sm:px-8 py-3 lg:py-4 relative selection:bg-blue-500/20 selection:text-blue-400">
       {/* Background Ambient Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-gradient-to-b from-blue-600/10 via-indigo-600/5 to-transparent blur-3xl pointer-events-none -z-10" />
       <div className="absolute bottom-0 right-10 w-[450px] h-[300px] bg-blue-500/5 blur-3xl pointer-events-none -z-10" />
@@ -353,8 +373,8 @@ export default function LoginPage() {
               <div className="grid grid-cols-2 gap-1 p-1 bg-zinc-900/90 rounded-xl border border-zinc-800 mb-3.5">
                 <button
                   type="button"
-                  onClick={() => setAuthMode("signin")}
-                  className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  onClick={() => switchAuthMode("signin")}
+                  className={`min-h-11 sm:min-h-0 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     authMode === "signin"
                       ? "bg-zinc-800 text-white shadow-sm border border-zinc-700/60"
                       : "text-zinc-400 hover:text-zinc-200"
@@ -364,8 +384,8 @@ export default function LoginPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAuthMode("signup")}
-                  className={`py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  onClick={() => switchAuthMode("signup")}
+                  className={`min-h-11 sm:min-h-0 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     authMode === "signup"
                       ? "bg-zinc-800 text-white shadow-sm border border-zinc-700/60"
                       : "text-zinc-400 hover:text-zinc-200"
@@ -376,7 +396,13 @@ export default function LoginPage() {
               </div>
 
               {/* Email & Password Form */}
-              <form onSubmit={handleSubmit} className="space-y-2.5">
+              <form onSubmit={handleSubmit} className="space-y-2.5" noValidate>
+                {formError && (
+                  <div id="auth-form-error" role="alert" className="flex items-start gap-2 rounded-xl border border-red-800/50 bg-red-950/30 p-2.5 text-xs text-red-300">
+                    <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
                 {/* Full Name in Sign Up Mode */}
                 {authMode === "signup" && (
                   <div className="space-y-1">
@@ -391,12 +417,18 @@ export default function LoginPage() {
                         id="name"
                         type="text"
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          if (fieldErrors.name) setFieldErrors((current) => ({ ...current, name: undefined }));
+                        }}
                         placeholder="John Doe"
                         autoComplete="name"
-                        className="w-full h-9.5 pl-9 pr-3 rounded-xl border border-zinc-800 bg-zinc-900/90 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors"
+                        aria-invalid={Boolean(fieldErrors.name)}
+                        aria-describedby={fieldErrors.name ? "name-error" : undefined}
+                        className={`w-full h-11 sm:h-9.5 pl-9 pr-3 rounded-xl border bg-zinc-900/90 text-base sm:text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors ${fieldErrors.name ? "border-red-500/70" : "border-zinc-800"}`}
                       />
                     </div>
+                    {fieldErrors.name && <p id="name-error" className="text-xs text-red-400">{fieldErrors.name}</p>}
                   </div>
                 )}
 
@@ -413,13 +445,19 @@ export default function LoginPage() {
                       id="email"
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (fieldErrors.email) setFieldErrors((current) => ({ ...current, email: undefined }));
+                      }}
                       placeholder="name@example.com"
-                      required
                       autoComplete="email"
-                      className="w-full h-9.5 pl-9 pr-3 rounded-xl border border-zinc-800 bg-zinc-900/90 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors"
+                      inputMode="email"
+                      aria-invalid={Boolean(fieldErrors.email)}
+                      aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                      className={`w-full h-11 sm:h-9.5 pl-9 pr-3 rounded-xl border bg-zinc-900/90 text-base sm:text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors ${fieldErrors.email ? "border-red-500/70" : "border-zinc-800"}`}
                     />
                   </div>
+                  {fieldErrors.email && <p id="email-error" className="text-xs text-red-400">{fieldErrors.email}</p>}
                 </div>
 
                 {/* Password Field */}
@@ -434,7 +472,7 @@ export default function LoginPage() {
                         onClick={() =>
                           toast.info("Password reset link will be sent to your email upon request.")
                         }
-                        className="text-[10px] text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                        className="min-h-11 sm:min-h-0 text-xs sm:text-[10px] text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
                       >
                         Forgot password?
                       </button>
@@ -448,29 +486,34 @@ export default function LoginPage() {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: undefined }));
+                      }}
                       placeholder="••••••••"
-                      required
-                      minLength={6}
                       autoComplete={authMode === "signin" ? "current-password" : "new-password"}
-                      className="w-full h-9.5 pl-9 pr-9 rounded-xl border border-zinc-800 bg-zinc-900/90 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors"
+                      aria-invalid={Boolean(fieldErrors.password)}
+                      aria-describedby={fieldErrors.password ? "password-error" : undefined}
+                      className={`w-full h-11 sm:h-9.5 pl-9 pr-11 rounded-xl border bg-zinc-900/90 text-base sm:text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors ${fieldErrors.password ? "border-red-500/70" : "border-zinc-800"}`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+                      className="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
                   </div>
+                  {fieldErrors.password && <p id="password-error" className="text-xs text-red-400">{fieldErrors.password}</p>}
                 </div>
 
                 {/* Primary Button */}
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white h-9.5 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-blue-500/20 active:scale-[0.99] disabled:opacity-50 mt-1"
+                  aria-describedby={formError ? "auth-form-error" : undefined}
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white h-11 sm:h-9.5 text-sm sm:text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-blue-500/20 active:scale-[0.99] disabled:opacity-50 mt-1"
                 >
                   {isSubmitting ? (
                     <>
@@ -499,7 +542,7 @@ export default function LoginPage() {
               {/* Google 1-Click Button */}
               <Button
                 type="button"
-                className="w-full bg-white hover:bg-zinc-100 text-zinc-900 h-9.5 text-xs font-semibold rounded-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-lg shadow-white/5 active:scale-[0.99]"
+                className="w-full bg-white hover:bg-zinc-100 text-zinc-900 h-11 sm:h-9.5 text-sm sm:text-xs font-semibold rounded-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-lg shadow-white/5 active:scale-[0.99]"
                 onClick={handleGoogleSignIn}
                 disabled={isGoogleLoading}
               >
@@ -535,7 +578,7 @@ export default function LoginPage() {
                     Don't have an account?{" "}
                     <button
                       type="button"
-                      onClick={() => setAuthMode("signup")}
+                      onClick={() => switchAuthMode("signup")}
                       className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition-colors"
                     >
                       Sign up
@@ -546,7 +589,7 @@ export default function LoginPage() {
                     Already have an account?{" "}
                     <button
                       type="button"
-                      onClick={() => setAuthMode("signin")}
+                      onClick={() => switchAuthMode("signin")}
                       className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition-colors"
                     >
                       Sign in

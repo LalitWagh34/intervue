@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { signOut, useSession } from "@/lib/auth";
@@ -58,6 +58,8 @@ export default function AppLayout() {
   // Profile Popover Dropdown state
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const profileButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   // Close profile dropdown on outside click
   useEffect(() => {
@@ -72,6 +74,19 @@ export default function AppLayout() {
 
   // Mobile Drawer state
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const closeMobileNavigation = useCallback(() => setIsMobileOpen(false), []);
+
+  useEffect(() => {
+    if (!isProfileOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsProfileOpen(false);
+        profileButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isProfileOpen]);
 
   // Close profile dropdown and mobile drawer on route change
   useEffect(() => {
@@ -106,45 +121,52 @@ export default function AppLayout() {
         isCollapsed={isCollapsed}
         onToggle={toggleSidebar}
         isMobileOpen={isMobileOpen}
-        onMobileClose={() => setIsMobileOpen(false)}
+        onMobileClose={closeMobileNavigation}
+        returnFocusRef={mobileMenuButtonRef}
       />
 
       {/* Main Content Viewport Column */}
       <div
         className={cn(
-          "flex-1 min-w-0 min-h-screen min-h-[100dvh] flex flex-col bg-[#060709] transition-all duration-300 ease-in-out overflow-x-hidden",
+          "flex-1 min-w-0 min-h-screen min-h-[100dvh] flex flex-col bg-[#060709] transition-all duration-300 ease-in-out",
           "pl-0",
-          isCollapsed ? "md:pl-[84px]" : "md:pl-[276px]"
+          isCollapsed ? "lg:pl-[84px]" : "lg:pl-[276px]"
         )}
       >
         {/* TUF Floating Top Header */}
-        <header className="h-16 px-4 sm:px-6 md:px-8 border-b border-[#181A20] bg-[#0A0C10]/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between gap-2.5 sm:gap-4">
+        <header className="h-16 px-3 sm:px-6 lg:px-8 border-b border-[#181A20] bg-[#0A0C10]/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             {/* Mobile Menu Hamburger Button */}
             <button
+              ref={mobileMenuButtonRef}
               type="button"
               onClick={() => setIsMobileOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-[#0D0E12] border border-[#181A20] text-zinc-300 hover:text-white transition-colors cursor-pointer shrink-0"
+              className="lg:hidden w-11 h-11 rounded-xl bg-[#0D0E12] border border-[#181A20] text-zinc-300 hover:text-white transition-colors cursor-pointer shrink-0 flex items-center justify-center"
               title="Open navigation menu"
+              aria-label="Open navigation menu"
+              aria-expanded={isMobileOpen}
+              aria-controls="primary-navigation"
             >
               <Menu className="w-4 h-4" />
             </button>
 
             {/* Global Search / Command Bar Trigger */}
-            <div
+            <button
+              type="button"
               onClick={() => setIsOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 text-xs text-[#8B92A0] hover:text-[#F3F4F6] cursor-pointer transition-all flex-1 max-w-[170px] sm:max-w-xs md:w-80 group shadow-inner"
+              className="flex h-11 sm:h-9 items-center gap-2 px-3 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 text-xs text-[#8B92A0] hover:text-[#F3F4F6] cursor-pointer transition-all min-w-0 w-11 min-[390px]:w-auto min-[390px]:flex-1 max-w-[170px] sm:max-w-xs lg:w-80 group shadow-inner"
+              aria-label="Open global search"
             >
               <Search className="w-3.5 h-3.5 text-[#525866] group-hover:text-[#327CF6] transition-colors shrink-0" />
-              <span className="flex-1 truncate">Search...</span>
+              <span className="hidden min-[390px]:block flex-1 truncate text-left">Search...</span>
               <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-[#060709] border border-[#181A20] text-[10px] font-mono text-[#8B92A0]">
                 ⌘K
               </kbd>
-            </div>
+            </button>
           </div>
 
           {/* Right Action Bar */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Quick Battle Arena Trigger */}
             {/* <Link
               to="/rooms"
@@ -157,7 +179,7 @@ export default function AppLayout() {
 
             {/* Merged Rewards & Streak Hover Pill */}
             <div
-              className="flex items-center rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-white/[0.15] transition-all text-xs font-semibold font-mono shadow-inner overflow-hidden cursor-default"
+              className="hidden sm:flex items-center rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-white/[0.15] transition-all text-xs font-semibold font-mono shadow-inner overflow-hidden cursor-default"
               title={`${rewardsStatus?.points ?? 0} Intervue Coins • ${currentStreak} Day Practice Streak`}
             >
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-emerald-400">
@@ -177,9 +199,13 @@ export default function AppLayout() {
             {/* User Profile Avatar with Clickable Dropdown Menu */}
             <div className="relative" ref={profileRef}>
               <button
+                ref={profileButtonRef}
                 type="button"
                 onClick={() => setIsProfileOpen((prev) => !prev)}
-                className="flex items-center gap-2 p-1 rounded-xl hover:bg-[#0D0E12] border border-transparent hover:border-[#181A20] transition-all cursor-pointer"
+                className="w-11 h-11 sm:w-auto sm:h-auto flex items-center justify-center sm:justify-start gap-2 p-1 rounded-xl hover:bg-[#0D0E12] border border-transparent hover:border-[#181A20] transition-all cursor-pointer"
+                aria-label="Open profile menu"
+                aria-expanded={isProfileOpen}
+                aria-haspopup="dialog"
               >
                 {user?.image ? (
                   <img
@@ -203,7 +229,7 @@ export default function AppLayout() {
 
               {/* Profile Dropdown Drawer/Popover (matching TUF profile card) */}
               {isProfileOpen && (
-                <div className="absolute right-0 top-12 w-72 rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 top-12 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-150" role="dialog" aria-label="Account options">
                   {/* User Info Header */}
                   <div className="flex items-center gap-3 pb-3 border-b border-[#181A20]">
                     {user?.image ? (
@@ -240,7 +266,7 @@ export default function AppLayout() {
                   </div>
 
                   {/* Quick Action Navigation Links */}
-                  <div className="space-y-1 pt-1">
+                  <div className="space-y-1 pt-1 [&_a]:min-h-11 [&_button]:min-h-11">
                     <Link
                       to="/profile"
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#8B92A0] hover:text-white hover:bg-[#12141B] transition-colors"
@@ -311,7 +337,7 @@ export default function AppLayout() {
                     <button
                       type="button"
                       onClick={handleSignOut}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      className="w-full min-h-11 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Sign Out</span>
@@ -324,7 +350,7 @@ export default function AppLayout() {
         </header>
 
         {/* Page Content Viewport */}
-        <main className="flex-1 relative z-10 max-w-[1440px] w-full mx-auto">
+        <main className="flex-1 min-w-0 relative z-10 max-w-[1440px] w-full mx-auto">
           <Outlet />
         </main>
 

@@ -117,10 +117,11 @@ export function CompanyKitsCatalog({
           const readinessPercent = Math.min(100, Math.round((solvedCount / kit.totalQuestions) * 100));
 
           return (
-            <div
+            <button
+              type="button"
               key={kit.slug}
               onClick={() => onSelectCompany(kit.name)}
-              className={`p-5 rounded-2xl bg-[#0D0E12] border transition-all duration-200 cursor-pointer flex flex-col justify-between group hover:shadow-xl hover:-translate-y-0.5 ${
+              className={`w-full p-5 rounded-2xl bg-[#0D0E12] border transition-all duration-200 cursor-pointer flex flex-col justify-between group hover:shadow-xl hover:-translate-y-0.5 text-left ${
                 isTarget
                   ? "border-blue-500/60 shadow-lg shadow-blue-500/5 bg-[#0F121A]"
                   : "border-[#181A20] hover:border-zinc-700"
@@ -192,7 +193,7 @@ export function CompanyKitsCatalog({
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

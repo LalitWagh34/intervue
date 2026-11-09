@@ -564,9 +564,10 @@ export default function PracticeHubPage() {
               <h2 className="text-base font-bold text-white tracking-tight">Explore Subjects</h2>
 
               {/* Subject 1: Target Company Practice Kits (Target company wise) */}
-              <div
+              <button
+                type="button"
                 onClick={() => openCompanyKitsCatalog()}
-                className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0D0E12] via-[#0F131D] to-[#0D0E12] border border-blue-500/25 hover:border-blue-500/50 hover:bg-[#111522] transition-all cursor-pointer flex items-center justify-between group shadow-lg shadow-blue-950/10 gap-3"
+                className="w-full p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0D0E12] via-[#0F131D] to-[#0D0E12] border border-blue-500/25 hover:border-blue-500/50 hover:bg-[#111522] transition-all cursor-pointer flex items-center justify-between group shadow-lg shadow-blue-950/10 gap-3 text-left"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-105 transition-transform shadow-inner">
@@ -591,12 +592,13 @@ export default function PracticeHubPage() {
                   <span className="hidden sm:inline">Explore Kits</span>
                   <ChevronRight className="w-4 h-4 text-blue-400/70 group-hover:translate-x-0.5 transition-transform" />
                 </div>
-              </div>
+              </button>
 
               {/* Subject 2: All Company Section (Company-Wise 470+ company question system) */}
-              <div
+              <button
+                type="button"
                 onClick={() => openCompanyWise()}
-                className="p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
+                className="w-full p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3 text-left"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
@@ -621,12 +623,13 @@ export default function PracticeHubPage() {
                   <span className="hidden sm:inline">View Companies</span>
                   <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
                 </div>
-              </div>
+              </button>
 
               {/* Subject 3: DSA Problem Sheets (Live Flagship Curriculums) */}
-              <div
+              <button
+                type="button"
                 onClick={() => openSubject("dsa")}
-                className="p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-emerald-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
+                className="w-full p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-emerald-500/40 hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3 text-left"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform">
@@ -651,12 +654,13 @@ export default function PracticeHubPage() {
                   <span className="hidden sm:inline">Browse Sheets</span>
                   <ChevronRight className="w-4 h-4 text-emerald-500 group-hover:translate-x-0.5 transition-transform" />
                 </div>
-              </div>
+              </button>
 
               {/* Subject 4: AI Mock Interviews */}
-              <div
+              <button
+                type="button"
                 onClick={() => navigate("/interview")}
-                className="p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3"
+                className="w-full p-4 sm:p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#262933] hover:bg-[#111318] transition-all cursor-pointer flex items-center justify-between group gap-3 text-left"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-orange-400 shrink-0 group-hover:scale-105 transition-transform">
@@ -681,7 +685,7 @@ export default function PracticeHubPage() {
                   <span className="hidden sm:inline">Start Mock</span>
                   <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-0.5 transition-transform" />
                 </div>
-              </div>
+              </button>
             </div>
 
             {/* Target Company Kits Section (Full Width) */}
@@ -905,10 +909,11 @@ export default function PracticeHubPage() {
               const pct = Math.round((solvedCountForSheet / Math.max(sheetProblems.length, 1)) * 100);
 
               return (
-                <div
+                <button
+                  type="button"
                   key={sheet.id}
                   onClick={() => openSheetPractice(sheet.id)}
-                  className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#327CF6]/50 hover:bg-[#101217] transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
+                  className="w-full p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#327CF6]/50 hover:bg-[#101217] transition-all cursor-pointer flex flex-col justify-between group shadow-sm text-left"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
@@ -969,7 +974,7 @@ export default function PracticeHubPage() {
                       </span>
                     </div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

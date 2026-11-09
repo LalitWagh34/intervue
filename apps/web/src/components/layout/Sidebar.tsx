@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import type { RefObject } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Code2,
@@ -119,6 +120,7 @@ interface SidebarProps {
   onToggle: () => void;
   isMobileOpen?: boolean;
   onMobileClose?: () => void;
+  returnFocusRef?: RefObject<HTMLButtonElement | null>;
 }
 
 export default function Sidebar({
@@ -126,12 +128,66 @@ export default function Sidebar({
   onToggle,
   isMobileOpen = false,
   onMobileClose,
+  returnFocusRef,
 }: SidebarProps) {
   const location = useLocation();
   const { data: session } = useSession();
   const { data: profileStats } = useProfileStats();
   const isAdmin = (session?.user as any)?.role === "admin" || profileStats?.user?.role === "admin";
-  const navigate = useNavigate();
+  const asideRef = useRef<HTMLElement>(null);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false
+  );
+  const effectiveCollapsed = isDesktop && isCollapsed;
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const updateViewport = () => setIsDesktop(media.matches);
+    updateViewport();
+    media.addEventListener("change", updateViewport);
+    return () => media.removeEventListener("change", updateViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileOpen || isDesktop) return;
+
+    const drawer = asideRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    drawer?.querySelector<HTMLElement>("[data-mobile-drawer-close]")?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onMobileClose?.();
+        return;
+      }
+
+      if (event.key !== "Tab" || !drawer) return;
+      const focusable = Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      returnFocusRef?.current?.focus();
+    };
+  }, [isDesktop, isMobileOpen, onMobileClose, returnFocusRef]);
 
   const [adminExpanded, setAdminExpanded] = useState<boolean>(() =>
     location.pathname.startsWith("/admin")
@@ -166,26 +222,34 @@ export default function Sidebar({
     <>
       {/* Mobile Drawer Backdrop Overlay */}
       {isMobileOpen && (
-        <div
+        <button
+          type="button"
           onClick={onMobileClose}
-          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-200"
+          aria-label="Close navigation menu"
+          tabIndex={-1}
         />
       )}
 
       <aside
+        id="primary-navigation"
+        ref={asideRef}
+        aria-label="Primary navigation"
+        aria-hidden={!isDesktop && !isMobileOpen}
+        inert={!isDesktop && !isMobileOpen ? true : undefined}
         className={cn(
           "fixed top-2 bottom-2 z-50 rounded-2xl bg-[#0A0C10]/98 backdrop-blur-xl border border-[#181A20] shadow-2xl flex flex-col select-none transition-all duration-300 ease-in-out overflow-hidden",
           // Desktop positioning
-          "md:left-2",
-          isCollapsed ? "md:w-[68px]" : "md:w-[260px]",
+          "lg:left-2",
+          effectiveCollapsed ? "lg:w-[68px]" : "lg:w-[260px]",
           // Mobile positioning & slide transition
           "left-2 w-[270px] max-w-[85vw]",
-          isMobileOpen ? "translate-x-0" : "-translate-x-[115%] md:translate-x-0"
+          isMobileOpen ? "translate-x-0" : "-translate-x-[115%] lg:translate-x-0"
         )}
       >
         {/* Brand Header & Toggle Button */}
         <div className="h-16 px-4 flex items-center justify-between border-b border-[#181A20] shrink-0">
-          {!isCollapsed ? (
+          {!effectiveCollapsed ? (
             <Link
               to="/dashboard"
               onClick={onMobileClose}
@@ -218,7 +282,9 @@ export default function Sidebar({
             type="button"
             onClick={onMobileClose}
             title="Close menu"
-            className="md:hidden w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-[#14161C] border border-[#1E2229] transition-all cursor-pointer"
+            data-mobile-drawer-close
+            aria-label="Close navigation menu"
+            className="lg:hidden w-11 h-11 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-[#14161C] border border-[#1E2229] transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -229,11 +295,11 @@ export default function Sidebar({
             onClick={onToggle}
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={cn(
-              "hidden md:flex w-7 h-7 rounded-lg items-center justify-center text-slate-400 hover:text-white hover:bg-[#14161C] border border-transparent hover:border-[#1E2229] transition-all cursor-pointer",
-              isCollapsed && "mx-auto mt-2"
+              "hidden lg:flex w-9 h-9 rounded-lg items-center justify-center text-slate-400 hover:text-white hover:bg-[#14161C] border border-transparent hover:border-[#1E2229] transition-all cursor-pointer",
+              effectiveCollapsed && "mx-auto mt-2"
             )}
           >
-            {isCollapsed ? (
+            {effectiveCollapsed ? (
               <PanelLeft className="w-4 h-4 text-[#327CF6]" />
             ) : (
               <PanelLeftClose className="w-4 h-4" />
@@ -252,7 +318,7 @@ export default function Sidebar({
 
           return (
             <div key={sIdx}>
-              {!isCollapsed && section.title && (
+              {!effectiveCollapsed && section.title && (
                 <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1.5 font-mono">
                   {section.title}
                 </p>
@@ -270,15 +336,16 @@ export default function Sidebar({
                 return (
                   <div key={iIdx} className="space-y-1">
                     <Link
-                      to={hasSubItems ? (isCollapsed ? "/admin" : (isSubOpen ? item.href : "/admin/overview")) : item.href}
+                      to={hasSubItems ? (effectiveCollapsed ? "/admin" : (isSubOpen ? item.href : "/admin/overview")) : item.href}
                       onClick={() => {
-                        if (hasSubItems && !isCollapsed) {
+                        if (hasSubItems && !effectiveCollapsed) {
                           setAdminExpanded((prev) => !prev);
                         }
+                        if (!hasSubItems) onMobileClose?.();
                       }}
-                      title={isCollapsed ? item.label : undefined}
+                      title={effectiveCollapsed ? item.label : undefined}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all group relative cursor-pointer",
+                        "flex min-h-11 items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all group relative cursor-pointer",
                         isActive
                           ? "bg-white/[0.06] text-white font-semibold border border-white/[0.08] shadow-sm"
                           : "text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent"
@@ -293,11 +360,11 @@ export default function Sidebar({
                         className={cn(
                           "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
                           isActive ? "text-indigo-400" : "text-slate-400 group-hover:text-white",
-                          isCollapsed && "mx-auto"
+                          effectiveCollapsed && "mx-auto"
                         )}
                       />
 
-                      {!isCollapsed && (
+                      {!effectiveCollapsed && (
                         <div className="flex items-center justify-between flex-1 min-w-0">
                           <span className="truncate">{item.label}</span>
                           <div className="flex items-center gap-1.5">
@@ -331,7 +398,7 @@ export default function Sidebar({
                     </Link>
 
                     {/* Indented Sub-panel Links */}
-                    {hasSubItems && isSubOpen && !isCollapsed && item.subItems && (
+                    {hasSubItems && isSubOpen && !effectiveCollapsed && item.subItems && (
                       <div className="ml-5 pl-2.5 border-l border-[#1F2430] space-y-1 py-1">
                         {item.subItems.map((sub, sIdx) => {
                           const isSubActive =
@@ -342,8 +409,9 @@ export default function Sidebar({
                             <Link
                               key={sIdx}
                               to={sub.href}
+                              onClick={onMobileClose}
                               className={cn(
-                                "flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all group",
+                                "flex min-h-11 items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all group",
                                 isSubActive
                                   ? "bg-zinc-800 text-white font-semibold shadow-sm"
                                   : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
@@ -372,12 +440,12 @@ export default function Sidebar({
 
       {/* Compact Secondary Support Group (Help & Feedback) */}
       <div className="px-3 py-2 border-t border-[#181A20] bg-[#07080C] shrink-0">
-        {!isCollapsed ? (
+        {!effectiveCollapsed ? (
           <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
             <Link
               to="/help"
               onClick={onMobileClose}
-              className="flex items-center gap-1.5 hover:text-slate-300 transition-colors"
+              className="flex min-h-11 items-center gap-1.5 hover:text-slate-300 transition-colors"
             >
               <HelpCircle className="w-3.5 h-3.5" />
               <span>Help Center</span>
@@ -386,7 +454,7 @@ export default function Sidebar({
             <Link
               to="/feedback"
               onClick={onMobileClose}
-              className="flex items-center gap-1.5 hover:text-slate-300 transition-colors"
+              className="flex min-h-11 items-center gap-1.5 hover:text-slate-300 transition-colors"
             >
               <MessageSquareHeart className="w-3.5 h-3.5" />
               <span>Feedback</span>
@@ -408,9 +476,9 @@ export default function Sidebar({
 
       {/* Footer Profile / Quick Status */}
       <div className="p-2.5 border-t border-[#181A20] bg-[#08090C] shrink-0">
-        {!isCollapsed ? (
+        {!effectiveCollapsed ? (
           <div className="flex items-center justify-between p-2 rounded-xl bg-[#0D0E12] border border-[#181A20]">
-            <Link to="/profile" className="flex items-center gap-2.5 min-w-0 group">
+            <Link to="/profile" onClick={onMobileClose} className="flex min-h-11 items-center gap-2.5 min-w-0 group">
               {user?.image ? (
                 <img
                   src={user.image}
@@ -436,7 +504,7 @@ export default function Sidebar({
             <button
               onClick={handleSignOut}
               title="Sign Out"
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+              className="w-11 h-11 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
             </button>

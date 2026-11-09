@@ -37,6 +37,7 @@ export function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const { data: interviews } = useInterviews();
   const { data: stats } = useProfileStats();
@@ -89,6 +90,18 @@ export function NotificationDropdown() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen]);
 
   // Custom notifications (e.g. daily target added, all targets finished)
   const [customNotifications, setCustomNotifications] = useState<any[]>(() => {
@@ -200,7 +213,7 @@ export function NotificationDropdown() {
       description: "Earn badges, track your problem solving mastery, and redeem milestone perks.",
       timestamp: "3d ago",
       type: "reward",
-      link: "/rewards",
+      link: "/practice",
       isRead: readIds.includes("rewards_xp_check"),
     });
 
@@ -243,12 +256,17 @@ export function NotificationDropdown() {
     <div className="relative" ref={dropdownRef}>
       {/* Bell Trigger Button */}
       <button
+        ref={triggerRef}
+        type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className={cn(
-          "w-9 h-9 rounded-xl bg-[#0D0E12] border border-[#181A20] flex items-center justify-center text-[#8B92A0] hover:text-white hover:border-[#327CF6]/40 transition-all cursor-pointer relative group",
+          "w-11 h-11 sm:w-9 sm:h-9 rounded-xl bg-[#0D0E12] border border-[#181A20] flex items-center justify-center text-[#8B92A0] hover:text-white hover:border-[#327CF6]/40 transition-all cursor-pointer relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#327CF6]",
           isOpen && "border-[#327CF6] text-white bg-[#13161F]"
         )}
         title="Notifications"
+        aria-label="Notifications"
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
       >
         <Bell className="w-4 h-4 transition-transform group-hover:rotate-12" />
         {unreadCount > 0 && (
@@ -262,7 +280,9 @@ export function NotificationDropdown() {
       {isOpen && (
         <div
           onWheel={(e) => e.stopPropagation()}
-          className="absolute right-0 top-12 w-[360px] sm:w-[400px] rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[520px] overscroll-contain"
+          className="fixed left-4 right-4 top-[4.5rem] sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[400px] rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[calc(100dvh-6rem)] sm:max-h-[520px] overscroll-contain"
+          role="dialog"
+          aria-label="Notifications"
         >
           {/* Header */}
           <div className="p-4 border-b border-[#181A20] flex items-center justify-between bg-[#0D0E14]/60">
@@ -348,11 +368,12 @@ export function NotificationDropdown() {
                 const Icon = iconConfig.icon;
 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={item.id}
                     onClick={() => handleItemClick(item)}
                     className={cn(
-                      "group p-3 rounded-xl transition-all cursor-pointer flex items-start gap-3 relative hover:bg-[#12141D]",
+                      "group w-full p-3 rounded-xl transition-all cursor-pointer flex items-start gap-3 relative hover:bg-[#12141D] text-left",
                       !item.isRead ? "bg-[#0D0F17]/80" : "opacity-80 hover:opacity-100"
                     )}
                   >
@@ -399,7 +420,7 @@ export function NotificationDropdown() {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })
             )}

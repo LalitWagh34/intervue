@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useSession } from "../lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { api } from "@/lib/api";
@@ -49,7 +49,6 @@ interface DashboardStats {
 export default function DashboardPage() {
   const { data: session } = useSession();
   const { data: profileStats } = useProfileStats();
-  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -113,11 +112,11 @@ export default function DashboardPage() {
         </header>
 
         {/* ─── Metric Stat Cards (4-Grid) ────────────────────────── */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {/* 1. Interview Average Score */}
-          <div
-            onClick={() => navigate("/history")}
-            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#327CF6]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
+          <Link
+            to="/history"
+            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#327CF6]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#327CF6] focus-visible:ring-offset-2 focus-visible:ring-offset-[#060709]"
           >
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-xs font-semibold uppercase tracking-wider font-mono">
@@ -140,12 +139,12 @@ export default function DashboardPage() {
               </span>
               <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#327CF6]" />
             </div>
-          </div>
+          </Link>
 
           {/* 2. Practice Streak */}
-          <div
-            onClick={() => navigate("/rewards")}
-            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#F59E0B]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
+          <Link
+            to="/practice"
+            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#F59E0B]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F59E0B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#060709]"
           >
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-xs font-semibold uppercase tracking-wider font-mono">
@@ -167,12 +166,12 @@ export default function DashboardPage() {
               <span>Keep your momentum alive</span>
               <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#F59E0B]" />
             </div>
-          </div>
+          </Link>
 
           {/* 3. Problems Mastered */}
-          <div
-            onClick={() => navigate("/practice")}
-            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#10B981]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
+          <Link
+            to="/practice"
+            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#10B981]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10B981] focus-visible:ring-offset-2 focus-visible:ring-offset-[#060709]"
           >
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-xs font-semibold uppercase tracking-wider font-mono">
@@ -192,12 +191,12 @@ export default function DashboardPage() {
               <span>Tracked & verified problems</span>
               <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#10B981]" />
             </div>
-          </div>
+          </Link>
 
           {/* 4. Full AI Simulations */}
-          <div
-            onClick={() => navigate("/history")}
-            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#8B5CF6]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden"
+          <Link
+            to="/history"
+            className="group p-5 rounded-2xl bg-[#11131A] border border-white/[0.07] hover:border-[#8B5CF6]/40 transition-all duration-200 cursor-pointer flex flex-col justify-between shadow-sm relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B5CF6] focus-visible:ring-offset-2 focus-visible:ring-offset-[#060709]"
           >
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-xs font-semibold uppercase tracking-wider font-mono">
@@ -217,7 +216,7 @@ export default function DashboardPage() {
               <span>Detailed scorecards logged</span>
               <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#8B5CF6]" />
             </div>
-          </div>
+          </Link>
         </section>
 
         {/* ─── Target Company Readiness Tracker ──────────────────── */}
@@ -226,9 +225,9 @@ export default function DashboardPage() {
         </section>
 
         {/* ─── Dual Column: Recent Evaluations & Skill Readiness ──── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Left Column (2 Cols): Recent Interview Scorecards */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="xl:col-span-2 space-y-6">
             <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -256,9 +255,9 @@ export default function DashboardPage() {
                     const isCompleted = int.status === "completed" || int.status === "COMPLETED";
 
                     return (
-                      <div
+                      <Link
                         key={int.id}
-                        onClick={() => navigate("/history")}
+                        to="/history"
                         className="p-4 rounded-xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer group"
                       >
                         <div className="space-y-1">
@@ -302,7 +301,7 @@ export default function DashboardPage() {
                             <ArrowRight className="w-4 h-4" />
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>
