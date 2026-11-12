@@ -235,18 +235,18 @@ export function CompanyKitWorkspace({
   return (
     <div className="space-y-6">
       {/* ─── Top Breadcrumb Bar ──────────────────────────────────────── */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/[0.07]">
-        <div className="flex items-center gap-2 text-xs text-[#7A808C]">
+      <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
           <button
             type="button"
             onClick={onBack}
-            className="hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-mono"
+            className="hover:text-[var(--text-primary)] transition-colors cursor-pointer flex items-center gap-1 font-mono"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Company Kits</span>
           </button>
           <span>/</span>
-          <span className="text-white font-semibold flex items-center gap-1.5">
+          <span className="text-[var(--text-primary)] font-semibold flex items-center gap-1.5">
             {logo && <img src={logo} alt="" className="w-3.5 h-3.5 object-contain" />}
             {companyName}
           </span>
@@ -255,39 +255,39 @@ export function CompanyKitWorkspace({
         <button
           type="button"
           onClick={onBack}
-          className="px-3 py-1 rounded-xl bg-[#11131A] border border-white/[0.07] hover:border-zinc-700 text-xs text-slate-400 hover:text-white transition-all cursor-pointer font-mono"
+          className="px-3 py-1 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-all cursor-pointer font-mono"
         >
           ← All Kits
         </button>
       </div>
 
       {/* ─── Company Header Banner ───────────────────────────────────── */}
-      <div className="p-6 rounded-2xl bg-[#11131A] border border-white/[0.07] relative overflow-hidden">
+      <div className="p-6 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#141720] border border-[#222634] p-2.5 flex items-center justify-center shrink-0 shadow-xl">
+            <div className="w-14 h-14 rounded-2xl bg-[var(--surface-muted)] border border-[var(--border-control)] p-2.5 flex items-center justify-center shrink-0 shadow-sm">
               {logo ? (
                 <img src={logo} alt={companyName} className="w-full h-full object-contain" />
               ) : (
-                <Building2 className="w-7 h-7 text-zinc-400" />
+                <Building2 className="w-7 h-7 text-[var(--text-secondary)]" />
               )}
             </div>
 
             <div>
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl font-bold text-white tracking-tight">{companyName}</h1>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">
+                <h1 className="text-2xl font-bold text-[var(--text-primary)] tracking-tight">{companyName}</h1>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--accent-text)]/25 font-mono">
                   Verified Interview Loop
                 </span>
-                <span className="text-[11px] text-[#7A808C] font-mono">
+                <span className="text-[11px] text-[var(--text-muted)] font-mono">
                   Updated 2 days ago
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-2xl leading-relaxed">
                 {kit.description}
               </p>
-              <div className="flex items-center gap-2 mt-2.5 text-[11px] font-mono text-zinc-400">
-                <span className="text-blue-400 font-semibold">Format:</span>
+              <div className="flex items-center gap-2 mt-2.5 text-[11px] font-mono text-[var(--text-secondary)]">
+                <span className="text-[var(--accent-text)] font-semibold">Format:</span>
                 <span>{kit.interviewFormat}</span>
               </div>
             </div>
@@ -301,8 +301,8 @@ export function CompanyKitWorkspace({
               disabled={setTargetMutation.isPending}
               title={isCurrentTarget ? "Click to remove from your target companies" : "Click to add to your target companies"}
               className={`h-9 px-4 text-xs font-semibold rounded-xl transition-all cursor-pointer ${isCurrentTarget
-                  ? "group bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-rose-500/10 hover:border-rose-500/40 hover:text-rose-400"
-                  : "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20"
+                  ? "group bg-[var(--status-success)]/10 text-[var(--status-success)] border border-[var(--status-success)]/30 hover:bg-[var(--status-danger)]/10 hover:border-[var(--status-danger)]/40 hover:text-[var(--status-danger)]"
+                  : "bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)]"
                 }`}
             >
               {isCurrentTarget ? (
@@ -328,14 +328,14 @@ export function CompanyKitWorkspace({
       </div>
 
       {/* ─── Timeframe Filter Pills ──────────────────────────────────── */}
-      <div className="flex items-center gap-2 p-1 rounded-xl bg-[#11131A] border border-white/[0.07] w-fit">
+      <div className="flex items-center gap-2 p-1 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] w-fit">
         {TIMEFRAMES.map((tf) => (
           <button
             key={tf.id}
             onClick={() => setTimeframe(tf.id)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${timeframe === tf.id
-                ? "bg-[#181C26] text-white border border-blue-500/40 shadow-sm font-semibold"
-                : "text-[#7A808C] hover:text-white"
+                ? "bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--accent-text)]/35 shadow-sm font-semibold"
+                : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
               }`}
           >
             {tf.label}
@@ -364,14 +364,14 @@ export function CompanyKitWorkspace({
         {rawQuestions.length > HIGH_YIELD_CAP && (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-zinc-400 font-mono">Curated Scope:</span>
-              <div className="flex items-center p-0.5 rounded-lg bg-[#11131A] border border-white/[0.07] text-xs">
+              <span className="text-[11px] text-[var(--text-secondary)] font-mono">Curated Scope:</span>
+              <div className="flex items-center p-0.5 rounded-lg bg-[var(--surface)] border border-[var(--border-subtle)] text-xs">
                 <button
                   type="button"
                   onClick={() => setScopeMode("TOP_200")}
                   className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${scopeMode === "TOP_200"
-                      ? "bg-[#FFA116]/15 text-[#FFA116] border border-[#FFA116]/30 font-semibold shadow-sm"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-[var(--status-warning)]/15 text-[var(--status-warning)] border border-[var(--status-warning)]/30 font-semibold shadow-sm"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                 >
                   ⭐ Top 200 High-Yield (Recommended)
@@ -380,15 +380,15 @@ export function CompanyKitWorkspace({
                   type="button"
                   onClick={() => setScopeMode("ALL")}
                   className={`px-3 py-1 rounded-md transition-all font-medium cursor-pointer ${scopeMode === "ALL"
-                      ? "bg-zinc-800 text-white font-semibold shadow-sm"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-[var(--surface-selected)] text-[var(--text-primary)] font-semibold shadow-sm"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                 >
                   All {rawQuestions.length} Questions
                 </button>
               </div>
             </div>
-            <span className="text-[10px] text-zinc-500 font-mono">
+            <span className="text-[10px] text-[var(--text-muted)] font-mono">
               Filtered by frequency & ask-rate popularity
             </span>
           </div>
@@ -397,33 +397,33 @@ export function CompanyKitWorkspace({
         {/* Live Filter Range & Page Summary */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-1 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-zinc-400 text-[11px]">
-              Showing <strong className="text-white font-semibold">{totalItems > 0 ? startIndex + 1 : 0}–{endIndex}</strong> of{" "}
-              <strong className="text-white font-semibold">{totalItems.toLocaleString()}</strong> questions
+            <span className="font-mono text-[var(--text-secondary)] text-[11px]">
+              Showing <strong className="text-[var(--text-primary)] font-semibold">{totalItems > 0 ? startIndex + 1 : 0}–{endIndex}</strong> of{" "}
+              <strong className="text-[var(--text-primary)] font-semibold">{totalItems.toLocaleString()}</strong> questions
               {scopeMode === "TOP_200" && rawQuestions.length > HIGH_YIELD_CAP && (
-                <span className="text-[#FFA116] ml-1.5 font-medium">(Top 200 High-Yield)</span>
+                <span className="text-[var(--status-warning)] ml-1.5 font-medium">(Top 200 High-Yield)</span>
               )}
             </span>
           </div>
           {totalPages > 1 && (
-            <span className="font-mono text-zinc-400 text-[11px]">
-              Page <strong className="text-white font-semibold">{safeCurrentPage}</strong> of{" "}
-              <strong className="text-white font-semibold">{totalPages}</strong>
+            <span className="font-mono text-[var(--text-secondary)] text-[11px]">
+              Page <strong className="text-[var(--text-primary)] font-semibold">{safeCurrentPage}</strong> of{" "}
+              <strong className="text-[var(--text-primary)] font-semibold">{totalPages}</strong>
             </span>
           )}
         </div>
 
         {/* Table Filters Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-xl bg-[#11131A] border border-white/[0.07]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)]">
           {/* Search bar */}
           <div className="relative flex-1 max-w-sm">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-500" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[var(--text-muted)]" />
             <input
               type="text"
               placeholder={`Search ${companyName} questions or topics...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-100 placeholder:text-slate-500 focus:border-blue-500/60 outline-none font-sans"
+              className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--action-primary)] outline-none font-sans"
             />
           </div>
 
@@ -433,7 +433,7 @@ export function CompanyKitWorkspace({
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="h-8 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-200 px-2.5 outline-none font-mono"
+              className="h-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] px-2.5 outline-none font-mono"
             >
               <option value="ALL">All Difficulties</option>
               <option value="EASY">Easy</option>
@@ -445,7 +445,7 @@ export function CompanyKitWorkspace({
             <select
               value={selectedPopularity}
               onChange={(e) => setSelectedPopularity(e.target.value)}
-              className="h-8 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-200 px-2.5 outline-none font-mono"
+              className="h-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] px-2.5 outline-none font-mono"
             >
               <option value="ALL">All Ask Rates</option>
               <option value="VERY_HOT">🔥 Very Hot Only</option>
@@ -456,7 +456,7 @@ export function CompanyKitWorkspace({
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value as any)}
-              className="h-8 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-200 px-2.5 outline-none font-mono"
+              className="h-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] px-2.5 outline-none font-mono"
             >
               <option value="ALL">All Status</option>
               <option value="SOLVED">Solved</option>
@@ -468,7 +468,7 @@ export function CompanyKitWorkspace({
               <select
                 value={selectedTopic}
                 onChange={(e) => setSelectedTopic(e.target.value)}
-                className="h-8 rounded-lg bg-[#1A1D27] border border-white/[0.12] text-xs text-slate-200 px-2.5 outline-none font-mono max-w-[140px]"
+                className="h-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] px-2.5 outline-none font-mono max-w-[140px]"
               >
                 <option value="ALL">All Topics</option>
                 {availableTopics.map((t) => (
@@ -488,7 +488,7 @@ export function CompanyKitWorkspace({
                   setSelectedPopularity("ALL");
                   setSelectedStatus("ALL");
                 }}
-                className="text-[11px] text-zinc-400 hover:text-white flex items-center gap-1 px-2 py-1"
+                className="text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 px-2 py-1 cursor-pointer"
                 title="Reset filters"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -500,18 +500,18 @@ export function CompanyKitWorkspace({
 
         {/* Table Rows */}
         {isLoading ? (
-          <div className="p-12 text-center rounded-2xl bg-[#11131A] border border-white/[0.07] text-xs text-zinc-400">
-            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+          <div className="p-12 text-center rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
+            <div className="w-6 h-6 border-2 border-[var(--action-primary)] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             Loading {companyName} curated technical loop problems...
           </div>
         ) : filteredQuestions.length === 0 ? (
-          <div className="p-12 text-center rounded-2xl bg-[#11131A] border border-white/[0.07] text-xs text-zinc-400">
+          <div className="p-12 text-center rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
             No questions found matching your filter criteria.
           </div>
         ) : (
-          <div className="rounded-2xl border border-white/[0.07] overflow-x-auto bg-[#0D0E12]">
+          <div className="rounded-2xl border border-[var(--border-subtle)] overflow-x-auto bg-[var(--surface)]">
             <table className="w-full text-left text-xs min-w-[620px]">
-              <thead className="bg-[#1A1D27]/90 border-b border-white/[0.07] text-slate-400 font-mono text-[11px]">
+              <thead className="bg-[var(--surface-muted)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] font-mono text-[11px]">
                 <tr>
                   <th className="p-3.5 w-10 text-center">Status</th>
                   <th className="p-3.5">Problem Title</th>
@@ -521,7 +521,7 @@ export function CompanyKitWorkspace({
                   <th className="p-3.5 w-28 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--border-subtle)]">
                 {paginatedQuestions.map((q) => {
                   const isSolved = Boolean(
                     solvedProblems[q.slug] || (q.nativeId && solvedProblems[String(q.nativeId)])
@@ -537,7 +537,7 @@ export function CompanyKitWorkspace({
                   return (
                     <tr
                       key={q.slug}
-                      className={`hover:bg-[#1A1D27]/50 transition-colors ${isSolved ? "bg-[#10B981]/[0.02]" : ""
+                      className={`hover:bg-[var(--surface-hover)] transition-colors ${isSolved ? "bg-[var(--status-success)]/[0.04]" : ""
                         }`}
                     >
                       {/* Solved Checkbox */}
@@ -546,11 +546,11 @@ export function CompanyKitWorkspace({
                           type="button"
                           onClick={(e) => onToggleSolved(q.slug, e, q.difficulty)}
                           className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors cursor-pointer ${isSolved
-                              ? "bg-emerald-500 border-emerald-500 text-black"
-                              : "border-zinc-700 bg-zinc-900/60 hover:border-zinc-500"
+                              ? "bg-[var(--status-success)] border-[var(--status-success)] text-white"
+                              : "border-[var(--border-control)] bg-[var(--surface-muted)] hover:border-[var(--text-muted)]"
                             }`}
                         >
-                          {isSolved && <CheckCircle2 className="w-3.5 h-3.5 text-black stroke-[3]" />}
+                          {isSolved && <CheckCircle2 className="w-3.5 h-3.5 text-white stroke-[3]" />}
                         </button>
                       </td>
 
@@ -561,17 +561,17 @@ export function CompanyKitWorkspace({
                             href={leetcodeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-medium text-white hover:text-[#FFA116] transition-colors flex items-center gap-1.5 group"
+                            className="font-medium text-[var(--text-primary)] hover:text-[var(--accent-text)] transition-colors flex items-center gap-1.5 group"
                           >
                             <span>{q.title}</span>
-                            <ExternalLink className="w-3 h-3 text-zinc-500 opacity-60 group-hover:opacity-100 group-hover:text-[#FFA116] transition-all" />
+                            <ExternalLink className="w-3 h-3 text-[var(--text-muted)] opacity-60 group-hover:opacity-100 group-hover:text-[var(--accent-text)] transition-all" />
                           </a>
                         </div>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {(q.topics || []).slice(0, 3).map((t) => (
                             <span
                               key={t}
-                              className="px-1.5 py-0.5 rounded bg-[#141722] text-[10px] font-mono text-zinc-400"
+                              className="px-1.5 py-0.5 rounded bg-[var(--surface-muted)] text-[10px] font-mono text-[var(--text-secondary)]"
                             >
                               {t}
                             </span>
@@ -579,13 +579,13 @@ export function CompanyKitWorkspace({
                         </div>
                       </td>
 
-                      {/* Sleek LeetCode Icon Pill (No text, clickable, visually appealing) */}
+                      {/* Sleek LeetCode Icon Pill */}
                       <td className="p-3.5 text-center">
                         <a
                           href={leetcodeUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[#141620] hover:bg-[#FFA116]/15 border border-[#232736] hover:border-[#FFA116]/50 transition-all shadow-sm group/lc cursor-pointer"
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--status-warning)]/15 border border-[var(--border-subtle)] hover:border-[var(--status-warning)]/50 transition-all shadow-sm group/lc cursor-pointer"
                           title="Open problem on LeetCode"
                         >
                           <img
@@ -600,10 +600,10 @@ export function CompanyKitWorkspace({
                       <td className="p-3.5 font-mono text-xs">
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${q.difficulty === "EASY"
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              ? "bg-[var(--status-success)]/10 text-[var(--status-success)] border border-[var(--status-success)]/25"
                               : q.difficulty === "MEDIUM"
-                                ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                                ? "bg-[var(--status-warning)]/10 text-[var(--status-warning)] border border-[var(--status-warning)]/25"
+                                : "bg-[var(--status-danger)]/10 text-[var(--status-danger)] border border-[var(--status-danger)]/25"
                             }`}
                         >
                           {q.difficulty}
@@ -613,15 +613,15 @@ export function CompanyKitWorkspace({
                       {/* Ask Rate / Popularity */}
                       <td className="p-3.5">
                         {isVeryHot ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[var(--status-danger)]/10 text-[var(--status-danger)] border border-[var(--status-danger)]/30">
                             <Flame className="w-3 h-3" /> Very Hot
                           </span>
                         ) : isHot ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[var(--status-warning)]/10 text-[var(--status-warning)] border border-[var(--status-warning)]/30">
                             ⚡ Frequent
                           </span>
                         ) : (
-                          <span className="text-[10px] font-mono text-zinc-500">
+                          <span className="text-[10px] font-mono text-[var(--text-muted)]">
                             Standard
                           </span>
                         )}
@@ -634,7 +634,7 @@ export function CompanyKitWorkspace({
                           <button
                             type="button"
                             onClick={() => onOpenNotes({ slug: q.slug, title: q.title })}
-                            className="p-1.5 rounded-lg border border-white/[0.07] text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                             title="Notes & Hints"
                           >
                             <NotebookPen className="w-3.5 h-3.5" />
@@ -645,8 +645,8 @@ export function CompanyKitWorkspace({
                             type="button"
                             onClick={() => onToggleBookmark(q.slug, q.title, q.difficulty)}
                             className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${isSaved
-                                ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
-                                : "border-white/[0.07] text-zinc-400 hover:text-white hover:border-zinc-700"
+                                ? "bg-[var(--status-warning)]/10 border-[var(--status-warning)]/30 text-[var(--status-warning)]"
+                                : "border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)]"
                               }`}
                             title="Bookmark for Revision"
                           >
@@ -658,7 +658,7 @@ export function CompanyKitWorkspace({
                             href={leetcodeUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#6366F1] to-[#3B82F6] hover:from-[#4F46E5] hover:to-[#2563EB] border border-white/10 text-white shadow-sm shadow-indigo-500/15 text-[11px] font-semibold transition-all flex items-center gap-1.5 shadow-sm shadow-[#FFA116]/5 group cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-lg bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-[11px] font-semibold transition-all flex items-center gap-1.5 group cursor-pointer"
                             title="Solve on LeetCode"
                           >
                             <span>Solve</span>
@@ -673,15 +673,15 @@ export function CompanyKitWorkspace({
             </table>
 
             {/* ─── Pagination Bar ─── */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 border-t border-white/[0.07] bg-[#11131A] text-xs text-zinc-400">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)] text-xs text-[var(--text-secondary)]">
               {/* Range & Page Size */}
               <div className="flex items-center gap-3 flex-wrap">
                 <span className="font-mono text-[11px]">
-                  Showing <strong className="text-white">{totalItems > 0 ? startIndex + 1 : 0}–{endIndex}</strong> of{" "}
-                  <strong className="text-white">{totalItems.toLocaleString()}</strong> questions
+                  Showing <strong className="text-[var(--text-primary)]">{totalItems > 0 ? startIndex + 1 : 0}–{endIndex}</strong> of{" "}
+                  <strong className="text-[var(--text-primary)]">{totalItems.toLocaleString()}</strong> questions
                 </span>
                 <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                  <span className="text-zinc-500">Per page:</span>
+                  <span className="text-[var(--text-muted)]">Per page:</span>
                   {[25, 50, 100].map((size) => (
                     <button
                       key={size}
@@ -692,8 +692,8 @@ export function CompanyKitWorkspace({
                       }}
                       className={`px-2 py-0.5 rounded text-[11px] font-mono transition-all cursor-pointer ${
                         pageSize === size
-                          ? "bg-blue-600 text-white font-bold"
-                          : "bg-[#1A1D27] text-zinc-400 hover:text-white hover:bg-zinc-800 border border-white/[0.07]"
+                          ? "bg-[var(--action-primary)] text-[var(--on-primary)] font-bold"
+                          : "bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)]"
                       }`}
                     >
                       {size}
@@ -710,7 +710,7 @@ export function CompanyKitWorkspace({
                     type="button"
                     onClick={() => handlePageChange(1)}
                     disabled={safeCurrentPage === 1}
-                    className="p-1.5 rounded-lg border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
                     title="First Page"
                   >
                     <ChevronsLeft className="w-3.5 h-3.5" />
@@ -721,7 +721,7 @@ export function CompanyKitWorkspace({
                     type="button"
                     onClick={() => handlePageChange(safeCurrentPage - 1)}
                     disabled={safeCurrentPage === 1}
-                    className="px-2.5 py-1 rounded-lg border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer font-mono text-[11px]"
+                    className="px-2.5 py-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer font-mono text-[11px]"
                     title="Previous Page"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
@@ -732,7 +732,7 @@ export function CompanyKitWorkspace({
                   <div className="flex items-center gap-1">
                     {pageNumbers.map((p, idx) =>
                       p === "..." ? (
-                        <span key={`dots-${idx}`} className="px-1 text-zinc-500 font-mono text-xs">
+                        <span key={`dots-${idx}`} className="px-1 text-[var(--text-muted)] font-mono text-xs">
                           …
                         </span>
                       ) : (
@@ -742,8 +742,8 @@ export function CompanyKitWorkspace({
                           onClick={() => handlePageChange(p as number)}
                           className={`min-w-7 h-7 px-1.5 rounded-lg text-[11px] font-mono transition-all cursor-pointer flex items-center justify-center ${
                             safeCurrentPage === p
-                              ? "bg-blue-600 text-white font-bold shadow-sm shadow-blue-500/20"
-                              : "border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white hover:bg-zinc-800"
+                              ? "bg-[var(--action-primary)] text-[var(--on-primary)] font-bold shadow-sm"
+                              : "border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                           }`}
                         >
                           {p}
@@ -757,7 +757,7 @@ export function CompanyKitWorkspace({
                     type="button"
                     onClick={() => handlePageChange(safeCurrentPage + 1)}
                     disabled={safeCurrentPage === totalPages}
-                    className="px-2.5 py-1 rounded-lg border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer font-mono text-[11px]"
+                    className="px-2.5 py-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] disabled:opacity-30 disabled:pointer-events-none transition-colors flex items-center gap-1 cursor-pointer font-mono text-[11px]"
                     title="Next Page"
                   >
                     <span className="hidden sm:inline">Next</span>
@@ -769,7 +769,7 @@ export function CompanyKitWorkspace({
                     type="button"
                     onClick={() => handlePageChange(totalPages)}
                     disabled={safeCurrentPage === totalPages}
-                    className="p-1.5 rounded-lg border border-white/[0.07] bg-[#1A1D27] text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
                     title="Last Page"
                   >
                     <ChevronsRight className="w-3.5 h-3.5" />

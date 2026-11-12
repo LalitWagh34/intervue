@@ -165,9 +165,9 @@ export function TargetCompanyTracker() {
 
   if (isLoading) {
     return (
-      <div className="p-5 rounded-2xl bg-[#0D0F14] border border-zinc-800/70 animate-pulse space-y-3">
-        <div className="h-5 bg-zinc-800/60 rounded w-1/4" />
-        <div className="h-24 bg-zinc-800/40 rounded-xl" />
+      <div className="p-5 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] animate-pulse space-y-3">
+        <div className="h-5 bg-[var(--surface-muted)] rounded w-1/4" />
+        <div className="h-24 bg-[var(--surface-muted)] rounded-xl" />
       </div>
     );
   }
@@ -190,28 +190,28 @@ export function TargetCompanyTracker() {
   );
 
   return (
-    <div className="p-5 md:p-6 rounded-2xl bg-[#0C0E14] border border-zinc-800/80 shadow-xl space-y-6">
+    <div className="space-y-6">
       {/* ─── Header: Target Selection & Management ───────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/70 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-subtle)] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <span className="text-[11px] font-mono uppercase tracking-wider text-blue-400 font-semibold">
+            <span className="w-2 h-2 rounded-full bg-[var(--action-primary)]" />
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--accent-text)] font-semibold">
               Interview Target Tracker
             </span>
           </div>
-          <h3 className="text-base font-bold text-white tracking-tight flex items-center gap-2 flex-wrap">
-            <span>Target Company Readiness</span>
+          <h3 className="text-base font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-2 flex-wrap">
+            <span>Target Company Coverage</span>
             {hasTarget && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30 font-mono shrink-0">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--border-subtle)] font-mono shrink-0">
                 {selectedCompanies.length} Active {selectedCompanies.length === 1 ? "Target" : "Targets"}
               </span>
             )}
           </h3>
-          <p className="text-xs text-zinc-400 mt-0.5">
+          <p className="text-xs text-[var(--text-secondary)] mt-0.5">
             {hasTarget
-              ? "Daily problem challenges and interview loop coverage for your target companies"
-              : "Select one or more companies you are interviewing with to activate daily loop challenges"}
+              ? "Daily problem challenges and preparation coverage for your target companies"
+              : "Select one or more companies you are interviewing with to activate daily practice challenges"}
           </p>
         </div>
 
@@ -220,7 +220,7 @@ export function TargetCompanyTracker() {
           {hasTarget && (
             <Link
               to={`/practice?view=company_kits`}
-              className="flex-1 md:flex-initial justify-center flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 hover:text-blue-300 border border-blue-500/30 text-xs font-semibold transition-all cursor-pointer shadow-sm whitespace-nowrap"
+              className="flex-1 md:flex-initial justify-center flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface-selected)] hover:opacity-90 text-[var(--accent-text)] border border-[var(--border-subtle)] text-xs font-semibold transition-all cursor-pointer whitespace-nowrap"
               title="Open Company Prep Kits"
             >
               <Building2 className="w-3.5 h-3.5 shrink-0" />
@@ -233,22 +233,22 @@ export function TargetCompanyTracker() {
             <button
               type="button"
               onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="w-full md:w-auto justify-center flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#12151D] border border-zinc-700/80 hover:border-zinc-600 text-xs text-zinc-200 transition-all cursor-pointer font-medium shadow-sm whitespace-nowrap"
+              className="w-full md:w-auto justify-center flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] text-xs text-[var(--text-primary)] transition-all cursor-pointer font-medium whitespace-nowrap"
             >
-              <Target className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <Target className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0" />
               <span>{hasTarget ? "Manage Targets" : "Select Targets"}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+              <ChevronDown className="w-3.5 h-3.5 text-[var(--text-secondary)] shrink-0" />
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#12151E] border border-zinc-700/90 shadow-2xl p-2.5 z-50 space-y-2 animate-in fade-in zoom-in-95 duration-100">
-                <div className="flex items-center justify-between px-1 pb-1 border-b border-zinc-800">
-                  <span className="text-xs font-semibold text-white">Target Companies</span>
+              <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-2xl p-2.5 z-50 space-y-2 animate-in fade-in zoom-in-95 duration-100">
+                <div className="flex items-center justify-between px-1 pb-1 border-b border-[var(--border-subtle)]">
+                  <span className="text-xs font-semibold text-[var(--text-primary)]">Target Companies</span>
                   {selectedCompanies.length > 0 && (
                     <button
                       type="button"
                       onClick={handleClearAll}
-                      className="text-[11px] text-rose-400 hover:text-rose-300 font-mono transition-colors flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] text-[var(--status-danger)] hover:opacity-80 font-mono transition-opacity flex items-center gap-1 cursor-pointer"
                     >
                       <Trash2 className="w-3 h-3" />
                       <span>Clear All</span>
@@ -258,20 +258,20 @@ export function TargetCompanyTracker() {
 
                 {/* Search input */}
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
+                  <Search className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-3 top-2.5" />
                   <input
                     type="text"
                     value={searchFilter}
                     onChange={(e) => setSearchFilter(e.target.value)}
                     placeholder="Search company (e.g. Google, Amazon)..."
-                    className="w-full pl-8 pr-2.5 py-1.5 rounded-xl bg-[#090B10] border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-blue-500 font-sans"
+                    className="w-full pl-8 pr-2.5 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--action-primary)] font-sans"
                     autoFocus
                   />
                 </div>
 
                 <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar pt-1">
                   {filteredAvailable.length === 0 ? (
-                    <div className="text-[11px] text-zinc-500 py-3 text-center">
+                    <div className="text-[11px] text-[var(--text-muted)] py-3 text-center">
                       No matching companies found
                     </div>
                   ) : (
@@ -285,10 +285,10 @@ export function TargetCompanyTracker() {
                           key={comp.slug}
                           type="button"
                           onClick={() => handleToggleCompany(comp.name)}
-                          className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors cursor-pointer ${
+                          className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs transition-colors cursor-pointer ${
                             isSelected
-                              ? "bg-blue-600/20 text-white border border-blue-500/40 font-medium"
-                              : "text-zinc-300 hover:bg-zinc-800/60 hover:text-white"
+                              ? "bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--border-subtle)] font-medium"
+                              : "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
                           }`}
                         >
                           <span className="flex items-center gap-2.5 min-w-0">
@@ -299,13 +299,13 @@ export function TargetCompanyTracker() {
                                 className="w-4 h-4 object-contain shrink-0"
                               />
                             ) : (
-                              <span className="w-4 text-center text-zinc-400 font-mono text-[10px] shrink-0">
+                              <span className="w-4 text-center text-[var(--text-muted)] font-mono text-[10px] shrink-0">
                                 {comp.icon || comp.name.slice(0, 1)}
                               </span>
                             )}
                             <span className="truncate">{comp.name}</span>
                           </span>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-blue-400 shrink-0 ml-1" />}
+                          {isSelected && <Check className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0 ml-1" />}
                         </button>
                       );
                     })
@@ -320,24 +320,24 @@ export function TargetCompanyTracker() {
       {/* ─── Selected Companies Chip Rail ────────────────────────────── */}
       {hasTarget ? (
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-zinc-400 font-mono">Targeting:</span>
+          <span className="text-xs text-[var(--text-secondary)] font-mono">Targeting:</span>
           {selectedCompanies.map((c) => {
             const logo = getCompanyLogo(c);
             return (
               <span
                 key={c}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#141722] border border-[#222736] text-xs font-medium text-white shadow-sm group"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] group"
               >
                 {logo ? (
                   <img src={logo} alt="" className="w-3.5 h-3.5 object-contain" />
                 ) : (
-                  <Building2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <Building2 className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                 )}
                 <span>{c}</span>
                 <button
                   type="button"
                   onClick={(e) => handleRemoveCompany(c, e)}
-                  className="w-4 h-4 rounded-full flex items-center justify-center text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors ml-0.5 cursor-pointer"
+                  className="w-4 h-4 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--status-danger)] hover:bg-[var(--status-danger-subtle)] transition-colors ml-0.5 cursor-pointer"
                   title={`Remove ${c}`}
                 >
                   <X className="w-3 h-3" />
@@ -348,14 +348,14 @@ export function TargetCompanyTracker() {
         </div>
       ) : (
         /* Empty State Prompt: Quick-Select Presets */
-        <div className="p-4 rounded-2xl bg-[#090B10] border border-[#181C26] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[var(--surface-selected)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-text)] shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-white">No Target Company Selected</p>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-xs font-semibold text-[var(--text-primary)]">No Target Company Selected</p>
+              <p className="text-[11px] text-[var(--text-secondary)]">
                 Click a company below to start receiving daily targeted interview problems!
               </p>
             </div>
@@ -369,7 +369,7 @@ export function TargetCompanyTracker() {
                   key={name}
                   type="button"
                   onClick={() => handleToggleCompany(name)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#141722] hover:bg-blue-600/15 border border-[#222736] hover:border-blue-500/40 text-xs font-medium text-zinc-300 hover:text-white transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-selected)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] text-xs font-medium text-[var(--text-primary)] transition-all cursor-pointer"
                 >
                   {logo && <img src={logo} alt="" className="w-3.5 h-3.5 object-contain" />}
                   <span>+ {name}</span>
@@ -382,29 +382,29 @@ export function TargetCompanyTracker() {
 
       {/* ─── Daily Target Problem Set (POTD-style) ────────────────────── */}
       {hasTarget && (
-        <div className="space-y-3 p-4 md:p-5 rounded-2xl bg-[#08090E] border border-[#1A1E2C] shadow-inner">
+        <div className="space-y-3 p-4 md:p-5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#FFA116]/10 border border-[#FFA116]/30 flex items-center justify-center text-[#FFA116]">
+              <div className="w-8 h-8 rounded-xl bg-[var(--status-warning-subtle)] border border-[var(--status-warning)]/30 flex items-center justify-center text-[var(--status-warning)]">
                 <Flame className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="text-sm font-bold text-white tracking-tight">
+                  <h4 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">
                     Today's Target Company Challenges
                   </h4>
                   {isDailyComplete ? (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shrink-0">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-[var(--status-success)]/30 flex items-center gap-1 shrink-0">
                       <CheckCircle2 className="w-3 h-3" />
                       <span>Complete!</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30 shrink-0">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--border-subtle)] shrink-0">
                       {dailySolvedCount} of {dailyProblems.length} solved
                     </span>
                   )}
                 </div>
-                <p className="text-[11px] text-zinc-400 mt-0.5">
+                <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                   Curated daily technical questions matching your selected target companies
                 </p>
               </div>
@@ -412,31 +412,31 @@ export function TargetCompanyTracker() {
 
             {/* Daily Goal Configurator */}
             <div className="flex items-center gap-1.5 text-xs self-start sm:self-auto">
-              <span className="text-zinc-500 font-mono text-[11px]">Daily Goal:</span>
-              <div className="flex items-center p-0.5 rounded-xl bg-[#12151E] border border-zinc-800 text-[11px] font-mono">
+              <span className="text-[var(--text-muted)] font-mono text-[11px]">Daily Goal:</span>
+              <div className="flex items-center p-0.5 rounded-lg bg-[var(--surface)] border border-[var(--border-subtle)] text-[11px] font-mono">
                 {[1, 2, 3, 5].map((count) => (
                   <button
                     key={count}
                     type="button"
                     onClick={() => handleSetGoal(count)}
-                    className={`px-2 py-0.5 rounded-lg transition-all font-semibold cursor-pointer ${
+                    className={`px-2 py-0.5 rounded-md transition-all font-semibold cursor-pointer ${
                       dailyGoal === count
-                        ? "bg-[#FFA116]/20 text-[#FFA116] border border-[#FFA116]/40 shadow-sm"
-                        : "text-zinc-400 hover:text-white"
+                        ? "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border border-[var(--status-warning)]/40"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     {count}
                   </button>
                 ))}
               </div>
-              <span className="text-zinc-500 font-mono text-[11px]">/ day</span>
+              <span className="text-[var(--text-muted)] font-mono text-[11px]">/ day</span>
             </div>
           </div>
 
           {/* Daily Problem List */}
           <div className="space-y-2 pt-1">
             {dailyProblems.length === 0 ? (
-              <div className="p-4 text-center rounded-xl bg-[#0D0F16] border border-zinc-800 text-xs text-zinc-400">
+              <div className="p-4 text-center rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
                 No active problems found. Try selecting another target company.
               </div>
             ) : (
@@ -448,8 +448,8 @@ export function TargetCompanyTracker() {
                     key={p.slug}
                     className={`p-3 sm:p-3.5 rounded-xl border transition-all flex items-center justify-between gap-2.5 sm:gap-3 ${
                       isSolved
-                        ? "bg-emerald-500/[0.03] border-emerald-500/25"
-                        : "bg-[#0E1118] border-[#1E2333] hover:border-zinc-700"
+                        ? "bg-[var(--status-success-subtle)]/40 border-[var(--status-success)]/30"
+                        : "bg-[var(--surface)] border-[var(--border-subtle)] hover:border-[var(--border-control)]"
                     }`}
                   >
                     <div className="flex items-center sm:items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
@@ -459,36 +459,36 @@ export function TargetCompanyTracker() {
                         onClick={(e) => handleToggleSolved(p.slug, p.difficulty, e)}
                         className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors cursor-pointer ${
                           isSolved
-                            ? "bg-emerald-500 border-emerald-500 text-black shadow-sm"
-                            : "border-zinc-700 bg-zinc-900/60 hover:border-zinc-500"
+                            ? "bg-[var(--status-success)] border-[var(--status-success)] text-[var(--on-primary)]"
+                            : "border-[var(--border-control)] bg-[var(--surface-muted)] hover:border-[var(--action-primary)]"
                         }`}
                         title={isSolved ? "Mark unsolved" : "Mark as solved"}
                       >
-                        {isSolved && <CheckCircle2 className="w-3.5 h-3.5 text-black stroke-[3]" />}
+                        {isSolved && <CheckCircle2 className="w-3.5 h-3.5 stroke-[3]" />}
                       </button>
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-0.5 sm:mb-1">
                           {/* Difficulty pill */}
                           <span
-                            className={`text-[9px] font-mono font-semibold px-1.5 py-0.2 rounded border ${
+                            className={`text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border ${
                               p.difficulty === "EASY"
-                                ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/10"
+                                ? "text-[var(--status-success)] border-[var(--status-success)]/30 bg-[var(--status-success-subtle)]"
                                 : p.difficulty === "MEDIUM"
-                                ? "text-amber-400 border-amber-500/20 bg-amber-500/10"
-                                : "text-rose-400 border-rose-500/20 bg-rose-500/10"
+                                ? "text-[var(--status-warning)] border-[var(--status-warning)]/30 bg-[var(--status-warning-subtle)]"
+                                : "text-[var(--status-danger)] border-[var(--status-danger)]/30 bg-[var(--status-danger-subtle)]"
                             }`}
                           >
                             {p.difficulty}
                           </span>
 
-                          {/* Selected Target Company Badges (Displays all companies that ask this problem!) */}
+                          {/* Selected Target Company Badges */}
                           {(p.matchingTargetCompanies || []).map((compName) => {
                             const logo = getCompanyLogo(compName);
                             return (
                               <span
                                 key={compName}
-                                className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-[#161A26] border border-[#262B3E] text-[10px] font-mono text-zinc-300"
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-[10px] font-mono text-[var(--text-secondary)]"
                               >
                                 {logo && (
                                   <img
@@ -508,7 +508,7 @@ export function TargetCompanyTracker() {
                           href={leetcodeUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs sm:text-sm font-semibold text-white hover:text-[#FFA116] transition-colors truncate block"
+                          className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] hover:text-[var(--accent-text)] transition-colors truncate block"
                         >
                           {p.title}
                         </a>
@@ -521,7 +521,7 @@ export function TargetCompanyTracker() {
                         href={leetcodeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#FFA116]/10 hover:bg-[#FFA116]/20 border border-[#FFA116]/30 hover:border-[#FFA116]/50 text-[#FFA116] text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-all shadow-sm group/lc cursor-pointer"
+                        className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-[var(--status-warning-subtle)] hover:opacity-90 border border-[var(--status-warning)]/30 text-[var(--status-warning)] text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-all group/lc cursor-pointer"
                         title="Solve on LeetCode"
                       >
                         <img
@@ -543,14 +543,14 @@ export function TargetCompanyTracker() {
 
       {/* ─── Overall Target Coverage & Breakdown ─────────────────────── */}
       {hasTarget && (
-        <div className="space-y-3 pt-1 border-t border-zinc-800/70">
+        <div className="space-y-3 pt-3 border-t border-[var(--border-subtle)]">
           <div className="flex items-end justify-between text-xs">
             <div>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-black font-mono text-white tracking-tight">
+                <span className="text-2xl font-black font-mono text-[var(--text-primary)] tracking-tight tabular-nums">
                   {percentage}%
                 </span>
-                <span className="text-xs text-zinc-400 font-medium">
+                <span className="text-xs text-[var(--text-secondary)] font-medium">
                   {percentage >= 70
                     ? "Loop Ready"
                     : percentage >= 40
@@ -558,48 +558,48 @@ export function TargetCompanyTracker() {
                     : "Building Foundations"}
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-500 font-mono mt-0.5">
+              <p className="text-[11px] text-[var(--text-muted)] font-mono mt-0.5 tabular-nums">
                 {solved} of {total} total tracked questions completed
               </p>
             </div>
           </div>
 
           {/* Progress bar */}
-          <div className="w-full h-2 rounded-full bg-zinc-800/80 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full transition-all duration-700 ease-out"
+              className="h-full bg-[var(--action-primary)] rounded-full transition-all duration-700 ease-out"
               style={{ width: `${percentage}%` }}
             />
           </div>
 
           {/* Difficulty breakdown pills */}
-          <div className="grid grid-cols-3 gap-2.5 pt-1 text-xs font-mono">
-            <div className="p-2.5 rounded-xl bg-[#090B10] border border-[#181A20] flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-emerald-400 text-[11px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <div className="grid grid-cols-3 gap-2.5 pt-1 text-xs font-mono tabular-nums">
+            <div className="p-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[var(--status-success)] text-[11px]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-success)]" />
                 Easy
               </span>
-              <span className="text-zinc-300 text-[11px]">
+              <span className="text-[var(--text-primary)] text-[11px]">
                 {breakdown.easy.solved} / {breakdown.easy.total}
               </span>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-[#090B10] border border-[#181A20] flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-amber-400 text-[11px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <div className="p-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[var(--status-warning)] text-[11px]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-warning)]" />
                 Med
               </span>
-              <span className="text-zinc-300 text-[11px]">
+              <span className="text-[var(--text-primary)] text-[11px]">
                 {breakdown.medium.solved} / {breakdown.medium.total}
               </span>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-[#090B10] border border-[#181A20] flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-rose-400 text-[11px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+            <div className="p-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[var(--status-danger)] text-[11px]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-danger)]" />
                 Hard
               </span>
-              <span className="text-zinc-300 text-[11px]">
+              <span className="text-[var(--text-primary)] text-[11px]">
                 {breakdown.hard.solved} / {breakdown.hard.total}
               </span>
             </div>

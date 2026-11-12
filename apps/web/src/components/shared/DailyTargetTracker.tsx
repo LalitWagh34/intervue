@@ -63,7 +63,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
   return (
     <div
       className={cn(
-        "rounded-2xl bg-[#11131A] border border-white/[0.07] p-5 sm:p-6 shadow-sm space-y-4",
+        "rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] p-5 sm:p-6 shadow-sm space-y-4",
         className
       )}
     >
@@ -71,14 +71,14 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#327CF6]/15 border border-[#327CF6]/30 flex items-center justify-center text-[#327CF6]">
+            <div className="w-8 h-8 rounded-xl bg-[var(--surface-selected)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-text)]">
               <Target className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
                 Track Daily Targets
                 {isAllDone && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-[var(--status-success)]/30 flex items-center gap-1">
                     <Sparkles className="w-3 h-3" />
                     All Completed!
                   </span>
@@ -86,27 +86,27 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
               </h3>
             </div>
           </div>
-          <p className="text-xs text-slate-400">
-            Set daily focus goals. 
+          <p className="text-xs text-[var(--text-secondary)]">
+            Set daily focus goals.
           </p>
         </div>
 
         {/* Counter Pill */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <div className="px-3 py-1.5 rounded-xl bg-[#0D0E12] border border-[#181A20] flex items-center gap-2 font-mono text-xs">
-            <span className="text-slate-400">Progress:</span>
-            <span className="text-white font-bold">
+          <div className="px-3 py-1.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] flex items-center gap-2 font-mono text-xs tabular-nums">
+            <span className="text-[var(--text-secondary)]">Progress:</span>
+            <span className="text-[var(--text-primary)] font-bold">
               {completedCount}/{totalCount}
             </span>
-            <span className="text-zinc-600">•</span>
+            <span className="text-[var(--text-muted)]">•</span>
             <span
               className={cn(
                 "font-bold",
                 progressPercent === 100
-                  ? "text-emerald-400"
+                  ? "text-[var(--status-success)]"
                   : progressPercent > 50
-                  ? "text-[#327CF6]"
-                  : "text-amber-400"
+                  ? "text-[var(--accent-text)]"
+                  : "text-[var(--status-warning)]"
               )}
             >
               {progressPercent}%
@@ -116,13 +116,13 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full h-2 rounded-full bg-[#181A20] overflow-hidden">
+      <div className="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500 ease-out",
             progressPercent === 100
-              ? "bg-gradient-to-r from-emerald-500 to-teal-400"
-              : "bg-gradient-to-r from-[#2563EB] to-[#327CF6]"
+              ? "bg-[var(--status-success)]"
+              : "bg-[var(--action-primary)]"
           )}
           style={{ width: `${progressPercent}%` }}
         />
@@ -137,12 +137,12 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
             onChange={(e) => setInputTitle(e.target.value)}
             placeholder="Add new daily target (e.g. Solve 2 Trees problems)..."
             style={{ minWidth: 0, flex: 1 }}
-            className="min-w-0 flex-1 px-3.5 py-2.5 rounded-xl bg-[#1A1D27] border border-white/[0.12] focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/20 focus:outline-none text-xs sm:text-sm text-white placeholder:text-slate-500 transition-colors"
+            className="min-w-0 flex-1 px-3.5 py-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--accent-text)]/30 focus:outline-none text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors"
           />
           <button
             type="submit"
             style={{ flexShrink: 0 }}
-            className="shrink-0 flex-shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#3B82F6] hover:from-[#4F46E5] hover:to-[#2563EB] text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-indigo-500/20 cursor-pointer"
+            className="shrink-0 flex-shrink-0 px-4 py-2.5 rounded-lg bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Target</span>
@@ -151,17 +151,17 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
 
         {/* Category Pill selector */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-[11px] text-slate-500 font-mono mr-1">Category:</span>
+          <span className="text-[11px] text-[var(--text-muted)] font-mono mr-1">Category:</span>
           {(["DSA", "System Design", "Core CS", "Behavioral", "General"] as const).map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
               className={cn(
-                "px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors cursor-pointer",
+                "px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors cursor-pointer border",
                 selectedCategory === cat
-                  ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-semibold shadow-sm"
-                  : "bg-[#1A1D27] text-slate-400 hover:text-white border border-white/[0.08]"
+                  ? "bg-[var(--surface-selected)] text-[var(--accent-text)] border-[var(--action-primary)]/40 font-semibold"
+                  : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border-[var(--border-subtle)]"
               )}
             >
               {cat}
@@ -200,9 +200,9 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
       </div> */}
 
       {/* Target Items List */}
-      <div className="space-y-2 pt-2 divide-y divide-[#181A20]/40">
+      <div className="space-y-2 pt-2 divide-y divide-[var(--border-subtle)] max-h-44 overflow-y-auto pr-1">
         {targets.length === 0 ? (
-          <div className="p-6 rounded-xl bg-[#0D0E12] border border-dashed border-[#181A20] text-center text-slate-500 text-xs">
+          <div className="p-6 rounded-xl bg-[var(--surface-muted)] border border-dashed border-[var(--border-subtle)] text-center text-[var(--text-muted)] text-xs">
             No daily targets set for today. Add your first goal above to start tracking!
           </div>
         ) : (
@@ -222,8 +222,8 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                   className={cn(
                     "w-5 h-5 rounded-lg border flex items-center justify-center transition-all shrink-0 cursor-pointer",
                     target.completed
-                      ? "bg-emerald-500 border-emerald-500 text-black shadow-sm shadow-emerald-500/20"
-                      : "border-[#262933] bg-[#0D0E12] hover:border-[#327CF6] text-transparent"
+                      ? "bg-[var(--status-success)] border-[var(--status-success)] text-[var(--on-primary)]"
+                      : "border-[var(--border-control)] bg-[var(--surface-muted)] hover:border-[var(--action-primary)] text-transparent"
                   )}
                   title={target.completed ? "Mark incomplete" : "Mark complete"}
                 >
@@ -240,20 +240,20 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                         if (e.key === "Enter") handleSaveEdit(target.id);
                         if (e.key === "Escape") setEditingId(null);
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-[#060709] border border-[#327CF6] text-xs text-white flex-1 focus:outline-none"
+                      className="px-2.5 py-1 rounded-lg bg-[var(--surface)] border border-[var(--action-primary)] text-xs text-[var(--text-primary)] flex-1 focus:outline-none"
                       autoFocus
                     />
                     <button
                       type="button"
                       onClick={() => handleSaveEdit(target.id)}
-                      className="p-1 text-emerald-400 hover:text-emerald-300 cursor-pointer"
+                      className="p-1 text-[var(--status-success)] cursor-pointer"
                     >
                       <Check className="w-3.5 h-3.5" />
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditingId(null)}
-                      className="p-1 text-slate-500 hover:text-zinc-300 cursor-pointer"
+                      className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -265,14 +265,14 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                       className={cn(
                         "text-xs sm:text-sm cursor-pointer transition-colors select-none truncate",
                         target.completed
-                          ? "line-through text-slate-500"
-                          : "text-zinc-200 group-hover:text-white"
+                          ? "line-through text-[var(--text-muted)]"
+                          : "text-[var(--text-primary)]"
                       )}
                     >
                       {target.title}
                     </span>
                     {target.category && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#181A20] text-zinc-400 shrink-0">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[var(--surface-muted)] text-[var(--text-secondary)] border border-[var(--border-subtle)] shrink-0">
                         {target.category}
                       </span>
                     )}
@@ -285,7 +285,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                 <button
                   type="button"
                   onClick={() => handleStartEdit(target)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-zinc-300 hover:bg-[#181A20] transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                   title="Edit target"
                 >
                   <Edit2 className="w-3 h-3" />
@@ -293,7 +293,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                 <button
                   type="button"
                   onClick={() => deleteTarget(target.id)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-[#181A20] transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--status-danger)] hover:bg-[var(--status-danger-subtle)] transition-colors cursor-pointer"
                   title="Delete target"
                 >
                   <Trash2 className="w-3 h-3" />
