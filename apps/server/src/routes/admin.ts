@@ -451,4 +451,250 @@ app.get("/submissions", async (c) => {
   return c.json({ submissions });
 });
 
+// ─── Learn & Revise Admin CMS ──────────────────────────────────────────
+// List subjects and modules for concept assignment dropdowns
+app.get("/learn/modules", async (c) => {
+  const subjects = await db.learnSubject.findMany({
+    orderBy: { orderIndex: "asc" },
+    include: {
+      modules: {
+        orderBy: { orderIndex: "asc" },
+      },
+    },
+  });
+  return c.json({ subjects });
+});
+
+// List all concepts with publication state and latest revision
+app.get("/learn/concepts", async (c) => {
+  const concepts = await db.learnConcept.findMany({
+    orderBy: [{ module: { orderIndex: "asc" } }, { orderIndex: "asc" }],
+    include: {
+      module: {
+        include: {
+          subject: { select: { id: true, title: true, slug: true } },
+        },
+      },
+      publishedRevision: true,
+      revisions: {
+        orderBy: { version: "desc" },
+        take: 1,
+      },
+    },
+  });
+  return c.json({ concepts });
+});
+
+// Get single concept with all revisions
+app.get("/learn/concepts/:id", async (c) => {
+  const id = c.req.param("id");
+  const concept = await db.learnConcept.findUnique({
+    where: { id },
+    include: {
+      module: {
+        include: {
+          subject: true,
+        },
+      },
+      publishedRevision: true,
+      revisions: {
+        orderBy: { version: "desc" },
+      },
+    },
+  });
+
+  if (!concept) return c.json({ error: "Concept not found" }, 404);
+  return c.json({ concept });
+});
+
+// Create a new concept with Revision v1
+app.post("/learn/concepts", async (c) => {
+  const user = c.get("user");
+  const body = await c.req.json();
+  const {
+    moduleId,
+    slug,
+    title,
+    summary,
+    quickRevisionMd,
+    deepDiveMd,
+    estimatedMinutes = 10,
+    difficulty = "FOUNDATION",
+    keyTakeaways = [],
+    commonMistakes = [],
+    orderIndex = 0,
+    autoPublish = false,
+  } = body;
+
+  if (!moduleId || !slug || !title) {
+    return c.json({ error: "moduleId, slug, and title are required" }, 400);
+  }
+
+  const existing = await db.learnConcept.findUnique({ where: { slug } });
+  if (existing) {
+    return c.json({ error: "A concept with this slug already exists" }, 409);
+  }
+
+  const status = autoPublish ? "PUBLISHED" : "DRAFT";
+  const publishedAt = autoPublish ? new Date() : null;
+
+  const concept = await db.$transaction(async (tx) => {
+    const newConcept = await tx.learnConcept.create({
+      data: {
+        moduleId,
+        slug,
+        orderIndex,
+      },
+    });
+
+    const revision = await tx.learnConceptRevision.create({
+      data: {
+        conceptId: newConcept.id,
+        version: 1,
+        status,
+        title,
+        summary: summary || "",
+        quickRevisionMd: quickRevisionMd || "",
+        deepDiveMd: deepDiveMd || "",
+        estimatedMinutes: Number(estimatedMinutes) || 10,
+        difficulty,
+        keyTakeaways: Array.isArray(keyTakeaways) ? keyTakeaways : [],
+        commonMistakes: Array.isArray(commonMistakes) ? commonMistakes : [],
+        authorId: user.id,
+        publishedAt,
+      },
+    });
+
+    if (autoPublish) {
+      return await tx.learnConcept.update({
+        where: { id: newConcept.id },
+        data: { publishedRevisionId: revision.id },
+        include: { publishedRevision: true, revisions: true },
+      });
+    }
+
+    return await tx.learnConcept.findUnique({
+      where: { id: newConcept.id },
+      include: { publishedRevision: true, revisions: true },
+    });
+  });
+
+  return c.json({ concept }, 201);
+});
+
+// Edit revision (or fork into new version if current is already published)
+app.patch("/learn/revisions/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.json();
+
+  const currentRevision = await db.learnConceptRevision.findUnique({
+    where: { id },
+  });
+
+  if (!currentRevision) {
+    return c.json({ error: "Revision not found" }, 404);
+  }
+
+  // If already published, preserve audit history and fork into a new DRAFT revision
+  if (currentRevision.status === "PUBLISHED") {
+    const maxRev = await db.learnConceptRevision.findFirst({
+      where: { conceptId: currentRevision.conceptId },
+      orderBy: { version: "desc" },
+      select: { version: true },
+    });
+
+    const newVersion = (maxRev?.version || currentRevision.version) + 1;
+
+    const forkedRevision = await db.learnConceptRevision.create({
+      data: {
+        conceptId: currentRevision.conceptId,
+        version: newVersion,
+        status: "DRAFT",
+        title: body.title ?? currentRevision.title,
+        summary: body.summary ?? currentRevision.summary,
+        quickRevisionMd: body.quickRevisionMd ?? currentRevision.quickRevisionMd,
+        deepDiveMd: body.deepDiveMd ?? currentRevision.deepDiveMd,
+        estimatedMinutes: body.estimatedMinutes !== undefined ? Number(body.estimatedMinutes) : currentRevision.estimatedMinutes,
+        difficulty: body.difficulty ?? currentRevision.difficulty,
+        keyTakeaways: body.keyTakeaways ?? currentRevision.keyTakeaways,
+        commonMistakes: body.commonMistakes ?? currentRevision.commonMistakes,
+        authorId: user.id,
+      },
+    });
+
+    return c.json({ revision: forkedRevision, forked: true });
+  }
+
+  // Otherwise update the DRAFT revision in-place
+  const updatedRevision = await db.learnConceptRevision.update({
+    where: { id },
+    data: {
+      title: body.title,
+      summary: body.summary,
+      quickRevisionMd: body.quickRevisionMd,
+      deepDiveMd: body.deepDiveMd,
+      estimatedMinutes: body.estimatedMinutes !== undefined ? Number(body.estimatedMinutes) : undefined,
+      difficulty: body.difficulty,
+      keyTakeaways: body.keyTakeaways,
+      commonMistakes: body.commonMistakes,
+    },
+  });
+
+  return c.json({ revision: updatedRevision, forked: false });
+});
+
+// Publish a concept's revision transactionally
+app.post("/learn/concepts/:id/publish", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json().catch(() => ({}));
+  const revisionId = body.revisionId;
+
+  const concept = await db.learnConcept.findUnique({
+    where: { id },
+    include: { revisions: { orderBy: { version: "desc" } } },
+  });
+
+  if (!concept) return c.json({ error: "Concept not found" }, 404);
+
+  const targetRevision = revisionId
+    ? concept.revisions.find((r) => r.id === revisionId)
+    : concept.revisions[0];
+
+  if (!targetRevision) {
+    return c.json({ error: "Target revision not found" }, 404);
+  }
+
+  await db.$transaction([
+    db.learnConceptRevision.update({
+      where: { id: targetRevision.id },
+      data: { status: "PUBLISHED", publishedAt: new Date() },
+    }),
+    db.learnConcept.update({
+      where: { id: concept.id },
+      data: { publishedRevisionId: targetRevision.id },
+    }),
+  ]);
+
+  return c.json({ success: true, publishedRevisionId: targetRevision.id });
+});
+
+// Unpublish concept (keeps revisions intact, makes it invisible to student queries)
+app.post("/learn/concepts/:id/unpublish", async (c) => {
+  const id = c.req.param("id");
+  await db.learnConcept.update({
+    where: { id },
+    data: { publishedRevisionId: null },
+  });
+
+  return c.json({ success: true, publishedRevisionId: null });
+});
+
+// Delete a concept and all its revisions
+app.delete("/learn/concepts/:id", async (c) => {
+  const id = c.req.param("id");
+  await db.learnConcept.delete({ where: { id } });
+  return c.json({ success: true });
+});
+
 export default app;

@@ -18,6 +18,7 @@ import notesRoutes from "./routes/notes";
 import bookmarksRoutes from "./routes/bookmarks";
 import rewardsRoutes from "./routes/rewards";
 import feedbackRoutes from "./routes/feedback";
+import learnRoutes from "./routes/learn";
 import { roomSocketManager } from "./services/roomSocket";
 import { db } from "@intervue/db";
 import { register, httpRequestDurationMicroseconds } from "./lib/metrics";
@@ -175,6 +176,7 @@ app.route("/api/notes", notesRoutes);
 app.route("/api/bookmarks", bookmarksRoutes);
 app.route("/api/rewards", rewardsRoutes);
 app.route("/api/feedback", feedbackRoutes);
+app.route("/api/learn", learnRoutes);
 
 // Metrics Endpoint
 app.get("/metrics", async (c) => {
