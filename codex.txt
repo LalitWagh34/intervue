@@ -1,0 +1,3172 @@
+
+Analyze this repo and https://intervue-mu.vercel.app/ i want to change the desing and UI of these website .Suggest some changes some design part is good and it looks little vibe coded color palaate suggest some good colors and for whole website also i am changing the design of this website mainly dashboared it looks absured design like profile and lnading page is good act is a senior UI/UX designer it should have good design is this good prompt for the codex
+Your concern about Intervue's design makes sense. I would redesign the dashboard and standardize the application's visual language, rather than redesigning everything from scratch.
+
+The landing page already has a recognizable identity: a dark background, electric-blue accents, technical interview visuals, and a developer-oriented aesthetic. Those are worth preserving.
+
+The bigger opportunity is to make the application feel like a polished, intentional SaaS product rather than a collection of independently designed components.
+
+I reviewed the public landing page at Intervue and its extracted visual styles. The authenticated dashboard still needs a proper visual inspection, so I wouldn't claim to have verified every dashboard issue.
+
+1. My recommended design direction
+Intervue — Focused Developer Workspace
+Think Linear's restraint, Vercel's precision, and GitHub's information clarity — but with Intervue's own identity.
+
+Private teams – Linear Docs
+Linear
+
+Navigation, visual hierarchy, density
+The developer experience of the Frontend Cloud - Vercel
+Vercel
+
+Typography, spacing, restrained surfaces
+使いにくいGithubのホーム画面からおさらばできるウェブアプリ「GitJin」を作った
+GitHub
+
+Practical information organization
+A Technical Deep Dive Into the New Raycast - Raycast Blog
+Raycast
+
+Polished interactions and purposeful detail
+The idea is to make Intervue feel like a serious interview-preparation workspace, not a futuristic AI demonstration.
+
+2. Recommended color palette
+Your existing public landing page primarily uses a near-black background around #090A0F and bright blue around #007BFA. These are strong foundations.
+
+I recommend refining them into a more systematic dark palette, with a matching light theme.
+
+Midnight Blue
+My pick
+
+Recommended — professional, neutral, technical
+#0B0D12
+
+#141820
+
+#242B36
+
+#3B82F6
+
+#E8EDF5
+
+Graphite & Indigo
+
+Softer, more editorial and sophisticated
+#101116
+
+#1A1C24
+
+#303442
+
+#818CF8
+
+#F2F3F7
+
+Slate & Teal
+
+Distinctive, quieter than typical blue SaaS
+#0D1416
+
+#172126
+
+#2B3A40
+
+#2DD4BF
+
+#ECF4F3
+
+For the selected Midnight Blue theme, I'd use these exact roles:
+
+UI element
+
+Dark theme
+
+Light theme
+
+Main background
+
+#0B0D12
+
+#F8FAFC
+
+Cards / panels
+
+#141820
+
+#FFFFFF
+
+Borders
+
+#242B36
+
+#E2E8F0
+
+Primary text
+
+#E8EDF5
+
+#111827
+
+Secondary text
+
+#9CA8B9
+
+#64748B
+
+Primary action
+
+#3B82F6
+
+#2563EB
+
+The most important part isn't the particular blue. It's making every page use the same color roles rather than introducing slightly different shades in individual components.
+
+3. What I found in your actual codebase
+I inspected these files in your GitHub repository:
+
+apps/web/src/pages/DashboardPage.tsx
+
+apps/web/src/components/layout/AppLayout.tsx
+
+apps/web/src/components/layout/Sidebar.tsx
+
+apps/web/src/index.css
+
+apps/web/src/App.tsx
+
+There are some concrete reasons the interface can feel inconsistent.
+
+Finding
+
+Why it matters
+
+Priority
+
+Multiple competing color definitions
+
+Components use different background and blue shades instead of consistently using the existing tokens
+
+High
+
+Four similar metric cards
+
+The dashboard emphasizes statistics more than what the user should do next
+
+High
+
+Excessive styling on routine elements
+
+Gradients, colored borders, hover effects and shadows compete for attention
+
+High
+
+Weak dashboard content hierarchy
+
+Targets, interviews and company readiness do not form a clear daily workflow
+
+High
+
+Many tiny labels
+
+Frequent text-xs, text-[10px] and monospace labels can reduce readability
+
+Medium
+
+Repeated user information
+
+The header, sidebar footer and profile dropdown all expose overlapping identity and streak information
+
+Medium
+
+Legacy design naming
+
+tuf-card, tuf_sidebar_collapsed and TUF comments suggest inherited design conventions
+
+Low
+
+One particularly important issue: index.css already contains a set of custom tokens, another large set of Tailwind theme tokens, and additional layer utilities. Meanwhile DashboardPage.tsx and AppLayout.tsx still use numerous hardcoded hexadecimal colors.
+
+Adding another design system would make this worse. Codex should consolidate the existing styles rather than layering a new theme on top.
+
+4. How I'd restructure the dashboard
+I would make the dashboard answer three questions immediately:
+
+What should I practice today?
+
+How am I progressing?
+
+What needs improvement?
+
+Here's a suggested structural wireframe.
+
+Dashboard
+
+U
+
+Your overview
+Pick up where you left off and keep improving.
+
+RECOMMENDED NEXT STEP
+
+Practice a technical interview
+
+Build confidence through a focused mock session.
+
+Start interview
+
+Browse practice
+
+Avg. score
+
+82
+/100
+
+Interviews
+
+12
+total
+
+Day streak
+
+7
+days
+
+Recent activity
+
+View all
+
+Backend technical interview
+
+Completed
+
+84/100
+
+System design mock
+
+Completed
+
+78/100
+
+Conceptual layout with illustrative sample data, not a screenshot of Intervue.
+The important difference is that this layout gives the user a meaningful next action before presenting a wall of numbers.
+
+Keep these components, but redesign their presentation
+TargetCompanyTracker: Keep this feature, but make the target-company section more compact and easier to scan. Give it a clear heading, progress indicators and a route into company-specific practice.
+
+DailyTargetTracker: Retain the daily goals, but avoid making it visually compete with the primary action. A compact progress section would work better.
+
+Recent Interview Scorecards: Replace heavily decorated individual cards with clean rows displaying the interview title, date, status and score.
+
+Sidebar: Your collapsible sidebar is a good foundation. Keep its behavior, but simplify the active indicators, remove unnecessary decorative shadows, and make the navigation grouping clearer.
+
+Dashboard metric cards: Reduce decorative differences between cards. Color should convey useful status, not simply make each metric appear different.
+
+5. A few rules that will make the entire website more professional
+Typography: Geist or Inter for interface text, JetBrains Mono only for code, shortcuts and genuinely technical values. Avoid monospace for ordinary descriptions.
+
+Spacing: Use a consistent 4/8px-based spacing scale. Don't allow each page to invent its own gaps.
+
+Borders: Prefer subtle 1px borders to heavy shadows and glowing outlines.
+
+Radii: Use 8–12px for most cards and controls. Avoid rounding everything to 16–24px.
+
+Gradients: Reserve them for select marketing elements. Routine dashboard buttons should generally be solid.
+
+Motion: Use subtle 150–200ms transitions, no constant pulses or decorative animation without purpose.
+
+Content: Replace jargon-heavy labels such as "control center" and "readiness loops" with direct language such as "Overview", "Your progress" and "Recommended practice".
+
+6. The Codex prompt I'd actually use
+Your original prompt communicates the intent, but it is too broad. Codex might interpret "act as a senior UI/UX designer" as permission to rebuild every page, introduce a completely different style, or install more component libraries.
+
+I would give Codex a clear design brief with an audit phase, implementation boundaries, and acceptance criteria.
+
+Intervue — UI/UX Redesign and Design System Refinement
+Act as a Principal Product Designer and Senior Frontend Engineer with experience designing polished developer tools and SaaS applications.
+
+Project context
+Intervue is an AI-powered technical interview preparation platform.
+
+Live website: https://intervue-mu.vercel.app/
+
+The website currently has a reasonably good landing page and profile page, but the authenticated dashboard and several application pages lack visual consistency and design maturity.
+
+Some interfaces look overly decorated, crowded, or assembled from unrelated UI patterns.
+
+Our goal is to establish a cohesive, professional, production-grade visual identity and significantly improve the dashboard's usability.
+
+The product should feel like a carefully designed developer tool, taking inspiration from the restraint, clarity and usability of Linear, Vercel and GitHub — without copying their layouts or brand identities.
+
+Phase 1 — Audit before implementation
+First, thoroughly inspect the existing frontend codebase.
+
+Focus on:
+
+DashboardPage.tsx
+
+AppLayout.tsx
+
+Sidebar.tsx
+
+index.css
+
+Existing shared UI components
+
+ProfilePage.tsx and LandingPage.tsx as references
+
+Practice Hub, AI Interview, History and other application pages
+
+Identify:
+
+Inconsistent colors, typography, spacing, borders and radii.
+
+Hardcoded styles and conflicting CSS variables.
+
+Unnecessary gradients, shadows, glowing borders and animations.
+
+Weak information hierarchy and excessive card usage.
+
+Inconsistent component designs across routes.
+
+Responsive layout issues and accessibility problems.
+
+Duplicated components or styling patterns.
+
+Areas where the existing design is already good and should be preserved.
+
+Produce a concise, prioritized audit with exact component and file references.
+
+Do not modify code during this phase.
+
+Phase 2 — Define a unified design system
+Create a consistent design system with dark mode as the primary visual direction.
+
+Suggested dark palette:
+
+App background: #0B0D12
+
+Surface: #141820
+
+Elevated surface: #1A202B
+
+Border: #242B36
+
+Primary text: #E8EDF5
+
+Secondary text: #9CA8B9
+
+Accent: #3B82F6
+
+Accent hover: #2563EB
+
+Define equivalent light-theme semantic tokens.
+
+Use one coherent system for:
+
+Colors and semantic states
+
+Typography and type scale
+
+Spacing and layout
+
+Border radii
+
+Buttons and input fields
+
+Cards and panels
+
+Navigation
+
+Dialogs, dropdowns and tooltips
+
+Loading, empty and error states
+
+Hover, focus and selected states
+
+Consolidate existing styles instead of adding more conflicting tokens.
+
+Prefer semantic CSS variables and reusable components over hardcoded Tailwind hex values.
+
+Use the existing frontend stack and component libraries wherever practical. Do not install new UI libraries unnecessarily.
+
+Phase 3 — Dashboard redesign
+The dashboard is the highest priority.
+
+Do not merely recolor existing cards. Reconsider the information hierarchy and the daily user workflow.
+
+The dashboard should answer:
+
+What should I practice next?
+
+How much progress have I made?
+
+Which areas need improvement?
+
+Proposed structure:
+
+Clean dashboard header with a short greeting or overview.
+
+Prominent recommended next action.
+
+Compact, readable performance statistics.
+
+Target company readiness section.
+
+Recent interview activity.
+
+Daily goals and practice progress.
+
+Relevant improvement recommendations, only when supported by actual user data.
+
+Use clear sections, balanced spacing and a restrained visual hierarchy.
+
+Reduce unnecessary nested cards.
+
+Avoid treating all information as equally important.
+
+Use existing APIs and backend data. Never introduce hardcoded fake dashboard metrics into production.
+
+Design proper loading, empty, error and populated states.
+
+Phase 4 — Application-wide consistency
+After the dashboard design direction is established, identify and refine inconsistencies in:
+
+Sidebar and top navigation
+
+Practice Hub
+
+AI Interview
+
+History and scorecards
+
+AI Mentor
+
+Notes and bookmarks
+
+Company preparation interfaces
+
+Profile-related shared components
+
+Preserve the strongest aspects of the landing page and profile page.
+
+Do not redesign them aggressively unless necessary for consistency.
+
+The entire authenticated application should feel like one product.
+
+Visual principles
+Professional, minimal and purposeful.
+
+Strong typographic hierarchy.
+
+Subtle borders instead of excessive shadows.
+
+Consistent card padding and corner radii.
+
+Controlled use of the accent color.
+
+Minimal, functional animation.
+
+Comfortable information density.
+
+No unnecessary gradients, glowing cards, glassmorphism or neon effects.
+
+Avoid stereotypical AI-generated dashboard aesthetics.
+
+Follow WCAG accessibility principles.
+
+Support desktop, tablet and mobile.
+
+Engineering constraints
+Preserve all existing features and routes.
+
+Preserve authentication and authorization behavior.
+
+Do not modify backend APIs or database schemas.
+
+Do not introduce breaking changes to existing business logic.
+
+Do not remove functionality merely to simplify the UI.
+
+Keep components maintainable and reusable.
+
+Follow the existing project architecture.
+
+Avoid unrelated refactoring.
+
+Respect reduced-motion preferences.
+
+Ensure keyboard accessibility and visible focus states.
+
+Execution workflow
+Start by providing:
+
+An honest assessment of the current design.
+
+A list of components worth keeping.
+
+A prioritized list of design problems.
+
+A proposed design system.
+
+A detailed dashboard layout plan.
+
+An implementation plan broken into small reviewable phases.
+
+Do not begin implementation until the audit and design proposal have been reviewed.
+
+Once approved, implement the dashboard first on a separate working branch.
+
+Validate desktop and mobile layouts, run the existing frontend checks, and provide a summary of changes.
+
+Definition of success
+The final interface should feel like a mature SaaS product designed by an experienced product team.
+
+The goal is not to make the interface more visually exciting.
+
+The goal is to make it clearer, more consistent, more useful and more refined.
+
+7. How I would execute this in Codex
+I would not give Codex permission to redesign the entire application in a single pass.
+
+Audit the existing design
+
+Have Codex inventory your tokens, components, routes and styling inconsistencies. Review the report before accepting changes.
+
+Consolidate the design system
+
+Correct index.css and establish shared colors, typography, spacing and UI components. Make sure light and dark themes use semantic tokens.
+
+Redesign only the dashboard
+
+Work on DashboardPage.tsx and the components it uses. Compare real populated and empty states at desktop and mobile widths.
+
+Refine the application shell
+
+Update Sidebar.tsx, AppLayout.tsx, navigation and shared controls to match the approved dashboard direction.
+
+Roll out the design to the remaining pages
+
+Use the new system across the Practice Hub, Interview, History and other authenticated routes. Test functionality and responsiveness after each group of changes.
+
+One additional detail I noticed: the repository still contains references to features such as the Battle Arena and coding practice that have been disabled or redirected in some routes. Ask Codex to verify actual feature availability before making them prominent dashboard actions. This is a product UX issue, not merely a styling issue.
+
+My overall recommendation: keep the landing page's dark technical brand, choose the Midnight Blue palette, preserve the profile page's strongest elements, and make the dashboard your reference design for the authenticated application. Fixing the design-system inconsistencies first will do more for the perceived quality of Intervue than introducing elaborate new components.
+
+Just give the prompt i want the suggestion from the codex lets verfiy what codex will give and in the prompt also mention like light baige color in background along with dark and light feature as well
+Intervue — Complete UI/UX Audit and Redesign Recommendations
+Act as a Principal UI/UX Designer, Senior Product Designer, and Frontend Design Systems Architect with extensive experience designing premium, production-grade SaaS platforms and developer tools.
+
+Project Context
+Website: https://intervue-mu.vercel.app/
+
+Intervue is an AI-powered technical interview preparation platform for students, developers, and software engineers.
+
+I want to significantly improve the overall design quality, visual consistency, usability, and user experience of the website.
+
+Currently, some parts of the website, particularly the landing page and profile page, have good designs that I want to preserve or refine.
+
+However, the dashboard needs major improvement. Its layout, information hierarchy, component arrangement, spacing, and overall visual appearance feel unpolished.
+
+Some parts of the application also look overly decorated or "vibe-coded" rather than thoughtfully designed by an experienced product design team.
+
+I want the website to feel like a polished, professional, mature SaaS product.
+
+Your Task — Audit and Suggest, Do Not Implement
+First, thoroughly analyze the entire frontend repository, existing components, styles, layouts, design patterns, and overall application architecture.
+
+Also inspect the live website wherever accessible.
+
+Do not modify any code yet. I only want your detailed analysis, recommendations, and proposed redesign strategy.
+
+1. Complete UI/UX Audit
+Analyze all major pages, including:
+
+Landing Page
+
+Dashboard (highest priority)
+
+Profile Page
+
+Practice Hub
+
+AI Interview
+
+Company Preparation
+
+History and Scorecards
+
+AI Mentor
+
+Notes and Bookmarks
+
+Sidebar and Navigation
+
+Other existing application pages
+
+Identify:
+
+What is already designed well and should be retained.
+
+What looks unprofessional, inconsistent, cluttered, or unnecessarily complex.
+
+Weaknesses in layout composition, visual hierarchy, typography, spacing, navigation, and information density.
+
+Unnecessary gradients, excessive colors, shadows, glowing borders, oversized cards, and decorative elements.
+
+Inconsistent components, design tokens, and visual patterns.
+
+Areas where the user experience can be simplified or improved.
+
+Be critical and specific. Do not recommend changes simply for the sake of redesigning.
+
+2. Explore Premium Design Directions
+Suggest 3 distinct, professional design directions suitable for Intervue.
+
+Take inspiration from products such as Linear, Vercel, GitHub, Raycast, Notion, and other well-designed developer tools.
+
+Do not directly copy any existing product.
+
+I am particularly interested in exploring a warm, minimal, light beige design direction, alongside a sophisticated dark theme.
+
+For example:
+
+Warm off-white or subtle beige application backgrounds.
+
+Clean white or slightly warm-tinted cards.
+
+Elegant dark typography.
+
+Muted neutral borders.
+
+Restrained blue, indigo, or another carefully selected accent color.
+
+A premium, minimal, professional aesthetic.
+
+For the dark theme, consider charcoal, graphite, near-black, or other sophisticated dark neutral backgrounds.
+
+The application must support both Light Mode and Dark Mode, with a consistent design language across both.
+
+Do not simply invert colors. Design each theme thoughtfully.
+
+For each proposed design direction, provide:
+
+Design philosophy and visual character.
+
+Complete light-mode color palette with HEX codes.
+
+Complete dark-mode color palette with HEX codes.
+
+Primary and secondary accent colors.
+
+Typography recommendations.
+
+Border radius and spacing recommendations.
+
+Card, button, navigation, and surface styling.
+
+Advantages and potential drawbacks.
+
+Why the direction would or would not suit Intervue.
+
+Rank the three directions and recommend the strongest option.
+
+3. Dashboard Redesign — Highest Priority
+Critically evaluate the current dashboard.
+
+I do not want a dashboard that is simply a collection of colorful statistic cards.
+
+Think about how a student or developer would actually use Intervue daily.
+
+Suggest improvements to:
+
+Information architecture.
+
+Layout structure and content placement.
+
+Visual hierarchy.
+
+Quick actions.
+
+Practice progress and performance metrics.
+
+Target company preparation.
+
+Recent activity.
+
+Daily goals and recommendations.
+
+Empty and loading states.
+
+Desktop and mobile usability.
+
+Recommend which components should remain, which should be redesigned, and which could be simplified, combined, or repositioned.
+
+Propose a complete dashboard layout with a clear explanation of each section and its purpose.
+
+4. Application-Wide Design Consistency
+Recommend a unified design system for the entire website.
+
+Cover:
+
+Semantic color tokens for both themes.
+
+Typography and font hierarchy.
+
+Spacing and grid system.
+
+Card and container styles.
+
+Buttons and input fields.
+
+Sidebar and navigation.
+
+Icons and visual indicators.
+
+Tables, charts, and progress indicators.
+
+Dropdowns, modals, and tooltips.
+
+Hover, focus, and selected states.
+
+Responsive layouts.
+
+Accessibility and contrast.
+
+Subtle animations and transitions.
+
+Identify opportunities to reuse and improve existing components instead of creating unnecessary new ones.
+
+5. Preserve What Already Works
+The landing page and profile page have some design elements that I like.
+
+Do not assume every page requires a complete redesign.
+
+Identify the strongest existing patterns and explain how they can become part of the new design system.
+
+I want visual consistency without losing Intervue's existing brand identity.
+
+6. Avoid Generic AI-Generated Design
+Avoid recommending:
+
+Excessive gradients and glowing elements.
+
+Neon colors everywhere.
+
+Unnecessary glassmorphism.
+
+Oversized cards with too much empty space.
+
+Random colored icons and badges.
+
+Excessive border radii.
+
+Decorative animations without purpose.
+
+Generic AI dashboard templates.
+
+Too many competing accent colors.
+
+Visual complexity without functional value.
+
+Prioritize clarity, balance, restraint, thoughtful spacing, consistency, and usability.
+
+The goal is a website that feels intentionally designed, not automatically generated.
+
+7. Technical Feasibility
+Inspect the current frontend implementation and evaluate how the proposed designs could fit into the existing architecture.
+
+Identify:
+
+Existing reusable components.
+
+Current styling conventions.
+
+Conflicting design tokens or hardcoded colors.
+
+Opportunities for creating a unified theme system.
+
+What could be improved without rewriting the frontend.
+
+Potential challenges in implementing light and dark themes.
+
+Do not recommend a complete framework migration unless there is a compelling technical reason.
+
+Expected Output
+Provide a structured design review containing:
+
+Current Design Assessment — strengths, weaknesses, and major problems.
+
+Page-by-Page UI/UX Audit — findings and severity.
+
+Three Proposed Visual Directions — including complete light and dark palettes.
+
+Design Direction Comparison — trade-offs and rankings.
+
+Dashboard Redesign Proposal — detailed layout and component recommendations.
+
+Application-Wide Design System Proposal.
+
+Components to Preserve, Improve, or Replace.
+
+Prioritized Implementation Roadmap.
+
+Final Recommendation — which design direction you would personally select as a senior product designer and why.
+
+Be opinionated, specific, and evidence-driven. Reference actual files and components from the repository wherever possible.
+
+Distinguish verified observations from design hypotheses. Do not claim to have visually inspected authenticated pages unless you actually accessed them.
+
+IMPORTANT: This is strictly an audit and design exploration task. Do not write, edit, refactor, or delete any code. Do not install packages. Do not begin implementation. I want to review your recommendations and choose a design direction before making any changes.
+
+
+Pasted text(10).txt
+Document
+Generate the proper plan afor the antigravity and tell them to work in small parts dont tryto implement each and everything at a time after each succesful change review it and test it also check the above plan againsst the your plan
+I reviewed the Codex audit you shared and compared it with the redesign strategy we discussed earlier.
+
+My assessment: Codex's plan is stronger in identifying actual usability problems, while our earlier plan is stronger in emphasizing a controlled redesign and preserving what already works. The best approach is to combine both, but change the execution strategy significantly.
+
+Comparison of the two plans
+Area
+
+Codex's plan
+
+My assessment
+
+Design direction
+
+Warm Precision
+
+Keep it
+
+Light theme
+
+Warm beige #F6F4EF
+
+Excellent starting point
+
+Dark theme
+
+Graphite #171819
+
+Keep it
+
+Dashboard
+
+Daily actions before statistics
+
+Strong improvement
+
+Design system
+
+Consolidate tokens
+
+Essential
+
+Existing pages
+
+Preserve landing and profile
+
+Agreed
+
+UX bugs
+
+Fix navigation, scoring, notes
+
+Important additions
+
+Implementation
+
+Six broad phases
+
+Break into smaller tasks
+
+Testing
+
+General validation criteria
+
+Needs strict tests after every task
+
+Review checkpoints
+
+Not sufficiently explicit
+
+Require approval at each stage
+
+Important corrections before implementation
+Codex identified several issues that deserve attention, especially the History-to-scorecard route mismatch, inconsistent score scales, dashboard failures displaying zero values, and potential unsaved-note loss.
+
+These are more serious than visual imperfections. However, I would separate functionality fixes from UI redesign commits so you can test and revert changes safely.
+
+Also, don't allow Antigravity to implement the entire design system, dashboard, and remaining pages together. A single large implementation would make it difficult to identify regressions and assess whether the redesign is actually improving the product.
+
+The execution rule should be:
+
+One small change → run tests → review the result → fix problems → commit → move to the next change.
+
+Below is the Antigravity master prompt incorporating Codex's findings, our design direction, and strict implementation checkpoints.
+
+Antigravity master implementation prompt
+Copy the following into Antigravity along with the Codex audit you shared.
+
+INTERVUE — CONTROLLED UI/UX REDESIGN & IMPLEMENTATION PLAN
+ROLE
+Act as a Principal UI/UX Designer, Senior Frontend Architect, and Staff Software Engineer.
+
+You are responsible for improving Intervue's UI/UX through a controlled, incremental, test-driven implementation process.
+
+Your goal is to transform Intervue into a polished, professional, production-quality SaaS application without breaking existing functionality.
+
+CRITICAL: Do not attempt to implement everything at once.
+
+Work in small, independent, reviewable tasks. Every successful change must be validated before proceeding.
+
+1. PROJECT CONTEXT
+Project: Intervue — AI Technical Interview Preparation Platform
+
+Live website:
+https://intervue-mu.vercel.app/
+
+Repository:
+https://github.com/LalitWagh34/intervue
+
+Technology:
+
+React
+
+TypeScript
+
+Tailwind CSS v4
+
+React Router
+
+Existing reusable UI components
+
+Existing application architecture and backend integrations
+
+A detailed UI/UX audit has already been prepared by Codex and will be supplied as reference material.
+
+Treat that audit as an important starting point, not as an unquestionable specification.
+
+Before implementing anything:
+
+Read the complete Codex audit.
+
+Examine the actual repository.
+
+Verify the audit's findings against the current code.
+
+Compare the proposed changes with the existing architecture.
+
+Identify recommendations that should be retained, modified, postponed, or rejected.
+
+Produce a clear, dependency-aware implementation roadmap.
+
+Do not blindly implement the audit.
+
+If a finding no longer applies to the current codebase, document that rather than making an unnecessary change.
+
+2. APPROVED DESIGN DIRECTION
+Our preferred design direction is:
+
+Warm Precision — Minimal Professional SaaS
+We want a refined, sophisticated interface with a warm light theme and a carefully designed dark theme.
+
+The interface should feel like a mature developer tool, not a generic AI-generated dashboard.
+
+Light Theme — Warm Beige
+Use the following palette as the initial design foundation:
+
+Application background: #F6F4EF
+
+Primary surface: #FFFFFF
+
+Secondary surface: #EEECE6
+
+Elevated surface: #FFFEFC
+
+Border: #DDD9D0
+
+Primary text: #252723
+
+Secondary text: #5E625B
+
+Primary action: #315FCE
+
+Primary action hover: #254EAF
+
+Selected background: #E8EEFC
+
+The light theme should use a soft beige or warm off-white canvas, not a completely white application background.
+
+Cards and workspaces should remain white or subtly warm to establish visual depth.
+
+Avoid making the application yellow, muddy, or overly decorative.
+
+Dark Theme — Graphite
+Application background: #171819
+
+Primary surface: #202123
+
+Secondary surface: #292B2E
+
+Elevated surface: #303236
+
+Border: #383B40
+
+Primary text: #F1F0EC
+
+Secondary text: #B9BCB7
+
+Primary action: #3969D6
+
+Accent text: #9AB9FF
+
+Selected background: #253650
+
+Both themes should feel intentionally designed.
+
+Do not create dark mode by simply inverting the light palette.
+
+Theme requirements
+Support:
+
+Light
+
+Dark
+
+System preference
+
+Persist the selected preference.
+
+Prevent incorrect theme flashes during initial rendering wherever practical.
+
+Ensure the theme applies consistently to shared components, overlays, dialogs, tooltips, notifications, charts, and other active application interfaces.
+
+Preserve the existing Intervue blue brand identity.
+
+These palettes are starting points. Validate contrast and visual harmony before applying them widely.
+
+3. DESIGN PRINCIPLES
+Follow these principles across the application:
+
+Minimal, professional, purpose-driven design.
+
+Clear information hierarchy.
+
+Consistent typography.
+
+Restrained color usage.
+
+Subtle borders and controlled elevation.
+
+Consistent spacing and layout rhythm.
+
+Comfortable information density.
+
+Accessible interactions.
+
+Meaningful rather than decorative animation.
+
+Responsive behavior across screen sizes.
+
+Reusable components and semantic design tokens.
+
+Avoid:
+
+Excessive gradients.
+
+Neon colors.
+
+Unnecessary glowing elements.
+
+Heavy glassmorphism.
+
+Random colored cards.
+
+Oversized decorative elements.
+
+Excessive corner rounding.
+
+Unnecessary animations.
+
+Generic AI dashboard aesthetics.
+
+Rebuilding components that already work well.
+
+Preserve successful existing design
+The landing page and profile page already contain useful design patterns.
+
+Preserve their strongest elements.
+
+Improve visual consistency without unnecessarily replacing their layouts.
+
+The dashboard is the highest-priority visual redesign target.
+
+4. NON-NEGOTIABLE IMPLEMENTATION RULES
+Rule 1 — Work in micro-tasks
+Never implement an entire phase in a single operation.
+
+Break each phase into small tasks that can be understood, implemented, tested, and reviewed independently.
+
+For example, the theme system should not be implemented simultaneously with the dashboard redesign.
+
+A task should ideally affect one closely related component, design concern, or user journey.
+
+Avoid combining unrelated work into one change.
+
+Rule 2 — No automatic progression
+After completing each micro-task:
+
+Explain what changed.
+
+List the files modified.
+
+Explain why the change was necessary.
+
+Run relevant tests.
+
+Review the implementation.
+
+Inspect the visual result where applicable.
+
+Identify any remaining issues.
+
+Report whether the task passed or failed.
+
+Stop and request approval before moving to the next micro-task.
+
+Do not automatically proceed to the next task merely because the current task is complete.
+
+Rule 3 — Test every change
+Use the existing project's scripts and tooling.
+
+As appropriate to each task, perform:
+
+TypeScript validation.
+
+ESLint checks.
+
+Unit tests.
+
+Component or integration tests.
+
+Production build checks.
+
+Browser-based smoke tests.
+
+UI interaction tests.
+
+Responsive layout inspection.
+
+Accessibility checks.
+
+Regression testing.
+
+Do not claim a test passed unless you actually ran it.
+
+If a test cannot be executed, explicitly state why.
+
+For visual changes, source-code inspection alone is insufficient whenever browser testing is available.
+
+Rule 4 — Review the visual result
+For each UI change, inspect the affected screen in both light and dark modes.
+
+Where relevant, check:
+
+1440px desktop.
+
+1024px tablet or smaller desktop.
+
+768px tablet.
+
+390px mobile.
+
+320px narrow mobile.
+
+Check text wrapping, clipping, spacing, navigation, readability, horizontal overflow, keyboard focus, and interactive states.
+
+Use actual screenshots or browser rendering where possible.
+
+Never claim visual verification from code inspection alone.
+
+Rule 5 — Preserve functionality
+Do not break:
+
+Authentication.
+
+Existing routes.
+
+Dashboard data fetching.
+
+Practice tracking.
+
+Interview sessions.
+
+Scorecards and history.
+
+Notes and bookmarks.
+
+Company preparation.
+
+User profiles.
+
+Existing backend integrations.
+
+Do not modify database schemas or backend APIs for visual redesign work.
+
+If an issue requires backend changes, document the dependency and request separate authorization.
+
+Rule 6 — Keep Git changes controlled
+Before starting:
+
+Inspect the current Git branch.
+
+Inspect git status.
+
+Identify existing uncommitted work.
+
+Establish an appropriate UI redesign branch without overwriting existing changes.
+
+Do not discard, reset, or overwrite existing work.
+
+Keep commits small and logically scoped.
+
+After a successful task and user approval, prepare an appropriately named commit.
+
+Do not push, merge, or deploy without explicit approval.
+
+Rule 7 — No unrelated refactoring
+Do not make large codebase refactors just because you encounter code that could be cleaner.
+
+If unrelated improvements are discovered, record them in a separate backlog.
+
+Keep implementation changes focused on the approved task.
+
+Rule 8 — Do not introduce fake data
+Use existing actual data and API responses.
+
+Do not hardcode fictional metrics, progress percentages, interview scores, or user activity into production components.
+
+If data is missing, implement an honest empty state or document the feature dependency.
+
+5. IMPLEMENTATION ROADMAP
+Follow this overall sequence.
+
+The phases below are planning containers, NOT single implementation tasks.
+
+Break every phase into separately approved micro-tasks.
+
+PHASE 0 — Baseline and Project Audit
+Goal: Understand the current state before making changes.
+
+Tasks:
+
+0.1. Inspect the Git branch and working tree.
+
+0.2. Review the Codex audit against current source files.
+
+0.3. Identify existing design tokens, component conventions, and UI libraries.
+
+0.4. Inventory routes, major components, and shared dependencies.
+
+0.5. Record current test and build status.
+
+0.6. Identify areas at risk of regression.
+
+0.7. Produce a prioritized task backlog.
+
+Deliverables:
+
+Verified audit findings.
+
+Current architecture summary.
+
+List of existing components to preserve.
+
+Dependency-aware implementation roadmap.
+
+Baseline validation results.
+
+STOP after Phase 0.
+
+Do not begin implementation until the plan is approved.
+
+PHASE 1 — Critical UX and Functional Corrections
+Goal: Fix verified usability problems before introducing major UI changes.
+
+Potential micro-tasks:
+
+1.1. Verify and correct the History-to-scorecard navigation mismatch.
+
+1.2. Verify score presentation contracts and reconcile /10 versus /100 displays against actual API data.
+
+1.3. Separate dashboard loading, error, empty, and populated states.
+
+1.4. Inspect and protect unsaved notes against accidental loss.
+
+1.5. Correct misleading progress terminology where necessary.
+
+1.6. Verify other audit findings affecting core user journeys.
+
+1.7. Identify inactive feature links or misleading capability descriptions.
+
+Important:
+
+Each of these must be treated as a separate task.
+
+Do not fix all issues together.
+
+Do not modify score calculations without understanding the underlying API contract.
+
+If any item requires backend changes, stop and report that dependency.
+
+After each fix, run relevant tests and perform a focused regression review.
+
+STOP after completing each approved micro-task.
+
+PHASE 2 — Design Foundation and Theme Architecture
+Goal: Establish consistent visual foundations without redesigning individual application pages.
+
+Proposed micro-tasks:
+
+2.1. Audit and consolidate competing color variables.
+
+2.2. Define canonical semantic color tokens.
+
+2.3. Establish light beige and dark graphite theme mappings.
+
+2.4. Implement a theme preference mechanism.
+
+2.5. Add a Light / Dark / System appearance control.
+
+2.6. Verify theme initialization and persistence.
+
+2.7. Standardize typography tokens.
+
+2.8. Standardize spacing and border-radius tokens.
+
+2.9. Standardize button styles.
+
+2.10. Standardize input and form-control styles.
+
+2.11. Standardize card and surface styles.
+
+2.12. Validate theme behavior in overlays, toasts, dialogs, icons, and charts.
+
+Keep changes narrowly scoped.
+
+Do not replace every hardcoded color in the entire codebase during this phase.
+
+Establish the system first, validate it on representative components, and migrate pages incrementally.
+
+Ensure existing dark-mode pages continue functioning during the transition.
+
+Avoid introducing incompatible styling systems or unnecessary dependencies.
+
+PHASE 3 — Dashboard Redesign
+This is the primary visual redesign phase.
+
+Goal: Make the dashboard useful, clear, refined, and visually consistent.
+
+The proposed dashboard should prioritize:
+
+What should I practice now?
+
+How am I progressing?
+
+What should I improve next?
+
+Suggested micro-tasks
+3.1. Propose the final dashboard wireframe and section hierarchy.
+
+Review it before writing code.
+
+3.2. Refine the dashboard header and page-level layout.
+
+3.3. Create or refine the primary practice action section.
+
+3.4. Redesign the existing metric cards into a quieter progress summary.
+
+3.5. Simplify the Target Company Tracker presentation.
+
+3.6. Improve Daily Target Tracker placement and usability.
+
+3.7. Redesign recent interview activity into a compact, readable layout.
+
+3.8. Review evidence-based performance recommendations and only implement them when supported by actual data.
+
+3.9. Refine responsive behavior.
+
+3.10. Validate all dashboard states.
+
+Important dashboard rules:
+
+Do not merely recolor existing cards.
+
+Do not add sections that have no meaningful purpose.
+
+Do not duplicate information unnecessarily.
+
+Do not introduce misleading readiness metrics.
+
+Do not invent continuation functionality.
+
+Do not add excessive cards or charts.
+
+Preserve the existing working data integrations.
+
+Do not substantially change dashboard business logic during visual work without separate approval.
+
+After completing each micro-task, visually inspect and test the affected area.
+
+Compare the result with the previous version.
+
+Fix issues before progressing.
+
+PHASE 4 — Application Shell
+Goal: Make navigation and shared layout consistent with the approved dashboard design.
+
+Potential micro-tasks:
+
+4.1. Refine the sidebar's visual appearance.
+
+4.2. Improve active navigation states.
+
+4.3. Review navigation labels and grouping.
+
+4.4. Refine the application header.
+
+4.5. Remove duplicated or unnecessary header information where appropriate.
+
+4.6. Improve account and profile dropdowns.
+
+4.7. Refine mobile navigation.
+
+4.8. Validate collapsed-sidebar behavior.
+
+4.9. Verify keyboard accessibility and responsive behavior.
+
+Preserve existing navigation functionality.
+
+Do not rewrite the entire application shell unnecessarily.
+
+PHASE 5 — Practice and Interview Pages
+Goal: Apply the established design system to core workflows.
+
+Suggested order:
+
+5.1. Practice Hub layout.
+
+5.2. Practice question lists and filters.
+
+5.3. Company preparation workspace.
+
+5.4. AI Interview setup.
+
+5.5. AI Interview session interface.
+
+5.6. History and Scorecards.
+
+5.7. Results presentation.
+
+Work on one screen or component group at a time.
+
+For each screen:
+
+Audit the current state.
+
+Identify specific improvements.
+
+Propose the change.
+
+Implement the approved change.
+
+Test its interactions.
+
+Review both themes.
+
+Check responsive behavior.
+
+Report the result.
+
+Do not redesign all these pages together.
+
+PHASE 6 — Supporting Features
+Goal: Bring secondary areas into visual alignment without unnecessary redesign.
+
+Potential tasks:
+
+6.1. AI Mentor interface.
+
+6.2. Notes workspace.
+
+6.3. Bookmarks.
+
+6.4. Profile visual refinements.
+
+6.5. Help and Feedback.
+
+6.6. Battle Arena.
+
+6.7. Account and settings interfaces.
+
+6.8. Administrative components.
+
+Prioritize improvements based on impact and reuse.
+
+Preserve the profile page's successful structure.
+
+Do not modify complex Arena behavior purely for cosmetic reasons.
+
+PHASE 7 — Landing Page Refinements
+Goal: Bring public branding into alignment with the updated application.
+
+The landing page already contains effective design elements.
+
+Do not rebuild it unnecessarily.
+
+Potential tasks:
+
+7.1. Review brand consistency.
+
+7.2. Refine colors and typography only where needed.
+
+7.3. Simplify excessive visual effects.
+
+7.4. Ensure light/dark decisions are appropriate for public marketing pages.
+
+7.5. Review responsive presentation.
+
+7.6. Check that advertised features match actual functionality.
+
+Preserve the landing page's primary visual identity and storytelling.
+
+PHASE 8 — Final Quality Review
+Only begin this phase after the individual implementation stages have passed their own reviews.
+
+Perform:
+
+Cross-page design consistency checks.
+
+Light and dark theme verification.
+
+Responsive testing.
+
+Keyboard accessibility testing.
+
+Contrast checks.
+
+Navigation smoke tests.
+
+Core interview and practice flow regression tests.
+
+Performance regression checks.
+
+Build and TypeScript validation.
+
+Review of remaining hardcoded styling exceptions.
+
+Do not rewrite finished components merely to make them appear different.
+
+Report remaining limitations honestly.
+
+6. MANDATORY MICRO-TASK WORKFLOW
+For every implementation task, follow this exact process.
+
+STEP A — Inspect
+Identify:
+
+Relevant files.
+
+Existing functionality.
+
+Dependencies.
+
+Current design problems.
+
+Potential risks.
+
+Do not start editing before understanding the affected component.
+
+STEP B — Propose
+Provide:
+
+Task name.
+
+Problem being solved.
+
+Proposed change.
+
+Files expected to change.
+
+Acceptance criteria.
+
+Tests to run.
+
+Risk assessment.
+
+Request approval before implementation.
+
+STEP C — Implement
+Make only the approved change.
+
+Keep the implementation small and focused.
+
+Do not modify unrelated components.
+
+STEP D — Validate
+Run the relevant automated tests.
+
+Inspect the UI visually if applicable.
+
+Test the modified interactions.
+
+Check both themes when the change is theme-related.
+
+Check the affected responsive layouts.
+
+STEP E — Review
+Inspect the resulting diff.
+
+Look for:
+
+Broken functionality.
+
+Styling inconsistencies.
+
+Accessibility regressions.
+
+Unnecessary code.
+
+Accidental changes.
+
+Type errors.
+
+Layout problems.
+
+If problems are found, fix them within the current task and retest.
+
+STEP F — Report
+Provide a structured completion report:
+
+Task:
+Status: PASS / FAIL / BLOCKED
+Files modified:
+Changes made:
+Tests executed:
+Test results:
+Visual verification:
+Issues found:
+Remaining limitations:
+Recommended next task:
+
+If a test failed, do not mark the task as successful.
+
+If a test could not run, distinguish that from a passing result.
+
+STEP G — STOP
+Wait for my review and approval.
+
+Do not automatically proceed.
+
+Do not silently begin the next implementation task.
+
+7. ACCEPTANCE CRITERIA
+A micro-task is considered successful only when:
+
+The approved change is implemented.
+
+Existing related functionality is preserved.
+
+Relevant tests have passed.
+
+No unexplained errors are introduced.
+
+The visual result has been reviewed when applicable.
+
+Both themes behave correctly where affected.
+
+Responsive behavior is acceptable where affected.
+
+Accessibility has not regressed.
+
+The Git diff is focused and understandable.
+
+A completion report has been provided.
+
+If these criteria are not satisfied, remain on the current task.
+
+Do not proceed to unrelated work.
+
+8. COMMUNICATION REQUIREMENTS
+Be critical, precise, and transparent.
+
+Do not exaggerate improvements or claim that a design is production-ready without validation.
+
+Do not agree with every suggestion simply because it came from Codex.
+
+Challenge recommendations when they would complicate the architecture or harm the user experience.
+
+If a simpler solution exists, propose it.
+
+If an existing component is already well designed, preserve it.
+
+If a change introduces significant risk, explain that before implementing it.
+
+Keep recommendations grounded in actual repository evidence.
+
+9. INITIAL INSTRUCTION — START HERE
+For your first response, do ONLY the following:
+
+Read and assess the supplied Codex audit.
+
+Inspect the current repository.
+
+Verify the most important audit findings.
+
+Compare the audit against the approved Warm Precision design direction.
+
+Identify implementation dependencies and risks.
+
+Produce a detailed sequence of small, independent implementation tasks.
+
+Define tests and acceptance criteria for each task.
+
+Recommend the first micro-task.
+
+Do not modify files yet.
+
+Do not install packages.
+
+Do not start the redesign.
+
+Do not implement Phase 0 and Phase 1 together.
+
+Stop after presenting your verified roadmap and wait for approval.
+
+The primary goal is not implementation speed. It is a controlled redesign where every change is intentional, reviewable, tested, and demonstrably improves Intervue.
+
+One additional recommendation
+Maintain a persistent task checklist in the repository, for example docs/UI_REDESIGN_PROGRESS.md, once you approve the plan. Antigravity can update it after each completed and reviewed task.
+
+That document should track the approved task, affected files, test results, review status, and remaining work. This is especially useful when moving between Antigravity sessions.
+
+Start with Phase 0 only. Review Antigravity's proposed implementation sequence before authorizing the first code change. That will prevent the same problem you want to avoid: a large redesign landing in one commit with no clear way to assess its quality.
+
+
+Pasted markdown(7).md
+Document
+check this give  by AG
+I reviewed Antigravity's Phase 0 — Baseline & Project Audit Report and compared it with both the original Codex audit and our implementation requirements.
+
+My assessment: 8/10. Antigravity has done a good job verifying actual code problems and proposing a sensible implementation order. I would approve the direction, but make a few corrections before allowing implementation.
+
+1. What Antigravity did well
+Verified the broken History and scorecard routes instead of blindly trusting Codex.
+
+Found an additional broken /setup route.
+
+Identified that interview evaluation scores are stored on a 1–10 scale, while some pages display /100.
+
+Confirmed that dashboard API failures can appear as zero statistics.
+
+Recognized the risk of introducing light mode while pages still contain hardcoded dark colors.
+
+Checked the existing dependencies and discovered that next-themes is already installed.
+
+Established a clean Git baseline and confirmed that the frontend production build passes.
+
+Stopped before modifying anything, as instructed.
+
+Its decision to start with functional correctness rather than cosmetic redesign is appropriate.
+
+2. Changes I recommend to Antigravity's plan
+Issue
+
+My recommendation
+
+Task 1.1 combines routes and score formatting
+
+Split into two independent micro-tasks
+
+Task 1.2 combines multiple pages and states
+
+Separate dashboard states, History states, and labeling
+
+Task 1.4 includes deletion of unused files
+
+Postpone cleanup; focus on actual user-facing problems
+
+Task 2.1 proposes replacing old CSS tokens
+
+Migrate carefully; don't delete tokens still in use
+
+Task 2.2 introduces the theme toggle
+
+Implement theme infrastructure first, expose the toggle only when pages are ready
+
+Phases 3–8 remain broad
+
+Require one component or tightly related group per checkpoint
+
+Browser testing isn't clearly established
+
+Require actual visual verification, not just successful builds
+
+Important: Do not change all /100 scores to /10 blindly
+Antigravity found that the evaluation code uses a 1–10 scale. That's valuable evidence, but it must also inspect the responses of /profile/dashboard and History's data source.
+
+It should establish whether those endpoints return raw scores, normalized scores, or a mixture of historical formats before changing display labels.
+
+A safe implementation should test values such as 0, 7.5, 10, missing values, and any documented legacy score formats. Otherwise, a score-formatting fix could introduce a different bug.
+
+3. The biggest architectural issue: Light/Dark theme rollout
+Antigravity correctly warns that enabling light mode too early can produce unreadable pages.
+
+I recommend this sequence:
+
+Define semantic light and dark theme tokens, preserving compatibility with existing styles.
+Introduce theme infrastructure while retaining dark mode as the user-facing default.
+Migrate shared components and the app shell incrementally.
+Migrate and verify the dashboard and other important authenticated workflows.
+Expose the Light / Dark / System selector once the required pages, overlays, and navigation function correctly in both modes.
+Don't allow a situation where the dashboard looks excellent in beige but the Practice Hub or interview screen becomes unreadable.
+
+4. Testing needs strengthening
+Antigravity reports that your frontend has no dedicated tests or lint scripts, although the build passes.
+
+For a project undergoing this much UI change, I recommend adding a small testing foundation.
+
+Vitest + React Testing Library is a reasonable choice for component and unit testing. For visual and interaction testing, use browser automation such as Playwright if available.
+
+However, installing a testing framework should be its own micro-task, with a basic working test and successful build, not something silently bundled into an unrelated fix.
+
+Also, a production build passing does not prove that a user can complete an interview or navigate to its scorecard.
+
+5. My recommended immediate sequence
+1.1
+
+Fix broken History links
+
+Correct both invalid routes; verify navigation.
+
+1.2
+
+Verify score data contracts
+
+Inspect API shapes, score ranges and historic data before changing labels.
+
+1.3
+
+Correct score presentation
+
+Implement consistent formatting, with targeted tests.
+
+1.4
+
+Fix dashboard loading/error behavior
+
+Distinguish unavailable data from genuine zero progress.
+
+1.5
+
+Protect unsaved notes
+
+Handle note switching and drawer closure without data loss.
+
+1.6
+
+Establish frontend test infrastructure
+
+Add a minimal automated test foundation, separately.
+
+The testing foundation could also be completed before score changes if Antigravity determines that's necessary. The important point is to keep each task independently reviewable.
+
+6. Send this response to Antigravity
+I reviewed your Phase 0 audit and agree with the overall direction. However, I want several adjustments before implementation.
+
+Split Task 1.1 into two independent tasks: broken-route correction and score-scale correction. Do not combine them.
+
+Before changing score displays, inspect the actual backend response contracts for dashboard, History, and Results. Verify whether scores are raw 1–10 values, normalized values, or include historical variations. Never simply change /100 to /10 without checking.
+
+Split Task 1.2 into smaller tasks. Dashboard loading/error states, History states, and terminology changes should not be implemented together.
+
+Do not remove legacy CSS tokens or unused files without verifying dependencies. Defer unrelated cleanup.
+
+Implement light/dark theme infrastructure separately from exposing the theme selector. Keep the application usable in dark mode until the major routes have been migrated and visually verified in both themes.
+
+Break Phases 3–8 into explicit, small tasks with individual acceptance criteria. A phase must never become one large coding operation.
+
+Establish a minimal frontend testing foundation as a separate task. Prefer Vitest + React Testing Library if compatible with our stack. Use browser-based visual and interaction checks wherever available.
+
+After EVERY task, report the exact files modified, tests executed, results, visual verification, remaining risks, and Git diff summary. Do not claim tests passed unless executed.
+
+Do not automatically move to the next task. Wait for my approval after each successful implementation and review.
+
+Keep the Warm Precision design direction, with the warm beige light theme and graphite dark theme. The dashboard remains the highest-priority visual redesign, while the landing and profile pages should be largely preserved.
+
+Update your roadmap accordingly, then begin ONLY the first approved micro-task: correcting the two broken History navigation routes.
+
+Do not modify score formatting, dashboard styling, theme tokens, or unrelated components during this first task.
+
+Run the relevant checks, inspect the diff, and stop for my review. Do not push or merge any changes.
+
+Final verdict: Antigravity's report is a solid foundation. Its main weakness is that some supposedly small tasks still combine several unrelated changes. Correct that now, and the redesign process will be significantly easier to review, test, and maintain.
+
+Updated Implementation Roadmap (Revised per Feedback)
+Phase 1 — Correctness, Testing Foundation & Small Behavioral Fixes
+Task 1.1 (Completed below) — History Broken Route Correction: Fix /setup → /interview and /interview/:id/evaluation → /results/:id in HistoryPage.tsx.
+Task 1.2 — Frontend Testing Foundation: Install & configure vitest + @testing-library/react + @testing-library/jest-dom + jsdom in apps/web, add a test script in apps/web/package.json, and add a smoke test.
+Task 1.3 — Backend Score Contract Audit & Score-Scale Correction: Inspect actual backend API payloads and DB records/seed/history for /api/profile/dashboard, /api/interviews, and /api/interviews/:id (to verify raw 1–10 vs normalized vs historical values) before normalizing score displays across DashboardPage.tsx, HistoryPage.tsx, and ResultsPage.tsx, with unit tests.
+Task 1.4 — Dashboard Loading & Error States: Render loading skeleton and error + retry state in DashboardPage.tsx (plus tests).
+Task 1.5 — History & Results Loading / Error States: Render explicit error/retry states in HistoryPage.tsx and ResultsPage.tsx (plus tests).
+Task 1.6 — Dashboard Terminology Accuracy: Update "Problems Mastered" / self-tracked practice copy in DashboardPage.tsx to accurately describe tracked problems.
+Task 1.7 — Unsaved Notes Protection: Guard note switching/closing when isDirty === true in NotepadPage.tsx and QuestionNoteDrawer.tsx (plus beforeunload & tests).
+Task 1.8 — Dependency-Verified Cleanup (Deferred): Verify zero references for DashboardLayout.tsx, Topbar.tsx, App.css, and duplicate <link> in index.html before removing.
+Phase 2 — Warm Precision Tokens & Theme Infrastructure (Dark Default Preserved)
+Task 2.1 — Semantic Token Layer: Add Warm Precision Light (#F6F4EF canvas / #FFFFFF surface / #EEECE6 secondary / #DDD9D0 border / #252723 text / #315FCE action) & Graphite Dark (#171819 / #202123 / #292B2E / #383B40 / #F1F0EC / #3969D6 / #9AB9FF) CSS variables in index.css alongside existing tokens so nothing breaks during migration.
+Task 2.2 — Theme Provider & Pre-Paint Script (No Exposed Selector Yet): Mount ThemeProvider defaulting to dark in main.tsx + pre-paint script in index.html (tested with Vitest). Theme switcher stays hidden until major routes are migrated and verified in both themes.
+Phase 3 — App Shell & Shared Primitives
+Task 3.1: Migrate Sidebar.tsx to Warm Precision semantic tokens.
+Task 3.2: Migrate AppLayout.tsx header, profile popover, and CommandPalette to semantic tokens.
+Task 3.3: Align shared ui/ primitives (button.tsx, card.tsx, badges/inputs/dialogs) to Warm Precision tokens.
+Phase 4 — Dashboard (Highest-Priority Redesign) & Practice Hub
+Task 4.1: Redesign DashboardPage.tsx layout, hierarchy, and Warm Precision tokens (preserving API contract, adding direct /results/:id links).
+Task 4.2: Migrate DailyTargetTracker.tsx and TargetCompanyTracker.tsx to semantic tokens.
+Task 4.3: Migrate PracticeHubPage.tsx and company kit components (CompanyKitsCatalog, CompanyKitWorkspace).
+Phase 5 — Interviews, Scorecards & AI Mentor
+Task 5.1: Migrate InterviewPage.tsx to Warm Precision tokens.
+Task 5.2: Migrate ResultsPage.tsx and HistoryPage.tsx to Warm Precision tokens.
+Task 5.3: Migrate ChatPage to Warm Precision tokens.
+Phase 6 — Battle Arena
+Task 6.1: Migrate RoomsPage & RoomLobbyPage.
+Task 6.2: Migrate RoomArenaPage & RoomResultsPage (ensuring Monaco Editor theme tracks light/dark).
+Phase 7 — Secondary Pages, Profile (Preserved Structure) & Theme Switcher Release
+Task 7.1: Re-skin ProfilePage.tsx tokens only (preserving layout, charts, and heatmaps).
+Task 7.2: Migrate NotepadPage.tsx, QuestionNoteDrawer.tsx, BookmarksPage, HelpCenterPage.tsx, FeedbackPage.tsx, and LoginPage.tsx.
+Task 7.3 — Expose Theme Selector & Browser Verification: Expose light/dark/system switcher in AppLayout.tsx and visually verify major routes in both Warm Beige light and Graphite dark themes.
+Phase 8 — Landing Polish & Final Verification
+Task 8.1: Minimal token/polish pass on LandingPage.tsx (preserving existing structure/design) + final full build, Vitest suite, and browser visual audit.
+Task 1.1 Report — History Broken Route Correction
+1. Files Modified
+apps/web/src/pages/HistoryPage.tsx      
+Line 344: <Link to="/setup"> → <Link to="/interview">
+Line 397: <Link to={`/interview/${item.id}/evaluation`}> → <Link to={`/results/${item.id}`}>
+2. Checks Executed & Results
+bun run --cwd apps/web build (tsc -b && vite build): Passed (exit code 0 in 18.84s; 2772 modules transformed, bundle chunk warning dist/assets/index-B23swP-5.js 1,459.19 kB unchanged).
+git status --short: Only M apps/web/src/pages/HistoryPage.tsx.
+Unit/component tests: Not executed (no test runner is configured in apps/web yet; scheduled for Task 1.2).
+3. Visual Verification
+Not performed in a live browser for this route-only edit; routes were verified statically against App.tsx (/interview and /results/:id).
+4. Remaining Risks
+HistoryPage.tsx still renders Evaluation button for non-completed interviews (e.g., abandoned or in_progress); ResultsPage.tsx behavior for un-evaluated IDs will be verified in Task 1.5.
+Score scale (/100 vs /10) was intentionally left untouched for Task 1.3.
+5. Git Diff Summary
+diff
+
+--- a/apps/web/src/pages/HistoryPage.tsx
+
++++ b/apps/web/src/pages/HistoryPage.tsx
+
+@@ -341,7 +341,7 @@ export default function HistoryPage() {
+
+-                  <Link to="/setup">
+
++                  <Link to="/interview">
+
+@@ -394,7 +394,7 @@ export default function HistoryPage() {
+
+-                        <Link to={`/interview/${item.id}/evaluation`}>
+
++                        <Link to={`/results/${item.id}`}>
+
+Stopped for your review. Let me know when you approve proceeding to Task 1.2 (Frontend Testing Foundation with Vitest + React Testing Library).
+
+…
+I've reviewed Antigravity's updated roadmap and Task 1.1 implementation report.
+
+Verdict: Approve Task 1.1, with one important caution. The reported change is minimal, the new routes match App.tsx, and the TypeScript/production build passed. Antigravity also correctly disclosed that browser and unit tests were not executed.
+
+However, a successful build does not confirm that the Evaluation button opens the correct interview result. The report identifies a potential issue: the button may still appear for abandoned or incomplete interviews.
+
+My assessment
+Area
+
+Result
+
+Task 1.1 scope
+
+ Good — only two links changed
+
+Git changes
+
+ One file modified
+
+Build validation
+
+ Reported passed
+
+Route consistency
+
+ Routes match router definitions
+
+Browser verification
+
+ Not performed
+
+Risk handling
+
+ Remaining risks documented
+
+Roadmap granularity
+
+ Still needs refinement
+
+The roadmap is improved, but several later tasks are still too large. For example, Task 4.1 combines dashboard layout redesign, theme migration, and navigation changes. Task 7.2 combines six unrelated pages.
+
+Before those phases, Antigravity should split them into smaller independent tasks. There is no need to rewrite the entire roadmap again now.
+
+What I'd do next
+Approve Task 1.1 and authorize Task 1.2 — Frontend Testing Foundation.
+
+Vitest and React Testing Library are appropriate for your React/Vite setup. But don't immediately create dozens of tests. Establish the foundation, validate it, and gradually build meaningful coverage.
+
+I'd also recommend adding Playwright later for real browser testing of navigation, themes, and critical workflows. Unit tests alone won't catch visual regressions.
+
+Send this to Antigravity
+I approve Task 1.1 based on your implementation report. The changes are appropriately scoped, and the build passed.
+
+Proceed with Task 1.2 — Frontend Testing Foundation only.
+
+Requirements:
+
+Configure Vitest, React Testing Library, jest-dom, and jsdom using versions compatible with our existing React 19, Vite, TypeScript, and Bun setup.
+
+Use the existing project architecture and avoid unnecessary dependencies or configuration changes.
+
+Add a test script in apps/web/package.json.
+
+Create a minimal testing setup and a meaningful smoke test for an existing simple component or utility.
+
+Run the new test suite, TypeScript validation, and production build.
+
+Ensure the test configuration does not affect production behavior or introduce browser-only globals into runtime code.
+
+Keep this task strictly focused on test infrastructure. Do not modify dashboard design, score formatting, routes, theme tokens, or unrelated components.
+
+Review the Git diff for unrelated changes, including lockfile updates.
+
+Report the exact files modified, test results, build results, and remaining risks.
+
+After successful validation, stop and wait for my approval before starting Task 1.3.
+
+Also, note for future phases: Tasks 4.1, 4.3, 7.2, and other multi-page tasks must be split into smaller independently testable changes before implementation.
+
+Do not push, merge, or deploy without approval.
+
+One thing I would keep in mind: the project is not ready for visual redesign yet, and that's fine. Once the testing foundation and critical behavior fixes are complete, you can move into the Warm Precision design system with much lower regression risk.
+
+are you working accoridng to codex plan??
+
+Partially — here is the exact situation:
+
+No separate Codex UI/UX audit/plan file was ever supplied in the repository or pasted into your messages (the only audit file in the repo is AUDIT_REMEDIATION_PLAN.md, which is for Wave 1.1 backend security, not UI/UX).
+Because of that, I am working according to:      
+Your Controlled UI/UX Redesign & Implementation Plan (including the Warm Precision light/dark direction),
+The specific Codex audit findings that were referenced in Section 5 of your initial prompt (all of which I verified against the actual codebase in Phase 0), and
+Your 10 adjustments from your last message (splitting Tasks 1.1 and 1.2, verifying backend score contracts before changing score displays, setting up Vitest + React Testing Library first, keeping dark mode default until major routes are migrated, and stopping after every micro-task).
+If you have the full Codex UI/UX audit/plan document and want me to cross-check our roadmap against every item in it before continuing, please paste it here (or point me to its file path).
+
+Otherwise, let me know if you approve Task 1.2 (Frontend Testing Foundation with Vitest + React Testing Library) or want any changes to the roadmap.
+
+…
+Antigravity's response is reasonable. It is following our implementation instructions, but it has not compared its complete roadmap against Codex's full audit.
+
+That's because Antigravity never received the actual Codex audit document.
+
+We already have that document from your earlier upload, Pasted text(10).txt. It contains the complete Codex UI/UX assessment, including page-by-page findings, three design directions, the Warm Precision palette, dashboard recommendations, accessibility concerns, and implementation priorities.
+
+My recommendation: Give Antigravity that document now, before proceeding with Task 1.2. This will allow it to verify that no important recommendations were missed.
+
+Send Antigravity this message along with the original Codex audit file:
+
+I am now providing the complete Codex UI/UX Audit and Redesign Strategy document.
+
+Before proceeding with Task 1.2, read the entire Codex audit carefully and compare it against your existing Phase 0 findings and updated implementation roadmap.
+
+I want you to:
+
+Identify every important recommendation from Codex that is already covered by your roadmap.
+
+Identify recommendations that are missing, partially covered, or incorrectly interpreted.
+
+Highlight any Codex recommendations you disagree with, explaining why based on the actual codebase.
+
+Check that the Warm Precision design direction, warm beige light theme, graphite dark theme, and dashboard-first visual redesign are correctly represented.
+
+Verify that we are preserving the good aspects of the existing landing page and profile page.
+
+Ensure major UX issues discovered by Codex are not being ignored.
+
+Update the roadmap where necessary, keeping every implementation task small and independently testable.
+
+Distinguish functional bug fixes, design system changes, and visual redesign tasks.
+
+Do not create unnecessary work merely to follow every suggestion from Codex.
+
+Maintain our strict workflow: one micro-task, testing, review, completion report, then stop for approval.
+
+Provide a clear comparison table showing:
+
+Codex recommendation
+
+Your current roadmap coverage
+
+Status: Covered / Partial / Missing / Rejected
+
+Required action
+
+Priority
+
+Do not modify any code during this comparison.
+
+Do not install packages or start Task 1.2 yet.
+
+After presenting the updated roadmap and comparison, stop for my review.
+
+The objective is to combine Codex's design analysis with your implementation expertise, not to blindly follow either plan.
+
+Once Antigravity returns that comparison, we can assess whether its roadmap genuinely covers the Codex audit.
+
+This is particularly important because Codex also identified issues with Practice Hub loading behavior, company preparation layouts, scorecard navigation, accessibility, profile heatmap interactions, and misleading progress information—some of which are not explicitly addressed in Antigravity's current roadmap.
+
+I found a higher-priority usability defect in the scorecard flow: History links to /interview/:id/evaluation, but the router defines /results/:id. Score displays also use both /10 and /100. My recommendation is taking shape around a warm neutral workspace with Intervue’s existing blue identity, a separately tuned graphite dark theme, and a dashboard organized around the next useful practice action.
+# Intervue UI/UX audit and redesign strategy
+
+My recommendation is to evolve Intervue into a warm, restrained study workspace with a carefully matched graphite dark theme. Preserve the landing page’s product storytelling and the profile page’s progress-oriented structure. Redesign the dashboard around daily practice decisions.
+
+The largest improvement will come from clearer priorities, trustworthy progress information, and consistent components—not additional visual effects.
+
+## Scope and evidence
+
+This was a read-only review. No code was changed, no packages were installed, and no implementation was started.
+
+I inspected the frontend route architecture, global styles, shared UI primitives, application shell, dashboard, profile, practice flows, company components, interview setup and conversation UI, results, history, mentor, notes, bookmarks, authentication, support pages, and room-related UI.
+
+Evidence labels used below:
+
+- Repository: verified in the current frontend source.
+- Live: verified through retrieved public-page content or redirects.
+- Proposal: design judgment or hypothesis requiring validation.
+
+The live landing page was accessible. Requesting the live dashboard redirected to sign-in. I did not visually inspect authenticated pages or conduct interactive desktop/mobile browser testing. Authenticated-page conclusions are based on source structure, classes, and interaction logic. Public-page retrieval also does not establish pixel-level rendering quality.
+
+———
+
+# 1. Current design assessment
+
+## What already works
+
+### Intervue has a recognizable product identity
+
+The blue developer-oriented mark, technical subject matter, company logos, and dark workspace vocabulary give the product a coherent starting point.
+
+BrandLogo.tsx (/D:/Backend Project/intervue/apps/web/src/components/shared/BrandLogo.tsx) contains a reusable geometric mark. Preserve its silhouette and recognizable blue.
+
+One necessary theme adaptation: its central slash is hardcoded white. It needs a contrasting light-theme treatment or a consistently dark logo tile.
+
+### The landing page explains the product through examples
+
+The public page includes:
+
+- An interview simulation preview.
+- Company preparation examples.
+- An arena preview.
+- A diagnostic scorecard example.
+- Clear entry points into practice.
+
+These concrete demonstrations are stronger than generic “AI-powered productivity” messaging. Preserve the narrative and product examples in LandingPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/LandingPage.tsx).
+
+### The profile has a useful organizing principle
+
+ProfilePage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/ProfilePage.tsx) groups identity, consistency, solved problems, skills, and connected coding platforms.
+
+Its strongest reusable patterns are:
+
+- Bounded sections with clear purposes.
+- Consistent section headings.
+- Compact statistics.
+- Platform and time filters.
+- Activity history.
+- Connected-account management.
+
+These are appropriate for a page users visit to understand longer-term progress.
+
+### Useful infrastructure already exists
+
+The frontend already has:
+
+- React and TypeScript.
+- React Router.
+- Tailwind CSS v4.
+- TanStack Query.
+- Radix-based UI primitives.
+- A reusable command palette.
+- Shared notes, bookmarks, company, and progress components.
+
+There is no compelling design reason to migrate frameworks.
+
+### Accessibility work has already begun
+
+Repository strengths include:
+
+- Global focus-visible styling.
+- A reduced-motion CSS rule.
+- Mobile sidebar focus handling, Escape dismissal, and scroll locking.
+- Authentication field labels and associated validation errors.
+- Larger mobile targets in parts of the application shell.
+
+Preserve and extend these practices.
+
+## The major problems
+
+| Problem | Evidence | Consequence |
+|---|---|---|
+| Dashboard prioritizes reporting over action | Four metric cards precede the company tracker; daily goals appear later | Users must scan before deciding what to do |
+| Multiple competing styling systems | Global variables, @theme colors, .bg-layer-*, .tuf-card, and page-local colors | Pages feel related but inconsistently finished |
+| Light mode lacks a complete foundation | Dark global values, extensive hardcoded dark classes, no theme provider in the inspected root | A toggle alone cannot produce a usable light theme |
+| Progress language overstates certainty | “Problems Mastered” and “Tracked & verified problems” alongside manually marked solved states | Users may mistake completion for demonstrated mastery |
+| Failures resemble empty accounts | Dashboard errors are logged, while absent values render zeros and empty interview content | Users can misinterpret unavailable data as lost progress |
+| Scorecard navigation is inconsistent | History evaluation link does not match the registered results route | Core feedback discovery can fail |
+| Decorative emphasis competes with meaning | Colored icon tiles, gradients, glows, nested panels, and tiny badges | Important actions lose relative prominence |
+
+The underlying issue is weak prioritization. Too many components announce themselves through borders, badges, colors, and explanatory copy instead of relying on placement and typography.
+
+———
+
+# 2. Page-by-page UI/UX audit
+
+Severity describes impact: Critical breaks a core journey; High substantially harms clarity, trust, or access; Medium creates friction; Low is refinement.
+
+## Landing page — preserve and refine
+
+Evidence: repository and live public content.
+
+Retain
+
+- “Practice like it’s the real interview” as a direct, understandable proposition.
+- Product-led examples.
+- Company preparation section.
+- Scorecard preview.
+- Clear primary and secondary hero actions.
+
+Findings
+
+- Medium: Several features acquire their own accent colors. Arena uses red, mentor purple, and other features green or amber. This fragments the brand’s action language.
+- Medium: Terms such as “telemetry-driven interview cockpit” add complexity without helping students choose a practice activity.
+- Medium: The simulation’s live telemetry and scores can look like functional product output. Label illustrative examples explicitly.
+- High: Public navigation offers Help and Feedback, but both routes sit inside the protected application branch in App.tsx. Support access therefore requires authentication.
+- Medium: Claims such as “Encrypted Storage” should be substantiated. The interface alone does not establish the underlying guarantee.
+
+Recommendation
+
+Keep the composition and narrative. Simplify copy, standardize action colors, and reduce repeated glow and gradient treatments. Permit slightly more expressive branding here than inside the working application.
+
+## Dashboard — major redesign
+
+Evidence: repository; live route redirected to login.
+
+Source: DashboardPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/DashboardPage.tsx).
+
+Retain
+
+- Personalized greeting.
+- Interview launch.
+- Target-company practice.
+- Recent interview access.
+- Daily goals.
+
+Findings
+
+- High: Four equally sized metric cards make cumulative statistics the opening experience.
+- High: Daily work is split between company challenges and a separate custom-goal tracker.
+- High: TargetCompanyTracker has its own padded, bordered container inside another dashboard card. This creates unnecessary nesting.
+- High: The dashboard maintains loading state without using it to distinguish loading from loaded content.
+- High: Request failure leaves default zeros and an apparent first-use interview state.
+- High: Every recent interview row links to /history, rather than its specific result.
+- Medium: Green trending iconography accompanies “Based on completed simulations” even when no improvement is demonstrated.
+- Medium: “Mastered,” “verified,” “readiness,” and “score” need clearer definitions.
+- Medium: Large monospaced values and uppercase labels make routine summaries feel more prominent than the next task.
+
+A complete replacement layout follows in Section 5.
+
+## Profile — retain the structure
+
+Evidence: repository.
+
+Retain
+
+- Identity and progress sections.
+- Activity heatmap.
+- Platform filters.
+- Difficulty breakdown.
+- Connected-platform cards.
+
+Findings
+
+- High: Heatmap details depend on mouse hover over non-focusable cells. Keyboard and touch users need another way to inspect dates.
+- Medium: Repeated 10–11px text makes secondary information unnecessarily difficult to read.
+- Medium: Many controls compete within the consistency section.
+- Medium: Profile statistics and platform statistics need clear provenance and synchronization status.
+- Low: “Member Since” is hardcoded to 2026 rather than derived from account creation.
+- Medium: Referral incentives add competition to an otherwise useful progress page.
+
+Recommendation
+
+Retheme and simplify rather than rearrange everything. Move referrals below the core profile content or into account options. Keep the heatmap, adding accessible daily-detail and summary views.
+
+## Practice Hub — simplify the product map
+
+Evidence: repository.
+
+Source: PracticeHubPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/PracticeHubPage.tsx).
+
+Retain
+
+- Topic grouping.
+- Search and filtering.
+- Solved tracking.
+- Notes and bookmarks beside questions.
+- Existing query-based deep links.
+
+Findings
+
+- High: One page manages subject catalogs, sheets, sheet practice, company exploration, curated company kits, company workspaces, and coming-soon states. This creates substantial conceptual and implementation complexity.
+- High: isSheetsLoading || !currentSheet produces a spinner. Missing or failed sheet data can therefore resemble perpetual loading and block other views.
+- High: Solved updates can remain optimistic after synchronization fails.
+- Medium: “Company-wise” exploration and “Company Kits” need clearer differentiation.
+- Medium: Difficulty terminology varies between Basic/Core/Hard and Easy/Medium/Hard.
+- Medium: Catalog-style discovery should give way to “continue where you stopped” for returning users.
+
+Recommendation
+
+Expose two understandable paths:
+
+1. By topic: subject → track → questions.
+2. By company: company → preparation kit → questions.
+
+Use the same question list and toolbar in both. Retain query-based navigation if useful; a route rewrite is not a prerequisite.
+
+## Company preparation — put the question list first
+
+Evidence: repository.
+
+Sources: CompanyKitWorkspace.tsx (/D:/Backend Project/intervue/apps/web/src/components/company/CompanyKitWorkspace.tsx) and CompanyDistributionWidgets.tsx (/D:/Backend Project/intervue/apps/web/src/components/company/CompanyDistributionWidgets.tsx).
+
+Retain
+
+- Target-company selection.
+- Curated scope.
+- Search, filters, and pagination.
+- Question-level notes and bookmarks.
+
+Findings
+
+- Medium: Two substantial distribution widgets precede the question list.
+- Medium: Glowing chart dots, blurred backgrounds, drop shadows, and nested donut centers add little analytical value.
+- High: Percentage-based company readiness needs its calculation and limitations explained.
+- Medium: Manual solved state should be distinguishable from judged completion.
+- Medium: “Top 200 High-Yield” and frequency language require understandable sourcing.
+
+Recommendation
+
+Use a compact header, coverage summary, and prominent question list. Move distributions into an optional “Kit overview” section. Prefer sorted horizontal bars when comparison is the actual task.
+
+## AI Interview — reduce setup effort
+
+Evidence: repository.
+
+Source: InterviewPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/InterviewPage.tsx).
+
+Retain
+
+- Configurable practice.
+- Resume context.
+- Pre-start summary.
+- Conversation workspace.
+- End-session confirmation.
+
+Findings
+
+- Medium: Setup exposes many choices: track, role, difficulty, duration, and resume context.
+- Medium: Large bordered panels and repeated small labels make setup feel more demanding.
+- Medium: Custom dropdowns and confirmation overlays need consistent keyboard and focus behavior.
+- High: Login copy advertises AI voice sessions while the separate voice route is commented out. Capability messaging needs reconciliation.
+
+Recommendation
+
+Default to a useful session with three primary choices: track, level, and duration. Put resume context and specialized settings behind “Customize session.”
+
+During the interview, prioritize the prompt, response composer, time, connection state, and explicit finish action.
+
+## History and scorecards — repair the core journey first
+
+Evidence: repository.
+
+Sources: HistoryPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/HistoryPage.tsx), ResultsPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/ResultsPage.tsx), and App.tsx (/D:/Backend Project/intervue/apps/web/src/App.tsx).
+
+Findings
+
+- Critical: History links to /interview/${item.id}/evaluation; the router registers /results/:id.
+- High: Results display scores out of 10, while History displays scores out of 100. These presentation contracts must be reconciled with the underlying data.
+- Medium: “Scorecards” navigation opens a page defaulting to contest battles.
+- Medium: Large contest cards make history harder to scan as records accumulate.
+- Medium: Results distinguish processing and failure, but failure lacks a visible recovery action.
+- Medium: Results use fixed two- and three-column sections without small-screen alternatives.
+
+Recommendation
+
+Use a compact activity list with clear Interview and Arena filters. Open individual results directly.
+
+A scorecard should answer:
+
+1. How did I perform?
+2. What evidence supports the assessment?
+3. What should I practice next?
+
+Choose one displayed score scale after confirming the API contract; do not merely relabel values.
+
+## AI Mentor — preserve the workspace, improve reading
+
+Evidence: repository.
+
+Source: ChatPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/ChatPage.tsx).
+
+Retain
+
+- Conversation history.
+- Starter prompts.
+- Streaming responses.
+- Markdown and code formatting.
+- Mobile history drawer.
+
+Findings
+
+- Medium: Conversation navigation introduces another sidebar within the application shell.
+- Medium: Percentage-width bubbles constrain long technical explanations and code.
+- Medium: Purple headings and colored assistant treatments compete with content.
+- Medium: Fixed 100vh calculations need mobile keyboard and browser-chrome verification.
+
+Recommendation
+
+Use a quiet transcript with a readable maximum width and generous code blocks. Offer task-oriented prompts such as “Give me a hint,” “Review my approach,” and “Explain this trade-off.”
+
+## Notes — strong layout, important interaction gaps
+
+Evidence: repository.
+
+Source: NotepadPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/NotepadPage.tsx).
+
+Retain
+
+- Desktop list/editor split.
+- Mobile list-to-detail behavior.
+- Search.
+- Problem context.
+- Explicit save feedback.
+
+Findings
+
+- High: Selecting another note replaces the editing content and clears dirty state without a save guard.
+- High: Note selection uses clickable div elements without equivalent keyboard semantics.
+- Medium: Delete controls depend heavily on hover.
+- Medium: Empty guidance tells users to hover over practice questions, which is unsuitable for touch.
+- Medium: Tiny, low-emphasis snippets reduce usefulness of the list.
+
+Recommendation
+
+Keep the layout. Add unsaved-change protection or reliable autosave, proper selectable controls, visible focus actions, and undo for deletion.
+
+## Bookmarks — refine rather than redesign
+
+Evidence: repository.
+
+Source: BookmarksPage.tsx (/D:/Backend Project/intervue/apps/web/src/pages/BookmarksPage.tsx).
+
+Retain
+
+- Compact rows.
+- Search.
+- Difficulty filters.
+- Direct practice access.
+
+Findings
+
+- Medium: Empty-state copy says “Star” despite bookmark-based terminology and iconography.
+- Medium: Every external link is constructed as a LeetCode URL. Preserve the actual source for questions from other origins.
+- Medium: Action targets are small.
+- Medium: Filtered-empty states need a clear “Clear filters” action.
+
+## Sidebar and application shell
+
+Evidence: repository.
+
+Sources: AppLayout.tsx (/D:/Backend Project/intervue/apps/web/src/components/layout/AppLayout.tsx) and Sidebar.tsx (/D:/Backend Project/intervue/apps/web/src/components/layout/Sidebar.tsx).
+
+Retain
+
+- Collapsible navigation.
+- Mobile drawer behavior.
+- Command palette.
+- Role-aware administration.
+- Persistent account access.
+
+Findings
+
+- Medium: Account menus duplicate navigation with different names.
+- Medium: “Scorecards,” “Contest & Interview History,” and “Contest Standings & Scorecards” describe overlapping destinations.
+- Medium: Coins and streaks occupy persistent header space.
+- Medium: The inset sidebar, sticky header, page backgrounds, and nested cards create excessive framing.
+- Low: DashboardLayout.tsx and Topbar.tsx contain alternate shell conventions but are not the shell wired into App.tsx.
+
+Recommendation
+
+Use one navigation vocabulary and one active shell. Keep the header focused on search, relevant notifications, appearance, and account controls.
+
+## Other pages
+
+| Area | Severity | Finding and recommendation |
+|---|---|---|
+| Login | High | “Forgot password?” only shows an informational toast in the inspected handler. Provide a real recovery journey. |
+| Login | Medium | Live copy claims “10,000+ candidates”; validate before retaining. Terms, Privacy, and Help links resolve to the homepage in retrieved content. |
+| Profile setup | Medium | Keep sectioned editing; simplify selection styles and make onboarding versus account editing explicit. |
+| Help Center | High | Make basic help accessible before login. Keep searchable articles; support durable article links and consistent accessible dialogs. |
+| Feedback | Medium | Preserve validation and success feedback. Offer access without requiring a session where appropriate. |
+| Arena/lobby/results | Medium–High | Source contains extensive glow, blur, gradient, and urgent color treatments. Reserve emphasis for timer thresholds, connection failures, and meaningful results. |
+| Arena workspace | High | Validate narrow-screen task switching, proctoring instructions, reconnect states, and exit consequences through actual browser testing. |
+| Admin | Medium | Preserve role separation. Reuse the same tables, filters, dialogs, and status conventions as the application. |
+| Not found | Low | Replace the large decorative glow treatment with a compact recovery page. |
+| Coding/voice pages | Medium | Coding routes redirect to Practice; the voice route is commented out. Treat these as inactive surfaces, not shipped destinations. |
+
+———
+
+# 3. Three proposed visual directions
+
+The palettes below are proposed semantic foundations, not measured compliance results. Each includes distinct action-fill and accent-text colors, particularly for dark mode.
+
+All directions should support System, Light, and Dark preferences.
+
+## Direction 1 — Warm Precision
+
+Rank: 1 — recommended
+
+A warm neutral workspace with crisp blue actions. Calm enough for sustained learning, precise enough for developer tools.
+
+The beige should be subtle: primarily the canvas and muted surfaces. Reading and editing surfaces should remain close to white.
+
+### Palette
+
+| Semantic role | Light | Dark |
+|---|---|---|
+| Application canvas | #F6F4EF | #171819 |
+| Main surface | #FFFFFF | #202123 |
+| Muted surface | #EEECE6 | #292B2E |
+| Elevated surface | #FFFEFC | #303236 |
+| Hover surface | #E8E5DE | #34373B |
+| Selected surface | #E8EEFC | #253650 |
+| Subtle border | #DDD9D0 | #383B40 |
+| Control border | #858078 | #777C85 |
+| Primary text | #252723 | #F1F0EC |
+| Secondary text | #5E625B | #B9BCB7 |
+| Muted text | #6C7068 | #959B95 |
+| Primary action fill | #315FCE | #3969D6 |
+| Primary action hover | #254EAF | #4778E8 |
+| On primary | #FFFFFF | #FFFFFF |
+| Accent text / focus | #315FCE | #9AB9FF |
+| Secondary accent | #526A57 | #A1BCA5 |
+| Success foreground / subtle | #286342 / #E8F2EB | #91CFAB / #22382C |
+| Warning foreground / subtle | #805600 / #FFF2D8 | #E2BD75 / #3D321F |
+| Danger foreground / subtle | #AD3737 / #FBEAEA | #F0A1A1 / #40282A |
+| Overlay | #17181966 | #00000099 |
+
+Typography: Manrope for interface text; JetBrains Mono for code. This retains fonts already loaded by the project. Use tabular numerals for metrics.
+
+Geometry: 8px controls, 12px cards, 16px dialogs; 4px spacing base, with 16/24/32px as the dominant layout intervals.
+
+Components
+
+- White or warm-white cards with one quiet border.
+- Solid blue primary buttons.
+- Neutral outlined secondary buttons.
+- Warm muted navigation with blue selection.
+- Graphite dark surfaces separated by luminance and borders.
+- Shadows mainly for overlays.
+
+Advantages: Distinctive, approachable, compatible with the existing blue identity, comfortable for long sessions.
+
+Drawbacks: Warm surfaces require careful calibration; too much beige can become muddy. Company logos need consistent neutral holders.
+
+Fit: Best balance between a student learning environment and a professional engineering product.
+
+## Direction 2 — Technical Neutral
+
+Rank: 2
+
+A cooler, denser interface that emphasizes precision and efficient scanning. Inspired by the restraint of developer platforms without reproducing their layouts.
+
+### Palette
+
+| Semantic role | Light | Dark |
+|---|---|---|
+| Application canvas | #F7F8FA | #101214 |
+| Main surface | #FFFFFF | #191C20 |
+| Muted surface | #EEF1F5 | #22262C |
+| Elevated surface | #FFFFFF | #2A3038 |
+| Hover surface | #E6EBF1 | #303740 |
+| Selected surface | #E8EEFF | #263554 |
+| Subtle border | #DCE1E8 | #343B45 |
+| Control border | #7B8594 | #748093 |
+| Primary text | #19212D | #EDF1F7 |
+| Secondary text | #505D70 | #B2BECE |
+| Muted text | #667185 | #929FB1 |
+| Primary action fill | #345AC5 | #3C61CB |
+| Primary action hover | #29499F | #4B72DD |
+| On primary | #FFFFFF | #FFFFFF |
+| Accent text / focus | #345AC5 | #A6BCFF |
+| Secondary accent | #386B7A | #91BECC |
+| Success foreground / subtle | #246642 / #E7F3EB | #8CD0A7 / #20372B |
+| Warning foreground / subtle | #805900 / #FFF3D6 | #E6C173 / #3C321F |
+| Danger foreground / subtle | #B03742 / #FCEAED | #F1A0AA / #40272E |
+| Overlay | #10182066 | #00000099 |
+
+Typography: Geist for interface text, JetBrains Mono for code. Geist is declared as a dependency but needs explicit loading; it is not imported in the inspected entry point.
+
+Geometry: 6–8px controls, 10px panels, 12px dialogs; 4px spacing base with tighter 12–16px internal spacing.
+
+Components
+
+- Flat surfaces and crisp dividers.
+- Compact question rows and toolbars.
+- Solid indigo-blue actions.
+- Neutral navigation with clear selected indicators.
+- Minimal elevation.
+
+Advantages: Excellent for dense practice lists, administration, and coding workspaces.
+
+Drawbacks: Can feel generic or less welcoming. Excessive density would disadvantage beginners and mobile users.
+
+Fit: Strong if Intervue evolves toward a highly utilitarian technical workbench.
+
+## Direction 3 — Editorial Study
+
+Rank: 3
+
+A quieter learning environment with paper-like surfaces, deep teal actions, and stronger reading hierarchy.
+
+### Palette
+
+| Semantic role | Light | Dark |
+|---|---|---|
+| Application canvas | #F7F5F0 | #171C1B |
+| Main surface | #FFFEFA | #202826 |
+| Muted surface | #EEEAE1 | #293430 |
+| Elevated surface | #FFFFFF | #33403B |
+| Hover surface | #E6E3D9 | #3A4942 |
+| Selected surface | #E0EEE8 | #27483D |
+| Subtle border | #DCD7CB | #3B4943 |
+| Control border | #858175 | #7B9086 |
+| Primary text | #26312B | #EEF1E9 |
+| Secondary text | #59665D | #B7C3B8 |
+| Muted text | #6D756A | #97AA9B |
+| Primary action fill | #286854 | #357761 |
+| Primary action hover | #205442 | #40816B |
+| On primary | #FFFFFF | #FFFFFF |
+| Accent text / focus | #286854 | #9CD5BD |
+| Secondary accent | #5269A5 | #B2C2F0 |
+| Success foreground / subtle | #286342 / #E8F2E9 | #9BD2AA / #263E2C |
+| Warning foreground / subtle | #805600 / #FFF0D6 | #E4BF7D / #40341F |
+| Danger foreground / subtle | #AA3941 / #FBE9EB | #EFA5AF / #42292F |
+| Overlay | #19251D66 | #00000099 |
+
+Typography: Manrope for the application. An editorial serif could be explored for limited marketing headings, but should not enter tables, navigation, or coding surfaces.
+
+Geometry: 8px controls, 10–12px cards, 16px dialogs; 4px base with more generous 24–32px reading-section spacing.
+
+Components
+
+- Quiet paper-like sections.
+- Teal primary actions.
+- Understated navigation.
+- Reading surfaces with fewer enclosing cards.
+- Minimal shadows.
+
+Advantages: Particularly suitable for notes, explanations, revision, and mentor conversations.
+
+Drawbacks: Introduces more brand change and can underplay the technical interview and competitive aspects. Teal actions must remain distinct from success indicators.
+
+Fit: Suitable if Intervue’s central identity becomes guided learning rather than interview simulation.
+
+———
+
+# 4. Direction comparison
+
+| Criterion | Warm Precision | Technical Neutral | Editorial Study |
+|---|---|---|---|
+| Existing brand continuity | Excellent | Excellent | Moderate |
+| Welcoming daily workspace | Excellent | Good | Excellent |
+| Dense technical workflows | Very good | Excellent | Good |
+| Distinctiveness | High | Moderate | High |
+| Supports requested beige direction | Excellent | Limited | Excellent |
+| Implementation disruption | Low–moderate | Low–moderate | Moderate |
+| Overall rank | 1 | 2 | 3 |
+
+Choose Warm Precision, with Technical Neutral’s discipline for question tables and coding workspaces.
+
+That means one coherent system with task-appropriate density—not different visual identities for different pages.
+
+———
+
+# 5. Dashboard redesign proposal
+
+## Design around three daily questions
+
+1. What should I work on now?
+2. How is my preparation progressing?
+3. What should I review next?
+
+Cumulative statistics should support those decisions.
+
+## Proposed desktop layout
+
+┌───────────────────────────────────────────────────────────┐
+│ Dashboard                         Start interview          │
+│ Good evening, Lalit.                                       │
+├───────────────────────────────────┬───────────────────────┤
+│ TODAY’S PRACTICE                   │ TARGET COMPANIES      │
+│ Continue your current track       │ Google: 18 / 60        │
+│                                   │ Amazon: 12 / 50        │
+│ Recommended next question         │ Continue preparation  │
+│ Reason • topic • difficulty       │                       │
+│ [Continue practice]               │ THIS WEEK             │
+│                                   │ Goal: 3 / 5 sessions  │
+│ Today’s tasks                     │ Practice days: 3      │
+│ □ Company problem                 │                       │
+│ □ Review a saved explanation      │                       │
+├───────────────────────────────────┴───────────────────────┤
+│ PERFORMANCE                                               │
+│ Comparable interview trend • sample size • date range      │
+│ One evidence-based improvement opportunity                 │
+├───────────────────────────────────────────────────────────┤
+│ RECENT ACTIVITY                                           │
+│ Interview → View scorecard                                │
+│ Company practice → Continue                               │
+│ Saved note → Review                                       │
+└───────────────────────────────────────────────────────────┘
+
+This is a proposed content hierarchy, not a claim about validated user behavior.
+
+## A. Compact page header
+
+Keep the greeting, but replace the long introductory paragraph with useful context.
+
+Use “Start interview” as a secondary launch action when “Continue practice” is the page’s dominant action.
+
+Avoid giving both equal visual weight.
+
+## B. Today’s practice — the primary workspace
+
+Make the largest section actionable:
+
+- Continue the last relevant track.
+- Show one next question or activity.
+- Explain why it is suggested.
+- Provide topic and difficulty.
+- Offer one clear launch action.
+
+Example:
+
+> Continue graph traversal
+> Next in your Google preparation kit.
+> Medium · Graphs
+> Continue practice
+
+Only show a time estimate if it has a credible basis.
+
+Feasibility: A reliable cross-page resume action may require additional saved context. Do not simulate continuity using invented or stale data.
+
+## C. One daily task area
+
+Combine company challenges and custom goals into one visible “Today” list.
+
+Keep different completion meanings:
+
+- System-tracked completion.
+- User-marked completion.
+- Personal checklist completion.
+
+Move task creation and category selection behind “Add task.” The default dashboard should emphasize doing work, rather than managing a goal form.
+
+The current useDailyTargets implementation uses browser-local storage and does not show date-based rollover. Until that changes, call these personal tasks, or clearly disclose their persistence behavior.
+
+## D. Compact company coverage
+
+Show at most two or three targets initially:
+
+- Company identity.
+- Completed / total questions.
+- Coverage bar.
+- Continue action.
+- “Manage targets” as a secondary control.
+
+Use “Preparation coverage” rather than “Readiness” if the value mainly measures question completion.
+
+Keep company selection and detailed distributions in the preparation workspace.
+
+## E. Restrained progress summary
+
+Replace the four large cards with a compact summary:
+
+- Practice days this week.
+- Questions completed in a stated period.
+- Recent comparable interview score.
+
+Every metric needs a clear scope. For example:
+
+> 76/100 average across your last 3 backend interviews.
+
+Do not add an improvement arrow without a valid comparison. Do not combine incompatible tracks or score scales into a precise-looking trend.
+
+## F. Performance connected to action
+
+If sufficient comparable data exists:
+
+- Show a small trend with a stated date range.
+- Include sample size.
+- Explain one improvement opportunity.
+- Link to a related drill or review.
+
+If data is insufficient, say so and offer the next useful assessment.
+
+The existing dashboard type includes optional trend, skills, and recommendations fields, but that does not establish reliable populated data. Validate the contract before designing around them.
+
+## G. Recent activity as compact rows
+
+Show three to five entries. Each should link directly to the relevant artifact.
+
+Prioritize:
+
+- Completed interviews awaiting review.
+- Unfinished practice.
+- Recent notes or revision items.
+
+Avoid turning the dashboard into an exhaustive event log.
+
+## H. States
+
+| State | Proposed behavior |
+|---|---|
+| New account | One first-session recommendation; optional company selection |
+| No target company | Compact invitation; general practice remains available |
+| Loading | Section-shaped skeletons without fabricated zeros |
+| Request failure | Local error message and retry |
+| No evaluations | Explain when assessment information becomes available |
+| Goals complete | Quiet completion state; optional next activity |
+| Stale progress | Show last synchronization time where material |
+
+## Responsive behavior
+
+- Wide desktop: approximately 8/4 content split.
+- Tablet: prioritize Today; place company coverage below it.
+- Mobile: one column: Today → targets → progress → activity.
+- Preserve this order in the DOM.
+- Keep charts secondary.
+- Avoid horizontally scrolling statistic-card carousels.
+- Validate at 320–390px widths, browser zoom, and with the on-screen keyboard.
+
+———
+
+# 6. Application-wide design system
+
+## Semantic tokens
+
+Make one canonical token vocabulary:
+
+- Background: canvas, surface, muted, elevated.
+- Text: primary, secondary, muted, inverse.
+- Border: subtle, control, strong.
+- Action: primary, hover, pressed, on-primary.
+- Selection: background, foreground.
+- Status: success, warning, danger, informational.
+- Interaction: focus, disabled, overlay.
+- Data visualization: series and sequential scales.
+
+Map shared UI components and Tailwind utilities to these values.
+
+In index.css (/D:/Backend Project/intervue/apps/web/src/index.css), overlapping definitions currently include:
+
+- :root surface variables.
+- Hardcoded .bg-layer-* utilities.
+- .tuf-card and .btn-primary.
+- A separate @theme palette.
+- Hardcoded three-tier surface classes.
+- Gradient CTA classes.
+
+Shared components also expect tokens such as card, card-foreground, primary-foreground, muted-foreground, ring, and input, which are not fully established in that stylesheet.
+
+Consolidate the token contract before expanding component reuse.
+
+## Typography
+
+For the recommended direction:
+
+| Role | Size / line height | Weight |
+|---|---|---|
+| Marketing hero | 48–64 / 54–72px desktop | 700 |
+| Page heading | 28 / 36px | 650–700 |
+| Section heading | 18 / 26px | 600 |
+| Component title | 15–16 / 22–24px | 600 |
+| Body | 14–16 / 22–26px | 400 |
+| Metadata | 12–13 / 18–20px | 400–500 |
+| Code | 13–14 / 20–22px | 400 |
+
+Use monospace for code, identifiers, and genuinely technical values. Use tabular numerals for statistics.
+
+Avoid 9–10px text for meaningful labels and widespread uppercase microcopy.
+
+## Spacing and grids
+
+Use a 4px foundation:
+
+4, 8, 12, 16, 24, 32, 48, 64
+
+- Page padding: 16px mobile, 24px tablet, 32px desktop.
+- Card padding: 16px compact, 24px standard.
+- Section gap: 24–32px.
+- Standard workspace maximum: approximately 1280px.
+- Reading width: approximately 720–800px.
+- Coding workspaces: flexible width.
+
+Define these centrally instead of varying maximum widths and page padding independently.
+
+## Surfaces
+
+Use three default levels:
+
+1. Canvas.
+2. Content surface.
+3. Elevated overlay.
+
+A card should usually have one surface and one border. Use dividers and spacing inside it.
+
+Remove card-inside-card framing unless the inner element has a distinct interactive purpose.
+
+## Buttons and inputs
+
+Reuse button.tsx (/D:/Backend Project/intervue/apps/web/src/components/ui/button.tsx) and input.tsx (/D:/Backend Project/intervue/apps/web/src/components/ui/input.tsx) after resolving their semantic tokens.
+
+- Solid primary.
+- Outlined secondary.
+- Quiet tertiary.
+- Destructive styling only for destructive actions.
+- Standard controls around 40px high.
+- Touch targets around 44px where appropriate.
+- Visible labels and consistent error placement.
+- Preserve readable input text on mobile.
+
+The current shared button defaults to 32px and its small variants are smaller still. Keep compact variants for suitable dense desktop contexts.
+
+## Navigation
+
+Suggested grouping:
+
+| Group | Destinations |
+|---|---|
+| Practice | Dashboard, Practice Hub, AI Interview, Arena |
+| Review | Scorecards, Notes, Bookmarks |
+| Assistance | AI Mentor |
+| Account/support | Profile, Appearance, Help, Feedback |
+
+Keep administration conditional.
+
+Use neutral icons with consistent stroke and size. Selected navigation should combine background, text weight, and a visible indicator; it should not rely on color alone.
+
+## Tables and question lists
+
+- Stable row rhythm.
+- Clear column alignment.
+- Search and primary filters above the list.
+- Advanced filters progressively disclosed.
+- Textual difficulty/status labels.
+- Row actions visible on focus and usable on touch.
+- Responsive rows that preserve the title and primary action.
+- No decorative elevation on every row.
+
+## Charts and progress
+
+- Bars for category comparisons.
+- Lines for meaningful trends.
+- One hue for ordinary progress.
+- Semantic colors for status.
+- Labels and accessible summaries alongside charts.
+- Sequential heatmap scales designed separately for each theme.
+
+Do not use red merely to mean “hard”; difficulty and failure are different concepts.
+
+## Overlays
+
+Reuse Radix dialog, sheet, and dropdown primitives for:
+
+- Focus trapping and restoration.
+- Escape behavior.
+- Keyboard navigation.
+- Consistent labeling.
+- Predictable overlay stacking.
+
+Custom overlays in Profile, Interview, Help, and other flows should converge on these primitives.
+
+## Interaction and motion
+
+- Hover: quiet surface change.
+- Focus: clearly visible ring.
+- Selected: persistent indicator plus text/background treatment.
+- Disabled: recognizable state without excessively faded labels.
+- Transitions: generally 120–180ms.
+- Remove scale-on-hover from routine dashboard controls.
+- Reserve pulsing for meaningful live or urgent states.
+
+The global reduced-motion CSS is a good foundation. JavaScript-driven animation should honor the same preference.
+
+## Accessibility
+
+Target WCAG 2.2 AA during implementation:
+
+- Measure actual foreground/background combinations.
+- Check ordinary text at 4.5:1.
+- Check meaningful control boundaries and indicators where applicable.
+- Ensure keyboard operation and visible focus.
+- Provide touch alternatives to hover.
+- Test reflow and 200% zoom.
+- Announce asynchronous status appropriately without making streamed mentor content overwhelming.
+
+The proposed palettes still require these checks across actual component states.
+
+———
+
+# 7. Preserve, improve, or replace
+
+| Component/pattern | Decision | Reason |
+|---|---|---|
+| Brand mark | Preserve, adapt contrast | Recognizable identity |
+| Landing storytelling | Preserve | Concrete product explanation |
+| Profile section structure | Preserve | Appropriate long-term progress model |
+| Profile heatmap | Improve | Valuable information; hover-only details |
+| AppLayout and Sidebar | Improve | Existing responsive foundation |
+| Command palette | Preserve, refine | Useful developer-tool interaction |
+| UI primitives | Improve and standardize | Reuse exists; token contract incomplete |
+| Question filters | Preserve, consolidate | Repeated functional need |
+| Notes drawer | Preserve, improve accessibility | Keeps revision near practice |
+| Dashboard metric grid | Replace composition | Gives reporting excessive priority |
+| TargetCompanyTracker | Simplify presentation | Valuable logic, excessive nested framing |
+| DailyTargetTracker | Integrate into Today | Avoid competing daily work areas |
+| Company distribution widgets | Simplify/reposition | Analysis should not obstruct practice |
+| History cards | Replace with compact list | Better scanning and scale |
+| Results structure | Improve | Needs consistent score contract and recovery |
+| Alternate shell files | Review for retirement | Prevent future design drift |
+| Arena glows and decorative blur | Remove selectively | Urgency should remain meaningful |
+
+———
+
+# 8. Prioritized implementation roadmap
+
+This is a future implementation sequence, not work started during this audit.
+
+## Phase 1 — Fix trust and journey defects
+
+1. Correct scorecard links.
+2. Reconcile score scales with API data.
+3. Distinguish loading, error, empty, and populated states.
+4. Protect unsaved notes.
+5. Correct “mastered,” “verified,” and “readiness” language.
+6. Resolve password recovery and public support access.
+7. Reconcile advertised voice capability with available functionality.
+
+Acceptance: Users can complete an interview, find its result, interpret its score, and recover from failures.
+
+## Phase 2 — Validate the chosen direction
+
+Review concrete designs for:
+
+- Dashboard: populated, first-use, and error.
+- Profile: light and dark.
+- Dense practice list: light and dark.
+- Mobile dashboard and notes.
+- One dialog and one input-error state.
+
+Use these to validate warmth, density, contrast, and brand continuity before broader implementation.
+
+## Phase 3 — Establish tokens and primitives
+
+- Implement both theme palettes.
+- Resolve shared UI token requirements.
+- Standardize controls, surfaces, typography, and spacing.
+- Add persistent System/Light/Dark preference.
+- Address theme behavior in portals, toasts, charts, logos, and editor surfaces.
+
+Acceptance: A representative screen works in both themes without page-specific color patches.
+
+## Phase 4 — Redesign the dashboard
+
+- Build Today’s practice.
+- Integrate daily work.
+- Compact company coverage.
+- Add evidence-based progress summaries.
+- Link recent activity directly.
+
+Validate with new and returning learners.
+
+## Phase 5 — Consolidate practice and review workflows
+
+- Unify question-list patterns.
+- Simplify company preparation.
+- Improve scorecards.
+- Improve notes/bookmark interactions.
+- Refine mentor reading and mobile behavior.
+
+## Phase 6 — Refine preserved pages and edge states
+
+- Retheme Profile with minimal structural change.
+- Refine Landing copy and accents.
+- Simplify Arena decoration.
+- Standardize support, administration, and recovery pages.
+
+## Validation priorities
+
+Observe whether representative users can:
+
+- Identify the next practice action quickly.
+- Resume a company track.
+- Find a recent scorecard.
+- Explain what a progress percentage means.
+- Save and revisit notes without losing edits.
+- Complete the same tasks on mobile and by keyboard.
+
+Establish a baseline before setting improvement targets. This audit does not establish measured conversion, accessibility compliance, or task-success rates.
+
+———
+
+# 9. Final recommendation
+
+I would select Warm Precision.
+
+It preserves Intervue’s blue developer identity while giving the application a calmer, more mature foundation. The warm light theme makes daily study approachable; the graphite dark theme supports sustained technical work without excessive contrast or neon effects.
+
+Preserve the landing page’s demonstrations and the profile page’s progress structure. Concentrate redesign effort on the dashboard, question workflows, and scorecard journey.
+
+The defining dashboard change should be immediate and practical: users should see what to practice next, understand why it matters, and start with one clear action.
+
+
+
+
+⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮⋮
+⋮⋮⋮⋮
