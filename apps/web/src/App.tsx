@@ -8,6 +8,10 @@ import ProfilePage from "./pages/ProfilePage";
 import InterviewPage from "./pages/InterviewPage";
 import ResultsPage from "./pages/ResultsPage";
 import PracticeHubPage from "./pages/PracticeHubPage";
+import LearnHomePage from "./pages/LearnHomePage";
+import SubjectCatalogPage from "./pages/SubjectCatalogPage";
+import ModuleTopicsPage from "./pages/ModuleTopicsPage";
+import ConceptReaderPage from "./pages/ConceptReaderPage";
 import HistoryPage from "./pages/HistoryPage";
 import ChatPage from "./pages/ChatPage";
 import AdminPage from "./pages/AdminPage";
@@ -185,6 +189,10 @@ export default function App() {
           <Route path="/interview" element={<InterviewPage />} />
           <Route path="/results/:id" element={<ResultsPage />} />
           <Route path="/practice" element={<PracticeHubPage />} />
+          <Route path="/learn" element={<LearnHomePage />} />
+          <Route path="/learn/subjects/:slug" element={<SubjectCatalogPage />} />
+          <Route path="/learn/subjects/:subjectSlug/modules/:moduleSlug" element={<ModuleTopicsPage />} />
+          <Route path="/learn/concepts/:slug" element={<ConceptReaderPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/chat/:id" element={<ChatPage />} />
