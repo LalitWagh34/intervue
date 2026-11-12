@@ -423,10 +423,10 @@ export default function RoomArenaPage() {
 
   if (isLoading || !room) {
     return (
-      <div className="min-h-screen bg-[#07080B] flex items-center justify-center text-zinc-400">
+      <div className="min-h-screen bg-[var(--canvas)] flex items-center justify-center text-[var(--text-secondary)]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-          <span className="text-sm font-mono tracking-wide text-zinc-300">Synchronizing Battle Arena...</span>
+          <div className="w-8 h-8 rounded-full border-2 border-[var(--action-primary)] border-t-transparent animate-spin" />
+          <span className="text-sm font-mono tracking-wide text-[var(--text-secondary)]">Synchronizing Battle Arena...</span>
         </div>
       </div>
     );
@@ -434,20 +434,20 @@ export default function RoomArenaPage() {
 
   if (!room.questions || room.questions.length === 0) {
     return (
-      <div className="min-h-screen bg-[#07080B] flex flex-col items-center justify-center text-zinc-400 gap-4 p-6">
-        <div className="p-8 bg-[#0D0F14] border border-zinc-800 rounded-2xl max-w-md text-center space-y-4 shadow-2xl">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-amber-400">
+      <div className="min-h-screen bg-[var(--canvas)] flex flex-col items-center justify-center text-[var(--text-secondary)] gap-4 p-6">
+        <div className="p-8 bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl max-w-md text-center space-y-4 shadow-xl">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--status-warning)]/10 border border-[var(--status-warning)]/20 flex items-center justify-center mx-auto text-[var(--status-warning)]">
             <Trophy className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">No Questions in Contest</h2>
-            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">No Questions in Contest</h2>
+            <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
               This contest room has no questions assigned. Please create a new contest room with available subjects or problems.
             </p>
           </div>
           <Button
             onClick={() => navigate("/rooms")}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl"
+            className="w-full bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs font-semibold rounded-xl"
           >
             Back to Contest Hub
           </Button>
@@ -500,34 +500,34 @@ export default function RoomArenaPage() {
   const remainingCount = Math.max(0, totalQuestions - completedCount);
 
   return (
-    <div className="h-[100dvh] max-h-[100dvh] bg-[#07080B] text-zinc-100 flex flex-col overflow-hidden font-sans selection:bg-blue-600/30">
+    <div className="h-[100dvh] max-h-[100dvh] bg-[var(--canvas)] text-[var(--text-primary)] flex flex-col overflow-hidden font-sans selection:bg-[var(--surface-selected)]">
       {/* ─── TOP ARENA HUD ───────────────────────────────────────────── */}
-      <header className="h-14 border-b border-zinc-800/90 bg-[#0C0E13]/95 backdrop-blur px-2.5 sm:px-4 flex items-center justify-between shrink-0 select-none z-20 gap-2">
+      <header className="h-14 border-b border-[var(--border-subtle)] bg-[var(--surface)]/95 backdrop-blur px-2.5 sm:px-4 flex items-center justify-between shrink-0 select-none z-20 gap-2">
         {/* Left: Question Palette Toggle & Contest Title */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Button
             size="sm"
             variant="outline"
             onClick={() => setIsQuestionNavOpen(!isQuestionNavOpen)}
-            className={`text-xs h-8.5 px-2.5 sm:px-3 border-zinc-800 flex items-center gap-1.5 sm:gap-2 rounded-xl transition-all shrink-0 ${
+            className={`text-xs h-8.5 px-2.5 sm:px-3 border-[var(--border-control)] flex items-center gap-1.5 sm:gap-2 rounded-xl transition-all shrink-0 cursor-pointer ${
               isQuestionNavOpen
-                ? "bg-blue-600/20 text-blue-300 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.2)]"
-                : "bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                ? "bg-[var(--surface-selected)] text-[var(--accent-text)] border-[var(--action-primary)]/50 shadow-sm"
+                : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
             }`}
             title={isQuestionNavOpen ? "Hide Questions Panel" : "Show Questions Panel"}
           >
-            <LayoutGrid className="w-3.5 h-3.5 text-blue-400" />
+            <LayoutGrid className="w-3.5 h-3.5 text-[var(--accent-text)]" />
             <span className="font-semibold hidden sm:inline">Questions</span>
-            <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-black/40 text-zinc-300 border border-zinc-800/80">
+            <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
               {activeQuestionIndex + 1}/{totalQuestions}
             </span>
           </Button>
 
-          <div className="hidden sm:flex items-center gap-2.5 pl-2 border-l border-zinc-800/80 shrink-0">
-            <span className="font-bold text-sm tracking-tight text-white truncate max-w-[120px] md:max-w-[280px]">
+          <div className="hidden sm:flex items-center gap-2.5 pl-2 border-l border-[var(--border-subtle)] shrink-0">
+            <span className="font-bold text-sm tracking-tight text-[var(--text-primary)] truncate max-w-[120px] md:max-w-[280px]">
               {room.title}
             </span>
-            <Badge variant="outline" className="text-[10px] border-zinc-800 bg-black/40 font-mono text-zinc-400">
+            <Badge variant="outline" className="text-[10px] border-[var(--border-subtle)] bg-[var(--surface-muted)] font-mono text-[var(--text-secondary)]">
               {room.code}
             </Badge>
           </div>
@@ -538,11 +538,11 @@ export default function RoomArenaPage() {
           <div
             className={`px-2.5 sm:px-4 py-1.5 rounded-full border flex items-center gap-1.5 sm:gap-2 font-mono text-xs font-bold tracking-wider transition-all duration-300 shadow-sm ${
               (secondsLeft ?? 100) < 300
-                ? "bg-red-500/15 border-red-500/50 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.3)] animate-pulse"
-                : "bg-black/60 border-zinc-800 text-zinc-200"
+                ? "bg-[var(--status-danger)]/15 border-[var(--status-danger)]/50 text-[var(--status-danger)] animate-pulse"
+                : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-primary)]"
             }`}
           >
-            <Clock className="w-3.5 h-3.5 text-blue-400" />
+            <Clock className="w-3.5 h-3.5 text-[var(--accent-text)]" />
             <span>{formatTime(secondsLeft)}</span>
           </div>
         </div>
@@ -553,10 +553,10 @@ export default function RoomArenaPage() {
           <div
             className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-medium ${
               strikes === 0
-                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                ? "bg-[var(--status-success)]/10 border-[var(--status-success)]/20 text-[var(--status-success)]"
                 : strikes === 1
-                ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                : "bg-red-500/15 border-red-500/40 text-red-400 animate-pulse"
+                ? "bg-[var(--status-warning)]/10 border-[var(--status-warning)]/20 text-[var(--status-warning)]"
+                : "bg-[var(--status-danger)]/15 border-[var(--status-danger)]/40 text-[var(--status-danger)] animate-pulse"
             }`}
             title={`Anti-Cheat Proctoring Active. ${strikes}/${maxStrikes} strikes.`}
           >
@@ -567,7 +567,7 @@ export default function RoomArenaPage() {
           {/* Fullscreen Toggle */}
           <button
             onClick={isFullscreen ? exitFullscreen : requestFullscreen}
-            className="hidden sm:flex p-1.5 rounded-lg border border-zinc-800 bg-[#11141A] text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors"
+            className="hidden sm:flex p-1.5 rounded-lg border border-[var(--border-control)] bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
             title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -578,17 +578,17 @@ export default function RoomArenaPage() {
             size="sm"
             variant="outline"
             onClick={() => setIsSpectatorMode(!isSpectatorMode)}
-            className={`hidden md:flex text-xs h-8 border-zinc-800 items-center gap-1.5 rounded-xl transition-all ${
+            className={`hidden md:flex text-xs h-8 border-[var(--border-control)] items-center gap-1.5 rounded-xl transition-all cursor-pointer ${
               isSpectatorMode
-                ? "bg-purple-600/20 text-purple-300 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.25)]"
-                : "bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                ? "bg-purple-500/15 text-purple-600 dark:text-purple-300 border-purple-500/40"
+                : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
             }`}
             title={isSpectatorMode ? "Return to Coding Arena" : "Live Spectator & Anti-Cheat Surveillance"}
           >
             {isSpectatorMode ? (
-              <EyeOff className="w-3.5 h-3.5 text-purple-400" />
+              <EyeOff className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
             ) : (
-              <Eye className="w-3.5 h-3.5 text-purple-400" />
+              <Eye className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
             )}
             <span>{isSpectatorMode ? "Exit Spectator" : "Spectator"}</span>
           </Button>
@@ -598,10 +598,10 @@ export default function RoomArenaPage() {
             size="sm"
             variant="outline"
             onClick={() => setIsRulesModalOpen(true)}
-            className="hidden md:flex text-xs h-8 border-zinc-800 items-center gap-1.5 rounded-xl bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
+            className="hidden md:flex text-xs h-8 border-[var(--border-control)] items-center gap-1.5 rounded-xl bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] cursor-pointer"
             title="View Exam Instructions, Layout & Anti-Cheat Rules"
           >
-            <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+            <BookOpen className="w-3.5 h-3.5 text-[var(--accent-text)]" />
             <span className="hidden xl:inline">Rules & Info</span>
           </Button>
 
@@ -610,13 +610,13 @@ export default function RoomArenaPage() {
             size="sm"
             variant="outline"
             onClick={() => setIsLeaderboardOpen(!isLeaderboardOpen)}
-            className={`text-xs h-8 px-2 sm:px-3 border-zinc-800 flex items-center gap-1.5 sm:gap-2 rounded-xl transition-all ${
+            className={`text-xs h-8 px-2 sm:px-3 border-[var(--border-control)] flex items-center gap-1.5 sm:gap-2 rounded-xl transition-all cursor-pointer ${
               isLeaderboardOpen
-                ? "bg-blue-600/20 text-blue-300 border-blue-500/40"
-                : "bg-[#11141A] text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                ? "bg-[var(--surface-selected)] text-[var(--accent-text)] border-[var(--action-primary)]/40"
+                : "bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
             }`}
           >
-            <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <Trophy className="w-3.5 h-3.5 text-[var(--status-warning)] shrink-0" />
             <span className="font-mono text-[11px] sm:text-xs">
               #{myData?.rank || 1}
               <span className="hidden sm:inline"> • {myData?.score || 0} pts</span>
@@ -627,7 +627,7 @@ export default function RoomArenaPage() {
           <Button
             size="sm"
             onClick={() => setIsFinishModalOpen(true)}
-            className="text-xs h-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold px-2.5 sm:px-3.5 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center gap-1.5 transition-all shrink-0"
+            className="text-xs h-8 bg-[var(--status-success)] hover:opacity-90 text-white font-semibold px-2.5 sm:px-3.5 rounded-xl shadow-sm flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Finish Test</span>
@@ -639,7 +639,7 @@ export default function RoomArenaPage() {
               size="sm"
               variant="outline"
               onClick={() => setIsForceEndModalOpen(true)}
-              className="text-xs h-8 border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-xl"
+              className="text-xs h-8 border-[var(--status-danger)]/30 bg-[var(--status-danger)]/10 text-[var(--status-danger)] hover:bg-[var(--status-danger)]/20 rounded-xl cursor-pointer"
               title="End the contest for all players immediately"
             >
               Force End All
@@ -649,7 +649,7 @@ export default function RoomArenaPage() {
           {/* Exit Contest */}
           <button
             onClick={() => setIsExitModalOpen(true)}
-            className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
             title="Exit Contest"
           >
             <LogOut className="w-4 h-4" />
@@ -667,20 +667,20 @@ export default function RoomArenaPage() {
               animate={{ width: 260, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="border-r border-zinc-800/80 bg-[#0A0C11] flex flex-col shrink-0 overflow-hidden z-10 select-none"
+              className="border-r border-[var(--border-subtle)] bg-[var(--surface)] flex flex-col shrink-0 overflow-hidden z-10 select-none"
             >
               {/* Palette Header */}
-              <div className="p-3.5 border-b border-zinc-800/80">
+              <div className="p-3.5 border-b border-[var(--border-subtle)]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <LayoutGrid className="w-4 h-4 text-blue-400" />
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                    <LayoutGrid className="w-4 h-4 text-[var(--accent-text)]" />
+                    <h3 className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">
                       Question Palette
                     </h3>
                   </div>
                   <button
                     onClick={() => setIsQuestionNavOpen(false)}
-                    className="p-1 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+                    className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                     title="Collapse Palette"
                   >
                     <ChevronLeft className="w-4 h-4" />
@@ -689,15 +689,15 @@ export default function RoomArenaPage() {
 
                 {/* Progress bar */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                  <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)] font-mono">
                     <span>Progress</span>
-                    <span className="text-zinc-200 font-medium">
+                    <span className="text-[var(--text-primary)] font-medium">
                       {completedCount} / {totalQuestions} answered
                     </span>
                   </div>
-                  <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-[var(--surface-muted)] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-emerald-400 rounded-full transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-[var(--action-primary)] to-[var(--status-success)] rounded-full transition-all duration-300"
                       style={{
                         width: `${totalQuestions > 0 ? (completedCount / totalQuestions) * 100 : 0}%`,
                       }}
@@ -719,23 +719,23 @@ export default function RoomArenaPage() {
                       <button
                         key={q.id || idx}
                         onClick={() => setActiveQuestionIndex(idx)}
-                        className={`group relative aspect-square rounded-xl flex flex-col items-center justify-center transition-all text-xs font-bold ${
+                        className={`group relative aspect-square rounded-xl flex flex-col items-center justify-center transition-all text-xs font-bold cursor-pointer ${
                           isActive
-                            ? "bg-blue-600/25 text-blue-300 border-2 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.25)] ring-1 ring-blue-500/50"
+                            ? "bg-[var(--surface-selected)] text-[var(--accent-text)] border-2 border-[var(--action-primary)] shadow-sm"
                             : isSolved
-                            ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/25"
-                            : "bg-[#10131A] text-zinc-400 border border-zinc-800 hover:border-zinc-700 hover:text-zinc-200 hover:bg-zinc-800/60"
+                            ? "bg-[var(--status-success)]/15 text-[var(--status-success)] border border-[var(--status-success)]/40 hover:bg-[var(--status-success)]/25"
+                            : "bg-[var(--surface-muted)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                         }`}
                         title={`Question ${idx + 1}: ${q.type} (${q.points} pts)`}
                       >
                         <span className="font-mono text-sm leading-none">{idx + 1}</span>
-                        <span className="text-[9px] font-normal text-zinc-500 mt-1 leading-none font-mono">
+                        <span className="text-[9px] font-normal text-[var(--text-muted)] mt-1 leading-none font-mono">
                           {q.type === "CODING" ? "code" : `${q.points}p`}
                         </span>
 
                         {/* Solved checkmark badge */}
                         {isSolved && (
-                          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow">
+                          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[var(--status-success)] text-white flex items-center justify-center shadow">
                             <Check className="w-2.5 h-2.5 stroke-[3]" />
                           </span>
                         )}
@@ -746,24 +746,24 @@ export default function RoomArenaPage() {
               </div>
 
               {/* Palette Legend */}
-              <div className="p-3 border-t border-zinc-800/80 bg-black/30 text-[11px] font-mono text-zinc-400 space-y-1.5">
+              <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)]/60 text-[11px] font-mono text-[var(--text-secondary)] space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" /> Answered
+                    <span className="w-2 h-2 rounded-full bg-[var(--status-success)]" /> Answered
                   </span>
-                  <span className="text-zinc-300 font-semibold">{completedCount}</span>
+                  <span className="text-[var(--text-primary)] font-semibold">{completedCount}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-400" /> Current
+                    <span className="w-2 h-2 rounded-full bg-[var(--action-primary)]" /> Current
                   </span>
-                  <span className="text-zinc-300 font-semibold">Q{activeQuestionIndex + 1}</span>
+                  <span className="text-[var(--text-primary)] font-semibold">Q{activeQuestionIndex + 1}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-zinc-600" /> Pending
+                    <span className="w-2 h-2 rounded-full bg-[var(--text-muted)]" /> Pending
                   </span>
-                  <span className="text-zinc-300 font-semibold">{remainingCount}</span>
+                  <span className="text-[var(--text-primary)] font-semibold">{remainingCount}</span>
                 </div>
               </div>
             </motion.aside>
@@ -771,34 +771,34 @@ export default function RoomArenaPage() {
         </AnimatePresence>
         {/* Workspace Body */}
         {isSpectatorMode ? (
-          <div className="flex-1 flex overflow-hidden bg-[#07090D]">
+          <div className="flex-1 flex overflow-hidden bg-[var(--canvas)]">
             {/* Left Panel: Competitors & Surveillance Violations */}
-            <div className="w-80 md:w-96 border-r border-zinc-800/80 bg-[#0A0D14] flex flex-col shrink-0">
+            <div className="w-80 md:w-96 border-r border-[var(--border-subtle)] bg-[var(--surface)] flex flex-col shrink-0">
               {/* Spectator Panel Header & Tab Switcher */}
-              <div className="p-4 border-b border-zinc-800/80 space-y-3">
+              <div className="p-4 border-b border-[var(--border-subtle)] space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="relative flex h-2.5 w-2.5">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
                     </span>
-                    <h2 className="text-sm font-bold text-white tracking-wide">
+                    <h2 className="text-sm font-bold text-[var(--text-primary)] tracking-wide">
                       Spectator Command Center
                     </h2>
                   </div>
-                  <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/30 text-[10px]">
+                  <Badge className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30 text-[10px]">
                     Live Surveillance
                   </Badge>
                 </div>
 
                 {/* Tab Toggle: Competitors vs Incidents */}
-                <div className="grid grid-cols-2 p-1 rounded-xl bg-black/50 border border-zinc-800 text-xs">
+                <div className="grid grid-cols-2 p-1 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-xs">
                   <button
                     onClick={() => setSpectatorTab("competitors")}
-                    className={`py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
+                    className={`py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       spectatorTab === "competitors"
-                        ? "bg-purple-600/30 text-purple-200 border border-purple-500/40 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
+                        ? "bg-purple-500/15 text-purple-600 dark:text-purple-200 border border-purple-500/40 shadow-sm"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     <User className="w-3.5 h-3.5" />
@@ -806,10 +806,10 @@ export default function RoomArenaPage() {
                   </button>
                   <button
                     onClick={() => setSpectatorTab("incidents")}
-                    className={`py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 ${
+                    className={`py-1.5 px-3 rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                       spectatorTab === "incidents"
-                        ? "bg-red-600/30 text-red-200 border border-red-500/40 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
+                        ? "bg-[var(--status-danger)]/15 text-[var(--status-danger)] border border-[var(--status-danger)]/40 shadow-sm"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     <ShieldAlert className="w-3.5 h-3.5" />
@@ -819,13 +819,13 @@ export default function RoomArenaPage() {
 
                 {spectatorTab === "competitors" && (
                   <div className="relative">
-                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
                     <input
                       type="text"
                       placeholder="Search competitor..."
                       value={spectatorSearch}
                       onChange={(e) => setSpectatorSearch(e.target.value)}
-                      className="w-full bg-black/40 border border-zinc-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-purple-500/50"
+                      className="w-full bg-[var(--surface-muted)] border border-[var(--border-control)] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-purple-500/50"
                     />
                   </div>
                 )}
@@ -852,50 +852,50 @@ export default function RoomArenaPage() {
                           }}
                           className={`p-3 rounded-xl border cursor-pointer transition-all ${
                             isSelected
-                              ? "bg-purple-950/30 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.15)] ring-1 ring-purple-500/30"
-                              : "bg-[#0E121A] border-zinc-800/80 hover:border-zinc-700 text-zinc-300"
+                              ? "bg-purple-500/15 border-purple-500/50 shadow-sm ring-1 ring-purple-500/30"
+                              : "bg-[var(--surface-muted)]/60 border-[var(--border-subtle)] hover:border-[var(--border-control)] text-[var(--text-secondary)]"
                           }`}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2 min-w-0">
-                              <span className="font-mono text-xs font-bold text-zinc-400 w-5">
+                              <span className="font-mono text-xs font-bold text-[var(--text-muted)] w-5">
                                 #{p.rank || idx + 1}
                               </span>
-                              <span className="font-semibold text-xs text-white truncate max-w-[130px]">
+                              <span className="font-semibold text-xs text-[var(--text-primary)] truncate max-w-[130px]">
                                 {p.name} {isMe && "(You)"}
                               </span>
                             </div>
 
                             {/* Anti-Cheat Status Badge */}
                             {p.isDisqualified ? (
-                              <Badge className="bg-red-500/20 text-red-400 border-red-500/40 text-[9px] px-1.5 py-0 flex items-center gap-1 font-bold">
+                              <Badge className="bg-[var(--status-danger)]/15 text-[var(--status-danger)] border-[var(--status-danger)]/40 text-[9px] px-1.5 py-0 flex items-center gap-1 font-bold">
                                 <ShieldAlert className="w-2.5 h-2.5" />
                                 DQ
                               </Badge>
                             ) : strikesCount === 2 ? (
-                              <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[9px] px-1.5 py-0 flex items-center gap-1">
+                              <Badge className="bg-[var(--status-warning)]/15 text-[var(--status-warning)] border-[var(--status-warning)]/40 text-[9px] px-1.5 py-0 flex items-center gap-1">
                                 <AlertTriangle className="w-2.5 h-2.5" />
                                 2 Strikes (+3m)
                               </Badge>
                             ) : strikesCount === 1 ? (
-                              <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/40 text-[9px] px-1.5 py-0 flex items-center gap-1">
+                              <Badge className="bg-[var(--status-warning)]/15 text-[var(--status-warning)] border-[var(--status-warning)]/40 text-[9px] px-1.5 py-0 flex items-center gap-1">
                                 <AlertTriangle className="w-2.5 h-2.5" />
                                 1 Strike
                               </Badge>
                             ) : (
-                              <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/30 text-[9px] px-1.5 py-0 flex items-center gap-1">
+                              <Badge className="bg-[var(--status-success)]/15 text-[var(--status-success)] border-[var(--status-success)]/30 text-[9px] px-1.5 py-0 flex items-center gap-1">
                                 <ShieldCheck className="w-2.5 h-2.5" />
                                 Clean
                               </Badge>
                             )}
                           </div>
 
-                          <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
-                            <span className="text-zinc-300 font-medium">
+                          <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)] font-mono">
+                            <span className="text-[var(--text-primary)] font-medium">
                               {p.score} pts • {p.solvedCount} solved
                             </span>
                             {p.penaltyTime > 0 && (
-                              <span className="text-amber-400/90 text-[10px]">
+                              <span className="text-[var(--status-warning)] text-[10px]">
                                 +{Math.round(p.penaltyTime / 60)}m pen
                               </span>
                             )}
@@ -906,10 +906,10 @@ export default function RoomArenaPage() {
                 ) : (
                   /* Real-time Room Violations Feed */
                   violations.length === 0 ? (
-                    <div className="p-8 text-center text-zinc-500 text-xs flex flex-col items-center gap-2">
-                      <ShieldCheck className="w-8 h-8 text-emerald-500/50" />
+                    <div className="p-8 text-center text-[var(--text-muted)] text-xs flex flex-col items-center gap-2">
+                      <ShieldCheck className="w-8 h-8 text-[var(--status-success)]/50" />
                       <span>No violations recorded yet.</span>
-                      <span className="text-[11px] text-zinc-600">
+                      <span className="text-[11px] text-[var(--text-muted)]">
                         Tab switches, window defocus, and suspicious pastes will be logged here in real-time.
                       </span>
                     </div>
@@ -920,42 +920,42 @@ export default function RoomArenaPage() {
                           key={v.id}
                           className={`p-3 rounded-xl border text-xs space-y-1.5 ${
                             v.isDisqualified
-                              ? "bg-red-950/20 border-red-500/40 text-red-200"
+                              ? "bg-[var(--status-danger)]/10 border-[var(--status-danger)]/40 text-[var(--status-danger)]"
                               : v.warningLevel === 2
-                              ? "bg-amber-950/20 border-amber-500/40 text-amber-200"
-                              : "bg-zinc-900/60 border-zinc-800 text-zinc-300"
+                              ? "bg-[var(--status-warning)]/10 border-[var(--status-warning)]/40 text-[var(--status-warning)]"
+                              : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-semibold text-white truncate max-w-[150px]">
+                            <span className="font-semibold text-[var(--text-primary)] truncate max-w-[150px]">
                               {v.userName}
                             </span>
-                            <span className="text-[10px] font-mono text-zinc-500">
+                            <span className="text-[10px] font-mono text-[var(--text-muted)]">
                               {new Date(v.timestamp).toLocaleTimeString()}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-black/40 border border-zinc-700/60 text-zinc-300">
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[var(--surface)] border border-[var(--border-subtle)] text-[var(--text-primary)]">
                               {v.type}
                             </span>
                             {v.isDisqualified ? (
-                              <span className="text-red-400 font-bold text-[10px]">
+                              <span className="text-[var(--status-danger)] font-bold text-[10px]">
                                 DISQUALIFIED
                               </span>
                             ) : v.penaltyAddedSeconds ? (
-                              <span className="text-amber-400 font-semibold text-[10px]">
+                              <span className="text-[var(--status-warning)] font-semibold text-[10px]">
                                 +3m penalty applied
                               </span>
                             ) : (
-                              <span className="text-zinc-400 text-[10px]">
+                              <span className="text-[var(--text-secondary)] text-[10px]">
                                 Strike #{v.warningLevel}
                               </span>
                             )}
                           </div>
 
                           {v.details && (
-                            <div className="text-[11px] text-zinc-400 font-mono truncate">
+                            <div className="text-[11px] text-[var(--text-secondary)] font-mono truncate">
                               {v.details}
                             </div>
                           )}
@@ -968,41 +968,41 @@ export default function RoomArenaPage() {
             </div>
 
             {/* Right Panel: Live Competitor Code Inspector */}
-            <div className="flex-1 flex flex-col overflow-hidden bg-[#090B0E]">
+            <div className="flex-1 flex flex-col overflow-hidden bg-[var(--canvas)]">
               {inspectedParticipant ? (
                 <>
                   {/* Inspector Header */}
-                  <div className="p-4 border-b border-zinc-800 bg-[#0D1017] flex items-center justify-between">
+                  <div className="p-4 border-b border-[var(--border-subtle)] bg-[var(--surface)] flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-sm">
+                      <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-300 font-bold text-sm">
                         {inspectedParticipant.name?.charAt(0).toUpperCase() || "U"}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-white">
+                          <h3 className="text-sm font-bold text-[var(--text-primary)]">
                             {inspectedParticipant.name}
                           </h3>
-                          <Badge variant="outline" className="text-[10px] border-zinc-700 text-zinc-400">
+                          <Badge variant="outline" className="text-[10px] border-[var(--border-subtle)] text-[var(--text-secondary)]">
                             Rank #{inspectedParticipant.rank || 1}
                           </Badge>
                         </div>
-                        <div className="text-xs text-zinc-400 flex items-center gap-2 mt-0.5">
-                          <span>Score: <strong className="text-white font-mono">{inspectedParticipant.score} pts</strong></span>
+                        <div className="text-xs text-[var(--text-secondary)] flex items-center gap-2 mt-0.5">
+                          <span>Score: <strong className="text-[var(--text-primary)] font-mono">{inspectedParticipant.score} pts</strong></span>
                           <span>•</span>
-                          <span>Solved: <strong className="text-white font-mono">{inspectedParticipant.solvedCount}</strong></span>
+                          <span>Solved: <strong className="text-[var(--text-primary)] font-mono">{inspectedParticipant.solvedCount}</strong></span>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       {/* Live Streaming Beacon */}
-                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--status-success)]/10 border border-[var(--status-success)]/30 text-[var(--status-success)] text-xs font-medium">
+                        <span className="w-2 h-2 rounded-full bg-[var(--status-success)] animate-pulse" />
                         <span>Live Keystrokes</span>
                       </div>
 
                       {/* Language Indicator */}
-                      <Badge className="bg-zinc-800 text-zinc-300 border-zinc-700 font-mono text-xs">
+                      <Badge className="bg-[var(--surface-muted)] text-[var(--text-primary)] border-[var(--border-subtle)] font-mono text-xs">
                         {inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId && inspectedCode.language
                           ? inspectedCode.language
                           : "CPP"}
@@ -1040,9 +1040,9 @@ export default function RoomArenaPage() {
                   </div>
 
                   {/* Inspector Footer Status */}
-                  <div className="px-4 py-2 border-t border-zinc-800 bg-[#0B0D12] flex items-center justify-between text-xs text-zinc-400 font-mono">
+                  <div className="px-4 py-2 border-t border-[var(--border-subtle)] bg-[var(--surface)] flex items-center justify-between text-xs text-[var(--text-secondary)] font-mono">
                     <div className="flex items-center gap-2">
-                      <Code2 className="w-3.5 h-3.5 text-purple-400" />
+                      <Code2 className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
                       <span>
                         {inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId && inspectedCode.updatedAt
                           ? `Last synchronized: ${new Date(inspectedCode.updatedAt).toLocaleTimeString()}`
@@ -1050,13 +1050,13 @@ export default function RoomArenaPage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-zinc-500">Read-Only Spectator Mode</span>
+                      <span className="text-[var(--text-muted)]">Read-Only Spectator Mode</span>
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-zinc-500 text-sm space-y-2">
-                  <Eye className="w-10 h-10 text-zinc-700" />
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-[var(--text-muted)] text-sm space-y-2">
+                  <Eye className="w-10 h-10 text-[var(--text-muted)]/60" />
                   <p>Select a competitor from the left roster to view their live code and proctoring status.</p>
                 </div>
               )}
@@ -1064,16 +1064,16 @@ export default function RoomArenaPage() {
           </div>
         ) : isCodingQuestion && activeQuestion?.problem ? (
           // ─── CODING SPLIT VIEW ──────────────────────────────────────
-          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-x divide-zinc-800/90 overflow-hidden">
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-x divide-[var(--border-subtle)] overflow-hidden">
             {/* Left: Problem Description */}
-            <div className="h-full overflow-y-auto p-6 space-y-6 bg-[#090B0E] custom-scrollbar">
+            <div className="h-full overflow-y-auto p-6 space-y-6 bg-[var(--canvas)] custom-scrollbar">
               <div>
                 <div className="flex items-center justify-between gap-4 mb-2">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-bold text-white uppercase tracking-wider font-mono px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30 shrink-0">
+                    <span className="text-xs font-bold uppercase tracking-wider font-mono px-2 py-0.5 rounded-md bg-[var(--accent-soft)] text-[var(--accent-text)] border border-[var(--action-primary)]/30 shrink-0">
                       Q{activeQuestionIndex + 1}
                     </span>
-                    <h2 className="text-xl font-bold text-white tracking-tight">
+                    <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
                       {activeQuestion.problem.title}
                     </h2>
                   </div>
@@ -1083,12 +1083,12 @@ export default function RoomArenaPage() {
                       variant="ghost"
                       disabled={activeQuestionIndex === 0}
                       onClick={() => setActiveQuestionIndex((prev) => Math.max(0, prev - 1))}
-                      className="h-7 w-7 p-0 text-zinc-400 hover:text-white disabled:opacity-30"
+                      className="h-7 w-7 p-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 cursor-pointer"
                       title="Previous Question"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </Button>
-                    <span className="text-xs font-mono text-zinc-400">
+                    <span className="text-xs font-mono text-[var(--text-secondary)]">
                       {activeQuestionIndex + 1}/{totalQuestions}
                     </span>
                     <Button
@@ -1096,7 +1096,7 @@ export default function RoomArenaPage() {
                       variant="ghost"
                       disabled={activeQuestionIndex === totalQuestions - 1}
                       onClick={() => setActiveQuestionIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
-                      className="h-7 w-7 p-0 text-zinc-400 hover:text-white disabled:opacity-30"
+                      className="h-7 w-7 p-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 cursor-pointer"
                       title="Next Question"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -1105,10 +1105,10 @@ export default function RoomArenaPage() {
                       variant="outline"
                       className={`text-xs font-semibold px-2.5 py-0.5 rounded-md border ${
                         activeQuestion.problem.difficulty === "EASY"
-                          ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+                          ? "border-[var(--status-success)]/30 text-[var(--status-success)] bg-[var(--status-success)]/10"
                           : activeQuestion.problem.difficulty === "MEDIUM"
-                          ? "border-amber-500/30 text-amber-400 bg-amber-500/10"
-                          : "border-red-500/30 text-red-400 bg-red-500/10"
+                          ? "border-[var(--status-warning)]/30 text-[var(--status-warning)] bg-[var(--status-warning)]/10"
+                          : "border-[var(--status-danger)]/30 text-[var(--status-danger)] bg-[var(--status-danger)]/10"
                       }`}
                     >
                       {activeQuestion.problem.difficulty}
@@ -1116,8 +1116,8 @@ export default function RoomArenaPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 text-xs text-zinc-400 font-mono">
-                  <span className="text-blue-400 font-semibold">{activeQuestion.points} Points</span>
+                <div className="flex items-center gap-3 text-xs text-[var(--text-secondary)] font-mono">
+                  <span className="text-[var(--accent-text)] font-semibold">{activeQuestion.points} Points</span>
                   <span>•</span>
                   <span>Time Limit: {activeQuestion.problem.timeLimit}ms</span>
                   <span>•</span>
@@ -1126,17 +1126,17 @@ export default function RoomArenaPage() {
               </div>
 
               {/* Description Body */}
-              <div className="prose prose-invert prose-sm max-w-none text-zinc-300 leading-relaxed whitespace-pre-wrap font-sans">
+              <div className="prose dark:prose-invert prose-sm max-w-none text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap font-sans">
                 {activeQuestion.problem.description}
               </div>
 
               {/* Constraints */}
               {activeQuestion.problem.constraints && (
-                <div className="space-y-2 border-t border-zinc-800/80 pt-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                <div className="space-y-2 border-t border-[var(--border-subtle)] pt-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                     Constraints
                   </h3>
-                  <div className="bg-black/40 rounded-xl p-3.5 font-mono text-xs text-zinc-300 border border-zinc-800/80 whitespace-pre-wrap">
+                  <div className="bg-[var(--surface)] rounded-xl p-3.5 font-mono text-xs text-[var(--text-primary)] border border-[var(--border-subtle)] whitespace-pre-wrap">
                     {activeQuestion.problem.constraints}
                   </div>
                 </div>
@@ -1144,23 +1144,23 @@ export default function RoomArenaPage() {
 
               {/* Examples */}
               {activeQuestion.problem.examples?.length > 0 && (
-                <div className="space-y-3 border-t border-zinc-800/80 pt-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                <div className="space-y-3 border-t border-[var(--border-subtle)] pt-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                     Examples
                   </h3>
                   {activeQuestion.problem.examples.map((ex: any, idx: number) => (
-                    <div key={idx} className="bg-black/40 rounded-xl p-4 border border-zinc-800/80 space-y-2.5 text-xs">
+                    <div key={idx} className="bg-[var(--surface)] rounded-xl p-4 border border-[var(--border-subtle)] space-y-2.5 text-xs">
                       <div>
-                        <span className="text-zinc-500 font-mono text-[11px]">Input:</span>
-                        <pre className="mt-1 font-mono text-zinc-200 bg-[#0C0E13] p-2.5 rounded-lg border border-zinc-800/60 overflow-x-auto">{ex.input}</pre>
+                        <span className="text-[var(--text-muted)] font-mono text-[11px]">Input:</span>
+                        <pre className="mt-1 font-mono text-[var(--text-primary)] bg-[var(--surface-muted)] p-2.5 rounded-lg border border-[var(--border-subtle)] overflow-x-auto">{ex.input}</pre>
                       </div>
                       <div>
-                        <span className="text-zinc-500 font-mono text-[11px]">Output:</span>
-                        <pre className="mt-1 font-mono text-zinc-200 bg-[#0C0E13] p-2.5 rounded-lg border border-zinc-800/60 overflow-x-auto">{ex.output}</pre>
+                        <span className="text-[var(--text-muted)] font-mono text-[11px]">Output:</span>
+                        <pre className="mt-1 font-mono text-[var(--text-primary)] bg-[var(--surface-muted)] p-2.5 rounded-lg border border-[var(--border-subtle)] overflow-x-auto">{ex.output}</pre>
                       </div>
                       {ex.explanation && (
-                        <p className="text-zinc-400 text-xs mt-1">
-                          <strong className="text-zinc-300">Explanation:</strong> {ex.explanation}
+                        <p className="text-[var(--text-secondary)] text-xs mt-1">
+                          <strong className="text-[var(--text-primary)]">Explanation:</strong> {ex.explanation}
                         </p>
                       )}
                     </div>
@@ -1170,15 +1170,15 @@ export default function RoomArenaPage() {
             </div>
 
             {/* Right: Monaco Code Editor & Execution Console */}
-            <div className="h-full flex flex-col bg-[#0A0C10] overflow-hidden">
+            <div className="h-full flex flex-col bg-[var(--surface)] overflow-hidden">
               {/* Editor Header Toolbar */}
-              <div className="h-11 border-b border-zinc-800/90 bg-[#0E1015] px-4 flex items-center justify-between shrink-0">
+              <div className="h-11 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-zinc-400 font-medium">Language:</span>
+                  <span className="text-xs text-[var(--text-secondary)] font-medium">Language:</span>
                   <select
                     value={language}
                     onChange={(e) => handleLanguageChange(e.target.value)}
-                    className="bg-black/50 text-zinc-200 border border-zinc-800 rounded-lg px-2.5 py-1 text-xs font-mono focus:outline-none focus:border-blue-500"
+                    className="bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border-control)] rounded-lg px-2.5 py-1 text-xs font-mono focus:outline-none focus:border-[var(--action-primary)]"
                   >
                     <option value="CPP">C++ (GCC 9.2)</option>
                     <option value="PYTHON">Python 3</option>
@@ -1193,7 +1193,7 @@ export default function RoomArenaPage() {
                     size="sm"
                     onClick={handleSubmitCode}
                     disabled={isSubmitting}
-                    className="h-8 text-xs bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg flex items-center gap-1.5 shadow-[0_0_15px_rgba(37,99,235,0.25)] transition-all"
+                    className="h-8 text-xs bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] font-semibold rounded-lg flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                   >
                     <Send className="w-3.5 h-3.5" />
                     {isSubmitting ? "Executing..." : "Submit Solution"}
@@ -1224,40 +1224,40 @@ export default function RoomArenaPage() {
 
               {/* Bottom Test Execution Panel */}
               {judgeResult && (
-                <div className="h-48 border-t border-zinc-800 bg-[#090B0E] p-4 flex flex-col shrink-0 overflow-y-auto space-y-2.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-zinc-800/80">
+                <div className="h-48 border-t border-[var(--border-subtle)] bg-[var(--surface)] p-4 flex flex-col shrink-0 overflow-y-auto space-y-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[var(--border-subtle)]">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Terminal className="w-3.5 h-3.5 text-zinc-400" />
-                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                      <Terminal className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                         Verdict:
                       </span>
                       <Badge
                         variant="outline"
                         className={`text-xs font-bold ${
                           judgeResult.verdict === "ACCEPTED"
-                            ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
-                            : "border-rose-500/40 text-rose-400 bg-rose-500/10"
+                            ? "border-[var(--status-success)]/40 text-[var(--status-success)] bg-[var(--status-success)]/10"
+                            : "border-[var(--status-danger)]/40 text-[var(--status-danger)] bg-[var(--status-danger)]/10"
                         }`}
                       >
                         {judgeResult.verdict}
                       </Badge>
 
                       {judgeResult.totalTestCases != null && (
-                        <span className="text-xs font-mono text-zinc-400 ml-1">
+                        <span className="text-xs font-mono text-[var(--text-secondary)] ml-1">
                           ({judgeResult.passedCount ?? 0}/{judgeResult.totalTestCases} test cases passed)
                         </span>
                       )}
                     </div>
 
-                    <div className="text-xs font-mono text-zinc-400 flex items-center gap-3">
+                    <div className="text-xs font-mono text-[var(--text-secondary)] flex items-center gap-3">
                       {judgeResult.runtime != null && (
-                        <span className="bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
+                        <span className="bg-[var(--surface-muted)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">
                           ⚡ {judgeResult.runtime}ms
                           {judgeResult.runtimePercentile && ` (Beats ${judgeResult.runtimePercentile}%)`}
                         </span>
                       )}
                       {judgeResult.memory != null && (
-                        <span className="bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
+                        <span className="bg-[var(--surface-muted)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">
                           💾 {judgeResult.memory}KB
                         </span>
                       )}
@@ -1274,8 +1274,8 @@ export default function RoomArenaPage() {
                             key={i}
                             className={`px-2 py-0.5 rounded text-[10px] font-mono flex items-center gap-1 border ${
                               passed
-                                ? "bg-emerald-950/40 border-emerald-800/40 text-emerald-400"
-                                : "bg-rose-950/40 border-rose-800/40 text-rose-400"
+                                ? "bg-[var(--status-success)]/10 border-[var(--status-success)]/30 text-[var(--status-success)]"
+                                : "bg-[var(--status-danger)]/10 border-[var(--status-danger)]/30 text-[var(--status-danger)]"
                             }`}
                           >
                             <span>Case {i + 1}</span>
@@ -1287,13 +1287,13 @@ export default function RoomArenaPage() {
                   )}
 
                   {judgeResult.compileOutput && (
-                    <pre className="text-xs font-mono text-rose-300 bg-rose-950/20 p-2.5 rounded-lg border border-rose-900/40 whitespace-pre-wrap max-h-28 overflow-y-auto">
+                    <pre className="text-xs font-mono text-[var(--status-danger)] bg-[var(--status-danger)]/10 p-2.5 rounded-lg border border-[var(--status-danger)]/30 whitespace-pre-wrap max-h-28 overflow-y-auto">
                       {judgeResult.compileOutput}
                     </pre>
                   )}
 
                   {judgeResult.stderr && (
-                    <pre className="text-xs font-mono text-rose-300 bg-rose-950/20 p-2.5 rounded-lg border border-rose-900/40 whitespace-pre-wrap max-h-28 overflow-y-auto">
+                    <pre className="text-xs font-mono text-[var(--status-danger)] bg-[var(--status-danger)]/10 p-2.5 rounded-lg border border-[var(--status-danger)]/30 whitespace-pre-wrap max-h-28 overflow-y-auto">
                       {judgeResult.stderr}
                     </pre>
                   )}
@@ -1303,36 +1303,36 @@ export default function RoomArenaPage() {
           </div>
         ) : activeQuestion?.assessmentQuestion ? (
           // ─── MCQ CARD VIEW ──────────────────────────────────────────
-          <div className="flex-1 overflow-y-auto p-3 sm:p-8 md:p-10 flex justify-center items-start bg-[#07080B]">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-8 md:p-10 flex justify-center items-start bg-[var(--canvas)]">
             <motion.div
               key={activeQuestion.assessmentQuestion.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
-              className="max-w-3xl w-full rounded-2xl bg-[#0D0F14] border border-zinc-800/90 p-4 sm:p-8 space-y-4 sm:space-y-7 shadow-2xl"
+              className="max-w-3xl w-full rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] p-4 sm:p-8 space-y-4 sm:space-y-7 shadow-lg"
             >
               {/* Card Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-800/80 pb-3 sm:pb-4 gap-2 sm:gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[var(--border-subtle)] pb-3 sm:pb-4 gap-2 sm:gap-3">
                 <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-                  <span className="text-[11px] sm:text-xs font-bold font-mono px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                  <span className="text-[11px] sm:text-xs font-bold font-mono px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-[var(--accent-soft)] text-[var(--accent-text)] border border-[var(--action-primary)]/30">
                     Question {activeQuestionIndex + 1} of {totalQuestions}
                   </span>
-                  <Badge variant="outline" className="border-zinc-700 bg-zinc-800/60 text-zinc-300 text-[10px] sm:text-xs">
+                  <Badge variant="outline" className="border-[var(--border-control)] bg-[var(--surface-muted)] text-[var(--text-secondary)] text-[10px] sm:text-xs">
                     {activeQuestion.assessmentQuestion.category || "MCQ"}
                   </Badge>
-                  <span className="text-[11px] sm:text-xs text-zinc-400">
+                  <span className="text-[11px] sm:text-xs text-[var(--text-secondary)]">
                     {activeQuestion.assessmentQuestion.subject} • {activeQuestion.assessmentQuestion.topic}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-emerald-400 font-bold font-mono px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[var(--status-success)] font-bold font-mono px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-[var(--status-success)]/10 border border-[var(--status-success)]/20">
                     +{activeQuestion.points} points
                   </div>
                 </div>
               </div>
 
               {/* Question Text */}
-              <p className="text-base sm:text-xl font-medium text-white leading-relaxed">
+              <p className="text-base sm:text-xl font-medium text-[var(--text-primary)] leading-relaxed">
                 {activeQuestion.assessmentQuestion.question}
               </p>
 
@@ -1348,32 +1348,32 @@ export default function RoomArenaPage() {
                       key={optIdx}
                       type="button"
                       onClick={() => setSelectedOptions((prev) => ({ ...prev, [qId]: optIdx }))}
-                      className={`w-full p-3 sm:p-4 rounded-xl border text-left text-xs sm:text-sm transition-all duration-200 flex items-center justify-between ${
+                      className={`w-full p-3 sm:p-4 rounded-xl border text-left text-xs sm:text-sm transition-all duration-200 flex items-center justify-between cursor-pointer ${
                         isSelected
-                          ? "bg-blue-600/15 border-blue-500/60 text-white shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-blue-500/30"
-                          : "bg-black/30 border-zinc-800/90 text-zinc-300 hover:border-zinc-700 hover:bg-zinc-900/40"
+                          ? "bg-[var(--surface-selected)] border-[var(--action-primary)] text-[var(--text-primary)] shadow-sm ring-1 ring-[var(--action-primary)]/30"
+                          : "bg-[var(--surface-muted)]/60 border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)]"
                       }`}
                     >
                       <div className="flex items-center gap-2.5 sm:gap-3.5">
                         <span
                           className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg border flex items-center justify-center text-xs font-mono font-bold transition-colors ${
                             isSelected
-                              ? "border-blue-500 bg-blue-500 text-white"
-                              : "border-zinc-800 bg-zinc-900 text-zinc-400"
+                              ? "border-[var(--action-primary)] bg-[var(--action-primary)] text-[var(--on-primary)]"
+                              : "border-[var(--border-control)] bg-[var(--surface)] text-[var(--text-secondary)]"
                           }`}
                         >
                           {letter}
                         </span>
-                        <span className="font-normal text-zinc-200">{optionText}</span>
+                        <span className="font-normal text-[var(--text-primary)]">{optionText}</span>
                       </div>
-                      {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />}
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-[var(--accent-text)] shrink-0" />}
                     </button>
                   );
                 })}
               </div>
 
               {/* Submit & Navigation Bar */}
-              <div className="pt-3 sm:pt-5 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+              <div className="pt-3 sm:pt-5 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
                 {/* Left: Previous Button & Hotkeys Guide */}
                 <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-start">
                   <Button
@@ -1382,14 +1382,14 @@ export default function RoomArenaPage() {
                     size="sm"
                     disabled={activeQuestionIndex === 0}
                     onClick={() => setActiveQuestionIndex((prev) => Math.max(0, prev - 1))}
-                    className="h-9 px-3 rounded-xl border-zinc-800 bg-[#11141A] text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-30 flex items-center gap-1.5 text-xs"
+                    className="h-9 px-3 rounded-xl border-[var(--border-control)] bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] disabled:opacity-30 flex items-center gap-1.5 text-xs cursor-pointer"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span>Previous</span>
                   </Button>
 
-                  <div className="hidden md:flex items-center gap-2 text-xs text-zinc-400">
-                    <span className="px-2 py-0.5 rounded bg-zinc-800/80 border border-zinc-700 text-[10px] font-mono text-zinc-300">
+                  <div className="hidden md:flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+                    <span className="px-2 py-0.5 rounded bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-[10px] font-mono text-[var(--text-secondary)]">
                       Hotkeys: A, B, C, D • Enter
                     </span>
                   </div>
@@ -1398,7 +1398,7 @@ export default function RoomArenaPage() {
                 {/* Right: Recorded Indicator, Confirm Answer, and Next Button */}
                 <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                   {submittedMcqs.has(activeQuestion.assessmentQuestion.id) && (
-                    <span className="text-xs text-emerald-400 font-medium flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    <span className="text-xs text-[var(--status-success)] font-medium flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--status-success)]/10 border border-[var(--status-success)]/20">
                       <Check className="w-3.5 h-3.5" /> Answer Recorded
                     </span>
                   )}
@@ -1409,7 +1409,7 @@ export default function RoomArenaPage() {
                       selectedOptions[activeQuestion.assessmentQuestion.id] === undefined ||
                       isSubmittingMcq
                     }
-                    className="h-9 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-5 rounded-xl shadow-[0_0_15px_rgba(37,99,235,0.25)] transition-all disabled:opacity-40 text-xs"
+                    className="h-9 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] font-semibold px-5 rounded-xl shadow-sm transition-all disabled:opacity-40 text-xs cursor-pointer"
                   >
                     {isSubmittingMcq ? (
                       <span className="flex items-center gap-2">
@@ -1427,7 +1427,7 @@ export default function RoomArenaPage() {
                     size="sm"
                     disabled={activeQuestionIndex === totalQuestions - 1}
                     onClick={() => setActiveQuestionIndex((prev) => Math.min(totalQuestions - 1, prev + 1))}
-                    className="h-9 px-3 rounded-xl border-zinc-800 bg-[#11141A] text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-30 flex items-center gap-1.5 text-xs"
+                    className="h-9 px-3 rounded-xl border-[var(--border-control)] bg-[var(--surface-muted)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] disabled:opacity-30 flex items-center gap-1.5 text-xs cursor-pointer"
                   >
                     <span>Next</span>
                     <ChevronRight className="w-4 h-4" />
@@ -1437,7 +1437,7 @@ export default function RoomArenaPage() {
             </motion.div>
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center p-8 text-zinc-500 text-sm">
+          <div className="flex-1 flex items-center justify-center p-8 text-[var(--text-muted)] text-sm">
             Question data unavailable for this slot.
           </div>
         )}
@@ -1450,18 +1450,18 @@ export default function RoomArenaPage() {
               animate={{ x: 0 }}
               exit={{ x: 320 }}
               transition={{ duration: 0.25 }}
-              className="w-80 border-l border-zinc-800 bg-[#0B0D12] flex flex-col shrink-0 z-30 shadow-2xl"
+              className="w-80 border-l border-[var(--border-subtle)] bg-[var(--surface)] flex flex-col shrink-0 z-30 shadow-2xl"
             >
-              <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+              <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-amber-400" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                  <Trophy className="w-4 h-4 text-[var(--status-warning)]" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
                     Live Standings
                   </h3>
                 </div>
                 <button
                   onClick={() => setIsLeaderboardOpen(false)}
-                  className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                  className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1478,32 +1478,32 @@ export default function RoomArenaPage() {
                       key={p.userId}
                       className={`p-3 rounded-xl border flex items-center justify-between text-xs transition-colors ${
                         isMe
-                          ? "bg-blue-600/15 border-blue-500/50 text-white shadow-[0_0_15px_rgba(59,130,246,0.1)]"
-                          : "bg-black/30 border-zinc-800 text-zinc-300"
+                          ? "bg-[var(--surface-selected)] border-[var(--action-primary)]/50 text-[var(--text-primary)] shadow-sm"
+                          : "bg-[var(--surface-muted)]/60 border-[var(--border-subtle)] text-[var(--text-secondary)]"
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="font-mono font-bold text-zinc-400 w-5 text-center">
+                        <span className="font-mono font-bold text-[var(--text-muted)] w-5 text-center">
                           #{p.rank || idx + 1}
                         </span>
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-medium truncate max-w-[105px]">
+                            <span className="font-medium truncate max-w-[105px] text-[var(--text-primary)]">
                               {p.name} {isMe && "(You)"}
                             </span>
                             {/* Anti-cheat status pill */}
                             {p.isDisqualified ? (
-                              <Badge className="bg-red-500/20 text-red-400 border-red-500/40 text-[9px] px-1 py-0 font-bold">
+                              <Badge className="bg-[var(--status-danger)]/15 text-[var(--status-danger)] border-[var(--status-danger)]/40 text-[9px] px-1 py-0 font-bold">
                                 DQ
                               </Badge>
                             ) : strikes > 0 ? (
-                              <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[9px] px-1 py-0">
+                              <Badge className="bg-[var(--status-warning)]/15 text-[var(--status-warning)] border-[var(--status-warning)]/40 text-[9px] px-1 py-0">
                                 {strikes} ⚠️
                               </Badge>
                             ) : null}
                           </div>
                           {p.penaltyTime > 0 && (
-                            <span className="text-[10px] text-amber-400 font-mono">
+                            <span className="text-[10px] text-[var(--status-warning)] font-mono">
                               +{Math.round(p.penaltyTime / 60)}m pen
                             </span>
                           )}
@@ -1512,8 +1512,8 @@ export default function RoomArenaPage() {
 
                       <div className="flex items-center gap-2">
                         <div className="text-right font-mono">
-                          <div className="font-bold text-white">{p.score} pts</div>
-                          <div className="text-[10px] text-zinc-500">{p.solvedCount} solved</div>
+                          <div className="font-bold text-[var(--text-primary)]">{p.score} pts</div>
+                          <div className="text-[10px] text-[var(--text-muted)]">{p.solvedCount} solved</div>
                         </div>
 
                         {!isMe && (
@@ -1523,7 +1523,7 @@ export default function RoomArenaPage() {
                               setInspectedParticipant(p);
                               setIsInspectorModalOpen(true);
                             }}
-                            className="p-1.5 rounded-lg text-zinc-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"
+                            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-purple-500 dark:hover:text-purple-400 hover:bg-purple-500/10 transition-colors cursor-pointer"
                             title="Inspect Live Code"
                           >
                             <Eye className="w-3.5 h-3.5" />
@@ -1537,15 +1537,15 @@ export default function RoomArenaPage() {
 
               {/* Live Solve Activity Feed */}
               {recentActivities.length > 0 && (
-                <div className="p-3 border-t border-zinc-800 bg-black/40 max-h-36 overflow-y-auto space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)]/60 max-h-36 overflow-y-auto space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
                     Live Solves
                   </span>
                   {recentActivities.slice(0, 5).map((act, i) => (
-                    <div key={i} className="text-[11px] text-zinc-400 flex items-center gap-1.5 truncate">
-                      <Sparkles className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <div key={i} className="text-[11px] text-[var(--text-secondary)] flex items-center gap-1.5 truncate">
+                      <Sparkles className="w-3 h-3 text-[var(--status-success)] shrink-0" />
                       <span className="truncate">
-                        <strong className="text-zinc-200">{act.userName}</strong> solved {act.problemTitle} (+{act.pointsAwarded})
+                        <strong className="text-[var(--text-primary)]">{act.userName}</strong> solved {act.problemTitle} (+{act.pointsAwarded})
                       </span>
                     </div>
                   ))}
@@ -1559,38 +1559,38 @@ export default function RoomArenaPage() {
       {/* ─── LIVE CODE INSPECTOR MODAL (FOR STANDINGS DRAWER) ───────── */}
       <AnimatePresence>
         {isInspectorModalOpen && inspectedParticipant && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--overlay-scrim)] backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-4xl h-[75vh] rounded-2xl bg-[#0B0D12] border border-zinc-800 flex flex-col shadow-2xl overflow-hidden"
+              className="relative w-full max-w-4xl h-[75vh] rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] flex flex-col shadow-2xl overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="p-4 border-b border-zinc-800 flex items-center justify-between bg-[#0E121A]">
+              <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--surface-muted)]">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-sm">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-300 font-bold text-sm">
                     {inspectedParticipant.name?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-white">
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">
                         {inspectedParticipant.name}'s Live Code
                       </h3>
-                      <Badge className="bg-zinc-800 text-zinc-300 border-zinc-700 text-[10px]">
+                      <Badge className="bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border-subtle)] text-[10px]">
                         Rank #{inspectedParticipant.rank || 1}
                       </Badge>
                     </div>
-                    <span className="text-[11px] text-zinc-400">
+                    <span className="text-[11px] text-[var(--text-secondary)]">
                       {inspectedParticipant.score} pts • {inspectedParticipant.solvedCount} solved
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--status-success)]/10 border border-[var(--status-success)]/30 text-[var(--status-success)] text-xs font-medium">
+                    <span className="w-2 h-2 rounded-full bg-[var(--status-success)] animate-pulse" />
                     <span>Live Stream</span>
                   </div>
                   <button
@@ -1598,7 +1598,7 @@ export default function RoomArenaPage() {
                       setIsInspectorModalOpen(false);
                       setInspectedParticipant(null);
                     }}
-                    className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                    className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -1634,7 +1634,7 @@ export default function RoomArenaPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-3 border-t border-zinc-800 bg-[#090B0E] flex items-center justify-between text-xs text-zinc-400">
+              <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)] flex items-center justify-between text-xs text-[var(--text-secondary)]">
                 <span className="font-mono text-[11px]">
                   {inspectedCode && inspectedCode.targetUserId === inspectedParticipant.userId && inspectedCode.updatedAt
                     ? `Last synced: ${new Date(inspectedCode.updatedAt).toLocaleTimeString()}`
@@ -1647,7 +1647,7 @@ export default function RoomArenaPage() {
                     setIsInspectorModalOpen(false);
                     setInspectedParticipant(null);
                   }}
-                  className="rounded-lg h-7 text-xs border-zinc-800 hover:bg-zinc-800 text-zinc-300"
+                  className="rounded-lg h-7 text-xs border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] cursor-pointer"
                 >
                   Close
                 </Button>
@@ -1660,26 +1660,24 @@ export default function RoomArenaPage() {
       {/* ─── MODERN ANIMATED FINISH ASSESSMENT MODAL ────────────────── */}
       <AnimatePresence>
         {isFinishModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--overlay-scrim)] backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-md rounded-2xl bg-[#0D0F14] border border-zinc-800 shadow-[0_0_50px_rgba(0,0,0,0.8)] p-6 md:p-7 space-y-6 text-zinc-100 overflow-hidden"
+              className="relative w-full max-w-md rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-2xl p-6 md:p-7 space-y-6 text-[var(--text-primary)] overflow-hidden"
             >
-              <div className="absolute -top-12 -right-12 w-36 h-36 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
               {/* Header */}
               <div className="flex items-center gap-3.5">
-                <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+                <div className="p-3 rounded-xl bg-[var(--status-success)]/15 border border-[var(--status-success)]/30 text-[var(--status-success)]">
                   <Trophy className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white tracking-tight">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
                     Submit Assessment?
                   </h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
+                  <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                     Review your contest progress before finalizing.
                   </p>
                 </div>
@@ -1687,38 +1685,38 @@ export default function RoomArenaPage() {
 
               {/* Progress Summary Breakdown */}
               <div className="grid grid-cols-3 gap-3">
-                <div className="p-3 rounded-xl bg-black/40 border border-zinc-800 text-center">
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider font-semibold">Total</div>
-                  <div className="text-xl font-mono font-bold text-white mt-1">{totalQuestions}</div>
+                <div className="p-3 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-center">
+                  <div className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-semibold">Total</div>
+                  <div className="text-xl font-mono font-bold text-[var(--text-primary)] mt-1">{totalQuestions}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-center">
-                  <div className="text-xs text-emerald-400 uppercase tracking-wider font-semibold">Completed</div>
-                  <div className="text-xl font-mono font-bold text-emerald-400 mt-1">{completedCount}</div>
+                <div className="p-3 rounded-xl bg-[var(--status-success)]/10 border border-[var(--status-success)]/30 text-center">
+                  <div className="text-xs text-[var(--status-success)] uppercase tracking-wider font-semibold">Completed</div>
+                  <div className="text-xl font-mono font-bold text-[var(--status-success)] mt-1">{completedCount}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center">
-                  <div className="text-xs text-amber-400 uppercase tracking-wider font-semibold">Unanswered</div>
-                  <div className="text-xl font-mono font-bold text-amber-400 mt-1">{remainingCount}</div>
+                <div className="p-3 rounded-xl bg-[var(--status-warning)]/10 border border-[var(--status-warning)]/30 text-center">
+                  <div className="text-xs text-[var(--status-warning)] uppercase tracking-wider font-semibold">Unanswered</div>
+                  <div className="text-xl font-mono font-bold text-[var(--status-warning)] mt-1">{remainingCount}</div>
                 </div>
               </div>
 
               {/* Note / Warning */}
               {remainingCount > 0 ? (
-                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 leading-relaxed flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
+                <div className="p-3 rounded-xl bg-[var(--status-warning)]/10 border border-[var(--status-warning)]/20 text-xs text-[var(--status-warning)] leading-relaxed flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-[var(--status-warning)] mt-0.5" />
                   <span>
                     You have <strong>{remainingCount} unanswered question{remainingCount > 1 ? "s" : ""}</strong>. You can still return to solve them before time runs out.
                   </span>
                 </div>
               ) : (
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 leading-relaxed flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
+                <div className="p-3 rounded-xl bg-[var(--status-success)]/10 border border-[var(--status-success)]/20 text-xs text-[var(--status-success)] leading-relaxed flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-[var(--status-success)] mt-0.5" />
                   <span>
                     Awesome! You have answered all questions in this test session.
                   </span>
                 </div>
               )}
 
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Once submitted, your responses are finalized and you will be directed to the podium rankings. Other players will continue their test undisturbed.
               </p>
 
@@ -1728,14 +1726,14 @@ export default function RoomArenaPage() {
                   variant="ghost"
                   onClick={() => setIsFinishModalOpen(false)}
                   disabled={isSubmittingTest}
-                  className="rounded-xl text-zinc-400 hover:text-white"
+                  className="rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
                 >
                   Continue Test
                 </Button>
                 <Button
                   onClick={confirmFinishMyTest}
                   disabled={isSubmittingTest}
-                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold px-6 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all"
+                  className="rounded-xl bg-[var(--status-success)] hover:opacity-90 text-white font-semibold px-6 shadow-sm transition-all cursor-pointer"
                 >
                   {isSubmittingTest ? (
                     <span className="flex items-center gap-2">
@@ -1755,29 +1753,29 @@ export default function RoomArenaPage() {
       {/* ─── MODERN ANIMATED HOST FORCE END ALL MODAL ───────────────── */}
       <AnimatePresence>
         {isForceEndModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--overlay-scrim)] backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-md rounded-2xl bg-[#0D0F14] border border-red-500/40 shadow-[0_0_50px_rgba(239,68,68,0.2)] p-6 md:p-7 space-y-5 text-zinc-100 overflow-hidden"
+              className="relative w-full max-w-md rounded-2xl bg-[var(--surface-elevated)] border border-[var(--status-danger)]/40 shadow-2xl p-6 md:p-7 space-y-5 text-[var(--text-primary)] overflow-hidden"
             >
               <div className="flex items-center gap-3.5">
-                <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400">
+                <div className="p-3 rounded-xl bg-[var(--status-danger)]/15 border border-[var(--status-danger)]/30 text-[var(--status-danger)]">
                   <AlertTriangle className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white tracking-tight">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
                     Force End Contest for Everyone?
                   </h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
+                  <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                     Host administrative emergency action.
                   </p>
                 </div>
               </div>
 
-              <p className="text-xs text-zinc-300 leading-relaxed bg-red-500/10 border border-red-500/20 p-3.5 rounded-xl">
+              <p className="text-xs text-[var(--text-primary)] leading-relaxed bg-[var(--status-danger)]/10 border border-[var(--status-danger)]/20 p-3.5 rounded-xl">
                 ⚠️ This will <strong>immediately terminate the contest for all active participants</strong> and permanently lock all submissions. All participants will be redirected to the results podium.
               </p>
 
@@ -1785,13 +1783,13 @@ export default function RoomArenaPage() {
                 <Button
                   variant="ghost"
                   onClick={() => setIsForceEndModalOpen(false)}
-                  className="rounded-xl text-zinc-400 hover:text-white"
+                  className="rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={confirmHostForceEnd}
-                  className="rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold px-5 shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+                  className="rounded-xl bg-[var(--status-danger)] hover:opacity-90 text-white font-semibold px-5 shadow-sm cursor-pointer"
                 >
                   Conclude Contest
                 </Button>
@@ -1804,34 +1802,34 @@ export default function RoomArenaPage() {
       {/* ─── MODERN ANIMATED EXIT CONTEST MODAL ─────────────────────── */}
       <AnimatePresence>
         {isExitModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--overlay-scrim)] backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-sm rounded-2xl bg-[#0D0F14] border border-zinc-800 shadow-[0_0_50px_rgba(0,0,0,0.8)] p-6 space-y-4 text-zinc-100"
+              className="relative w-full max-w-sm rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-2xl p-6 space-y-4 text-[var(--text-primary)]"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-zinc-800 text-zinc-300">
+                <div className="p-2.5 rounded-xl bg-[var(--surface-muted)] text-[var(--text-secondary)]">
                   <LogOut className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-white">Exit Battle Arena?</h3>
+                <h3 className="text-base font-bold text-[var(--text-primary)]">Exit Battle Arena?</h3>
               </div>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 Are you sure you want to leave the contest? Your unsubmitted answers may not be saved.
               </p>
               <div className="flex items-center justify-end gap-3 pt-2">
                 <Button
                   variant="ghost"
                   onClick={() => setIsExitModalOpen(false)}
-                  className="rounded-xl text-zinc-400 hover:text-white"
+                  className="rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer"
                 >
                   Stay
                 </Button>
                 <Button
                   onClick={() => navigate("/rooms")}
-                  className="rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold"
+                  className="rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] border border-[var(--border-control)] text-[var(--text-primary)] font-semibold cursor-pointer"
                 >
                   Exit Arena
                 </Button>
@@ -1844,41 +1842,41 @@ export default function RoomArenaPage() {
       {/* ─── ANTI-CHEAT WARNING MODAL ───────────────────────────────── */}
       <AnimatePresence>
         {warningModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-lg">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--overlay-scrim)] backdrop-blur-lg">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.2 }}
-              className={`relative w-full max-w-md rounded-2xl p-6 md:p-7 space-y-5 text-zinc-100 border shadow-[0_0_60px_rgba(0,0,0,0.9)] ${
+              className={`relative w-full max-w-md rounded-2xl p-6 md:p-7 space-y-5 text-[var(--text-primary)] bg-[var(--surface-elevated)] border shadow-2xl ${
                 isTerminated
-                  ? "bg-[#180A0A] border-red-500/60 shadow-[0_0_50px_rgba(239,68,68,0.3)]"
-                  : "bg-[#120F09] border-amber-500/50 shadow-[0_0_50px_rgba(245,158,11,0.2)]"
+                  ? "border-[var(--status-danger)]/60"
+                  : "border-[var(--status-warning)]/50"
               }`}
             >
               <div className="flex items-center gap-3.5">
                 <div
                   className={`p-3 rounded-xl border ${
                     isTerminated
-                      ? "bg-red-500/20 border-red-500/40 text-red-400"
-                      : "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                      ? "bg-[var(--status-danger)]/15 border-[var(--status-danger)]/40 text-[var(--status-danger)]"
+                      : "bg-[var(--status-warning)]/15 border-[var(--status-warning)]/40 text-[var(--status-warning)]"
                   }`}
                 >
                   <ShieldAlert className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white tracking-tight">
+                  <h3 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
                     {isTerminated ? "Contest Disqualified" : "Proctoring Warning"}
                   </h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
+                  <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                     Anti-Cheat Surveillance Triggered
                   </p>
                 </div>
               </div>
 
               {/* Strike Counter Dots */}
-              <div className="p-3.5 rounded-xl bg-black/50 border border-zinc-800 flex items-center justify-between">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400">
+              <div className="p-3.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] flex items-center justify-between">
+                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                   Violation Strikes:
                 </span>
                 <div className="flex items-center gap-2">
@@ -1889,8 +1887,8 @@ export default function RoomArenaPage() {
                         key={step}
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-all ${
                           isTriggered
-                            ? "bg-red-500 text-white shadow-[0_0_10px_rgba(239,68,68,0.5)]"
-                            : "bg-zinc-800 text-zinc-500"
+                            ? "bg-[var(--status-danger)] text-white shadow-sm"
+                            : "bg-[var(--surface)] border border-[var(--border-control)] text-[var(--text-muted)]"
                         }`}
                       >
                         {step}
@@ -1900,31 +1898,31 @@ export default function RoomArenaPage() {
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-black/30 border border-zinc-800 text-xs text-zinc-300 leading-relaxed space-y-1.5">
-                <div className="font-semibold text-white">Detected Violation:</div>
-                <div className="text-amber-400 font-mono text-[11px]">{currentReason || "Tab switch or window defocus"}</div>
+              <div className="p-3.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] leading-relaxed space-y-1.5">
+                <div className="font-semibold text-[var(--text-primary)]">Detected Violation:</div>
+                <div className="text-[var(--status-warning)] font-mono text-[11px]">{currentReason || "Tab switch or window defocus"}</div>
               </div>
 
               {/* Authoritative Escalation Ladder explanation */}
-              <div className="p-3.5 rounded-xl bg-black/50 border border-zinc-800/80 text-[11px] space-y-2">
-                <div className="font-semibold text-zinc-300 uppercase tracking-wider text-[10px]">
+              <div className="p-3.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-[11px] space-y-2">
+                <div className="font-semibold text-[var(--text-secondary)] uppercase tracking-wider text-[10px]">
                   Surveillance Escalation Ladder
                 </div>
-                <div className={`flex items-center justify-between ${strikes === 1 ? "text-amber-300 font-semibold" : "text-zinc-500"}`}>
+                <div className={`flex items-center justify-between ${strikes === 1 ? "text-[var(--status-warning)] font-semibold" : "text-[var(--text-muted)]"}`}>
                   <span>Strike 1: Room Warning Recorded</span>
                   <span className="text-[10px] font-mono">Incident logged</span>
                 </div>
-                <div className={`flex items-center justify-between ${strikes === 2 ? "text-amber-300 font-semibold" : "text-zinc-500"}`}>
+                <div className={`flex items-center justify-between ${strikes === 2 ? "text-[var(--status-warning)] font-semibold" : "text-[var(--text-muted)]"}`}>
                   <span>Strike 2: Time Penalty Imposed</span>
-                  <span className="text-[10px] font-mono font-bold text-amber-400">+180s Penalty</span>
+                  <span className="text-[10px] font-mono font-bold text-[var(--status-warning)]">+180s Penalty</span>
                 </div>
-                <div className={`flex items-center justify-between ${strikes >= 3 ? "text-red-400 font-semibold" : "text-zinc-500"}`}>
+                <div className={`flex items-center justify-between ${strikes >= 3 ? "text-[var(--status-danger)] font-semibold" : "text-[var(--text-muted)]"}`}>
                   <span>Strike 3: Disqualification</span>
-                  <span className="text-[10px] font-mono font-bold text-red-400">Lockout (HTTP 403)</span>
+                  <span className="text-[10px] font-mono font-bold text-[var(--status-danger)]">Lockout (HTTP 403)</span>
                 </div>
               </div>
 
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                 {isTerminated
                   ? "You have accumulated 3 anti-cheat violations. Your test is permanently disqualified and locked."
                   : strikes === 2
@@ -1936,7 +1934,7 @@ export default function RoomArenaPage() {
                 <div className="pt-2 flex items-center justify-end">
                   <Button
                     onClick={dismissWarning}
-                    className="rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-6 shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all"
+                    className="rounded-xl bg-[var(--status-warning)] hover:opacity-90 text-white font-bold px-6 shadow-sm transition-all cursor-pointer"
                   >
                     I Understand & Return to Test
                   </Button>
@@ -1949,12 +1947,12 @@ export default function RoomArenaPage() {
 
       {/* ─── IN-EXAM RULES & INSTRUCTIONS REFERENCE MODAL ───────────── */}
       {isRulesModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-[#101014] border border-zinc-800 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col relative shadow-2xl my-auto overflow-hidden">
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-800 shrink-0 bg-[#101014]">
+        <div className="fixed inset-0 z-50 bg-[var(--overlay-scrim)] backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col relative shadow-2xl my-auto overflow-hidden">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[var(--border-subtle)] shrink-0 bg-[var(--surface-elevated)]">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-zinc-400" />
-                <h3 className="text-sm font-bold text-white tracking-tight">
+                <BookOpen className="w-4 h-4 text-[var(--text-secondary)]" />
+                <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">
                   Examination Rules & Workspace Reference
                 </h3>
               </div>
@@ -1962,7 +1960,7 @@ export default function RoomArenaPage() {
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsRulesModalOpen(false)}
-                className="text-zinc-400 hover:text-white h-8 px-2 rounded-lg cursor-pointer"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] h-8 px-2 rounded-lg cursor-pointer"
               >
                 ✕ Close
               </Button>

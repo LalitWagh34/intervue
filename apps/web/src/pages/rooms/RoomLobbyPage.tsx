@@ -183,9 +183,9 @@ export default function RoomLobbyPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400">
+      <div className="min-h-screen bg-[var(--canvas)] flex items-center justify-center text-[var(--text-secondary)]">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-zinc-400 animate-ping" />
+          <div className="w-2 h-2 rounded-full bg-[var(--text-muted)] animate-ping" />
           <span className="text-sm font-medium">Entering Lobby...</span>
         </div>
       </div>
@@ -197,45 +197,45 @@ export default function RoomLobbyPage() {
     const allowLateJoin = unjoinedRoom.allowLateJoin !== false;
 
     return (
-      <div className="min-h-screen bg-[#07080B] text-zinc-100 flex items-center justify-center p-6 selection:bg-blue-600/30">
-        <div className="max-w-md w-full rounded-2xl bg-[#0D0F14] border border-zinc-800 p-8 space-y-6 shadow-2xl relative overflow-hidden">
+      <div className="min-h-screen bg-[var(--canvas)] text-[var(--text-primary)] flex items-center justify-center p-6 selection:bg-[var(--surface-selected)]">
+        <div className="max-w-md w-full rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] p-8 space-y-6 shadow-xl relative overflow-hidden">
           <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+            <div className="p-3 rounded-xl bg-[var(--accent-soft)] border border-[var(--action-primary)]/20 text-[var(--accent-text)]">
               <Swords className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-blue-400 font-semibold">Contest Invitation</span>
-              <h1 className="text-xl font-bold text-white tracking-tight">{unjoinedRoom.title}</h1>
+              <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--accent-text)] font-semibold">Contest Invitation</span>
+              <h1 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">{unjoinedRoom.title}</h1>
             </div>
           </div>
 
-          <div className="space-y-3 py-2 text-xs text-zinc-300">
-            <div className="flex justify-between items-center py-2 border-b border-zinc-800/80">
-              <span className="text-zinc-500">Room Code</span>
-              <span className="font-mono font-bold text-white tracking-wider">{unjoinedRoom.code}</span>
+          <div className="space-y-3 py-2 text-xs text-[var(--text-secondary)]">
+            <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+              <span className="text-[var(--text-muted)]">Room Code</span>
+              <span className="font-mono font-bold text-[var(--text-primary)] tracking-wider">{unjoinedRoom.code}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-zinc-800/80">
-              <span className="text-zinc-500">Host</span>
-              <span className="font-medium text-white">{unjoinedRoom.host?.name || "Host"}</span>
+            <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+              <span className="text-[var(--text-muted)]">Host</span>
+              <span className="font-medium text-[var(--text-primary)]">{unjoinedRoom.host?.name || "Host"}</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-zinc-800/80">
-              <span className="text-zinc-500">Format & Duration</span>
-              <span className="font-medium text-white">{unjoinedRoom.type} • {unjoinedRoom.duration} mins</span>
+            <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+              <span className="text-[var(--text-muted)]">Format & Duration</span>
+              <span className="font-medium text-[var(--text-primary)]">{unjoinedRoom.type} • {unjoinedRoom.duration} mins</span>
             </div>
-            <div className="flex justify-between items-center py-2 border-b border-zinc-800/80">
-              <span className="text-zinc-500">Contest Status</span>
-              <span className={`font-mono font-semibold ${isLive ? "text-emerald-400" : "text-amber-400"}`}>
+            <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+              <span className="text-[var(--text-muted)]">Contest Status</span>
+              <span className={`font-mono font-semibold ${isLive ? "text-[var(--status-success)]" : "text-[var(--status-warning)]"}`}>
                 {isLive ? "● LIVE IN PROGRESS" : "Waiting for Host"}
               </span>
             </div>
           </div>
 
           {isLive && !allowLateJoin ? (
-            <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300">
+            <div className="p-3.5 rounded-xl bg-[var(--status-danger)]/10 border border-[var(--status-danger)]/20 text-xs text-[var(--status-danger)]">
               This contest has already started and late joining has been locked by the host.
             </div>
           ) : (
-            <p className="text-xs text-zinc-400 leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
               You are not a registered participant in this room yet. Click below to join this contest session.
             </p>
           )}
@@ -244,7 +244,7 @@ export default function RoomLobbyPage() {
             <Button
               variant="ghost"
               onClick={() => navigate("/rooms")}
-              className="flex-1 text-zinc-400 hover:text-white rounded-xl"
+              className="flex-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] rounded-xl"
             >
               Back to Hub
             </Button>
@@ -252,7 +252,7 @@ export default function RoomLobbyPage() {
               <Button
                 onClick={handleJoinContest}
                 disabled={isJoiningRoom}
-                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all"
+                className="flex-1 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] font-semibold rounded-xl shadow-sm transition-all"
               >
                 {isJoiningRoom ? "Joining..." : "Join Contest Room"}
               </Button>
@@ -281,92 +281,92 @@ export default function RoomLobbyPage() {
   const displayParticipants = Array.from(participantMap.values());
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 p-8">
+    <div className="min-h-screen bg-[var(--canvas)] text-[var(--text-primary)] p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Top Breadcrumb & Status */}
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigate("/rooms")}
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1.5"
+            className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             ← Back to Arena
           </button>
           <div className="flex items-center gap-2 text-xs">
             <span
               className={`w-2 h-2 rounded-full ${
-                isConnected ? "bg-emerald-500" : "bg-amber-500"
+                isConnected ? "bg-[var(--status-success)]" : "bg-[var(--status-warning)]"
               }`}
             />
-            <span className="text-zinc-400 font-mono">
+            <span className="text-[var(--text-secondary)] font-mono">
               {isConnected ? "Live Socket Sync" : "Connecting..."}
             </span>
           </div>
         </div>
 
         {/* Room Header Card */}
-        <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-6">
+        <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-semibold text-white tracking-tight">
+                <h1 className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
                   {room.title}
                 </h1>
-                <Badge variant="outline" className="border-zinc-700 bg-zinc-950 text-zinc-300 text-xs">
+                <Badge variant="outline" className="border-[var(--border-control)] bg-[var(--surface-muted)] text-[var(--text-secondary)] text-xs">
                   {room.type}
                 </Badge>
               </div>
-              <p className="text-xs text-zinc-400">
-                Lobby waiting room • Duration: <span className="text-zinc-200">{room.duration} minutes</span> • Max participants: <span className="text-zinc-200">{room.maxParticipants}</span>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Lobby waiting room • Duration: <span className="text-[var(--text-primary)] font-medium">{room.duration} minutes</span> • Max participants: <span className="text-[var(--text-primary)] font-medium">{room.maxParticipants}</span>
               </p>
             </div>
 
             {/* Room Code Pill */}
-            <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 px-4 py-2 rounded-lg">
-              <span className="text-xs text-zinc-500 uppercase tracking-wider font-medium">Code:</span>
-              <span className="font-mono text-base font-bold tracking-widest text-white">
+            <div className="flex items-center gap-2 bg-[var(--surface-muted)] border border-[var(--border-subtle)] px-4 py-2 rounded-lg">
+              <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider font-medium">Code:</span>
+              <span className="font-mono text-base font-bold tracking-widest text-[var(--text-primary)]">
                 {room.code}
               </span>
               <button
                 onClick={copyInvite}
-                className="p-1 text-zinc-400 hover:text-white transition-colors ml-1"
+                className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors ml-1 cursor-pointer"
                 title="Copy Room Code"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-[var(--status-success)]" /> : <Copy className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
           {/* Question Summary Bar */}
-          <div className="mt-6 pt-4 border-t border-zinc-800/80 flex flex-wrap gap-4 text-xs text-zinc-400">
+          <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-wrap gap-4 text-xs text-[var(--text-secondary)]">
             <div className="flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-zinc-500" />
+              <Layers className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               <span>{room.questions.length} Questions Total</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-zinc-500" />
+              <Clock className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               <span>Server-Authoritative Timer</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-zinc-500" />
+              <Shield className="w-3.5 h-3.5 text-[var(--text-muted)]" />
               <span>Deterministic Standings</span>
             </div>
           </div>
         </div>
 
         {/* Pre-Exam Rules & Disclaimer Notice Card */}
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-zinc-800 text-zinc-300 shrink-0 mt-0.5">
+            <div className="p-2 rounded-lg bg-[var(--surface-muted)] text-[var(--text-secondary)] shrink-0 mt-0.5">
               <ShieldAlert className="w-4 h-4" />
             </div>
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-white">Examination Instructions & Anti-Cheat Disclaimers</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+                <span className="text-xs font-semibold text-[var(--text-primary)]">Examination Instructions & Anti-Cheat Disclaimers</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-muted)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
                   Strict 3 Strikes
                 </span>
               </div>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-[var(--text-secondary)]">
                 Review workspace layout, tab-switch penalty disclaimers, and spectator rules before entering.
               </p>
             </div>
@@ -374,9 +374,9 @@ export default function RoomLobbyPage() {
           <Button
             size="sm"
             onClick={() => setIsRulesModalOpen(true)}
-            className="w-full sm:w-auto bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-lg text-xs font-medium shrink-0 flex items-center gap-1.5 cursor-pointer"
+            className="w-full sm:w-auto bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-control)] rounded-lg text-xs font-medium shrink-0 flex items-center gap-1.5 cursor-pointer"
           >
-            <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
+            <BookOpen className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
             <span>Read Exam Rules</span>
           </Button>
         </div>
@@ -384,12 +384,12 @@ export default function RoomLobbyPage() {
         {/* Participants Grid */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-              <Users className="w-4 h-4 text-zinc-500" />
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] flex items-center gap-2">
+              <Users className="w-4 h-4 text-[var(--text-muted)]" />
               Participants ({displayParticipants.length} / {room.maxParticipants})
             </h2>
-            <span className="text-xs text-zinc-500">
-              Share code <strong className="text-zinc-300 font-mono">{room.code}</strong> with your friends
+            <span className="text-xs text-[var(--text-muted)]">
+              Share code <strong className="text-[var(--text-primary)] font-mono">{room.code}</strong> with your friends
             </span>
           </div>
 
@@ -403,29 +403,29 @@ export default function RoomLobbyPage() {
                   key={p.userId}
                   className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
                     isMe
-                      ? "bg-zinc-900 border-zinc-700/80 shadow-sm"
-                      : "bg-zinc-900/40 border-zinc-800/80"
+                      ? "bg-[var(--surface)] border-[var(--border-control)] shadow-sm"
+                      : "bg-[var(--surface)]/80 border-[var(--border-subtle)]"
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {p.image ? (
-                      <img src={p.image} className="w-8 h-8 rounded-full border border-zinc-700" />
+                      <img src={p.image} className="w-8 h-8 rounded-full border border-[var(--border-subtle)]" />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-medium text-zinc-200">
+                      <div className="w-8 h-8 rounded-full bg-[var(--surface-muted)] border border-[var(--border-subtle)] flex items-center justify-center text-xs font-medium text-[var(--text-primary)]">
                         {p.name?.[0] || "U"}
                       </div>
                     )}
                     <div className="truncate">
-                      <p className="text-xs font-medium text-white truncate flex items-center gap-1">
+                      <p className="text-xs font-medium text-[var(--text-primary)] truncate flex items-center gap-1">
                         {p.name}
-                        {isMe && <span className="text-[10px] text-zinc-500">(You)</span>}
+                        {isMe && <span className="text-[10px] text-[var(--text-muted)]">(You)</span>}
                       </p>
-                      <span className="text-[10px] text-zinc-500 font-mono">Ready</span>
+                      <span className="text-[10px] text-[var(--text-muted)] font-mono">Ready</span>
                     </div>
                   </div>
 
                   {isHostUser && (
-                    <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-400 text-[10px] flex items-center gap-1">
+                    <Badge variant="outline" className="border-[var(--status-warning)]/30 bg-[var(--status-warning)]/10 text-[var(--status-warning)] text-[10px] flex items-center gap-1">
                       <Crown className="w-3 h-3" />
                       Host
                     </Badge>
@@ -437,30 +437,30 @@ export default function RoomLobbyPage() {
         </div>
 
         {/* Host Control / Waiting Banner */}
-        <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-[var(--surface)] border border-[var(--border-subtle)] rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
           {room.isHost ? (
             <>
               <div className="space-y-1 text-center sm:text-left">
-                <h3 className="text-sm font-medium text-white">
+                <h3 className="text-sm font-medium text-[var(--text-primary)]">
                   You are the Host
                 </h3>
-                <p className="text-xs text-zinc-400">
+                <p className="text-xs text-[var(--text-secondary)]">
                   When everyone has joined, start the contest. All screens will transition simultaneously.
                 </p>
               </div>
               <Button
                 onClick={handleStartContest}
                 disabled={isStarting}
-                className="bg-zinc-100 text-zinc-900 hover:bg-white font-medium px-8 shrink-0 flex items-center gap-2"
+                className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] font-semibold px-8 shrink-0 flex items-center gap-2 cursor-pointer"
               >
-                <Play className="w-4 h-4 fill-zinc-900" />
+                <Play className="w-4 h-4 fill-current" />
                 {isStarting ? "Starting..." : "Start Contest"}
               </Button>
             </>
           ) : (
             <div className="flex items-center gap-3 w-full justify-center sm:justify-start">
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-              <span className="text-xs text-zinc-400">
+              <div className="w-2.5 h-2.5 rounded-full bg-[var(--status-warning)] animate-pulse" />
+              <span className="text-xs text-[var(--text-secondary)]">
                 Waiting for the host to start the contest. Please do not close this tab.
               </span>
             </div>
@@ -470,12 +470,12 @@ export default function RoomLobbyPage() {
 
       {/* ─── PRE-EXAM RULES & GUIDELINES PREVIEW MODAL ──────────────── */}
       {isRulesModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-          <div className="bg-[#101014] border border-zinc-800 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col relative shadow-2xl my-auto overflow-hidden">
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-800 shrink-0 bg-[#101014]">
+        <div className="fixed inset-0 z-50 bg-[var(--overlay-scrim)] backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col relative shadow-2xl my-auto overflow-hidden">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[var(--border-subtle)] shrink-0 bg-[var(--surface-elevated)]">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-zinc-400" />
-                <h3 className="text-sm font-bold text-white tracking-tight">
+                <BookOpen className="w-4 h-4 text-[var(--text-secondary)]" />
+                <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">
                   Examination Rules, Layout & Anti-Cheat Guidelines
                 </h3>
               </div>
@@ -483,7 +483,7 @@ export default function RoomLobbyPage() {
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsRulesModalOpen(false)}
-                className="text-zinc-400 hover:text-white h-8 px-2 rounded-lg cursor-pointer"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] h-8 px-2 rounded-lg cursor-pointer"
               >
                 ✕ Close
               </Button>
