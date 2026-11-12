@@ -416,37 +416,37 @@ export default function InterviewPage() {
     const SelectedTrackIcon = currentTrackObj.icon;
 
     return (
-      <div className="min-h-screen bg-[#08090C] text-white">
+      <div className="min-h-full bg-[var(--canvas)] text-[var(--text-primary)]">
         {/* Studio Sub-Header */}
-        <div className="border-b border-[#181A20] bg-[#0D0E12]/80 backdrop-blur-md px-6 py-4">
+        <div className="border-b border-[var(--border-subtle)] bg-[var(--surface)]/90 backdrop-blur-md px-6 py-4">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => navigate("/practice")}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-[#14161C] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                 title="Back to Prep Hub"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                  <h1 className="text-sm sm:text-base font-bold text-[var(--text-primary)] tracking-tight">
                     Technical Interview Studio
                   </h1>
-                  <span className="px-2 py-0.5 rounded-full bg-[#327CF6]/10 border border-[#327CF6]/25 text-[#327CF6] text-[10px] font-mono font-medium">
+                  <span className="px-2 py-0.5 rounded-full bg-[var(--surface-selected)] border border-[var(--border-control)] text-[var(--accent-text)] text-[10px] font-mono font-medium">
                     v1.0 Live
                   </span>
                 </div>
-                <p className="text-xs text-[#7A808C]">
+                <p className="text-xs text-[var(--text-secondary)]">
                   Calibrate your track, seniority, and optional portfolio grounding before launching the session.
                 </p>
               </div>
             </div>
 
-            <div className="hidden sm:flex items-center gap-2 text-xs text-[#7A808C] font-mono">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Adaptive Groq Engine</span>
+            <div className="hidden sm:flex items-center gap-2 text-xs text-[var(--text-secondary)] font-mono">
+              <span className="w-2 h-2 rounded-full bg-[var(--status-success)] animate-pulse" />
+              <span>Live</span>
             </div>
           </div>
         </div>
@@ -457,16 +457,16 @@ export default function InterviewPage() {
             
             {/* Left 8 Cols: Compact Configuration Console */}
             <div className="lg:col-span-8 space-y-5">
-              <div className="p-5 sm:p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] shadow-xl space-y-6">
+              <div className="p-5 sm:p-6 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm space-y-6">
                 
                 {/* 01. TARGET ENGINEERING TRACK DROPDOWN */}
                 <div className="space-y-2.5 relative" ref={trackDropdownRef}>
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#327CF6]" />
+                    <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                       <span>Target Role & Engineering Track</span>
                     </label>
-                    <span className="text-[11px] text-[#7A808C]">
+                    <span className="text-[11px] text-[var(--text-muted)]">
                       {customTrack ? "Custom Role" : "5 Curated Tracks"}
                     </span>
                   </div>
@@ -479,32 +479,32 @@ export default function InterviewPage() {
                       className={cn(
                         "w-full px-4 py-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3",
                         isTrackDropdownOpen
-                          ? "bg-[#10141F] border-[#327CF6] ring-1 ring-[#327CF6]/30"
-                          : "bg-[#090A0E] border-[#181A20] hover:border-[#262933] hover:bg-[#0D0F14]"
+                          ? "bg-[var(--surface-selected)] border-[var(--action-primary)] ring-1 ring-[var(--action-primary)]/20"
+                          : "bg-[var(--surface-muted)] border-[var(--border-subtle)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)]"
                       )}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-[#327CF6]/15 border border-[#327CF6]/30 flex items-center justify-center shrink-0 text-[#327CF6]">
+                        <div className="w-8 h-8 rounded-lg bg-[var(--surface-selected)] border border-[var(--border-control)] flex items-center justify-center shrink-0 text-[var(--accent-text)]">
                           <SelectedTrackIcon className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs sm:text-sm font-bold text-white truncate">
+                          <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">
                             {customTrack.trim() || currentTrackObj.title}
                           </p>
-                          <p className="text-[11px] text-[#7A808C] truncate">
+                          <p className="text-[11px] text-[var(--text-secondary)] truncate">
                             {customTrack.trim() ? "Custom specialized engineering track" : currentTrackObj.desc}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="hidden sm:inline-block text-[10px] text-[#8B92A0] bg-[#14161C] border border-[#1E2229] px-2 py-0.5 rounded-md font-mono">
+                        <span className="hidden sm:inline-block text-[10px] text-[var(--text-secondary)] bg-[var(--surface)] border border-[var(--border-subtle)] px-2 py-0.5 rounded-md font-mono">
                           Change Track
                         </span>
                         <ChevronDown
                           className={cn(
-                            "w-4 h-4 text-zinc-400 transition-transform duration-200",
-                            isTrackDropdownOpen && "rotate-180 text-[#327CF6]"
+                            "w-4 h-4 text-[var(--text-secondary)] transition-transform duration-200",
+                            isTrackDropdownOpen && "rotate-180 text-[var(--accent-text)]"
                           )}
                         />
                       </div>
@@ -512,8 +512,8 @@ export default function InterviewPage() {
 
                     {/* Dropdown Menu Popover */}
                     {isTrackDropdownOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-2 z-40 rounded-xl bg-[#0B0D13] border border-[#222530] shadow-2xl p-1.5 space-y-1 backdrop-blur-xl animate-in fade-in-50 zoom-in-95">
-                        <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                      <div className="absolute top-full left-0 right-0 mt-2 z-40 rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-control)] shadow-xl p-1.5 space-y-1 backdrop-blur-xl animate-in fade-in-50 zoom-in-95">
+                        <div className="px-3 py-1.5 text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                           Select Curated Track
                         </div>
 
@@ -532,8 +532,8 @@ export default function InterviewPage() {
                               className={cn(
                                 "w-full p-2.5 rounded-lg text-left transition-all cursor-pointer flex items-center justify-between gap-3 group",
                                 isSelected
-                                  ? "bg-[#327CF6]/15 text-white font-medium"
-                                  : "hover:bg-[#14161F] text-zinc-300 hover:text-white"
+                                  ? "bg-[var(--surface-selected)] text-[var(--text-primary)] font-medium"
+                                  : "hover:bg-[var(--surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                               )}
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
@@ -541,27 +541,27 @@ export default function InterviewPage() {
                                   className={cn(
                                     "w-7 h-7 rounded-md flex items-center justify-center shrink-0 border",
                                     isSelected
-                                      ? "bg-[#327CF6]/20 border-[#327CF6]/50 text-[#327CF6]"
-                                      : "bg-[#14161C] border-[#1E2229] text-[#7A808C] group-hover:text-zinc-200"
+                                      ? "bg-[var(--surface-selected)] border-[var(--action-primary)] text-[var(--accent-text)]"
+                                      : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-muted)] group-hover:text-[var(--text-primary)]"
                                   )}
                                 >
                                   <Icon className="w-3.5 h-3.5" />
                                 </div>
                                 <div className="min-w-0">
                                   <p className="text-xs font-semibold truncate">{t.title}</p>
-                                  <p className="text-[10px] text-[#7A808C] truncate">{t.tags.join(" • ")}</p>
+                                  <p className="text-[10px] text-[var(--text-muted)] truncate">{t.tags.join(" • ")}</p>
                                 </div>
                               </div>
 
                               {isSelected && (
-                                <Check className="w-4 h-4 text-[#327CF6] shrink-0" />
+                                <Check className="w-4 h-4 text-[var(--accent-text)] shrink-0" />
                               )}
                             </button>
                           );
                         })}
 
                         {/* Custom Track Trigger inside dropdown */}
-                        <div className="pt-1.5 mt-1 border-t border-[#181A20]/80 px-2 pb-1">
+                        <div className="pt-1.5 mt-1 border-t border-[var(--border-subtle)] px-2 pb-1">
                           <button
                             type="button"
                             onClick={() => {
@@ -569,7 +569,7 @@ export default function InterviewPage() {
                               if (!customTrack) setCustomTrack("ML Platform Engineer");
                               setIsTrackDropdownOpen(false);
                             }}
-                            className="w-full text-left py-1.5 px-2 text-xs text-[#327CF6] hover:text-[#5694F8] hover:bg-[#327CF6]/10 rounded-md transition-colors flex items-center gap-1.5 font-medium cursor-pointer"
+                            className="w-full text-left py-1.5 px-2 text-xs text-[var(--accent-text)] hover:bg-[var(--surface-selected)] rounded-md transition-colors flex items-center gap-1.5 font-medium cursor-pointer"
                           >
                             <span>+ Specify Custom Role / Specialization</span>
                           </button>
@@ -587,7 +587,7 @@ export default function InterviewPage() {
                           placeholder="e.g. Staff iOS Engineer, ML Platform, Distributed Systems Architect..."
                           value={customTrack}
                           onChange={(e) => setCustomTrack(e.target.value)}
-                          className="w-full pl-3.5 pr-20 py-2 rounded-xl bg-[#090A0E] border border-[#327CF6]/50 focus:border-[#327CF6] text-white text-xs outline-none transition-colors placeholder:text-zinc-600"
+                          className="w-full pl-3.5 pr-20 py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--action-primary)] focus:border-[var(--action-primary)] text-[var(--text-primary)] text-xs outline-none transition-colors placeholder:text-[var(--text-muted)]"
                         />
                         <button
                           type="button"
@@ -595,7 +595,7 @@ export default function InterviewPage() {
                             setCustomTrack("");
                             setSelectedTrack(TRACKS[0].id);
                           }}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 hover:text-zinc-200 px-1.5 py-0.5 rounded hover:bg-[#181A20] cursor-pointer"
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-1.5 py-0.5 rounded hover:bg-[var(--surface-hover)] cursor-pointer"
                         >
                           Clear
                         </button>
@@ -609,7 +609,7 @@ export default function InterviewPage() {
                       {currentTrackObj.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-0.5 rounded-md bg-[#08090C] border border-[#181A20] text-[10px] text-zinc-400 font-mono"
+                          className="px-2 py-0.5 rounded-md bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-[10px] text-[var(--text-secondary)] font-mono"
                         >
                           {tag}
                         </span>
@@ -619,17 +619,17 @@ export default function InterviewPage() {
                 </div>
 
                 {/* 02. SENIORITY CALIBRATION (Segmented Pill Switcher) */}
-                <div className="space-y-2 pt-3 border-t border-[#181A20]">
+                <div className="space-y-2 pt-3 border-t border-[var(--border-subtle)]">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
+                    <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider block">
                       Seniority Level
                     </label>
-                    <span className="text-[11px] text-[#7A808C] font-mono">
+                    <span className="text-[11px] text-[var(--text-muted)] font-mono">
                       {currentLevelObj.subtitle}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-[#08090C] border border-[#181A20]">
+                  <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                     {LEVELS.map((lvl) => {
                       const isSelected = selectedLevel === lvl.id;
                       return (
@@ -640,14 +640,14 @@ export default function InterviewPage() {
                           className={cn(
                             "py-2 px-3 rounded-lg text-center transition-all cursor-pointer font-medium text-xs flex flex-col items-center justify-center gap-0.5",
                             isSelected
-                              ? "bg-[#327CF6] text-white shadow-md shadow-[#327CF6]/20 font-semibold"
-                              : "text-[#8B92A0] hover:text-white hover:bg-[#111319]"
+                              ? "bg-[var(--action-primary)] text-[var(--on-primary)] shadow-sm font-semibold"
+                              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                           )}
                         >
                           <span className="truncate">{lvl.label}</span>
                           <span className={cn(
                             "text-[10px] font-mono",
-                            isSelected ? "text-blue-100" : "text-[#555B67]"
+                            isSelected ? "text-[var(--on-primary)] opacity-85" : "text-[var(--text-muted)]"
                           )}>
                             {lvl.subtitle}
                           </span>
@@ -656,23 +656,23 @@ export default function InterviewPage() {
                     })}
                   </div>
 
-                  <p className="text-[11px] text-[#7A808C] px-1">
+                  <p className="text-[11px] text-[var(--text-secondary)] px-1">
                     {currentLevelObj.description}
                   </p>
                 </div>
 
                 {/* 03. ROUND FOCUS (Segmented Control) */}
-                <div className="space-y-2 pt-3 border-t border-[#181A20]">
+                <div className="space-y-2 pt-3 border-t border-[var(--border-subtle)]">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block">
+                    <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider block">
                       Assessment Focus
                     </label>
-                    <span className="text-[11px] text-[#7A808C]">
+                    <span className="text-[11px] text-[var(--text-muted)]">
                       {currentFocusObj.desc}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-[#08090C] border border-[#181A20]">
+                  <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                     {ROUND_FOCUSES.map((f) => {
                       const isSelected = selectedFocus === f.id;
                       return (
@@ -683,8 +683,8 @@ export default function InterviewPage() {
                           className={cn(
                             "py-2 px-2.5 rounded-lg text-center transition-all cursor-pointer text-xs font-medium truncate",
                             isSelected
-                              ? "bg-[#181D2A] text-white border border-[#327CF6]/40 shadow-sm"
-                              : "text-[#8B92A0] hover:text-white hover:bg-[#111319]"
+                              ? "bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--action-primary)] shadow-sm"
+                              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                           )}
                         >
                           {f.label}
@@ -695,40 +695,40 @@ export default function InterviewPage() {
                 </div>
 
                 {/* 04. RESUME & PORTFOLIO GROUNDING (Collapsible Accordion Card) */}
-                <div className="pt-3 border-t border-[#181A20]">
-                  <div className="rounded-xl border border-[#181A20] bg-[#08090C] overflow-hidden transition-all">
+                <div className="pt-3 border-t border-[var(--border-subtle)]">
+                  <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] overflow-hidden transition-all">
                     
                     {/* Accordion Bar Header */}
                     <div
                       onClick={() => setIsResumeExpanded((prev) => !prev)}
-                      className="p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:bg-[#0E1015] transition-colors select-none"
+                      className="p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:bg-[var(--surface-hover)] transition-colors select-none"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className={cn(
                           "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border",
                           resumeText.trim()
-                            ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-400"
-                            : "bg-[#14161C] border-[#1E2229] text-[#7A808C]"
+                            ? "bg-[var(--status-success-subtle)] border-[var(--border-subtle)] text-[var(--status-success)]"
+                            : "bg-[var(--surface)] border-[var(--border-subtle)] text-[var(--text-muted)]"
                         )}>
                           <FileText className="w-3.5 h-3.5" />
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white tracking-tight">
+                            <span className="text-xs font-bold text-[var(--text-primary)] tracking-tight">
                               Ground with Resume & Projects
                             </span>
                             {resumeText.trim() ? (
-                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-medium flex items-center gap-1 shrink-0">
+                              <span className="px-2 py-0.5 rounded-full bg-[var(--status-success-subtle)] border border-[var(--border-subtle)] text-[var(--status-success)] text-[10px] font-medium flex items-center gap-1 shrink-0">
                                 <FileCheck className="w-3 h-3" />
                                 <span>Attached</span>
                               </span>
                             ) : (
-                              <span className="px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 text-[10px] font-mono shrink-0">
+                              <span className="px-1.5 py-0.5 rounded-md bg-[var(--surface)] border border-[var(--border-subtle)] text-[var(--text-muted)] text-[10px] font-mono shrink-0">
                                 Optional
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] text-[#7A808C] truncate">
+                          <p className="text-[11px] text-[var(--text-secondary)] truncate">
                             {resumeText.trim()
                               ? `${resumeFileName || "Custom highlights loaded"} (${resumeText.length} chars)`
                               : "Upload resume or sync profile so AI grills your actual past work"}
@@ -753,23 +753,23 @@ export default function InterviewPage() {
                           <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="px-2 py-1 rounded-md bg-[#14161C] border border-[#1E2229] hover:border-[#327CF6]/40 text-[#8B92A0] hover:text-white text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer"
+                            className="px-2 py-1 rounded-md bg-[var(--surface)] border border-[var(--border-control)] hover:border-[var(--action-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer"
                           >
-                            <Upload className="w-3 h-3 text-[#327CF6]" />
+                            <Upload className="w-3 h-3 text-[var(--accent-text)]" />
                             <span className="hidden sm:inline">Upload</span>
                           </button>
 
                           <button
                             type="button"
                             onClick={handleAutoFillFromProfile}
-                            className="px-2 py-1 rounded-md bg-[#14161C] border border-[#1E2229] hover:border-emerald-500/40 text-[#8B92A0] hover:text-white text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer"
+                            className="px-2 py-1 rounded-md bg-[var(--surface)] border border-[var(--border-control)] hover:border-[var(--status-success)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-[11px] font-medium transition-all flex items-center gap-1 cursor-pointer"
                           >
-                            <Sparkles className="w-3 h-3 text-emerald-400" />
+                            <Sparkles className="w-3 h-3 text-[var(--status-success)]" />
                             <span className="hidden sm:inline">Sync</span>
                           </button>
                         </div>
 
-                        <div className="p-1 text-zinc-400 hover:text-white">
+                        <div className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
                           <ChevronDown
                             className={cn(
                               "w-4 h-4 transition-transform duration-200",
@@ -782,23 +782,23 @@ export default function InterviewPage() {
 
                     {/* Accordion Body Content */}
                     {isResumeExpanded && (
-                      <div className="p-3.5 pt-2 border-t border-[#181A20] space-y-3 bg-[#090A0E] animate-in fade-in-50 duration-150">
+                      <div className="p-3.5 pt-2 border-t border-[var(--border-subtle)] space-y-3 bg-[var(--surface)] animate-in fade-in-50 duration-150">
                         {isParsingResume && (
-                          <div className="p-3.5 rounded-xl bg-[#10141F] border border-[#327CF6]/30 flex items-center gap-3 text-xs text-[#8B92A0]">
-                            <Sparkles className="w-4 h-4 text-[#327CF6] animate-spin shrink-0" />
+                          <div className="p-3.5 rounded-xl bg-[var(--surface-selected)] border border-[var(--border-control)] flex items-center gap-3 text-xs text-[var(--text-secondary)]">
+                            <Sparkles className="w-4 h-4 text-[var(--accent-text)] animate-spin shrink-0" />
                             <div className="space-y-0.5">
-                              <p className="font-semibold text-white">Extracting & Analyzing Resume Dossier</p>
-                              <p className="text-[11px] text-[#7A808C]">Reading PDF streams and extracting standout projects...</p>
+                              <p className="font-semibold text-[var(--text-primary)]">Extracting & Analyzing Resume Dossier</p>
+                              <p className="text-[11px] text-[var(--text-muted)]">Reading PDF streams and extracting standout projects...</p>
                             </div>
                           </div>
                         )}
 
                         {resumeFileName && (
-                          <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+                          <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-[var(--status-success-subtle)] border border-[var(--border-subtle)] text-[var(--status-success)] text-xs">
                             <div className="flex items-center gap-2 min-w-0">
                               <FileCheck className="w-3.5 h-3.5 shrink-0" />
                               <span className="font-medium truncate">{resumeFileName}</span>
-                              <span className="text-[10px] text-emerald-400/70 font-mono shrink-0">
+                              <span className="text-[10px] opacity-75 font-mono shrink-0">
                                 (Verified & Grounded)
                               </span>
                             </div>
@@ -811,7 +811,7 @@ export default function InterviewPage() {
                                 setShowRawEditor(false);
                                 if (fileInputRef.current) fileInputRef.current.value = "";
                               }}
-                              className="p-1 hover:bg-emerald-500/20 rounded text-emerald-300 transition-colors cursor-pointer"
+                              className="p-1 hover:bg-[var(--surface-hover)] rounded text-[var(--status-success)] transition-colors cursor-pointer"
                               title="Remove resume"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -821,22 +821,22 @@ export default function InterviewPage() {
 
                         {/* Dossier Highlights Card (Instead of raw text dump) */}
                         {resumeDossier && (
-                          <div className="p-3.5 rounded-xl bg-[#0D0E12] border border-[#181A20] space-y-2.5 text-xs">
+                          <div className="p-3.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] space-y-2.5 text-xs">
                             {resumeDossier.summary && (
-                              <p className="text-[#A5ABB6] leading-relaxed">
+                              <p className="text-[var(--text-secondary)] leading-relaxed">
                                 {resumeDossier.summary}
                               </p>
                             )}
 
                             {resumeDossier.projects && resumeDossier.projects.length > 0 && (
                               <div className="space-y-1">
-                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                                <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">
                                   Standout Projects Detected
                                 </span>
                                 <div className="space-y-1">
                                   {resumeDossier.projects.map((proj, idx) => (
-                                    <div key={idx} className="flex items-start gap-1.5 text-[11px] text-zinc-300">
-                                      <span className="text-[#327CF6] font-bold">•</span>
+                                    <div key={idx} className="flex items-start gap-1.5 text-[11px] text-[var(--text-primary)]">
+                                      <span className="text-[var(--accent-text)] font-bold">•</span>
                                       <span>{proj}</span>
                                     </div>
                                   ))}
@@ -846,14 +846,14 @@ export default function InterviewPage() {
 
                             {resumeDossier.stack && resumeDossier.stack.length > 0 && (
                               <div className="space-y-1 pt-1">
-                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                                <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">
                                   Core Stack
                                 </span>
                                 <div className="flex flex-wrap gap-1">
                                   {resumeDossier.stack.map((tech, idx) => (
                                     <span
                                       key={idx}
-                                      className="px-2 py-0.5 rounded-md bg-[#14161C] border border-[#1E2229] text-[10px] text-zinc-300 font-mono"
+                                      className="px-2 py-0.5 rounded-md bg-[var(--surface)] border border-[var(--border-subtle)] text-[10px] text-[var(--text-primary)] font-mono"
                                     >
                                       {tech}
                                     </span>
@@ -862,14 +862,14 @@ export default function InterviewPage() {
                               </div>
                             )}
 
-                            <div className="pt-1 flex items-center justify-between border-t border-[#181A20]/60">
-                              <span className="text-[10px] text-[#7A808C]">
+                            <div className="pt-1 flex items-center justify-between border-t border-[var(--border-subtle)]">
+                              <span className="text-[10px] text-[var(--text-muted)]">
                                 AI interviewer will probe these projects first.
                               </span>
                               <button
                                 type="button"
                                 onClick={() => setShowRawEditor((prev) => !prev)}
-                                className="text-[10px] text-[#327CF6] hover:underline cursor-pointer"
+                                className="text-[10px] text-[var(--accent-text)] hover:underline cursor-pointer"
                               >
                                 {showRawEditor ? "Hide Raw Notes" : "View / Edit Raw Notes"}
                               </button>
@@ -885,10 +885,10 @@ export default function InterviewPage() {
                               onChange={(e) => setResumeText(e.target.value.slice(0, 4000))}
                               placeholder="Or paste resume text, standout projects, tech stack, or architecture highlights here...&#10;e.g.&#10;• Built distributed caching engine with Go & Redis handling 50k RPS&#10;• Designed micro-frontend platform with Module Federation & React&#10;• Migrated monolithic PostgreSQL to distributed Neon DB"
                               rows={4}
-                              className="w-full px-3 py-2.5 rounded-lg bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] focus:outline-none text-xs text-white placeholder-[#454A54] resize-none font-mono leading-relaxed transition-colors"
+                              className="w-full px-3 py-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] focus:border-[var(--action-primary)] focus:outline-none text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none font-mono leading-relaxed transition-colors"
                             />
                             <div className="absolute right-2.5 bottom-2 flex items-center gap-2 pointer-events-none">
-                              <span className="text-[10px] text-[#555B67] font-mono">
+                              <span className="text-[10px] text-[var(--text-muted)] font-mono">
                                 {resumeText.length}/4000
                               </span>
                             </div>
@@ -896,7 +896,7 @@ export default function InterviewPage() {
                         )}
 
                         {!resumeDossier && !isParsingResume && (
-                          <p className="text-[11px] text-[#7A808C]">
+                          <p className="text-[11px] text-[var(--text-muted)]">
                             Upload a PDF or sync your Intervue profile. The interviewer will question the real production trade-offs and edge cases of your projects.
                           </p>
                         )}
@@ -910,50 +910,50 @@ export default function InterviewPage() {
 
             {/* Right 4 Cols: Live Session Blueprint & Launch Card (Sticky) */}
             <div className="lg:col-span-4 sticky top-6 space-y-4">
-              <div className="p-5 sm:p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] shadow-xl space-y-5">
+              <div className="p-5 sm:p-6 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm space-y-5">
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-[#7A808C] uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                       Session Blueprint
                     </span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--status-success)] animate-pulse" />
                   </div>
-                  <h2 className="text-base font-bold text-white tracking-tight">
+                  <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">
                     {activeTrackTitle}
                   </h2>
                 </div>
 
-                <div className="space-y-2.5 text-xs divide-y divide-[#181A20]/60">
-                  <div className="pt-1.5 flex items-center justify-between text-zinc-400">
+                <div className="space-y-2.5 text-xs divide-y divide-[var(--border-subtle)]">
+                  <div className="pt-1.5 flex items-center justify-between text-[var(--text-secondary)]">
                     <span>Seniority Target</span>
-                    <span className="text-white font-medium capitalize">
+                    <span className="text-[var(--text-primary)] font-medium capitalize">
                       {currentLevelObj?.label} ({currentLevelObj?.subtitle})
                     </span>
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between text-zinc-400">
+                  <div className="pt-2 flex items-center justify-between text-[var(--text-secondary)]">
                     <span>Assessment Focus</span>
-                    <span className="text-white font-medium">
+                    <span className="text-[var(--text-primary)] font-medium">
                       {currentFocusObj.label.split(" ")[0]}
                     </span>
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between text-zinc-400">
+                  <div className="pt-2 flex items-center justify-between text-[var(--text-secondary)]">
                     <span>Target Format</span>
-                    <span className="text-white font-medium">Interactive Technical Round</span>
+                    <span className="text-[var(--text-primary)] font-medium">Interactive Technical Round</span>
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between text-zinc-400">
+                  <div className="pt-2 flex items-center justify-between text-[var(--text-secondary)]">
                     <span>Interviewer Persona</span>
-                    <span className="text-emerald-400 font-medium">Staff Engineer (Adaptive)</span>
+                    <span className="text-[var(--status-success)] font-medium">Staff Engineer (Adaptive)</span>
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between text-zinc-400">
+                  <div className="pt-2 flex items-center justify-between text-[var(--text-secondary)]">
                     <span>Resume Grounding</span>
                     <span
                       className={cn(
                         "font-medium flex items-center gap-1.5",
-                        resumeText.trim() ? "text-emerald-400" : "text-[#7A808C]"
+                        resumeText.trim() ? "text-[var(--status-success)]" : "text-[var(--text-muted)]"
                       )}
                     >
                       {resumeText.trim() ? (
@@ -969,21 +969,21 @@ export default function InterviewPage() {
                 </div>
 
                 {/* Scorecard Dimensions Covered */}
-                <div className="p-3.5 rounded-xl bg-[#08090C] border border-[#181A20] space-y-2">
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                <div className="p-3.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] space-y-2">
+                  <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider block">
                     Evaluated Dimensions
                   </span>
-                  <div className="space-y-1.5 text-[11px] text-[#8B92A0]">
+                  <div className="space-y-1.5 text-[11px] text-[var(--text-secondary)]">
                     <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0" />
                       <span>Technical Architecture & Accuracy</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-[#327CF6] shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0" />
                       <span>Systematic Problem Solving</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[var(--status-success)] shrink-0" />
                       <span>Trade-off & Complexity Articulation</span>
                     </div>
                   </div>
@@ -993,13 +993,13 @@ export default function InterviewPage() {
                 <Button
                   type="button"
                   onClick={() => startInterviewSession(activeTrackTitle, selectedLevel)}
-                  className="w-full py-5 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-white text-xs font-bold shadow-lg shadow-[#327CF6]/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-5 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
                   <span>Launch Interview Session</span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
 
-                <p className="text-[10px] text-center text-[#7A808C]">
+                <p className="text-[10px] text-center text-[var(--text-muted)]">
                   Scorecard and dimensional feedback generated immediately upon completion.
                 </p>
               </div>
@@ -1016,13 +1016,13 @@ export default function InterviewPage() {
   // ─────────────────────────────────────────────────────────────
   if (isStarting) {
     return (
-      <div className="min-h-screen bg-[#08090C] flex flex-col items-center justify-center text-center p-6 space-y-4">
-        <div className="w-12 h-12 rounded-xl bg-[#327CF6]/10 border border-[#327CF6]/25 flex items-center justify-center animate-pulse">
-          <Activity className="w-6 h-6 text-[#327CF6]" />
+      <div className="min-h-full bg-[var(--canvas)] flex flex-col items-center justify-center text-center p-6 space-y-4">
+        <div className="w-12 h-12 rounded-xl bg-[var(--surface-selected)] border border-[var(--border-control)] flex items-center justify-center animate-pulse">
+          <Activity className="w-6 h-6 text-[var(--accent-text)]" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-base font-bold text-white">Initializing Technical Assessment</h2>
-          <p className="text-xs text-[#8B92A0]">
+          <h2 className="text-base font-bold text-[var(--text-primary)]">Initializing Technical Assessment</h2>
+          <p className="text-xs text-[var(--text-secondary)]">
             Calibrating questions for {selectedLevel} level {selectedTrack}...
           </p>
         </div>
@@ -1034,42 +1034,42 @@ export default function InterviewPage() {
   // 3. ACTIVE INTERVIEW ROOM (Clean Engineering Interface)
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#08090C] flex flex-col text-white">
+    <div className="min-h-full bg-[var(--canvas)] flex flex-col text-[var(--text-primary)]">
       {/* Top Header Bar */}
-      <header className="border-b border-[#181A20] bg-[#0D0E12] px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+      <header className="border-b border-[var(--border-subtle)] bg-[var(--surface)] px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#327CF6]/15 border border-[#327CF6]/30 flex items-center justify-center text-[#327CF6]">
+          <div className="w-8 h-8 rounded-lg bg-[var(--surface-selected)] border border-[var(--border-control)] flex items-center justify-center text-[var(--accent-text)]">
             <Terminal className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xs sm:text-sm font-bold text-white truncate max-w-xs">{selectedTrack}</h2>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-mono font-medium">
+              <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate max-w-xs">{selectedTrack}</h2>
+              <span className="px-2 py-0.5 rounded-full bg-[var(--status-success-subtle)] border border-[var(--border-subtle)] text-[var(--status-success)] text-[10px] font-mono font-medium">
                 Live Session
               </span>
               {resumeText.trim() && (
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-400 text-[10px] font-mono font-medium">
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--surface-selected)] border border-[var(--border-control)] text-[var(--accent-text)] text-[10px] font-mono font-medium">
                   <FileCheck className="w-3 h-3" />
                   <span>Resume Grounded</span>
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-[#7A808C] capitalize">
+            <p className="text-[11px] text-[var(--text-secondary)] capitalize">
               {selectedLevel} Level • Technical Round
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#08090C] border border-[#181A20] text-xs font-mono text-[#8B92A0]">
-            <Clock className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-xs font-mono text-[var(--text-secondary)]">
+            <Clock className="w-3.5 h-3.5 text-[var(--text-muted)]" />
             <span>{elapsedMinutes}m elapsed</span>
           </div>
 
           <button
             type="button"
             onClick={() => setShowEndConfirm(true)}
-            className="px-3.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 text-red-400 hover:text-red-300 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl bg-[var(--status-danger-subtle)] hover:opacity-90 border border-[var(--border-subtle)] text-[var(--status-danger)] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
           >
             <Square className="w-3.5 h-3.5" />
             <span>End Session</span>
@@ -1090,8 +1090,8 @@ export default function InterviewPage() {
                 className={cn(
                   "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold border",
                   isUser
-                    ? "bg-[#327CF6] border-[#327CF6]/50 text-white"
-                    : "bg-[#0D0E12] border-[#181A20] text-cyan-400"
+                    ? "bg-[var(--action-primary)] border-[var(--action-primary)] text-[var(--on-primary)]"
+                    : "bg-[var(--surface)] border-[var(--border-subtle)] text-[var(--accent-text)]"
                 )}
               >
                 {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
@@ -1101,8 +1101,8 @@ export default function InterviewPage() {
                 className={cn(
                   "max-w-[85%] sm:max-w-[78%] rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed shadow-sm",
                   isUser
-                    ? "bg-[#327CF6] text-white rounded-tr-none font-medium whitespace-pre-wrap"
-                    : "bg-[#0D0E12] border border-[#181A20] text-zinc-200 rounded-tl-none"
+                    ? "bg-[var(--action-primary)] text-[var(--on-primary)] rounded-tr-none font-medium whitespace-pre-wrap"
+                    : "bg-[var(--surface)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-tl-none"
                 )}
               >
                 {isUser ? (
@@ -1113,7 +1113,7 @@ export default function InterviewPage() {
                       remarkPlugins={[remarkGfm]}
                       components={{
                         p: ({ children }) => <p className="mb-1.5 last:mb-0 leading-relaxed">{children}</p>,
-                        strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                        strong: ({ children }) => <strong className="font-semibold text-[var(--text-primary)]">{children}</strong>,
                         ul: ({ children }) => <ul className="list-disc pl-4 space-y-0.5 my-1.5">{children}</ul>,
                         ol: ({ children }) => <ol className="list-decimal pl-4 space-y-0.5 my-1.5">{children}</ol>,
                         li: ({ children }) => <li className="leading-relaxed">{children}</li>,
@@ -1121,13 +1121,13 @@ export default function InterviewPage() {
                           const isInline = !className && typeof children === "string" && !children.includes("\n");
                           if (isInline) {
                             return (
-                              <code className="bg-[#181A20] text-cyan-300 px-1 py-0.5 rounded font-mono text-[11px] border border-zinc-800">
+                              <code className="bg-[var(--surface-muted)] text-[var(--accent-text)] px-1 py-0.5 rounded font-mono text-[11px] border border-[var(--border-subtle)]">
                                 {children}
                               </code>
                             );
                           }
                           return (
-                            <pre className="bg-[#090A0E] border border-zinc-800/80 rounded-xl p-2.5 my-2 overflow-x-auto text-xs font-mono text-zinc-200">
+                            <pre className="bg-[var(--surface-muted)] border border-[var(--border-subtle)] rounded-xl p-2.5 my-2 overflow-x-auto text-xs font-mono text-[var(--text-primary)]">
                               <code>{children}</code>
                             </pre>
                           );
@@ -1137,12 +1137,12 @@ export default function InterviewPage() {
                       {msg.content}
                     </ReactMarkdown>
                     {isStreaming && i === messages.length - 1 && (
-                      <span className="inline-block w-1.5 h-3.5 bg-cyan-400 ml-1 animate-pulse align-middle" />
+                      <span className="inline-block w-1.5 h-3.5 bg-[var(--accent-text)] ml-1 animate-pulse align-middle" />
                     )}
                   </div>
                 ) : isStreaming && i === messages.length - 1 ? (
-                  <span className="flex items-center gap-1.5 text-zinc-400">
-                    <span className="w-2 h-2 rounded-full bg-[#327CF6] animate-ping" />
+                  <span className="flex items-center gap-1.5 text-[var(--text-secondary)]">
+                    <span className="w-2 h-2 rounded-full bg-[var(--action-primary)] animate-ping" />
                     <span>Evaluating response & formulating next question...</span>
                   </span>
                 ) : (
@@ -1156,7 +1156,7 @@ export default function InterviewPage() {
       </main>
 
       {/* Input Composer */}
-      <footer className="border-t border-[#181A20] bg-[#0D0E12] p-3 sm:p-4 sticky bottom-0 z-10">
+      <footer className="border-t border-[var(--border-subtle)] bg-[var(--surface)] p-3 sm:p-4 sticky bottom-0 z-10">
         <div className="max-w-4xl mx-auto flex items-end gap-2.5">
           <textarea
             ref={inputRef}
@@ -1171,14 +1171,14 @@ export default function InterviewPage() {
             }}
             placeholder="Type your response... (Enter to send, Shift+Enter for new line)"
             disabled={isStreaming}
-            className="flex-1 bg-[#08090C] border border-[#181A20] focus:border-[#327CF6] rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm outline-none transition-colors resize-none max-h-36 min-h-[42px]"
+            className="flex-1 bg-[var(--surface-muted)] border border-[var(--border-control)] focus:border-[var(--action-primary)] rounded-xl px-4 py-2.5 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-xs sm:text-sm outline-none transition-colors resize-none max-h-36 min-h-[42px]"
           />
 
           <Button
             type="button"
             onClick={sendMessage}
             disabled={isStreaming || !input.trim()}
-            className="h-[42px] px-4 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] disabled:bg-[#181A20] disabled:text-zinc-600 text-white font-semibold text-xs shadow-md shadow-[#327CF6]/20 transition-all cursor-pointer flex items-center justify-center shrink-0"
+            className="h-[42px] px-4 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] text-[var(--on-primary)] font-semibold text-xs shadow-sm transition-all cursor-pointer flex items-center justify-center shrink-0"
           >
             <Send className="w-4 h-4" />
           </Button>
@@ -1187,16 +1187,16 @@ export default function InterviewPage() {
 
       {/* End Interview Confirmation Modal */}
       {showEndConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-2xl bg-[#0D0E12] border border-[#181A20] p-6 space-y-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] p-6 space-y-5 shadow-2xl">
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-white">Conclude Assessment Round?</h3>
-              <p className="text-xs text-[#8B92A0]">
+              <h3 className="text-base font-bold text-[var(--text-primary)]">Conclude Assessment Round?</h3>
+              <p className="text-xs text-[var(--text-secondary)]">
                 Are you ready to submit your responses and generate your comprehensive scorecard?
               </p>
             </div>
 
-            <p className="text-xs text-zinc-400 bg-[#08090C] p-3 rounded-xl border border-[#181A20]">
+            <p className="text-xs text-[var(--text-secondary)] bg-[var(--surface-muted)] p-3 rounded-xl border border-[var(--border-subtle)]">
               The AI reviewer will score your session across technical depth, problem-solving, and communication, providing complete dimension scores and feedback.
             </p>
 
@@ -1205,7 +1205,7 @@ export default function InterviewPage() {
                 type="button"
                 disabled={isEnding}
                 onClick={() => setShowEndConfirm(false)}
-                className="px-4 py-2 rounded-xl bg-[#14161C] hover:bg-[#1C1F26] text-zinc-300 text-xs font-semibold cursor-pointer transition-colors"
+                className="px-4 py-2 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-subtle)] text-xs font-semibold cursor-pointer transition-colors"
               >
                 Return to Interview
               </button>
@@ -1213,7 +1213,7 @@ export default function InterviewPage() {
                 type="button"
                 disabled={isEnding}
                 onClick={endInterview}
-                className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-semibold cursor-pointer shadow-md shadow-red-500/20 transition-all flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-[var(--status-danger)] hover:opacity-90 text-white text-xs font-semibold cursor-pointer shadow-sm transition-all flex items-center gap-1.5"
               >
                 {isEnding ? (
                   <span>Generating Scorecard...</span>
