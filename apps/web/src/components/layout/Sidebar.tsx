@@ -238,7 +238,7 @@ export default function Sidebar({
         aria-hidden={!isDesktop && !isMobileOpen}
         inert={!isDesktop && !isMobileOpen ? true : undefined}
         className={cn(
-          "fixed top-2 bottom-2 z-50 rounded-2xl bg-[#0A0C10]/98 backdrop-blur-xl border border-[#181A20] shadow-2xl flex flex-col select-none transition-all duration-300 ease-in-out overflow-hidden",
+          "fixed top-2 bottom-2 z-50 lg:z-30 rounded-2xl bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--border-subtle)] shadow-xl flex flex-col select-none transition-all duration-300 ease-in-out overflow-hidden",
           // Desktop positioning
           "lg:left-2",
           effectiveCollapsed ? "lg:w-[68px]" : "lg:w-[260px]",
@@ -248,7 +248,12 @@ export default function Sidebar({
         )}
       >
         {/* Brand Header & Toggle Button */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-[#181A20] shrink-0">
+        <div
+          className={cn(
+            "border-b border-[var(--border-subtle)] shrink-0 flex items-center",
+            effectiveCollapsed ? "flex-col justify-center gap-2 py-3 px-2" : "h-16 px-4 justify-between"
+          )}
+        >
           {!effectiveCollapsed ? (
             <Link
               to="/dashboard"
@@ -260,11 +265,11 @@ export default function Sidebar({
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-white font-bold text-[15px] tracking-tight font-sans truncate">
+                  <span className="text-[var(--text-primary)] font-bold text-[15px] tracking-tight font-sans truncate">
                     Intervue
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500 font-mono tracking-wide -mt-0.5 truncate">
+                <p className="text-[11px] text-[var(--text-muted)] font-mono tracking-wide -mt-0.5 truncate">
                   placement suite
                 </p>
               </div>
@@ -284,7 +289,7 @@ export default function Sidebar({
             title="Close menu"
             data-mobile-drawer-close
             aria-label="Close navigation menu"
-            className="lg:hidden w-11 h-11 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-[#14161C] border border-[#1E2229] transition-all cursor-pointer"
+            className="lg:hidden w-11 h-11 rounded-lg flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] transition-all cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -295,12 +300,12 @@ export default function Sidebar({
             onClick={onToggle}
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={cn(
-              "hidden lg:flex w-9 h-9 rounded-lg items-center justify-center text-slate-400 hover:text-white hover:bg-[#14161C] border border-transparent hover:border-[#1E2229] transition-all cursor-pointer",
-              effectiveCollapsed && "mx-auto mt-2"
+              "hidden lg:flex w-9 h-9 rounded-lg items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent hover:border-[var(--border-subtle)] transition-all cursor-pointer shrink-0",
+              effectiveCollapsed && "mx-auto"
             )}
           >
             {effectiveCollapsed ? (
-              <PanelLeft className="w-4 h-4 text-[#327CF6]" />
+              <PanelLeft className="w-4 h-4 text-[var(--accent-text)]" />
             ) : (
               <PanelLeftClose className="w-4 h-4" />
             )}
@@ -347,19 +352,19 @@ export default function Sidebar({
                       className={cn(
                         "flex min-h-11 items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all group relative cursor-pointer",
                         isActive
-                          ? "bg-white/[0.06] text-white font-semibold border border-white/[0.08] shadow-sm"
-                          : "text-slate-400 hover:text-white hover:bg-white/[0.03] border border-transparent"
+                          ? "bg-[var(--surface-selected)] text-[var(--accent-text)] font-semibold border border-[var(--border-subtle)] shadow-sm"
+                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent"
                       )}
                     >
-                      {/* Active Left Indicator Bar (TUF style) */}
+                      {/* Active Left Indicator Bar */}
                       {isActive && (
-                        <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-gradient-to-b from-[#6366F1] to-[#3B82F6] shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
+                        <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r-full bg-[var(--action-primary)]" />
                       )}
 
                       <Icon
                         className={cn(
                           "w-4 h-4 shrink-0 transition-transform group-hover:scale-110",
-                          isActive ? "text-indigo-400" : "text-slate-400 group-hover:text-white",
+                          isActive ? "text-[var(--accent-text)]" : "text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]",
                           effectiveCollapsed && "mx-auto"
                         )}
                       />
@@ -399,7 +404,7 @@ export default function Sidebar({
 
                     {/* Indented Sub-panel Links */}
                     {hasSubItems && isSubOpen && !effectiveCollapsed && item.subItems && (
-                      <div className="ml-5 pl-2.5 border-l border-[#1F2430] space-y-1 py-1">
+                      <div className="ml-5 pl-2.5 border-l border-[var(--border-subtle)] space-y-1 py-1">
                         {item.subItems.map((sub, sIdx) => {
                           const isSubActive =
                             location.pathname === sub.href ||
@@ -411,16 +416,18 @@ export default function Sidebar({
                               to={sub.href}
                               onClick={onMobileClose}
                               className={cn(
-                                "flex min-h-11 items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all group",
+                                "flex min-h-11 items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors group",
                                 isSubActive
-                                  ? "bg-zinc-800 text-white font-semibold shadow-sm"
-                                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                                  ? "bg-[var(--surface-selected)] text-[var(--accent-text)] font-semibold"
+                                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                               )}
                             >
                               <SubIcon
                                 className={cn(
                                   "w-3.5 h-3.5 shrink-0 transition-colors",
-                                  isSubActive ? "text-[#327CF6]" : "text-zinc-500 group-hover:text-zinc-300"
+                                  isSubActive
+                                    ? "text-[var(--accent-text)]"
+                                    : "text-[var(--text-muted)] group-hover:text-[var(--text-primary)]"
                                 )}
                               />
                               <span className="truncate">{sub.label}</span>
@@ -439,22 +446,22 @@ export default function Sidebar({
       </nav>
 
       {/* Compact Secondary Support Group (Help & Feedback) */}
-      <div className="px-3 py-2 border-t border-[#181A20] bg-[#07080C] shrink-0">
+      <div className="px-3 py-2 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)] shrink-0">
         {!effectiveCollapsed ? (
-          <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+          <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] font-medium">
             <Link
               to="/help"
               onClick={onMobileClose}
-              className="flex min-h-11 items-center gap-1.5 hover:text-slate-300 transition-colors"
+              className="flex min-h-11 items-center gap-1.5 hover:text-[var(--text-primary)] transition-colors"
             >
               <HelpCircle className="w-3.5 h-3.5" />
               <span>Help Center</span>
             </Link>
-            <span className="text-slate-700">•</span>
+            <span className="text-[var(--border-control)]">•</span>
             <Link
               to="/feedback"
               onClick={onMobileClose}
-              className="flex min-h-11 items-center gap-1.5 hover:text-slate-300 transition-colors"
+              className="flex min-h-11 items-center gap-1.5 hover:text-[var(--text-primary)] transition-colors"
             >
               <MessageSquareHeart className="w-3.5 h-3.5" />
               <span>Feedback</span>
@@ -466,7 +473,7 @@ export default function Sidebar({
               to="/help"
               onClick={onMobileClose}
               title="Help Center"
-              className="p-1 text-slate-500 hover:text-slate-300 transition-colors"
+              className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <HelpCircle className="w-4 h-4" />
             </Link>
@@ -475,27 +482,27 @@ export default function Sidebar({
       </div>
 
       {/* Footer Profile / Quick Status */}
-      <div className="p-2.5 border-t border-[#181A20] bg-[#08090C] shrink-0">
+      <div className="p-2.5 border-t border-[var(--border-subtle)] bg-[var(--surface)] shrink-0">
         {!effectiveCollapsed ? (
-          <div className="flex items-center justify-between p-2 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+          <div className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
             <Link to="/profile" onClick={onMobileClose} className="flex min-h-11 items-center gap-2.5 min-w-0 group">
               {user?.image ? (
                 <img
                   src={user.image}
                   alt={user.name || "User"}
                   referrerPolicy="no-referrer"
-                  className="w-7 h-7 rounded-lg object-cover ring-1 ring-[#327CF6]/40"
+                  className="w-7 h-7 rounded-lg object-cover ring-1 ring-[var(--action-primary)]/40"
                 />
               ) : (
-                <div className="w-7 h-7 rounded-lg bg-[#327CF6] text-white flex items-center justify-center font-bold text-xs font-mono">
+                <div className="w-7 h-7 rounded-lg bg-[var(--action-primary)] text-[var(--on-primary)] flex items-center justify-center font-bold text-xs font-mono">
                   {initials}
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-white truncate group-hover:text-[#327CF6] transition-colors">
+                <p className="text-xs font-semibold text-[var(--text-primary)] truncate group-hover:text-[var(--accent-text)] transition-colors">
                   {user?.name || "Candidate"}
                 </p>
-                <p className="text-[10px] text-slate-500 truncate font-mono">
+                <p className="text-[11px] text-[var(--text-muted)] truncate font-mono">
                   {user?.email || "Pro Student"}
                 </p>
               </div>
@@ -504,7 +511,8 @@ export default function Sidebar({
             <button
               onClick={handleSignOut}
               title="Sign Out"
-              className="w-11 h-11 rounded-lg flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+              aria-label="Sign Out"
+              className="w-11 h-11 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--status-danger)] hover:bg-[var(--status-danger-subtle)] transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
             </button>

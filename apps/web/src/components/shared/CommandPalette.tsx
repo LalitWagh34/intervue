@@ -45,9 +45,9 @@ export function CommandPalette() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-start justify-center pt-[20vh]" onClick={() => setIsOpen(false)}>
+    <div className="fixed inset-0 z-[100] bg-[var(--overlay-scrim)] backdrop-blur-sm flex items-start justify-center pt-[20vh] px-4" onClick={() => setIsOpen(false)}>
       <div 
-        className="w-full max-w-2xl bg-[#0D0E12] border border-[#181A20] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="w-full max-w-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <Command 
@@ -58,17 +58,17 @@ export function CommandPalette() {
           }}
         >
           {/* Header Input */}
-          <div className="flex items-center gap-3 px-4 py-4 border-b border-[#181A20]">
-            <Search className="w-5 h-5 text-[#525866]" />
+          <div className="flex items-center gap-3 px-4 py-4 border-b border-[var(--border-subtle)]">
+            <Search className="w-5 h-5 text-[var(--text-muted)]" />
             <Command.Input 
               autoFocus
               placeholder="Search problems, sheets, tracks..."
               value={query}
               onValueChange={setQuery}
-              className="flex-1 bg-transparent text-white placeholder-[#525866] outline-none font-sans text-sm"
+              className="flex-1 bg-transparent text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none font-sans text-sm"
             />
-            {isLoading && <Loader2 className="w-4 h-4 text-[#327CF6] animate-spin" />}
-            <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-1 rounded-md bg-[#111318] border border-[#181A20] text-[10px] font-mono text-[#8B92A0]">
+            {isLoading && <Loader2 className="w-4 h-4 text-[var(--action-primary)] animate-spin" />}
+            <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-1 rounded-md bg-[var(--surface-muted)] border border-[var(--border-control)] text-[10px] font-mono text-[var(--text-secondary)]">
               ESC
             </kbd>
           </div>
@@ -76,46 +76,46 @@ export function CommandPalette() {
           <Command.List className="max-h-[60vh] overflow-y-auto p-2 custom-scrollbar">
             {query.length < 2 && (
               <div className="p-2 space-y-1">
-                <div className="px-2 py-1 text-[11px] font-semibold text-[#525866] uppercase tracking-wider">
+                <div className="px-2 py-1 text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
                   Quick Actions
                 </div>
                 <button
                   type="button"
                   onClick={() => runCommand(() => openProductTour())}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-white hover:bg-[#14171F] transition-colors cursor-pointer text-left group"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer text-left group"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-[#3B9CFF] shrink-0 group-hover:bg-blue-500/20 transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--accent-soft)] border border-[var(--action-primary)]/20 flex items-center justify-center text-[var(--accent-text)] shrink-0 group-hover:bg-[var(--action-primary)]/20 transition-colors">
                     <Compass className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold text-white">Explore Platform Tour</p>
-                    <p className="text-[11px] text-[#707784]">Interactive 6-card walkthrough of all features</p>
+                    <p className="font-semibold text-[var(--text-primary)]">Explore Platform Tour</p>
+                    <p className="text-[11px] text-[var(--text-secondary)]">Interactive 6-card walkthrough of all features</p>
                   </div>
                 </button>
               </div>
             )}
 
             {!isLoading && query.length >= 2 && data?.problems?.length === 0 && data?.sheets?.length === 0 && (
-              <Command.Empty className="py-14 text-center text-sm text-[#525866]">
+              <Command.Empty className="py-14 text-center text-sm text-[var(--text-muted)]">
                 No results found.
               </Command.Empty>
             )}
 
             {/* Sheets Section */}
             {data?.sheets && data.sheets.length > 0 && (
-              <Command.Group heading={<div className="px-2 py-1.5 text-xs font-semibold text-[#525866] uppercase tracking-wider">Sheets</div>}>
+              <Command.Group heading={<div className="px-2 py-1.5 text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Sheets</div>}>
                 {data.sheets.map((sheet: any) => (
                   <Command.Item
                     key={sheet.slug}
                     onSelect={() => runCommand(() => navigate("/practice"))}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer aria-selected:bg-[#111318] text-sm text-white transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer aria-selected:bg-[var(--surface-selected)] text-sm text-[var(--text-primary)] transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--status-success)]/10 flex items-center justify-center text-[var(--status-success)] shrink-0">
                       <Folder className="w-4 h-4" />
                     </div>
                     <div className="flex flex-col min-w-0">
                       <span className="font-medium truncate">{sheet.title}</span>
-                      <span className="text-xs text-[#7A808C] truncate">Practice Hub</span>
+                      <span className="text-xs text-[var(--text-secondary)] truncate">Practice Hub</span>
                     </div>
                   </Command.Item>
                 ))}
@@ -124,30 +124,30 @@ export function CommandPalette() {
 
             {/* Problems Section */}
             {data?.problems && data.problems.length > 0 && (
-              <Command.Group heading={<div className="px-2 py-1.5 text-xs font-semibold text-[#525866] uppercase tracking-wider mt-2">Problems</div>}>
+              <Command.Group heading={<div className="px-2 py-1.5 text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mt-2">Problems</div>}>
                 {data.problems.map((prob: any) => (
                   <Command.Item
                     key={prob.id}
                     onSelect={() => runCommand(() => window.open(`https://leetcode.com/problems/${prob.slug}`, "_blank"))}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer aria-selected:bg-[#111318] text-sm text-white transition-colors group"
+                    className="flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer aria-selected:bg-[var(--surface-selected)] text-sm text-[var(--text-primary)] transition-colors group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-[#327CF6]/10 flex items-center justify-center text-[#327CF6] shrink-0 group-aria-selected:bg-[#327CF6]/20">
+                      <div className="w-8 h-8 rounded-lg bg-[var(--accent-soft)] flex items-center justify-center text-[var(--accent-text)] shrink-0 group-aria-selected:bg-[var(--action-primary)]/20">
                         <Code2 className="w-4 h-4" />
                       </div>
-                      <span className="font-medium truncate group-aria-selected:text-[#327CF6] transition-colors">{prob.title}</span>
+                      <span className="font-medium truncate group-aria-selected:text-[var(--accent-text)] transition-colors">{prob.title}</span>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {prob.company && prob.company.length > 0 && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-mono border bg-[#14161C] border-[#1E2229] text-[#8B92A0]">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono border bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-secondary)]">
                           {prob.company[0]}
                         </span>
                       )}
                       <span className={cn(
                         "px-2 py-0.5 rounded text-[10px] font-medium border",
-                        prob.difficulty === "EASY" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
-                        prob.difficulty === "MEDIUM" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                        "bg-red-500/10 text-red-400 border-red-500/20"
+                        prob.difficulty === "EASY" ? "bg-[var(--status-success)]/10 text-[var(--status-success)] border-[var(--status-success)]/20" :
+                        prob.difficulty === "MEDIUM" ? "bg-[var(--status-warning)]/10 text-[var(--status-warning)] border-[var(--status-warning)]/20" :
+                        "bg-[var(--status-danger)]/10 text-[var(--status-danger)] border-[var(--status-danger)]/20"
                       )}>
                         {prob.difficulty}
                       </span>

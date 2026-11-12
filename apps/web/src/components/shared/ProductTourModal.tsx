@@ -42,7 +42,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     step: 1,
     badge: "Platform Overview",
-    badgeColor: "text-blue-400 bg-blue-500/10 border-blue-500/25",
+    badgeColor: "text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/25",
     icon: Sparkles,
     title: "Welcome to Intervue",
     headline: "Your All-in-One Technical Interview Ecosystem",
@@ -54,12 +54,12 @@ const TOUR_STEPS: TourStep[] = [
       "Unified LeetCode & Codeforces contest rating & heatmap sync",
     ],
     actionLabel: "Start Tour →",
-    accentGradient: "from-blue-600/20 via-indigo-600/10 to-transparent",
+    accentGradient: "from-blue-500/15 via-indigo-500/5 to-transparent",
   },
   {
     step: 2,
     badge: "AI Technical Interviews",
-    badgeColor: "text-purple-400 bg-purple-500/10 border-purple-500/25",
+    badgeColor: "text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/25",
     icon: Brain,
     title: "AI Technical Mock Interviews",
     headline: "Deep Role-Specific Technical & Architectural Rounds",
@@ -72,12 +72,12 @@ const TOUR_STEPS: TourStep[] = [
     ],
     actionLabel: "Try AI Interview",
     actionHref: "/interview",
-    accentGradient: "from-purple-600/20 via-pink-600/10 to-transparent",
+    accentGradient: "from-purple-500/15 via-pink-500/5 to-transparent",
   },
   {
     step: 3,
     badge: "Live Multiplayer Arena",
-    badgeColor: "text-red-400 bg-red-500/10 border-red-500/25",
+    badgeColor: "text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/25",
     icon: Swords,
     title: "1v1 Live Battle Arena",
     headline: "Compete Live Against Peers in Timed Coding Duels",
@@ -90,12 +90,12 @@ const TOUR_STEPS: TourStep[] = [
     ],
     actionLabel: "Explore Arena",
     actionHref: "/rooms",
-    accentGradient: "from-red-600/20 via-orange-600/10 to-transparent",
+    accentGradient: "from-red-500/15 via-orange-500/5 to-transparent",
   },
   {
     step: 4,
     badge: "Targeted Prep",
-    badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/25",
+    badgeColor: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/25",
     icon: Building2,
     title: "FAANG Company Prep Kits",
     headline: "Practice What Top Tech Companies Actually Ask",
@@ -108,12 +108,12 @@ const TOUR_STEPS: TourStep[] = [
     ],
     actionLabel: "View Company Kits",
     actionHref: "/practice?view=company_kits",
-    accentGradient: "from-amber-600/20 via-yellow-600/10 to-transparent",
+    accentGradient: "from-amber-500/15 via-yellow-500/5 to-transparent",
   },
   {
     step: 5,
     badge: "Structured Curriculums",
-    badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/25",
+    badgeColor: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/25",
     icon: BookOpen,
     title: "Prep Hub & DSA Roadmaps",
     headline: "Never Guess What Problem to Solve Next",
@@ -126,12 +126,12 @@ const TOUR_STEPS: TourStep[] = [
     ],
     actionLabel: "Open Prep Hub",
     actionHref: "/practice",
-    accentGradient: "from-emerald-600/20 via-teal-600/10 to-transparent",
+    accentGradient: "from-emerald-500/15 via-teal-500/5 to-transparent",
   },
   {
     step: 6,
     badge: "Unified Stats & Heatmap",
-    badgeColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/25",
+    badgeColor: "text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 border-cyan-500/25",
     icon: Flame,
     title: "Unified Profile & Activity Heatmap",
     headline: "Connect LeetCode & Codeforces into One Dashboard",
@@ -144,7 +144,7 @@ const TOUR_STEPS: TourStep[] = [
     ],
     actionLabel: "Visit Profile",
     actionHref: "/profile",
-    accentGradient: "from-cyan-600/20 via-blue-600/10 to-transparent",
+    accentGradient: "from-cyan-500/15 via-blue-500/5 to-transparent",
   },
 ];
 
@@ -243,10 +243,10 @@ export function ProductTourModal() {
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-4 bg-[var(--overlay-scrim)] backdrop-blur-md animate-in fade-in duration-200"
     >
       <div
-        className="relative w-full max-w-xl max-h-[92dvh] overflow-y-auto rounded-2xl bg-[#0E1015] border border-[#232731] shadow-2xl flex flex-col text-left transition-all"
+        className="relative w-full max-w-xl max-h-[92dvh] overflow-y-auto rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-2xl flex flex-col text-left transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Background Ambient Glow */}
@@ -258,7 +258,7 @@ export function ProductTourModal() {
         />
 
         {/* Modal Top Bar: Step Indicator & Close Button */}
-        <div className="relative flex items-center justify-between p-4 sm:p-5 border-b border-[#1E222B]/80 z-10">
+        <div className="relative flex items-center justify-between p-4 sm:p-5 border-b border-[var(--border-subtle)] z-10">
           <div className="flex items-center gap-2">
             <span
               className={cn(
@@ -269,14 +269,14 @@ export function ProductTourModal() {
               <Compass className="w-3 h-3" />
               <span>{stepData.badge}</span>
             </span>
-            <span className="text-xs text-[#707784] font-medium font-mono">
+            <span className="text-xs text-[var(--text-muted)] font-medium font-mono">
               {currentStep + 1} of {TOUR_STEPS.length}
             </span>
           </div>
 
           <button
             onClick={handleClose}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-[#707784] hover:text-[#F5F7FA] hover:bg-[#1A1D24] rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-2 py-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] rounded-lg transition-colors cursor-pointer"
             title="Skip Tour"
           >
             <span className="text-[11px] font-medium hidden sm:inline">Skip Tour</span>
@@ -288,33 +288,33 @@ export function ProductTourModal() {
         <div className="relative p-5 sm:p-7 space-y-5 z-10 flex-1">
           {/* Header Row: Icon + Title */}
           <div className="flex items-start gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-[#14171F] border border-[#272B35] flex items-center justify-center shrink-0 shadow-inner">
-              <StepIcon className="w-6 h-6 text-[#3B9CFF]" />
+            <div className="w-12 h-12 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-control)] flex items-center justify-center shrink-0">
+              <StepIcon className="w-6 h-6 text-[var(--accent-text)]" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg sm:text-xl font-bold text-[#F5F7FA] tracking-tight">
+              <h2 className="text-lg sm:text-xl font-bold text-[var(--text-primary)] tracking-tight">
                 {stepData.title}
               </h2>
-              <p className="text-xs sm:text-sm font-medium text-[#3B9CFF] mt-0.5">
+              <p className="text-xs sm:text-sm font-medium text-[var(--accent-text)] mt-0.5">
                 {stepData.headline}
               </p>
             </div>
           </div>
 
           {/* Description */}
-          <p className="text-xs sm:text-sm text-[#A1A7B3] leading-relaxed">
+          <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
             {stepData.description}
           </p>
 
           {/* Highlights Box */}
-          <div className="p-3.5 sm:p-4 rounded-xl bg-[#12141B] border border-[#1E222A] space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#707784]">
+          <div className="p-3.5 sm:p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
               Key Highlights
             </p>
-            <ul className="space-y-1.5 text-xs text-[#D1D5DB]">
+            <ul className="space-y-1.5 text-xs text-[var(--text-primary)]">
               {stepData.highlights.map((item, idx) => (
                 <li key={idx} className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E] shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--status-success)] shrink-0 mt-0.5" />
                   <span className="leading-snug">{item}</span>
                 </li>
               ))}
@@ -323,7 +323,7 @@ export function ProductTourModal() {
         </div>
 
         {/* Modal Footer Controls */}
-        <div className="relative p-4 sm:p-5 border-t border-[#1E222B] bg-[#0A0C0F]/80 flex flex-col sm:flex-row items-center justify-between gap-3 z-10">
+        <div className="relative p-4 sm:p-5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)]/70 flex flex-col sm:flex-row items-center justify-between gap-3 z-10">
           {/* Step Dots Indicator */}
           <div className="flex items-center gap-1.5 order-2 sm:order-1">
             {TOUR_STEPS.map((s, idx) => (
@@ -334,8 +334,8 @@ export function ProductTourModal() {
                 className={cn(
                   "h-1.5 rounded-full transition-all cursor-pointer",
                   currentStep === idx
-                    ? "w-6 bg-[#3B9CFF]"
-                    : "w-2 bg-[#232731] hover:bg-[#3D4350]"
+                    ? "w-6 bg-[var(--action-primary)]"
+                    : "w-2 bg-[var(--border-control)] hover:bg-[var(--text-muted)]"
                 )}
               />
             ))}
@@ -346,7 +346,7 @@ export function ProductTourModal() {
             {!isFirstStep && (
               <button
                 onClick={handlePrev}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#A1A7B3] hover:text-[#F5F7FA] bg-[#14171F] hover:bg-[#1C202B] border border-[#232731] flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-control)] flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back</span>
@@ -356,16 +356,16 @@ export function ProductTourModal() {
             {stepData.actionHref && !isFirstStep && (
               <button
                 onClick={() => handleAction(stepData.actionHref)}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[#F5F7FA] bg-[#1E232E] hover:bg-[#252B38] border border-[#2F3543] flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-[var(--text-primary)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-control)] flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <span>{stepData.actionLabel}</span>
-                <ExternalLink className="w-3 h-3 text-[#A1A7B3]" />
+                <ExternalLink className="w-3 h-3 text-[var(--text-secondary)]" />
               </button>
             )}
 
             <button
               onClick={handleNext}
-              className="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2563EB] to-[#3B9CFF] hover:from-[#1D4ED8] hover:to-[#2563EB] shadow-md shadow-blue-500/15 flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
+              className="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold text-[var(--on-primary)] bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
             >
               <span>{isLastStep ? "Get Started 🚀" : isFirstStep ? "Start Tour →" : "Next Step"}</span>
               {!isLastStep && !isFirstStep && <ArrowRight className="w-3.5 h-3.5" />}

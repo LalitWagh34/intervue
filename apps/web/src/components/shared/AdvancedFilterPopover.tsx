@@ -62,27 +62,27 @@ export function AdvancedFilterPopover({
     <div className="flex items-center gap-3 w-full" ref={popoverRef}>
       {/* Search Bar */}
       <div className="relative flex-1 max-w-sm">
-        <Search className="w-3.5 h-3.5 text-[#525866] absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <Search className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           placeholder="Search problems, topics, companies..."
           value={filters.searchQuery}
           onChange={(e) => updateFilter("searchQuery", e.target.value)}
-          className="w-full bg-[#0D0E12] border border-[#181A20] focus:border-[#327CF6] rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-[#525866] outline-none transition-all font-sans"
+          className="w-full bg-[var(--surface)] border border-[var(--border-control)] focus:border-[var(--action-primary)] rounded-xl pl-9 pr-4 py-2 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition-all font-sans"
         />
       </div>
 
-      <div className="flex items-center gap-3 text-xs text-[#7A808C]">
+      <div className="flex items-center gap-3 text-xs text-[var(--text-secondary)]">
         <span className="font-mono hidden sm:inline-block">{resultCount} questions</span>
         
         <div className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className={cn(
-              "p-1.5 rounded-lg border transition-colors flex items-center gap-1.5",
+              "p-1.5 rounded-lg border transition-colors flex items-center gap-1.5 cursor-pointer",
               activeFilterCount > 0
-                ? "bg-[#327CF6]/10 border-[#327CF6]/30 text-[#327CF6]"
-                : "bg-[#0D0E12] border-[#181A20] hover:text-white"
+                ? "bg-[var(--accent-soft)] border-[var(--action-primary)]/30 text-[var(--accent-text)]"
+                : "bg-[var(--surface)] border-[var(--border-control)] hover:text-[var(--text-primary)]"
             )}
           >
             <Filter className="w-3.5 h-3.5" />
@@ -91,13 +91,13 @@ export function AdvancedFilterPopover({
 
           {/* Popover Menu */}
           {isOpen && (
-            <div className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-[#0D0E12] border border-[#181A20] rounded-xl shadow-xl z-50 p-4 flex flex-col gap-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#181A20]">
-                <h3 className="text-sm font-semibold text-white">Filters</h3>
+            <div className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-xl shadow-xl z-50 p-4 flex flex-col gap-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Filters</h3>
                 {activeFilterCount > 0 && (
                   <button
                     onClick={clearFilters}
-                    className="flex items-center gap-1 text-[11px] text-[#8B92A0] hover:text-white transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-3 h-3" />
                     Reset
@@ -108,17 +108,17 @@ export function AdvancedFilterPopover({
               <div className="max-h-[60vh] overflow-y-auto pr-1 space-y-4 custom-scrollbar">
                 {/* Status */}
                 <div>
-                  <h4 className="text-[11px] font-semibold text-[#525866] mb-2 uppercase tracking-wider">Status</h4>
+                  <h4 className="text-[11px] font-semibold text-[var(--text-muted)] mb-2 uppercase tracking-wider">Status</h4>
                   <div className="flex flex-wrap gap-2">
                     {options.statuses.map((s) => (
                       <button
                         key={s}
                         onClick={() => toggleArrayItem("status", s)}
                         className={cn(
-                          "px-2.5 py-1 rounded-md border text-[11px] transition-colors flex items-center gap-1",
+                          "px-2.5 py-1 rounded-md border text-[11px] transition-colors flex items-center gap-1 cursor-pointer",
                           filters.status.includes(s)
-                            ? "bg-[#327CF6]/15 border-[#327CF6]/40 text-[#327CF6]"
-                            : "bg-[#060709] border-[#181A20] text-[#8B92A0] hover:border-[#262933]"
+                            ? "bg-[var(--accent-soft)] border-[var(--action-primary)]/40 text-[var(--accent-text)]"
+                            : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-control)]"
                         )}
                       >
                         {filters.status.includes(s) && <Check className="w-3 h-3" />}
@@ -130,19 +130,19 @@ export function AdvancedFilterPopover({
 
                 {/* Difficulty */}
                 <div>
-                  <h4 className="text-[11px] font-semibold text-[#525866] mb-2 uppercase tracking-wider">Difficulty</h4>
+                  <h4 className="text-[11px] font-semibold text-[var(--text-muted)] mb-2 uppercase tracking-wider">Difficulty</h4>
                   <div className="flex flex-wrap gap-2">
                     {options.difficulties.map((d) => (
                       <button
                         key={d}
                         onClick={() => toggleArrayItem("difficulty", d)}
                         className={cn(
-                          "px-2.5 py-1 rounded-md border text-[11px] transition-colors flex items-center gap-1",
+                          "px-2.5 py-1 rounded-md border text-[11px] transition-colors flex items-center gap-1 cursor-pointer",
                           filters.difficulty.includes(d)
-                            ? d === "Basic" ? "bg-[#10B981]/15 border-[#10B981]/40 text-[#10B981]"
-                              : d === "Core" ? "bg-[#F59E0B]/15 border-[#F59E0B]/40 text-[#F59E0B]"
-                              : "bg-[#EF4444]/15 border-[#EF4444]/40 text-[#EF4444]"
-                            : "bg-[#060709] border-[#181A20] text-[#8B92A0] hover:border-[#262933]"
+                            ? d === "Basic" ? "bg-[var(--status-success)]/15 border-[var(--status-success)]/40 text-[var(--status-success)]"
+                              : d === "Core" ? "bg-[var(--status-warning)]/15 border-[var(--status-warning)]/40 text-[var(--status-warning)]"
+                              : "bg-[var(--status-danger)]/15 border-[var(--status-danger)]/40 text-[var(--status-danger)]"
+                            : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-control)]"
                         )}
                       >
                         {filters.difficulty.includes(d) && <Check className="w-3 h-3" />}
@@ -155,17 +155,17 @@ export function AdvancedFilterPopover({
                 {/* Topics */}
                 {options.topics.length > 0 && (
                   <div>
-                    <h4 className="text-[11px] font-semibold text-[#525866] mb-2 uppercase tracking-wider">Topics</h4>
+                    <h4 className="text-[11px] font-semibold text-[var(--text-muted)] mb-2 uppercase tracking-wider">Topics</h4>
                     <div className="flex flex-wrap gap-2">
                       {options.topics.map((t) => (
                         <button
                           key={t}
                           onClick={() => toggleArrayItem("topics", t)}
                           className={cn(
-                            "px-2.5 py-1 rounded-md border text-[11px] transition-colors",
+                            "px-2.5 py-1 rounded-md border text-[11px] transition-colors cursor-pointer",
                             filters.topics.includes(t)
-                              ? "bg-[#327CF6]/15 border-[#327CF6]/40 text-[#327CF6]"
-                              : "bg-[#060709] border-[#181A20] text-[#8B92A0] hover:border-[#262933]"
+                              ? "bg-[var(--accent-soft)] border-[var(--action-primary)]/40 text-[var(--accent-text)]"
+                              : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-control)]"
                           )}
                         >
                           {t}
@@ -178,7 +178,7 @@ export function AdvancedFilterPopover({
                 {/* Companies */}
                 {options.companies.length > 0 && (
                   <div>
-                    <h4 className="text-[11px] font-semibold text-[#525866] mb-2 uppercase tracking-wider">Companies</h4>
+                    <h4 className="text-[11px] font-semibold text-[var(--text-muted)] mb-2 uppercase tracking-wider">Companies</h4>
                     <div className="flex flex-wrap gap-2">
                       {options.companies.map((c) => {
                         const logo = getCompanyLogo(c);
@@ -187,16 +187,16 @@ export function AdvancedFilterPopover({
                             key={c}
                             onClick={() => toggleArrayItem("companies", c)}
                             className={cn(
-                              "px-2.5 py-1 rounded-md border text-[11px] transition-colors flex items-center gap-1.5",
+                              "px-2.5 py-1 rounded-md border text-[11px] transition-colors flex items-center gap-1.5 cursor-pointer",
                               filters.companies.includes(c)
-                                ? "bg-[#327CF6]/15 border-[#327CF6]/40 text-[#327CF6]"
-                                : "bg-[#060709] border-[#181A20] text-[#8B92A0] hover:border-[#262933]"
+                                ? "bg-[var(--accent-soft)] border-[var(--action-primary)]/40 text-[var(--accent-text)]"
+                                : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-control)]"
                             )}
                           >
                             {logo && (
                               <img src={logo} alt="" className="w-3.5 h-3.5 object-contain shrink-0" />
                             )}
-                            {filters.companies.includes(c) && <Check className="w-3 h-3 text-blue-400" />}
+                            {filters.companies.includes(c) && <Check className="w-3 h-3 text-[var(--accent-text)]" />}
                             <span>{c}</span>
                           </button>
                         );

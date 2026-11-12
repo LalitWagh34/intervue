@@ -260,8 +260,8 @@ export function NotificationDropdown() {
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className={cn(
-          "w-11 h-11 sm:w-9 sm:h-9 rounded-xl bg-[#0D0E12] border border-[#181A20] flex items-center justify-center text-[#8B92A0] hover:text-white hover:border-[#327CF6]/40 transition-all cursor-pointer relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#327CF6]",
-          isOpen && "border-[#327CF6] text-white bg-[#13161F]"
+          "w-11 h-11 sm:w-9 sm:h-9 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] hover:border-[var(--border-control)] transition-all cursor-pointer relative group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-text)]",
+          isOpen && "border-[var(--action-primary)] text-[var(--text-primary)] bg-[var(--surface-selected)]"
         )}
         title="Notifications"
         aria-label="Notifications"
@@ -270,7 +270,7 @@ export function NotificationDropdown() {
       >
         <Bell className="w-4 h-4 transition-transform group-hover:rotate-12" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#327CF6] text-white text-[10px] font-bold font-mono flex items-center justify-center shadow-lg shadow-[#327CF6]/40 animate-pulse">
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--action-primary)] text-[var(--on-primary)] text-[10px] font-bold font-mono flex items-center justify-center shadow-sm">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -280,17 +280,17 @@ export function NotificationDropdown() {
       {isOpen && (
         <div
           onWheel={(e) => e.stopPropagation()}
-          className="fixed left-4 right-4 top-[4.5rem] sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[400px] rounded-2xl bg-[#0A0C10] border border-[#181A20] shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[calc(100dvh-6rem)] sm:max-h-[520px] overscroll-contain"
+          className="fixed left-4 right-4 top-[4.5rem] sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-[400px] rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[calc(100dvh-6rem)] sm:max-h-[520px] overscroll-contain"
           role="dialog"
           aria-label="Notifications"
         >
           {/* Header */}
-          <div className="p-4 border-b border-[#181A20] flex items-center justify-between bg-[#0D0E14]/60">
+          <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--surface-muted)]">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-sm text-white flex items-center gap-2">
+              <h3 className="font-semibold text-sm text-[var(--text-primary)] flex items-center gap-2">
                 Notifications
                 {unreadCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#327CF6]/15 text-[#327CF6] border border-[#327CF6]/30">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--accent-text)]/30">
                     {unreadCount} new
                   </span>
                 )}
@@ -301,7 +301,7 @@ export function NotificationDropdown() {
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="text-[11px] text-[#327CF6] hover:text-[#5B95F8] flex items-center gap-1 font-medium transition-colors cursor-pointer"
+                  className="text-[11px] text-[var(--accent-text)] hover:opacity-80 flex items-center gap-1 font-medium transition-opacity cursor-pointer"
                   title="Mark all as read"
                 >
                   <Check className="w-3 h-3" />
@@ -311,7 +311,7 @@ export function NotificationDropdown() {
               {notifications.length > 0 && (
                 <button
                   onClick={handleClearAll}
-                  className="text-[11px] text-zinc-500 hover:text-zinc-300 p-1 rounded-lg hover:bg-[#181A20] transition-colors cursor-pointer"
+                  className="text-[11px] text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 rounded-lg hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                   title="Clear all"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -321,14 +321,14 @@ export function NotificationDropdown() {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex items-center px-4 pt-2 pb-1 gap-2 border-b border-[#181A20]/50 text-xs">
+          <div className="flex items-center px-4 py-2 gap-2 border-b border-[var(--border-subtle)] text-xs bg-[var(--surface)]">
             <button
               onClick={() => setFilter("all")}
               className={cn(
                 "px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer",
                 filter === "all"
-                  ? "bg-[#181A20] text-white"
-                  : "text-[#8B92A0] hover:text-zinc-200"
+                  ? "bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--accent-text)]/25"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
               )}
             >
               All ({notifications.length})
@@ -338,8 +338,8 @@ export function NotificationDropdown() {
               className={cn(
                 "px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer",
                 filter === "unread"
-                  ? "bg-[#181A20] text-white"
-                  : "text-[#8B92A0] hover:text-zinc-200"
+                  ? "bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--accent-text)]/25"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
               )}
             >
               Unread ({unreadCount})
@@ -347,16 +347,16 @@ export function NotificationDropdown() {
           </div>
 
           {/* Notifications List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-[#181A20]/40 p-1.5 overscroll-contain max-h-[380px]">
+          <div className="flex-1 overflow-y-auto divide-y divide-[var(--border-subtle)] p-1.5 overscroll-contain max-h-[380px] bg-[var(--surface)]">
             {filteredNotifications.length === 0 ? (
-              <div className="p-8 text-center flex flex-col items-center justify-center gap-2 text-zinc-500">
-                <div className="w-10 h-10 rounded-full bg-[#12141A] flex items-center justify-center text-zinc-400 mb-1">
-                  <CheckCircle2 className="w-5 h-5 text-[#10B981]" />
+              <div className="p-8 text-center flex flex-col items-center justify-center gap-2 text-[var(--text-muted)]">
+                <div className="w-10 h-10 rounded-full bg-[var(--surface-muted)] flex items-center justify-center text-[var(--text-secondary)] mb-1">
+                  <CheckCircle2 className="w-5 h-5 text-[var(--status-success)]" />
                 </div>
-                <p className="text-xs font-medium text-zinc-300">
+                <p className="text-xs font-medium text-[var(--text-primary)]">
                   {filter === "unread" ? "No unread notifications" : "No notifications yet"}
                 </p>
-                <p className="text-[11px] text-zinc-500 max-w-[220px]">
+                <p className="text-[11px] text-[var(--text-secondary)] max-w-[220px]">
                   {filter === "unread"
                     ? "You are all caught up! Great job staying on top of your prep."
                     : "Notifications about your scorecards, streaks, and sessions will appear here."}
@@ -373,13 +373,13 @@ export function NotificationDropdown() {
                     key={item.id}
                     onClick={() => handleItemClick(item)}
                     className={cn(
-                      "group w-full p-3 rounded-xl transition-all cursor-pointer flex items-start gap-3 relative hover:bg-[#12141D] text-left",
-                      !item.isRead ? "bg-[#0D0F17]/80" : "opacity-80 hover:opacity-100"
+                      "group w-full p-3 rounded-xl transition-all cursor-pointer flex items-start gap-3 relative hover:bg-[var(--surface-hover)] text-left",
+                      !item.isRead ? "bg-[var(--surface-selected)]/45" : "opacity-85 hover:opacity-100"
                     )}
                   >
                     {/* Unread indicator dot */}
                     {!item.isRead && (
-                      <span className="absolute top-4 right-3 w-2 h-2 rounded-full bg-[#327CF6] shadow-sm shadow-[#327CF6]" />
+                      <span className="absolute top-4 right-3 w-2 h-2 rounded-full bg-[var(--action-primary)] shadow-sm" />
                     )}
 
                     {/* Icon Badge */}
@@ -397,24 +397,19 @@ export function NotificationDropdown() {
                     {/* Content */}
                     <div className="flex-1 min-w-0 pr-4">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <h4
-                          className={cn(
-                            "text-xs font-semibold truncate",
-                            !item.isRead ? "text-white" : "text-zinc-300"
-                          )}
-                        >
+                        <h4 className="text-xs font-semibold truncate text-[var(--text-primary)]">
                           {item.title}
                         </h4>
                       </div>
-                      <p className="text-[11px] text-[#8B92A0] line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">
                         {item.description}
                       </p>
                       <div className="flex items-center gap-2 mt-1.5">
-                        <span className="text-[10px] text-zinc-500 font-mono flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-zinc-600" />
+                        <span className="text-[10px] text-[var(--text-muted)] font-mono flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-[var(--text-muted)]" />
                           {item.timestamp}
                         </span>
-                        <span className="text-[10px] text-[#327CF6] font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 ml-auto">
+                        <span className="text-[10px] text-[var(--accent-text)] font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 ml-auto">
                           View
                           <ArrowRight className="w-2.5 h-2.5" />
                         </span>
@@ -427,14 +422,14 @@ export function NotificationDropdown() {
           </div>
 
           {/* Footer */}
-          <div className="p-2.5 border-t border-[#181A20] bg-[#0D0E14]/70 flex items-center justify-between text-xs px-4">
-            <span className="text-[11px] text-zinc-500">Stay consistent daily</span>
+          <div className="p-2.5 border-t border-[var(--border-subtle)] bg-[var(--surface-muted)] flex items-center justify-between text-xs px-4">
+            <span className="text-[11px] text-[var(--text-muted)]">Stay consistent daily</span>
             <button
               onClick={() => {
                 setIsOpen(false);
                 navigate("/history");
               }}
-              className="text-[11px] text-[#327CF6] hover:text-[#5B95F8] font-medium flex items-center gap-1 hover:underline cursor-pointer"
+              className="text-[11px] text-[var(--accent-text)] hover:opacity-80 font-medium flex items-center gap-1 hover:underline cursor-pointer"
             >
               All Scorecards
               <ExternalLink className="w-3 h-3" />
@@ -451,44 +446,44 @@ function getNotificationIcon(type: NotificationItem["type"]) {
     case "scorecard":
       return {
         icon: Sparkles,
-        bgClass: "bg-blue-950/40",
-        borderClass: "border-blue-800/40",
-        colorClass: "text-[#327CF6]",
+        bgClass: "bg-[var(--surface-selected)]",
+        borderClass: "border-[var(--accent-text)]/25",
+        colorClass: "text-[var(--accent-text)]",
       };
     case "streak":
       return {
         icon: Flame,
-        bgClass: "bg-amber-950/40",
-        borderClass: "border-amber-800/40",
-        colorClass: "text-[#F59E0B]",
+        bgClass: "bg-[var(--status-warning)]/12",
+        borderClass: "border-[var(--status-warning)]/25",
+        colorClass: "text-[var(--status-warning)]",
       };
     case "reward":
       return {
         icon: Trophy,
-        bgClass: "bg-emerald-950/40",
-        borderClass: "border-emerald-800/40",
-        colorClass: "text-[#10B981]",
+        bgClass: "bg-[var(--status-success)]/12",
+        borderClass: "border-[var(--status-success)]/25",
+        colorClass: "text-[var(--status-success)]",
       };
     case "battle":
       return {
         icon: Swords,
-        bgClass: "bg-red-950/40",
-        borderClass: "border-red-800/40",
-        colorClass: "text-[#EF4444]",
+        bgClass: "bg-[var(--status-danger)]/12",
+        borderClass: "border-[var(--status-danger)]/25",
+        colorClass: "text-[var(--status-danger)]",
       };
     case "practice":
       return {
         icon: Building2,
-        bgClass: "bg-violet-950/40",
-        borderClass: "border-violet-800/40",
-        colorClass: "text-[#8B5CF6]",
+        bgClass: "bg-violet-500/12",
+        borderClass: "border-violet-500/25",
+        colorClass: "text-violet-600 dark:text-violet-400",
       };
     default:
       return {
         icon: Bell,
-        bgClass: "bg-zinc-900",
-        borderClass: "border-zinc-800",
-        colorClass: "text-zinc-400",
+        bgClass: "bg-[var(--surface-muted)]",
+        borderClass: "border-[var(--border-subtle)]",
+        colorClass: "text-[var(--text-secondary)]",
       };
   }
 }

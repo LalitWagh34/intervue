@@ -41,37 +41,34 @@ export function SessionVerificationLoader({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#060709] text-white px-4 select-none">
-      {/* Ambient background glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(50,124,246,0.12)_0%,rgba(6,7,9,0)_65%)] pointer-events-none" />
-
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--bg-canvas)] text-[var(--text-primary)] px-4 select-none">
       {/* Center Card */}
       <div className="relative z-10 flex flex-col items-center max-w-sm text-center animate-in fade-in zoom-in-95 duration-300">
         {/* Brand Tile with Pulsing Radar Rings */}
         <div className="relative mb-6">
           {/* Subtle Outer Pulsing Wave */}
-          <div className="absolute -inset-2.5 rounded-2xl bg-[#327CF6]/20 blur-md animate-pulse" />
-          <div className="absolute -inset-5 rounded-3xl bg-[#327CF6]/10 animate-ping opacity-35" style={{ animationDuration: "2.5s" }} />
+          <div className="absolute -inset-2.5 rounded-2xl bg-[var(--surface-muted)] blur-md animate-pulse" />
+          <div className="absolute -inset-5 rounded-3xl bg-[var(--border-subtle)] animate-ping opacity-35" style={{ animationDuration: "2.5s" }} />
 
           {/* Core Brand Tile */}
-          <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/50 flex items-center justify-center shadow-xl shadow-[#327CF6]/25">
+          <div className="relative w-14 h-14 rounded-2xl bg-[var(--surface)] border border-[var(--border-control)] flex items-center justify-center shadow-lg">
             <BrandIcon className="w-8 h-8" />
           </div>
         </div>
 
         {/* Title */}
-        <h2 className="text-base sm:text-lg font-bold text-white tracking-tight mb-2">
+        <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] tracking-tight mb-2">
           {title}
         </h2>
 
         {/* Dynamic Context Message */}
-        <p className="text-xs text-[#8B92A0] max-w-[280px] leading-relaxed mb-6 min-h-[36px] flex items-center justify-center transition-opacity duration-300">
+        <p className="text-xs text-[var(--text-secondary)] max-w-[280px] leading-relaxed mb-6 min-h-[36px] flex items-center justify-center transition-opacity duration-300">
           {getProgressiveMessage()}
         </p>
 
         {/* Sleek Indeterminate Progress Bar */}
-        <div className="w-48 h-1 bg-[#12141A] rounded-full overflow-hidden border border-[#181A20] relative mb-6">
-          <div className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[#327CF6] to-transparent rounded-full animate-[progressSlide_1.6s_ease-in-out_infinite]" />
+        <div className="w-48 h-1 bg-[var(--surface-muted)] rounded-full overflow-hidden border border-[var(--border-subtle)] relative mb-6">
+          <div className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[var(--text-primary)] to-transparent rounded-full animate-[progressSlide_1.6s_ease-in-out_infinite]" />
         </div>
 
         {/* Security Badge */}
@@ -79,23 +76,23 @@ export function SessionVerificationLoader({
 
         {/* Escape Hatch (Appears if Render cold-start takes > 7s) */}
         {showEscape && (
-          <div className="mt-8 pt-4 border-t border-[#181A20]/60 flex flex-col items-center gap-2 animate-in fade-in duration-300">
-            <p className="text-[11px] text-zinc-500">
+          <div className="mt-8 pt-4 border-t border-[var(--border-subtle)] flex flex-col items-center gap-2 animate-in fade-in duration-300">
+            <p className="text-[11px] text-[var(--text-muted)]">
               Taking longer than usual?
             </p>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="inline-flex items-center gap-1 text-xs text-[#8B92A0] hover:text-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>Reload</span>
               </button>
-              <span className="text-zinc-600">•</span>
+              <span className="text-[var(--text-muted)]">•</span>
               <Link
                 to="/login"
-                className="inline-flex items-center gap-1 text-xs text-[#327CF6] hover:text-[#5B95F7] font-medium transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-[var(--accent-text)] hover:underline font-medium transition-colors"
               >
                 <span>Continue to Sign In</span>
                 <ArrowRight className="w-3 h-3" />

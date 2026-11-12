@@ -32,16 +32,47 @@ export function QuestionNoteDrawer({
   const deleteNote = useDeleteNote();
   const [content, setContent] = useState("");
   const [isDirty, setIsDirty] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   useEffect(() => {
+    setShowDiscardConfirm(false);
+    setIsDirty(false);
+    setContent(note?.content ?? "");
+  }, [problemSlug, isOpen]);
+
+  useEffect(() => {
+    if (isDirty) return;
     if (note) {
       setContent(note.content);
-      setIsDirty(false);
     } else if (!isLoading) {
       setContent("");
-      setIsDirty(false);
     }
-  }, [note, isLoading, problemSlug]);
+  }, [note?.content, isLoading, isDirty]);
+
+  useEffect(() => {
+    if (!isOpen || !isDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isOpen, isDirty]);
+
+  const handleRequestClose = () => {
+    if (isDirty) {
+      setShowDiscardConfirm(true);
+      return;
+    }
+    setShowDiscardConfirm(false);
+    onClose();
+  };
+
+  const handleConfirmDiscard = () => {
+    setShowDiscardConfirm(false);
+    setIsDirty(false);
+    onClose();
+  };
 
   const handleSave = async () => {
     try {
@@ -71,39 +102,68 @@ export function QuestionNoteDrawer({
       {/* Backdrop */}
       <div
         className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
-        onClick={onClose}
+        onClick={handleRequestClose}
       />
 
       {/* Drawer Panel */}
-      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-[#11131A] border-l border-white/[0.12] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-[var(--surface)] border-l border-[var(--border-subtle)] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-subtle)] shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/10 border border-[#F59E0B]/25 flex items-center justify-center">
-              <NotebookPen className="w-4 h-4 text-[#F59E0B]" />
+            <div className="w-8 h-8 rounded-lg bg-[var(--status-warning)]/10 border border-[var(--status-warning)]/25 flex items-center justify-center">
+              <NotebookPen className="w-4 h-4 text-[var(--status-warning)]" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-[#F5F7FA] leading-tight">My Note</h2>
-              <p className="text-[11px] text-slate-400 font-mono truncate max-w-[240px]">{problemTitle}</p>
+              <h2 className="text-sm font-semibold text-[var(--text-primary)] leading-tight">My Note</h2>
+              <p className="text-[11px] text-[var(--text-secondary)] font-mono truncate max-w-[240px]">{problemTitle}</p>
             </div>
           </div>
           <button
-            onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#F5F7FA] hover:bg-[#1E2229] transition-colors cursor-pointer"
+            onClick={handleRequestClose}
+            aria-label="Close note drawer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
+
+        {showDiscardConfirm && (
+          <div
+            role="alertdialog"
+            aria-label="Unsaved note changes"
+            className="px-5 py-3 bg-[var(--status-warning)]/10 border-b border-[var(--status-warning)]/30 flex flex-wrap items-center justify-between gap-2 text-xs shrink-0"
+          >
+            <span className="text-[var(--status-warning)] font-medium">
+              You have unsaved changes. Discard them?
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowDiscardConfirm(false)}
+                className="px-2.5 py-1 rounded-md bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-control)] font-medium cursor-pointer"
+              >
+                Keep editing
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDiscard}
+                className="px-2.5 py-1 rounded-md bg-[var(--status-danger)]/15 hover:bg-[var(--status-danger)]/25 text-[var(--status-danger)] border border-[var(--status-danger)]/30 font-semibold cursor-pointer"
+              >
+                Discard &amp; close
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Content Area */}
         <div className="flex-1 flex flex-col p-5 gap-4 overflow-hidden">
           {/* Quick Template Hints */}
           <div className="flex gap-2 flex-wrap">
             {[
-              { label: "Key Intuition", icon: Lightbulb, color: "text-amber-400", insert: "💡 Key Intuition: " },
-              { label: "Complexity", icon: Clock, color: "text-blue-400", insert: "⏱️ Complexity: " },
-              { label: "Edge Case", icon: AlertTriangle, color: "text-rose-400", insert: "⚠️ Edge Case: " },
-              { label: "Pattern", icon: Layers, color: "text-purple-400", insert: "🧩 Pattern: " },
+              { label: "Key Intuition", icon: Lightbulb, color: "text-amber-500", insert: "💡 Key Intuition: " },
+              { label: "Complexity", icon: Clock, color: "text-blue-500", insert: "⏱️ Complexity: " },
+              { label: "Edge Case", icon: AlertTriangle, color: "text-rose-500", insert: "⚠️ Edge Case: " },
+              { label: "Pattern", icon: Layers, color: "text-purple-500", insert: "🧩 Pattern: " },
             ].map((tpl) => (
               <button
                 key={tpl.label}
@@ -114,7 +174,7 @@ export function QuestionNoteDrawer({
                   );
                   setIsDirty(true);
                 }}
-                className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-[#1A1D27] border border-white/[0.08] text-slate-300 hover:text-white hover:border-white/[0.2] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-md bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-control)] transition-colors cursor-pointer"
               >
                 <tpl.icon className={cn("w-3.5 h-3.5", tpl.color)} />
                 <span>{tpl.label}</span>
@@ -125,7 +185,7 @@ export function QuestionNoteDrawer({
           {/* Text Area */}
           {isLoading ? (
             <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="w-5 h-5 text-[#327CF6] animate-spin" />
+              <Loader2 className="w-5 h-5 text-[var(--accent-text)] animate-spin" />
             </div>
           ) : (
             <textarea
@@ -135,40 +195,40 @@ export function QuestionNoteDrawer({
                 setIsDirty(true);
               }}
               placeholder={`Write your hint, approach, or edge cases for "${problemTitle}"...\n\nExamples:\n• Use two pointers — left starts at 0, right at n-1\n• O(n) time, O(1) space\n• Handle empty array case first`}
-              className="flex-1 w-full bg-[#08090C] border border-white/[0.08] focus:border-[#327CF6]/50 rounded-xl p-4 text-sm text-[#E0E2E8] placeholder:text-slate-500 font-mono resize-none outline-none transition-colors leading-relaxed"
+              className="flex-1 w-full bg-[var(--surface-muted)] border border-[var(--border-control)] focus:border-[var(--action-primary)] rounded-xl p-4 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-mono resize-none outline-none transition-colors leading-relaxed"
               autoFocus
             />
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-5 py-4 border-t border-white/[0.08] shrink-0 gap-3">
+        <div className="flex items-center justify-between px-5 py-4 border-t border-[var(--border-subtle)] shrink-0 gap-3">
           {note ? (
             <button
               onClick={handleDelete}
               disabled={deleteNote.isPending}
-              className="flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-[#EF4444] transition-colors cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--status-danger)] transition-colors cursor-pointer disabled:opacity-50"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Delete
             </button>
           ) : (
-            <span className="text-[11px] text-slate-500">
+            <span className="text-[11px] text-[var(--text-muted)]">
               {content ? "Unsaved" : "No note yet"}
             </span>
           )}
 
           <div className="flex items-center gap-2">
             <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-[#F5F7FA] transition-colors cursor-pointer"
+              onClick={handleRequestClose}
+              className="px-4 py-2 rounded-lg text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={saveNote.isPending || !isDirty || !content.trim()}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-xs font-semibold text-[var(--on-primary)] transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
             >
               {saveNote.isPending ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
