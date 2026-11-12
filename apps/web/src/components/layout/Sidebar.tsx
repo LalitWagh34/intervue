@@ -9,6 +9,7 @@ import {
   LogOut,
   Swords,
   BookOpen,
+  GraduationCap,
   Brain,
   ChevronDown,
   PanelLeftClose,
@@ -63,6 +64,11 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/practice",
       },
       {
+        label: "Learn & Revise",
+        icon: GraduationCap,
+        href: "/learn",
+      },
+      {
         label: "AI Interview",
         icon: Brain,
         href: "/interview",
@@ -109,6 +115,7 @@ const NAV_SECTIONS: NavSection[] = [
           { label: "Mock Interviews", icon: MessageSquare, href: "/admin/interviews" },
           { label: "Code Submissions", icon: FileCode2, href: "/admin/submissions" },
           { label: "Contest Rooms", icon: Swords, href: "/admin/rooms" },
+          { label: "Learn & Revise", icon: GraduationCap, href: "/admin/learn" },
         ],
       },
     ],

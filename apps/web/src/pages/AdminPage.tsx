@@ -36,9 +36,11 @@ import {
   ArrowUpRight,
   Copy,
   Check,
+  GraduationCap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "@/lib/utils";
+import { AdminLearnPanel } from "@/components/admin/AdminLearnPanel";
 
 type AdminTab =
   | "overview"
@@ -47,7 +49,8 @@ type AdminTab =
   | "mcqs"
   | "interviews"
   | "submissions"
-  | "rooms";
+  | "rooms"
+  | "learn";
 
 const PANELS: Array<{
   id: AdminTab;
@@ -96,6 +99,12 @@ const PANELS: Array<{
     label: "Contest Rooms",
     description: "Live multiplayer battle surveillance",
     icon: Swords,
+  },
+  {
+    id: "learn",
+    label: "Learn & Revise",
+    description: "Curriculum tracks, concepts & revisions",
+    icon: GraduationCap,
   },
 ];
 
@@ -182,6 +191,7 @@ export default function AdminPage() {
     "interviews",
     "submissions",
     "rooms",
+    "learn",
   ];
   const activeTab: AdminTab = VALID_TABS.includes(panel as AdminTab)
     ? (panel as AdminTab)
@@ -1956,6 +1966,9 @@ export default function AdminPage() {
             )}
           </div>
         )}
+
+        {/* ─── Learn & Revise Hub CMS Panel ───────────────────────── */}
+        {activeTab === "learn" && <AdminLearnPanel />}
       </main>
     </div>
   </div>
