@@ -79,41 +79,41 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="p-6 md:p-12 max-w-2xl mx-auto space-y-8">
-      {/* Page Title & Subtitle (Matching Screenshot 2) */}
+    <div className="p-6 md:p-12 max-w-2xl mx-auto space-y-8 text-[var(--text-primary)]">
+      {/* Page Title & Subtitle */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">Feedback</h1>
-        <p className="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto leading-relaxed">
+        <h1 className="text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">Feedback</h1>
+        <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-lg mx-auto leading-relaxed">
           We value your feedback and are here to assist you. Please use the form below to drop your
           reviews, suggestions, or to ask for support.
         </p>
       </div>
 
       {submitted ? (
-        <div className="p-8 rounded-2xl bg-[#0D0E12] border border-zinc-800 text-center space-y-4 animate-in fade-in duration-200">
-          <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+        <div className="p-8 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] text-center space-y-4 shadow-sm animate-in fade-in duration-200">
+          <div className="w-12 h-12 rounded-full bg-[var(--status-success-subtle)] border border-[var(--border-subtle)] text-[var(--status-success)] flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-white">Thank You for Your Feedback!</h3>
-            <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+            <h3 className="text-base font-bold text-[var(--text-primary)]">Thank You for Your Feedback!</h3>
+            <p className="text-xs text-[var(--text-secondary)] max-w-sm mx-auto">
               Our engineering team reviews every suggestion and bug report directly.
             </p>
           </div>
           <Button
             type="button"
             onClick={() => setSubmitted(false)}
-            className="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-4 h-9 rounded-xl cursor-pointer"
+            className="bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-control)] text-xs px-4 h-9 rounded-xl cursor-pointer"
           >
             Submit Another Response
           </Button>
         </div>
       ) : (
-        /* Form (Matching Screenshot 2) */
+        /* Form */
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           {/* Name */}
           <div className="space-y-1.5">
-            <label htmlFor="name" className="block text-xs font-medium text-zinc-300">
+            <label htmlFor="name" className="block text-xs font-medium text-[var(--text-secondary)]">
               Name
             </label>
             <input
@@ -122,13 +122,13 @@ export default function FeedbackPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              className="w-full h-11 px-4 rounded-xl bg-[#0D0E12] border border-[#1E2229] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 text-xs sm:text-sm text-white placeholder:text-zinc-600 outline-none transition-colors"
+              className="w-full h-11 px-4 rounded-xl bg-[var(--surface)] border border-[var(--border-control)] focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--action-primary)]/30 text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none transition-colors"
             />
           </div>
 
           {/* Email Address */}
           <div className="space-y-1.5">
-            <label htmlFor="email" className="block text-xs font-medium text-zinc-300">
+            <label htmlFor="email" className="block text-xs font-medium text-[var(--text-secondary)]">
               Email address
             </label>
             <input
@@ -137,14 +137,14 @@ export default function FeedbackPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="w-full h-11 px-4 rounded-xl bg-[#0D0E12] border border-[#1E2229] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 text-xs sm:text-sm text-white placeholder:text-zinc-600 outline-none transition-colors"
+              className="w-full h-11 px-4 rounded-xl bg-[var(--surface)] border border-[var(--border-control)] focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--action-primary)]/30 text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none transition-colors"
             />
           </div>
 
           {/* Subject Dropdown */}
           <div className="space-y-1.5">
-            <label htmlFor="subject" className="block text-xs font-medium text-zinc-300">
-              Subject <span className="text-red-400">*</span>
+            <label htmlFor="subject" className="block text-xs font-medium text-[var(--text-secondary)]">
+              Subject <span className="text-[var(--status-danger)]">*</span>
             </label>
             <select
               id="subject"
@@ -154,40 +154,40 @@ export default function FeedbackPage() {
                 if (errors.subject) setErrors((prev) => ({ ...prev, subject: undefined }));
               }}
               className={cn(
-                "w-full h-11 px-3.5 rounded-xl bg-[#0D0E12] border text-xs sm:text-sm text-white outline-none transition-colors cursor-pointer",
+                "w-full h-11 px-3.5 rounded-xl bg-[var(--surface)] border text-xs sm:text-sm text-[var(--text-primary)] outline-none transition-colors cursor-pointer",
                 errors.subject
-                  ? "border-red-500 focus:border-red-500 ring-1 ring-red-500/30"
-                  : "border-[#1E2229] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30"
+                  ? "border-[var(--status-danger)] focus:border-[var(--status-danger)] ring-1 ring-[var(--status-danger)]/30"
+                  : "border-[var(--border-control)] focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--action-primary)]/30"
               )}
             >
-              <option value="" disabled className="bg-[#0D0E12] text-zinc-500">
+              <option value="" disabled className="bg-[var(--surface)] text-[var(--text-muted)]">
                 Select subject
               </option>
-              <option value="General Feedback" className="bg-[#0D0E12] text-white">
+              <option value="General Feedback" className="bg-[var(--surface)] text-[var(--text-primary)]">
                 General Feedback
               </option>
-              <option value="Bug Report" className="bg-[#0D0E12] text-white">
+              <option value="Bug Report" className="bg-[var(--surface)] text-[var(--text-primary)]">
                 Bug Report
               </option>
-              <option value="Feature Request" className="bg-[#0D0E12] text-white">
+              <option value="Feature Request" className="bg-[var(--surface)] text-[var(--text-primary)]">
                 Feature Request
               </option>
-              <option value="Company Kit Question Request" className="bg-[#0D0E12] text-white">
+              <option value="Company Kit Question Request" className="bg-[var(--surface)] text-[var(--text-primary)]">
                 Company Kit Question Request
               </option>
-              <option value="Account Support" className="bg-[#0D0E12] text-white">
+              <option value="Account Support" className="bg-[var(--surface)] text-[var(--text-primary)]">
                 Account & Login Support
               </option>
             </select>
             {errors.subject && (
-              <p className="text-[11px] text-red-400 mt-1 font-medium">{errors.subject}</p>
+              <p className="text-[11px] text-[var(--status-danger)] mt-1 font-medium">{errors.subject}</p>
             )}
           </div>
 
           {/* Message Textarea */}
           <div className="space-y-1.5">
-            <label htmlFor="message" className="block text-xs font-medium text-zinc-300">
-              Message <span className="text-red-400">*</span>
+            <label htmlFor="message" className="block text-xs font-medium text-[var(--text-secondary)]">
+              Message <span className="text-[var(--status-danger)]">*</span>
             </label>
             <textarea
               id="message"
@@ -199,23 +199,23 @@ export default function FeedbackPage() {
               }}
               placeholder="Tell us what you think or how we can help..."
               className={cn(
-                "w-full p-4 rounded-xl bg-[#0D0E12] border text-xs sm:text-sm text-white placeholder:text-zinc-600 outline-none transition-colors resize-y leading-relaxed",
+                "w-full p-4 rounded-xl bg-[var(--surface)] border text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none transition-colors resize-y leading-relaxed",
                 errors.message
-                  ? "border-red-500 focus:border-red-500 ring-1 ring-red-500/30"
-                  : "border-[#1E2229] focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30"
+                  ? "border-[var(--status-danger)] focus:border-[var(--status-danger)] ring-1 ring-[var(--status-danger)]/30"
+                  : "border-[var(--border-control)] focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--action-primary)]/30"
               )}
             />
             {errors.message && (
-              <p className="text-[11px] text-red-400 mt-1 font-medium">{errors.message}</p>
+              <p className="text-[11px] text-[var(--status-danger)] mt-1 font-medium">{errors.message}</p>
             )}
           </div>
 
-          {/* Submit Button (Right Aligned matching Screenshot 2) */}
+          {/* Submit Button */}
           <div className="flex justify-end pt-2">
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-semibold px-6 h-10 rounded-xl cursor-pointer transition-all shadow-md shadow-blue-600/20 active:scale-95 disabled:opacity-50"
+              className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs sm:text-sm font-semibold px-6 h-10 rounded-xl cursor-pointer transition-all shadow-sm active:scale-95 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>

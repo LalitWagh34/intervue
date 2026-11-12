@@ -32,7 +32,7 @@ const ARTICLES: GuideArticle[] = [
     summary: "An overview of Intervue's all-in-one technical interview and coding preparation platform.",
     content: [
       "Intervue is a next-generation engineering interview preparation ecosystem tailored for developers targeting tier-1 tech companies (Google, Amazon, Meta, Microsoft).",
-      "Unlike static problem sheets, Intervue combines curated real-world company problem banks, deterministic daily Problems-of-the-Day (POTD), real-time AI voice mock interviews with instant rubric evaluations, and live 1v1 peer coding battles.",
+      "Unlike static problem sheets, Intervue combines curated real-world company problem banks, deterministic daily Problems-of-the-Day (POTD), interactive AI technical mock interviews with instant rubric evaluations, and live 1v1 peer coding battles.",
     ],
     actionLabel: "Go to Dashboard",
     actionHref: "/dashboard",
@@ -44,7 +44,7 @@ const ARTICLES: GuideArticle[] = [
     summary: "Designed for software engineers, college students, and experienced developers.",
     content: [
       "Intervue is designed for any developer preparing for software engineering technical rounds — from college candidates aiming for their first internship to senior engineers targeting FAANG staff roles.",
-      "Whether you need structured DSA sheets (Striver SDE, Blind 75, NeetCode), company-specific problem kits, or live verbal mock interviews, Intervue adapts to your preparation level.",
+      "Whether you need structured DSA sheets (Striver SDE, Blind 75, NeetCode), company-specific problem kits, or interactive AI mock interviews, Intervue adapts to your preparation level.",
     ],
     actionLabel: "Explore Prep Hub",
     actionHref: "/practice",
@@ -53,7 +53,7 @@ const ARTICLES: GuideArticle[] = [
     id: "key-features-overview",
     title: "Key Features Overview",
     category: "Getting Started",
-    summary: "Explore the core tools: Prep Hub, Company Kits, Battle Arena, and AI Voice Mock.",
+    summary: "Explore the core tools: Prep Hub, Company Kits, Battle Arena, and AI Mock Interviews.",
     content: [
       "• Prep Hub: Standard curated DSA sheets with topic categorization, solved tracking, and notes.",
       "• Company Kits: Curated problem kits for Google, Amazon, Meta, and Microsoft with authentic LeetCode links.",
@@ -284,30 +284,30 @@ export default function HelpCenterPage() {
   }, [searchQuery]);
 
   return (
-    <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-8">
-      {/* Top Breadcrumb & Search Bar (Matching Screenshot 1) */}
+    <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-8 text-[var(--text-primary)]">
+      {/* Top Breadcrumb & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs">
           <span className="text-[#F97316] font-semibold">Intervue Help Center</span>
-          <span className="text-[#525866]">/</span>
-          <span className="text-zinc-400">User Guide</span>
+          <span className="text-[var(--text-muted)]">/</span>
+          <span className="text-[var(--text-secondary)]">User Guide</span>
         </div>
 
         {/* Search Input */}
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search for articles..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#0D0E12] border border-[#1E2229] focus:border-[#F97316]/50 focus:ring-1 focus:ring-[#F97316]/20 text-xs text-white placeholder:text-[#71717A] outline-none transition-all"
+            className="w-full pl-10 pr-4 py-2 rounded-xl bg-[var(--surface)] border border-[var(--border-control)] focus:border-[#F97316] focus:ring-1 focus:ring-[#F97316]/20 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white text-xs"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xs"
             >
               ✕
             </button>
@@ -318,17 +318,17 @@ export default function HelpCenterPage() {
       {/* Main Page Title & Tour Launcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1.5">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight">
             Intervue User Guide
           </h1>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-[var(--text-secondary)]">
             Everything you need to know about preparing, practicing, and cracking top tech interviews.
           </p>
         </div>
 
         <button
           onClick={() => openProductTour()}
-          className="self-start sm:self-auto flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-[#3B9CFF] bg-[#3B9CFF]/10 hover:bg-[#3B9CFF]/20 border border-[#3B9CFF]/25 transition-colors cursor-pointer"
+          className="self-start sm:self-auto flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-[var(--accent-text)] bg-[var(--surface-selected)] hover:opacity-90 border border-[var(--border-control)] transition-colors cursor-pointer"
         >
           <Compass className="w-4 h-4" />
           <span>Launch Platform Tour</span>
@@ -337,21 +337,21 @@ export default function HelpCenterPage() {
 
       {/* Search results banner if active */}
       {searchQuery && (
-        <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 flex items-center justify-between">
+        <div className="p-3 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] flex items-center justify-between">
           <span>
-            Found <strong className="text-white">{filteredArticles.length}</strong> articles matching "
+            Found <strong className="text-[var(--text-primary)]">{filteredArticles.length}</strong> articles matching "
             {searchQuery}"
           </span>
           <button
             onClick={() => setSearchQuery("")}
-            className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
+            className="text-xs text-[var(--accent-text)] hover:underline cursor-pointer"
           >
             Clear Search
           </button>
         </div>
       )}
 
-      {/* 2-Column Categories Grid (Matching Screenshot 1) */}
+      {/* 2-Column Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
         {CATEGORIES.map((category) => {
           const categoryArticles = filteredArticles.filter((a) => a.category === category);
@@ -359,7 +359,7 @@ export default function HelpCenterPage() {
 
           return (
             <div key={category} className="space-y-3.5">
-              {/* Category Title in Vibrant Orange (Matching Screenshot 1) */}
+              {/* Category Title */}
               <h2 className="text-base font-bold text-[#F97316] tracking-tight flex items-center gap-2">
                 <span>{category}</span>
               </h2>
@@ -370,10 +370,10 @@ export default function HelpCenterPage() {
                   <button
                     key={article.id}
                     onClick={() => setSelectedArticle(article)}
-                    className="w-full text-left py-1 text-xs text-zinc-300 hover:text-white hover:translate-x-1 transition-all flex items-center justify-between group cursor-pointer"
+                    className="w-full text-left py-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:translate-x-1 transition-all flex items-center justify-between group cursor-pointer"
                   >
                     <span className="group-hover:text-[#F97316] transition-colors">{article.title}</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-[#F97316] shrink-0 opacity-0 group-hover:opacity-100 transition-all" />
+                    <ChevronRight className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[#F97316] shrink-0 opacity-0 group-hover:opacity-100 transition-all" />
                   </button>
                 ))}
               </div>
@@ -384,41 +384,41 @@ export default function HelpCenterPage() {
 
       {/* Article Detail Modal */}
       {selectedArticle && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative w-full max-w-xl bg-[#0D0E12] border border-zinc-800 rounded-2xl shadow-2xl p-6 sm:p-7 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative w-full max-w-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl p-6 sm:p-7 space-y-5 animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
                   {selectedArticle.category}
                 </span>
-                <h3 className="text-lg font-bold text-white">{selectedArticle.title}</h3>
+                <h3 className="text-lg font-bold text-[var(--text-primary)]">{selectedArticle.title}</h3>
               </div>
               <button
                 onClick={() => setSelectedArticle(null)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Modal Content */}
-            <div className="space-y-3 text-xs text-zinc-300 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
-              <p className="font-medium text-white/90">{selectedArticle.summary}</p>
+            <div className="space-y-3 text-xs text-[var(--text-secondary)] leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
+              <p className="font-medium text-[var(--text-primary)]">{selectedArticle.summary}</p>
               {selectedArticle.content.map((paragraph, idx) => (
-                <p key={idx} className="text-zinc-400">
+                <p key={idx} className="text-[var(--text-secondary)]">
                   {paragraph}
                 </p>
               ))}
             </div>
 
             {/* Modal Action CTA */}
-            <div className="pt-3 border-t border-zinc-800 flex items-center justify-between">
-              <span className="text-[11px] text-zinc-500">Intervue User Guide</span>
+            <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between">
+              <span className="text-[11px] text-[var(--text-muted)]">Intervue User Guide</span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setSelectedArticle(null)}
-                  className="px-3 py-1.5 rounded-lg border border-zinc-800 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg border border-[var(--border-control)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer"
                 >
                   Close
                 </button>

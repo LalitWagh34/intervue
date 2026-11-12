@@ -14,7 +14,7 @@ import {
   Sparkles,
   ShieldCheck,
   Building2,
-  Mic,
+  MessageSquare,
   Swords,
   TrendingUp,
   ArrowLeft,
@@ -198,20 +198,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full min-w-0 bg-[#060709] text-white flex flex-col justify-between overflow-x-clip overflow-y-auto lg:overflow-hidden px-4 sm:px-8 py-3 lg:py-4 relative selection:bg-blue-500/20 selection:text-blue-400">
-      {/* Background Ambient Glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-gradient-to-b from-blue-600/10 via-indigo-600/5 to-transparent blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-10 w-[450px] h-[300px] bg-blue-500/5 blur-3xl pointer-events-none -z-10" />
-      <div className="absolute top-1/3 -left-20 w-[400px] h-[300px] bg-purple-600/5 blur-3xl pointer-events-none -z-10" />
-
+    <div className="min-h-[100dvh] w-full min-w-0 bg-[var(--canvas)] text-[var(--text-primary)] flex flex-col justify-between overflow-x-clip overflow-y-auto lg:overflow-hidden px-4 sm:px-8 py-3 lg:py-4 relative selection:bg-[var(--surface-selected)] selection:text-[var(--accent-text)]">
       {/* Top Header */}
       <header className="w-full max-w-6xl mx-auto flex items-center justify-between shrink-0 py-1 z-10">
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 group-hover:border-[#327CF6]/70 group-hover:scale-105 transition-all duration-200">
+          <div className="w-8 h-8 rounded-xl bg-[var(--surface)] border border-[var(--border-control)] flex items-center justify-center shadow-sm group-hover:border-[var(--action-primary)]/60 group-hover:scale-105 transition-all duration-200">
             <BrandIcon className="w-5 h-5" />
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-white font-bold text-lg tracking-tight font-sans">
+            <span className="text-[var(--text-primary)] font-bold text-lg tracking-tight font-sans">
               Intervue
             </span>
           </div>
@@ -219,7 +214,7 @@ export default function LoginPage() {
 
         <Link
           to="/"
-          className="text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 transition-colors py-1 px-3 rounded-lg hover:bg-zinc-900 border border-transparent hover:border-zinc-800"
+          className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1.5 transition-colors py-1 px-3 rounded-lg hover:bg-[var(--surface)] border border-transparent hover:border-[var(--border-subtle)]"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Home</span>
@@ -232,68 +227,68 @@ export default function LoginPage() {
           {/* Left Column: Platform Showcase (Visible on desktop) */}
           <div className="hidden lg:flex lg:col-span-7 flex-col space-y-4 pr-2">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--accent-soft)] border border-[var(--action-primary)]/25 text-[var(--accent-text)] text-xs font-medium">
+                <Sparkles className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                 <span>Next-Gen Engineering Interview Suite</span>
               </div>
-              <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight leading-[1.2] text-white">
+              <h1 className="text-3xl xl:text-4xl font-extrabold tracking-tight leading-[1.2] text-[var(--text-primary)]">
                 Crack top-tier tech interviews with{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-400">
+                <span className="text-[var(--accent-text)]">
                   real confidence
                 </span>
                 .
               </h1>
-              <p className="text-zinc-400 text-xs leading-relaxed max-w-lg">
-                Curated daily POTD matching Google & Amazon, real-time AI voice mock interviews, and live
+              <p className="text-[var(--text-secondary)] text-xs leading-relaxed max-w-lg">
+                Curated daily POTD matching Google & Amazon, interactive AI technical mock interviews, and live
                 peer arena battles — tailored for your dream offer.
               </p>
             </div>
 
             {/* 4 Feature Highlights in Compact 2x2 Grid */}
             <div className="grid grid-cols-2 gap-2.5 pt-1">
-              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/70 backdrop-blur-sm hover:border-zinc-700/70 transition-all">
-                <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <Building2 className="w-3.5 h-3.5 text-blue-400" />
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] transition-all">
+                <div className="w-7 h-7 rounded-lg bg-[var(--accent-soft)] border border-[var(--action-primary)]/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Building2 className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                 </div>
                 <div>
-                  <h2 className="text-xs font-semibold text-zinc-200">Target Company Kits</h2>
-                  <p className="text-[11px] text-zinc-400 mt-0.5 leading-normal">
+                  <h2 className="text-xs font-semibold text-[var(--text-primary)]">Target Company Kits</h2>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5 leading-normal">
                     Daily problems matching Google, Amazon & Meta.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/70 backdrop-blur-sm hover:border-zinc-700/70 transition-all">
-                <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <Mic className="w-3.5 h-3.5 text-indigo-400" />
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] transition-all">
+                <div className="w-7 h-7 rounded-lg bg-[var(--accent-soft)] border border-[var(--action-primary)]/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <MessageSquare className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                 </div>
                 <div>
-                  <h2 className="text-xs font-semibold text-zinc-200">AI Voice Mock Sessions</h2>
-                  <p className="text-[11px] text-zinc-400 mt-0.5 leading-normal">
+                  <h2 className="text-xs font-semibold text-[var(--text-primary)]">AI Mock Sessions</h2>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5 leading-normal">
                     Technical rounds with instant rubric evaluation.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/70 backdrop-blur-sm hover:border-zinc-700/70 transition-all">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <Swords className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] transition-all">
+                <div className="w-7 h-7 rounded-lg bg-[var(--status-success-soft)] border border-[var(--status-success)]/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Swords className="w-3.5 h-3.5 text-[var(--status-success)]" />
                 </div>
                 <div>
-                  <h2 className="text-xs font-semibold text-zinc-200">1v1 Battle Arena</h2>
-                  <p className="text-[11px] text-zinc-400 mt-0.5 leading-normal">
+                  <h2 className="text-xs font-semibold text-[var(--text-primary)]">1v1 Battle Arena</h2>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5 leading-normal">
                     Live head-to-head coding battles with peers.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/70 backdrop-blur-sm hover:border-zinc-700/70 transition-all">
-                <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                  <TrendingUp className="w-3.5 h-3.5 text-cyan-400" />
+              <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] transition-all">
+                <div className="w-7 h-7 rounded-lg bg-[var(--accent-soft)] border border-[var(--action-primary)]/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <TrendingUp className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                 </div>
                 <div>
-                  <h2 className="text-xs font-semibold text-zinc-200">Readiness Radar</h2>
-                  <p className="text-[11px] text-zinc-400 mt-0.5 leading-normal">
+                  <h2 className="text-xs font-semibold text-[var(--text-primary)]">Readiness Radar</h2>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5 leading-normal">
                     Mastery percentiles and interview preparedness.
                   </p>
                 </div>
@@ -301,50 +296,28 @@ export default function LoginPage() {
             </div>
 
             {/* Social Trust Proof */}
-            <div className="flex items-center gap-2.5 pt-1 text-xs text-zinc-400">
-              <div className="flex -space-x-1.5">
-                <div className="w-6 h-6 rounded-full bg-blue-600 border-2 border-[#060709] flex items-center justify-center text-[9px] font-bold text-white">
-                  G
-                </div>
-                <div className="w-6 h-6 rounded-full bg-amber-600 border-2 border-[#060709] flex items-center justify-center text-[9px] font-bold text-white">
-                  A
-                </div>
-                <div className="w-6 h-6 rounded-full bg-emerald-600 border-2 border-[#060709] flex items-center justify-center text-[9px] font-bold text-white">
-                  M
-                </div>
-                <div className="w-6 h-6 rounded-full bg-purple-600 border-2 border-[#060709] flex items-center justify-center text-[9px] font-bold text-white">
-                  U
-                </div>
-              </div>
-              <span className="text-[11px]">
-                Joined by <strong className="text-white font-medium">10,000+ candidates</strong> prepping
-                globally
-              </span>
-            </div>
+         
           </div>
 
           {/* Right Column: Sleek Auth Card (Optimized Height) */}
           <div className="lg:col-span-5 w-full max-w-[400px] mx-auto">
-            <div className="relative rounded-2xl bg-[#0c0d12]/95 border border-zinc-800/80 shadow-2xl shadow-black/80 backdrop-blur-2xl p-5 sm:p-6 overflow-hidden">
-              {/* Subtle Card Glow */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10" />
-
+            <div className="relative rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-xl p-5 sm:p-6 overflow-hidden">
               {/* Card Title & Subtitle */}
               <div className="space-y-1 mb-3.5 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2.5 mb-2 lg:hidden">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-control)] flex items-center justify-center shadow-sm shrink-0">
                     <BrandIcon className="w-5 h-5" />
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-white font-bold text-base tracking-tight font-sans">
+                    <span className="text-[var(--text-primary)] font-bold text-base tracking-tight font-sans">
                       Intervue
                     </span>
                   </div>
                 </div>
-                <h2 className="text-xl font-bold tracking-tight text-white">
+                <h2 className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
                   {authMode === "signin" ? "Welcome back" : "Create an account"}
                 </h2>
-                <p className="text-[11px] text-zinc-400">
+                <p className="text-[11px] text-[var(--text-secondary)]">
                   {authMode === "signin"
                     ? "Enter your credentials to continue your practice"
                     : "Enter your email and choose a password to get started"}
@@ -353,31 +326,31 @@ export default function LoginPage() {
 
               {/* Referral Banner if present */}
               {refParam && (
-                <div className="mb-3 p-2 rounded-xl bg-blue-950/40 border border-blue-800/50 flex items-center gap-2 text-xs text-blue-300">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <div className="mb-3 p-2 rounded-xl bg-[var(--accent-soft)] border border-[var(--action-primary)]/30 flex items-center gap-2 text-xs text-[var(--accent-text)]">
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--accent-text)] shrink-0" />
                   <span className="truncate">
-                    Referral code <strong className="font-mono text-white">{refParam}</strong> applied!
+                    Referral code <strong className="font-mono text-[var(--text-primary)]">{refParam}</strong> applied!
                   </span>
                 </div>
               )}
 
               {/* OAuth state mismatch error warning */}
               {errorParam === "state_mismatch" && (
-                <div className="mb-3 p-2 rounded-xl bg-amber-950/30 border border-amber-800/40 text-xs text-amber-300 flex items-start gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <div className="mb-3 p-2 rounded-xl bg-[var(--status-warning)]/10 border border-[var(--status-warning)]/30 text-xs text-[var(--status-warning)] flex items-start gap-2">
+                  <AlertCircle className="w-3.5 h-3.5 text-[var(--status-warning)] shrink-0 mt-0.5" />
                   <span>Session expired. Please click below to try again.</span>
                 </div>
               )}
 
               {/* Segmented Mode Switcher */}
-              <div className="grid grid-cols-2 gap-1 p-1 bg-zinc-900/90 rounded-xl border border-zinc-800 mb-3.5">
+              <div className="grid grid-cols-2 gap-1 p-1 bg-[var(--surface-muted)] rounded-xl border border-[var(--border-subtle)] mb-3.5">
                 <button
                   type="button"
                   onClick={() => switchAuthMode("signin")}
                   className={`min-h-11 sm:min-h-0 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     authMode === "signin"
-                      ? "bg-zinc-800 text-white shadow-sm border border-zinc-700/60"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      ? "bg-[var(--surface)] text-[var(--text-primary)] shadow-sm border border-[var(--border-control)]"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   }`}
                 >
                   Sign In
@@ -387,8 +360,8 @@ export default function LoginPage() {
                   onClick={() => switchAuthMode("signup")}
                   className={`min-h-11 sm:min-h-0 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     authMode === "signup"
-                      ? "bg-zinc-800 text-white shadow-sm border border-zinc-700/60"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      ? "bg-[var(--surface)] text-[var(--text-primary)] shadow-sm border border-[var(--border-control)]"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   }`}
                 >
                   Create Account
@@ -398,7 +371,7 @@ export default function LoginPage() {
               {/* Email & Password Form */}
               <form onSubmit={handleSubmit} className="space-y-2.5" noValidate>
                 {formError && (
-                  <div id="auth-form-error" role="alert" className="flex items-start gap-2 rounded-xl border border-red-800/50 bg-red-950/30 p-2.5 text-xs text-red-300">
+                  <div id="auth-form-error" role="alert" className="flex items-start gap-2 rounded-xl border border-[var(--status-danger)]/30 bg-[var(--status-danger)]/10 p-2.5 text-xs text-[var(--status-danger)]">
                     <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     <span>{formError}</span>
                   </div>
@@ -406,11 +379,11 @@ export default function LoginPage() {
                 {/* Full Name in Sign Up Mode */}
                 {authMode === "signup" && (
                   <div className="space-y-1">
-                    <label htmlFor="name" className="block text-[11px] font-medium text-zinc-300">
+                    <label htmlFor="name" className="block text-[11px] font-medium text-[var(--text-secondary)]">
                       Full Name
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)]">
                         <UserIcon className="w-3.5 h-3.5" />
                       </div>
                       <input
@@ -425,20 +398,20 @@ export default function LoginPage() {
                         autoComplete="name"
                         aria-invalid={Boolean(fieldErrors.name)}
                         aria-describedby={fieldErrors.name ? "name-error" : undefined}
-                        className={`w-full h-11 sm:h-9.5 pl-9 pr-3 rounded-xl border bg-zinc-900/90 text-base sm:text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors ${fieldErrors.name ? "border-red-500/70" : "border-zinc-800"}`}
+                        className={`w-full h-11 sm:h-9.5 pl-9 pr-3 rounded-xl border bg-[var(--surface-muted)] text-base sm:text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--action-primary)]/40 transition-colors ${fieldErrors.name ? "border-[var(--status-danger)]" : "border-[var(--border-control)]"}`}
                       />
                     </div>
-                    {fieldErrors.name && <p id="name-error" className="text-xs text-red-400">{fieldErrors.name}</p>}
+                    {fieldErrors.name && <p id="name-error" className="text-xs text-[var(--status-danger)]">{fieldErrors.name}</p>}
                   </div>
                 )}
 
                 {/* Email Address */}
                 <div className="space-y-1">
-                  <label htmlFor="email" className="block text-[11px] font-medium text-zinc-300">
+                  <label htmlFor="email" className="block text-[11px] font-medium text-[var(--text-secondary)]">
                     Email Address
                   </label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)]">
                       <Mail className="w-3.5 h-3.5" />
                     </div>
                     <input
@@ -454,32 +427,29 @@ export default function LoginPage() {
                       inputMode="email"
                       aria-invalid={Boolean(fieldErrors.email)}
                       aria-describedby={fieldErrors.email ? "email-error" : undefined}
-                      className={`w-full h-11 sm:h-9.5 pl-9 pr-3 rounded-xl border bg-zinc-900/90 text-base sm:text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors ${fieldErrors.email ? "border-red-500/70" : "border-zinc-800"}`}
+                      className={`w-full h-11 sm:h-9.5 pl-9 pr-3 rounded-xl border bg-[var(--surface-muted)] text-base sm:text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--action-primary)]/40 transition-colors ${fieldErrors.email ? "border-[var(--status-danger)]" : "border-[var(--border-control)]"}`}
                     />
                   </div>
-                  {fieldErrors.email && <p id="email-error" className="text-xs text-red-400">{fieldErrors.email}</p>}
+                  {fieldErrors.email && <p id="email-error" className="text-xs text-[var(--status-danger)]">{fieldErrors.email}</p>}
                 </div>
 
                 {/* Password Field */}
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="password" className="block text-[11px] font-medium text-zinc-300">
+                    <label htmlFor="password" className="block text-[11px] font-medium text-[var(--text-secondary)]">
                       Password
                     </label>
                     {authMode === "signin" && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          toast.info("Password reset link will be sent to your email upon request.")
-                        }
-                        className="min-h-11 sm:min-h-0 text-xs sm:text-[10px] text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                      <Link
+                        to="/help"
+                        className="min-h-11 sm:min-h-0 inline-flex items-center text-xs sm:text-[10px] text-[var(--accent-text)] hover:underline transition-colors"
                       >
-                        Forgot password?
-                      </button>
+                        Sign-in help
+                      </Link>
                     )}
                   </div>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[var(--text-muted)]">
                       <Lock className="w-3.5 h-3.5" />
                     </div>
                     <input
@@ -494,18 +464,18 @@ export default function LoginPage() {
                       autoComplete={authMode === "signin" ? "current-password" : "new-password"}
                       aria-invalid={Boolean(fieldErrors.password)}
                       aria-describedby={fieldErrors.password ? "password-error" : undefined}
-                      className={`w-full h-11 sm:h-9.5 pl-9 pr-11 rounded-xl border bg-zinc-900/90 text-base sm:text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/50 transition-colors ${fieldErrors.password ? "border-red-500/70" : "border-zinc-800"}`}
+                      className={`w-full h-11 sm:h-9.5 pl-9 pr-11 rounded-xl border bg-[var(--surface-muted)] text-base sm:text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--action-primary)]/40 transition-colors ${fieldErrors.password ? "border-[var(--status-danger)]" : "border-[var(--border-control)]"}`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+                      className="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
                   </div>
-                  {fieldErrors.password && <p id="password-error" className="text-xs text-red-400">{fieldErrors.password}</p>}
+                  {fieldErrors.password && <p id="password-error" className="text-xs text-[var(--status-danger)]">{fieldErrors.password}</p>}
                 </div>
 
                 {/* Primary Button */}
@@ -513,11 +483,11 @@ export default function LoginPage() {
                   type="submit"
                   disabled={isSubmitting}
                   aria-describedby={formError ? "auth-form-error" : undefined}
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white h-11 sm:h-9.5 text-sm sm:text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-blue-500/20 active:scale-[0.99] disabled:opacity-50 mt-1"
+                  className="w-full bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] h-11 sm:h-9.5 text-sm sm:text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-[0.99] disabled:opacity-50 mt-1"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--on-primary)]" />
                       <span>{authMode === "signin" ? "Signing In..." : "Creating Account..."}</span>
                     </>
                   ) : (
@@ -532,22 +502,22 @@ export default function LoginPage() {
               {/* Divider */}
               <div className="relative my-3">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-zinc-800" />
+                  <div className="w-full border-t border-[var(--border-subtle)]" />
                 </div>
-                <div className="relative flex justify-center text-[10px] uppercase tracking-wider text-zinc-500">
-                  <span className="bg-[#0c0d12] px-2.5">or continue with</span>
+                <div className="relative flex justify-center text-[10px] uppercase tracking-wider text-[var(--text-muted)]">
+                  <span className="bg-[var(--surface)] px-2.5">or continue with</span>
                 </div>
               </div>
 
               {/* Google 1-Click Button */}
               <Button
                 type="button"
-                className="w-full bg-white hover:bg-zinc-100 text-zinc-900 h-11 sm:h-9.5 text-sm sm:text-xs font-semibold rounded-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-lg shadow-white/5 active:scale-[0.99]"
+                className="w-full bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-control)] h-11 sm:h-9.5 text-sm sm:text-xs font-semibold rounded-xl flex items-center justify-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
                 onClick={handleGoogleSignIn}
                 disabled={isGoogleLoading}
               >
                 {isGoogleLoading ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-900" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[var(--text-primary)]" />
                 ) : (
                   <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
                     <path
@@ -572,14 +542,14 @@ export default function LoginPage() {
               </Button>
 
               {/* Bottom Toggle */}
-              <div className="mt-3 text-center text-[11px] text-zinc-400">
+              <div className="mt-3 text-center text-[11px] text-[var(--text-secondary)]">
                 {authMode === "signin" ? (
                   <span>
                     Don't have an account?{" "}
                     <button
                       type="button"
                       onClick={() => switchAuthMode("signup")}
-                      className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition-colors"
+                      className="text-[var(--accent-text)] hover:underline font-semibold cursor-pointer transition-colors"
                     >
                       Sign up
                     </button>
@@ -590,7 +560,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => switchAuthMode("signin")}
-                      className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition-colors"
+                      className="text-[var(--accent-text)] hover:underline font-semibold cursor-pointer transition-colors"
                     >
                       Sign in
                     </button>
@@ -599,9 +569,9 @@ export default function LoginPage() {
               </div>
 
               {/* Compact Security Footer */}
-              <div className="mt-3 pt-2.5 border-t border-zinc-800/80 text-center">
-                <div className="flex items-center justify-center gap-1.5 text-[10px] text-zinc-500">
-                  <ShieldCheck className="w-3 h-3 text-zinc-500" />
+              <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)] text-center">
+                <div className="flex items-center justify-center gap-1.5 text-[10px] text-[var(--text-muted)]">
+                  <ShieldCheck className="w-3 h-3 text-[var(--text-muted)]" />
                   <span>256-Bit SSL Encrypted • Secure session tokens</span>
                 </div>
               </div>
@@ -611,18 +581,18 @@ export default function LoginPage() {
       </main>
 
       {/* Footer: Single Compact Line */}
-      <footer className="w-full max-w-6xl mx-auto flex items-center justify-between text-[11px] text-zinc-600 shrink-0 py-1 border-t border-zinc-900/80">
+      <footer className="w-full max-w-6xl mx-auto flex items-center justify-between text-[11px] text-[var(--text-muted)] shrink-0 py-1 border-t border-[var(--border-subtle)]">
         <div>© {new Date().getFullYear()} Intervue Inc. All rights reserved.</div>
         <div className="flex items-center gap-3">
-          <Link to="/" className="hover:text-zinc-400 transition-colors">
+          <Link to="/" className="hover:text-[var(--text-secondary)] transition-colors">
             Terms
           </Link>
           <span>•</span>
-          <Link to="/" className="hover:text-zinc-400 transition-colors">
+          <Link to="/" className="hover:text-[var(--text-secondary)] transition-colors">
             Privacy
           </Link>
           <span>•</span>
-          <Link to="/" className="hover:text-zinc-400 transition-colors">
+          <Link to="/" className="hover:text-[var(--text-secondary)] transition-colors">
             Help
           </Link>
         </div>

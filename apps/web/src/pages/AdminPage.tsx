@@ -103,53 +103,53 @@ const DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
 const LANGUAGES = ["JAVASCRIPT", "PYTHON", "CPP", "JAVA", "TYPESCRIPT"];
 
 const DIFFICULTY_COLORS: Record<string, string> = {
-  EASY: "text-emerald-400 border-emerald-900 bg-emerald-950/20",
-  MEDIUM: "text-amber-400 border-amber-900 bg-amber-950/20",
-  HARD: "text-rose-400 border-rose-900 bg-rose-950/20",
+  EASY: "text-[var(--status-success)] border-[var(--status-success)]/30 bg-[var(--status-success-soft)]",
+  MEDIUM: "text-[var(--status-warning)] border-[var(--status-warning)]/30 bg-[var(--status-warning)]/10",
+  HARD: "text-[var(--status-danger)] border-[var(--status-danger)]/30 bg-[var(--status-danger)]/10",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: "text-zinc-400 border-zinc-700 bg-zinc-800/20",
-  published: "text-emerald-400 border-emerald-900 bg-emerald-950/20",
-  archived: "text-rose-400 border-rose-900 bg-rose-950/20",
+  draft: "text-[var(--text-secondary)] border-[var(--border-control)] bg-[var(--surface-muted)]",
+  published: "text-[var(--status-success)] border-[var(--status-success)]/30 bg-[var(--status-success-soft)]",
+  archived: "text-[var(--status-danger)] border-[var(--status-danger)]/30 bg-[var(--status-danger)]/10",
 };
 
 const RECOMMENDATION_STYLES: Record<string, string> = {
-  STRONG_HIRE: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
-  HIRE: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-  LEAN_HIRE: "bg-blue-500/10 text-blue-300 border-blue-500/30",
-  LEAN_NO_HIRE: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-  NO_HIRE: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+  STRONG_HIRE: "bg-[var(--status-success-soft)] text-[var(--status-success)] border-[var(--status-success)]/30",
+  HIRE: "bg-[var(--status-success-soft)] text-[var(--status-success)] border-[var(--status-success)]/30",
+  LEAN_HIRE: "bg-[var(--accent-soft)] text-[var(--accent-text)] border-[var(--action-primary)]/30",
+  LEAN_NO_HIRE: "bg-[var(--status-warning)]/10 text-[var(--status-warning)] border-[var(--status-warning)]/30",
+  NO_HIRE: "bg-[var(--status-danger)]/10 text-[var(--status-danger)] border-[var(--status-danger)]/30",
 };
 
 const VERDICT_STYLES: Record<string, { label: string; badge: string }> = {
   ACCEPTED: {
     label: "Accepted",
-    badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+    badge: "bg-[var(--status-success-soft)] text-[var(--status-success)] border-[var(--status-success)]/30",
   },
   WRONG_ANSWER: {
     label: "Wrong Answer",
-    badge: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+    badge: "bg-[var(--status-danger)]/10 text-[var(--status-danger)] border-[var(--status-danger)]/30",
   },
   TIME_LIMIT_EXCEEDED: {
     label: "TLE",
-    badge: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    badge: "bg-[var(--status-warning)]/10 text-[var(--status-warning)] border-[var(--status-warning)]/30",
   },
   MEMORY_LIMIT_EXCEEDED: {
     label: "MLE",
-    badge: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    badge: "bg-[var(--status-warning)]/10 text-[var(--status-warning)] border-[var(--status-warning)]/30",
   },
   RUNTIME_ERROR: {
     label: "Runtime Error",
-    badge: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+    badge: "bg-[var(--status-danger)]/10 text-[var(--status-danger)] border-[var(--status-danger)]/30",
   },
   COMPILATION_ERROR: {
     label: "Compile Error",
-    badge: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+    badge: "bg-[var(--status-danger)]/10 text-[var(--status-danger)] border-[var(--status-danger)]/30",
   },
   PENDING: {
     label: "Pending",
-    badge: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+    badge: "bg-[var(--accent-soft)] text-[var(--accent-text)] border-[var(--action-primary)]/30",
   },
 };
 
@@ -488,20 +488,20 @@ export default function AdminPage() {
 
   if (!isSessionPending && !isProfileStatsLoading && !isAdmin) {
     return (
-      <div className="min-h-[calc(100vh-4.5rem)] flex items-center justify-center bg-[#08090C] text-zinc-100 p-6 font-sans">
-        <div className="max-w-md w-full p-6 rounded-2xl bg-[#0D0F14] border border-zinc-800 text-center space-y-4 shadow-2xl">
-          <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 mx-auto flex items-center justify-center">
+      <div className="min-h-full flex items-center justify-center bg-[var(--bg-canvas)] text-[var(--text-primary)] p-6 font-sans">
+        <div className="max-w-md w-full p-6 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] text-center space-y-4 shadow-xl">
+          <div className="w-12 h-12 rounded-xl bg-[var(--status-danger)]/10 border border-[var(--status-danger)]/20 text-[var(--status-danger)] mx-auto flex items-center justify-center">
             <ShieldAlert className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white tracking-tight">Access Denied</h2>
-            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+            <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">Access Denied</h2>
+            <p className="text-xs text-[var(--text-secondary)] mt-1 leading-relaxed">
               This area is restricted to administrators only. Your current candidate account does not have management CMS permissions.
             </p>
           </div>
           <Button
             onClick={() => navigate("/dashboard")}
-            className="w-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs h-9"
+            className="w-full bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-control)] text-xs h-9"
           >
             Return to Dashboard
           </Button>
@@ -513,32 +513,32 @@ export default function AdminPage() {
   const currentPanelMeta = PANELS.find((p) => p.id === activeTab) || PANELS[0];
 
   return (
-    <div className="min-h-[calc(100vh-4.5rem)] bg-[#08090C] text-zinc-100 flex flex-col font-sans">
+    <div className="min-h-full bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col font-sans">
       {/* ─── Top Admin Bar ───────────────────────────────────────────── */}
-      <header className="border-b border-zinc-800/80 bg-[#0A0C11] px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+      <header className="border-b border-[var(--border-subtle)] bg-[var(--surface)] px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-300">
-            <Shield className="w-4 h-4 text-blue-400" />
+          <div className="w-8 h-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent-text)]">
+            <Shield className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-zinc-400">Admin CMS</span>
-              <span className="text-zinc-600">/</span>
-              <h1 className="text-sm font-bold text-white tracking-tight">
+              <span className="text-xs font-semibold text-[var(--text-secondary)]">Admin CMS</span>
+              <span className="text-[var(--text-muted)]">/</span>
+              <h1 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">
                 {currentPanelMeta.label}
               </h1>
-              <Badge variant="outline" className="border-zinc-800 bg-zinc-900/60 text-zinc-400 text-[10px] font-mono ml-1">
+              <Badge variant="outline" className="border-[var(--border-control)] bg-[var(--surface-muted)] text-[var(--text-secondary)] text-[10px] font-mono ml-1">
                 Internal
               </Badge>
             </div>
-            <p className="text-[11px] text-zinc-400">
+            <p className="text-[11px] text-[var(--text-secondary)]">
               {currentPanelMeta.description}
             </p>
           </div>
         </div>
 
         {/* Mobile Horizontal Module Switcher */}
-        <div className="flex md:hidden items-center gap-1 p-1 rounded-xl bg-black/40 border border-zinc-800 overflow-x-auto custom-scrollbar">
+        <div className="flex md:hidden items-center gap-1 p-1 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] overflow-x-auto custom-scrollbar">
           {PANELS.map((p) => {
             const Icon = p.icon;
             const isSelected = activeTab === p.id;
@@ -547,10 +547,10 @@ export default function AdminPage() {
                 key={p.id}
                 type="button"
                 onClick={() => switchTab(p.id)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 cursor-pointer ${
                   isSelected
-                    ? "bg-zinc-800 text-white font-semibold shadow-sm"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                    ? "bg-[var(--surface)] text-[var(--text-primary)] font-semibold shadow-sm"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -562,62 +562,62 @@ export default function AdminPage() {
       </header>
 
       {/* ─── Platform Global Quick Access Bar ────────────────────────── */}
-      <div className="bg-[#090B10] border-b border-zinc-800/80 px-5 py-2 flex items-center justify-between gap-4 overflow-x-auto text-[11px] font-medium custom-scrollbar shrink-0 select-none">
-        <div className="flex items-center gap-2 text-zinc-400 shrink-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-mono text-[10px] uppercase tracking-wider font-bold text-zinc-400">
+      <div className="bg-[var(--surface-muted)]/60 border-b border-[var(--border-subtle)] px-5 py-2 flex items-center justify-between gap-4 overflow-x-auto text-[11px] font-medium custom-scrollbar shrink-0 select-none">
+        <div className="flex items-center gap-2 text-[var(--text-secondary)] shrink-0">
+          <span className="w-2 h-2 rounded-full bg-[var(--status-success)] animate-pulse" />
+          <span className="font-mono text-[10px] uppercase tracking-wider font-bold text-[var(--text-secondary)]">
             Platform Hubs:
           </span>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <Link
             to="/practice"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <span>Practice Hub</span>
-            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+            <ArrowUpRight className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
           <Link
             to="/dashboard"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <span>Dashboard</span>
-            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+            <ArrowUpRight className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
           <Link
             to="/interview"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <span>AI Interview</span>
-            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+            <ArrowUpRight className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
           <Link
             to="/rooms"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <span>Battle Arena</span>
-            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+            <ArrowUpRight className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
           <Link
             to="/notes"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <span>Notes Hub</span>
-            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+            <ArrowUpRight className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
           <Link
             to="/bookmarks"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <span>Bookmarks</span>
-            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+            <ArrowUpRight className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
           <Link
             to="/profile"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
           >
             <span>Candidate Profile</span>
-            <ArrowUpRight className="w-3 h-3 text-zinc-500" />
+            <ArrowUpRight className="w-3 h-3 text-[var(--text-muted)]" />
           </Link>
         </div>
       </div>
@@ -625,9 +625,9 @@ export default function AdminPage() {
       {/* ─── Multi-Panel Body (Sub-panel rail + Active workspace) ────── */}
       <div className="flex-1 flex min-h-0">
         {/* Left Sub-Panel Navigation Rail (Desktop) */}
-        <aside className="w-64 shrink-0 border-r border-zinc-800/80 bg-[#0A0C11] p-3 hidden md:flex flex-col justify-between select-none">
+        <aside className="w-64 shrink-0 border-r border-[var(--border-subtle)] bg-[var(--surface)] p-3 hidden md:flex flex-col justify-between select-none">
           <div className="space-y-1">
-            <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-zinc-500 font-bold">
+            <div className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-[var(--text-muted)] font-bold">
               CMS Panels
             </div>
             {PANELS.map((p) => {
@@ -638,20 +638,20 @@ export default function AdminPage() {
                   key={p.id}
                   type="button"
                   onClick={() => switchTab(p.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all text-left group ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs transition-all text-left group cursor-pointer ${
                     isSelected
-                      ? "bg-zinc-800 text-white font-semibold border border-zinc-700/60 shadow-sm"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850/50 border border-transparent"
+                      ? "bg-[var(--surface-selected)] text-[var(--text-primary)] font-semibold border border-[var(--border-control)] shadow-sm"
+                      : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] border border-transparent"
                   }`}
                 >
                   <Icon
                     className={`w-4 h-4 shrink-0 transition-colors ${
-                      isSelected ? "text-blue-400" : "text-zinc-500 group-hover:text-zinc-300"
+                      isSelected ? "text-[var(--accent-text)]" : "text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]"
                     }`}
                   />
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-medium">{p.label}</div>
-                    <div className="text-[10px] text-zinc-500 truncate font-normal">
+                    <div className="text-[10px] text-[var(--text-muted)] truncate font-normal">
                       {p.description}
                     </div>
                   </div>
@@ -660,10 +660,10 @@ export default function AdminPage() {
             })}
           </div>
 
-          <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 text-[11px] text-zinc-400 font-mono">
-            <div className="text-zinc-300 font-semibold text-xs">Role: Administrator</div>
-            <div className="text-emerald-400 text-[10px] mt-0.5 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="p-3 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-[11px] text-[var(--text-secondary)] font-mono">
+            <div className="text-[var(--text-primary)] font-semibold text-xs">Role: Administrator</div>
+            <div className="text-[var(--status-success)] text-[10px] mt-0.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-success)] animate-pulse" />
               Surveillance Online
             </div>
           </div>
@@ -676,14 +676,14 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">System Overview</h2>
-                <p className="text-xs text-zinc-400">Live platform totals and infrastructure metrics</p>
+                <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">System Overview</h2>
+                <p className="text-xs text-[var(--text-secondary)]">Live platform totals and infrastructure metrics</p>
               </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => refetchStats()}
-                className="h-8 border-zinc-800 bg-[#12151D] text-zinc-300 text-xs flex items-center gap-1.5"
+                className="h-8 border-[var(--border-control)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] text-xs flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3 h-3" /> Refresh
               </Button>
@@ -692,78 +692,78 @@ export default function AdminPage() {
             {isStatsLoading ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-24 bg-zinc-900/60 rounded-xl border border-zinc-800/60" />
+                  <div key={i} className="h-24 bg-[var(--surface-muted)] rounded-xl border border-[var(--border-subtle)]" />
                 ))}
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3">
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                <Card className="bg-[var(--surface)] border-[var(--border-subtle)]">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Total Users</span>
-                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                    <span className="text-[11px] font-mono text-[var(--text-secondary)] block uppercase">Total Users</span>
+                    <span className="text-2xl font-bold font-mono text-[var(--text-primary)] mt-1 block">
                       {statsData?.totalUsers ?? 0}
                     </span>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                <Card className="bg-[var(--surface)] border-[var(--border-subtle)]">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Coding Problems</span>
-                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                    <span className="text-[11px] font-mono text-[var(--text-secondary)] block uppercase">Coding Problems</span>
+                    <span className="text-2xl font-bold font-mono text-[var(--text-primary)] mt-1 block">
                       {statsData?.totalProblems ?? 0}
                     </span>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                <Card className="bg-[var(--surface)] border-[var(--border-subtle)]">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Assessment MCQs</span>
-                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                    <span className="text-[11px] font-mono text-[var(--text-secondary)] block uppercase">Assessment MCQs</span>
+                    <span className="text-2xl font-bold font-mono text-[var(--text-primary)] mt-1 block">
                       {statsData?.totalMcqs ?? 0}
                     </span>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                <Card className="bg-[var(--surface)] border-[var(--border-subtle)]">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">AI Mock Interviews</span>
-                    <span className="text-2xl font-bold font-mono text-blue-400 mt-1 block">
+                    <span className="text-[11px] font-mono text-[var(--text-secondary)] block uppercase">AI Mock Interviews</span>
+                    <span className="text-2xl font-bold font-mono text-[var(--accent-text)] mt-1 block">
                       {statsData?.totalInterviews ?? 0}
                     </span>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                <Card className="bg-[var(--surface)] border-[var(--border-subtle)]">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Code Submissions</span>
-                    <span className="text-2xl font-bold font-mono text-white mt-1 block">
+                    <span className="text-[11px] font-mono text-[var(--text-secondary)] block uppercase">Code Submissions</span>
+                    <span className="text-2xl font-bold font-mono text-[var(--text-primary)] mt-1 block">
                       {statsData?.totalSubmissions ?? 0}
                     </span>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                <Card className="bg-[var(--surface)] border-[var(--border-subtle)]">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Contest Rooms</span>
-                    <span className="text-2xl font-bold font-mono text-emerald-400 mt-1 block">
-                      {statsData?.activeRooms ?? 0} <span className="text-xs text-zinc-500 font-normal">/ {statsData?.totalRooms ?? 0}</span>
+                    <span className="text-[11px] font-mono text-[var(--text-secondary)] block uppercase">Contest Rooms</span>
+                    <span className="text-2xl font-bold font-mono text-[var(--status-success)] mt-1 block">
+                      {statsData?.activeRooms ?? 0} <span className="text-xs text-[var(--text-muted)] font-normal">/ {statsData?.totalRooms ?? 0}</span>
                     </span>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                <Card className="bg-[var(--surface)] border-[var(--border-subtle)]">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Candidate Notes</span>
-                    <span className="text-2xl font-bold font-mono text-amber-400 mt-1 block">
+                    <span className="text-[11px] font-mono text-[var(--text-secondary)] block uppercase">Candidate Notes</span>
+                    <span className="text-2xl font-bold font-mono text-[var(--status-warning)] mt-1 block">
                       {statsData?.totalNotes ?? 0}
                     </span>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#0D0F14] border-zinc-800/80">
+                <Card className="bg-[var(--surface)] border-[var(--border-subtle)]">
                   <CardContent className="p-4">
-                    <span className="text-[11px] font-mono text-zinc-400 block uppercase">Revision Bookmarks</span>
-                    <span className="text-2xl font-bold font-mono text-purple-400 mt-1 block">
+                    <span className="text-[11px] font-mono text-[var(--text-secondary)] block uppercase">Revision Bookmarks</span>
+                    <span className="text-2xl font-bold font-mono text-[var(--accent-text)] mt-1 block">
                       {statsData?.totalBookmarks ?? 0}
                     </span>
                   </CardContent>
@@ -773,43 +773,43 @@ export default function AdminPage() {
 
             {/* Service Infrastructure Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Database className="w-5 h-5 text-blue-400" />
+                  <Database className="w-5 h-5 text-[var(--accent-text)]" />
                   <div>
-                    <h4 className="text-xs font-semibold text-white">Database Cluster</h4>
-                    <p className="text-[11px] text-zinc-400">PostgreSQL Prisma Client</p>
+                    <h4 className="text-xs font-semibold text-[var(--text-primary)]">Database Cluster</h4>
+                    <p className="text-[11px] text-[var(--text-secondary)]">PostgreSQL Prisma Client</p>
                   </div>
                 </div>
-                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
+                <Badge className="bg-[var(--status-success-soft)] text-[var(--status-success)] border-[var(--status-success)]/30 text-[10px]">
                   Online
                 </Badge>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Server className="w-5 h-5 text-purple-400" />
+                  <Server className="w-5 h-5 text-[var(--accent-text)]" />
                   <div>
-                    <h4 className="text-xs font-semibold text-white">Bun Runtime Uptime</h4>
-                    <p className="text-[11px] text-zinc-400 font-mono">
+                    <h4 className="text-xs font-semibold text-[var(--text-primary)]">Bun Runtime Uptime</h4>
+                    <p className="text-[11px] text-[var(--text-secondary)] font-mono">
                       {statsData?.uptimeSeconds ? `${Math.floor(statsData.uptimeSeconds / 60)} minutes` : "--"}
                     </p>
                   </div>
                 </div>
-                <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-[10px]">
+                <Badge className="bg-[var(--accent-soft)] text-[var(--accent-text)] border-[var(--action-primary)]/30 text-[10px]">
                   Healthy
                 </Badge>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <BarChart3 className="w-5 h-5 text-amber-400" />
+                  <BarChart3 className="w-5 h-5 text-[var(--status-warning)]" />
                   <div>
-                    <h4 className="text-xs font-semibold text-white">Server Memory (RSS)</h4>
-                    <p className="text-[11px] text-zinc-400 font-mono">{statsData?.memoryRssMb ?? 0} MB</p>
+                    <h4 className="text-xs font-semibold text-[var(--text-primary)]">Server Memory (RSS)</h4>
+                    <p className="text-[11px] text-[var(--text-secondary)] font-mono">{statsData?.memoryRssMb ?? 0} MB</p>
                   </div>
                 </div>
-                <Badge className="bg-zinc-800 text-zinc-300 border-zinc-700 text-[10px]">
+                <Badge className="bg-[var(--surface-muted)] text-[var(--text-secondary)] border-[var(--border-control)] text-[10px]">
                   Optimal
                 </Badge>
               </div>
@@ -822,28 +822,28 @@ export default function AdminPage() {
           <div className="space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">Candidate User Management</h2>
-                <p className="text-xs text-zinc-400">Inspect registered users, streaks, points, and administrative roles</p>
+                <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">Candidate User Management</h2>
+                <p className="text-xs text-[var(--text-secondary)]">Inspect registered users, streaks, points, and administrative roles</p>
               </div>
 
               <div className="relative w-full sm:w-72">
-                <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
+                <Search className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-3 top-2.5" />
                 <input
                   type="text"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="Search user name or email..."
-                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#111319] border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-700"
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--action-primary)]"
                 />
               </div>
             </div>
 
             {isUsersLoading ? (
-              <p className="text-xs text-zinc-500 py-8 text-center">Loading users...</p>
+              <p className="text-xs text-[var(--text-muted)] py-8 text-center">Loading users...</p>
             ) : (
-              <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-[#0C0E14]">
+              <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--surface)]">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#10131B] border-b border-zinc-800 text-zinc-400 font-mono text-[11px]">
+                  <thead className="bg-[var(--surface-muted)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] font-mono text-[11px]">
                     <tr>
                       <th className="p-3">User</th>
                       <th className="p-3">Role</th>
@@ -854,36 +854,36 @@ export default function AdminPage() {
                       <th className="p-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800/60">
+                  <tbody className="divide-y divide-[var(--border-subtle)]">
                     {(usersData || []).map((u: any) => (
-                      <tr key={u.id} className="hover:bg-zinc-800/20 transition-colors">
+                      <tr key={u.id} className="hover:bg-[var(--surface-hover)] transition-colors">
                         <td className="p-3">
-                          <div className="font-semibold text-white">{u.name || "Anonymous"}</div>
-                          <div className="text-[11px] text-zinc-400 font-mono">{u.email}</div>
+                          <div className="font-semibold text-[var(--text-primary)]">{u.name || "Anonymous"}</div>
+                          <div className="text-[11px] text-[var(--text-secondary)] font-mono">{u.email}</div>
                         </td>
                         <td className="p-3">
                           <Badge
                             className={
                               u.role === "admin"
-                                ? "bg-purple-500/10 text-purple-300 border-purple-500/30 text-[10px]"
-                                : "bg-zinc-800 text-zinc-400 border-zinc-700 text-[10px]"
+                                ? "bg-[var(--accent-soft)] text-[var(--accent-text)] border-[var(--action-primary)]/30 text-[10px]"
+                                : "bg-[var(--surface-muted)] text-[var(--text-secondary)] border-[var(--border-control)] text-[10px]"
                             }
                           >
                             {u.role}
                           </Badge>
                         </td>
-                        <td className="p-3 font-mono font-bold text-amber-300">
+                        <td className="p-3 font-mono font-bold text-[var(--status-warning)]">
                           {u.profile?.points ?? 0}
                         </td>
-                        <td className="p-3 font-mono text-zinc-300">
+                        <td className="p-3 font-mono text-[var(--text-secondary)]">
                           {u.profile?.streakCount ?? 0}d
                         </td>
-                        <td className="p-3 text-[11px] font-mono text-zinc-400">
+                        <td className="p-3 text-[11px] font-mono text-[var(--text-secondary)]">
                           {u.profile?.leetcodeHandle && <div>LC: {u.profile.leetcodeHandle}</div>}
                           {u.profile?.codeforcesHandle && <div>CF: {u.profile.codeforcesHandle}</div>}
                           {!u.profile?.leetcodeHandle && !u.profile?.codeforcesHandle && "--"}
                         </td>
-                        <td className="p-3 text-zinc-500 text-[11px] font-mono">
+                        <td className="p-3 text-[var(--text-muted)] text-[11px] font-mono">
                           {formatDistanceToNow(new Date(u.createdAt), { addSuffix: true })}
                         </td>
                         <td className="p-3 text-right">
@@ -896,7 +896,7 @@ export default function AdminPage() {
                                 setUserPointsInput(u.profile?.points ?? 0);
                                 setUserStreakInput(u.profile?.streakCount ?? 0);
                               }}
-                              className="h-7 text-[11px] border-zinc-800 text-amber-300/90 hover:text-amber-200 hover:bg-amber-500/10"
+                              className="h-7 text-[11px] border-[var(--border-control)] text-[var(--status-warning)] hover:bg-[var(--status-warning)]/10"
                               title="Edit points & streak"
                             >
                               Balance
@@ -910,7 +910,7 @@ export default function AdminPage() {
                                   newRole: u.role === "admin" ? "user" : "admin",
                                 })
                               }
-                              className="h-7 text-[11px] border-zinc-800 text-zinc-300 hover:text-white"
+                              className="h-7 text-[11px] border-[var(--border-control)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                             >
                               {u.role === "admin" ? "Demote" : "Make Admin"}
                             </Button>
@@ -923,7 +923,7 @@ export default function AdminPage() {
                                     deleteUserMutation.mutate(u.id);
                                   }
                                 }}
-                                className="h-7 text-[11px] border-zinc-800 text-rose-400 hover:bg-rose-950/20"
+                                className="h-7 text-[11px] border-[var(--border-control)] text-[var(--status-danger)] hover:bg-[var(--status-danger)]/10"
                                 title="Delete candidate account"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -940,16 +940,16 @@ export default function AdminPage() {
 
             {/* Modal: Adjust User Balance */}
             {editingUser && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                <div className="w-full max-w-md bg-[#0F1117] border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
-                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <div className="w-full max-w-md bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
                     <div>
-                      <h3 className="text-sm font-bold text-white">Adjust Candidate Balance</h3>
-                      <p className="text-[11px] text-zinc-400 font-mono">{editingUser.email}</p>
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">Adjust Candidate Balance</h3>
+                      <p className="text-[11px] text-[var(--text-secondary)] font-mono">{editingUser.email}</p>
                     </div>
                     <button
                       onClick={() => setEditingUser(null)}
-                      className="text-zinc-400 hover:text-white transition-colors"
+                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -957,31 +957,31 @@ export default function AdminPage() {
 
                   <div className="space-y-3">
                     <div>
-                      <Label className="text-xs text-zinc-400">Intervue Points (XP)</Label>
+                      <Label className="text-xs text-[var(--text-secondary)]">Intervue Points (XP)</Label>
                       <Input
                         type="number"
                         value={userPointsInput}
                         onChange={(e) => setUserPointsInput(parseInt(e.target.value) || 0)}
-                        className="bg-[#0C0E14] border-zinc-800 text-xs text-white h-8 mt-1"
+                        className="bg-[var(--surface-muted)] border-[var(--border-control)] text-xs text-[var(--text-primary)] h-8 mt-1"
                       />
                     </div>
                     <div>
-                      <Label className="text-xs text-zinc-400">Current Streak (Days)</Label>
+                      <Label className="text-xs text-[var(--text-secondary)]">Current Streak (Days)</Label>
                       <Input
                         type="number"
                         value={userStreakInput}
                         onChange={(e) => setUserStreakInput(parseInt(e.target.value) || 0)}
-                        className="bg-[#0C0E14] border-zinc-800 text-xs text-white h-8 mt-1"
+                        className="bg-[var(--surface-muted)] border-[var(--border-control)] text-xs text-[var(--text-primary)] h-8 mt-1"
                       />
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-3 border-t border-zinc-800">
+                  <div className="flex justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setEditingUser(null)}
-                      className="text-xs border-zinc-800 text-zinc-400"
+                      className="text-xs border-[var(--border-control)] text-[var(--text-secondary)]"
                     >
                       Cancel
                     </Button>
@@ -995,7 +995,7 @@ export default function AdminPage() {
                           streakCount: userStreakInput,
                         })
                       }
-                      className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-4"
+                      className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs px-4"
                     >
                       {saveUserPointsMutation.isPending ? "Saving..." : "Save Balance"}
                     </Button>
@@ -1013,8 +1013,8 @@ export default function AdminPage() {
               <div className="space-y-5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <h2 className="text-lg font-bold text-white tracking-tight">Coding Problem Bank</h2>
-                    <p className="text-xs text-zinc-400">Curate programming challenges and test suites</p>
+                    <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">Coding Problem Bank</h2>
+                    <p className="text-xs text-[var(--text-secondary)]">Curate programming challenges and test suites</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
@@ -1023,7 +1023,7 @@ export default function AdminPage() {
                         resetProblemForm();
                         setProblemView("create");
                       }}
-                      className="bg-blue-600 hover:bg-blue-500 text-white text-xs h-8"
+                      className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs h-8"
                     >
                       <Plus className="w-3.5 h-3.5 mr-1" /> New Problem
                     </Button>
@@ -1031,17 +1031,17 @@ export default function AdminPage() {
                 </div>
 
                 {isProblemsLoading ? (
-                  <p className="text-xs text-zinc-500 py-8 text-center">Loading problem bank...</p>
+                  <p className="text-xs text-[var(--text-muted)] py-8 text-center">Loading problem bank...</p>
                 ) : (
                   <div className="space-y-2.5">
                     {(problems || []).map((p: any) => (
                       <div
                         key={p.id}
-                        className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 flex items-center justify-between gap-3 hover:border-zinc-700 transition-colors"
+                        className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] flex items-center justify-between gap-3 hover:border-[var(--border-control)] transition-colors"
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-semibold text-white truncate">{p.title}</h4>
+                            <h4 className="text-sm font-semibold text-[var(--text-primary)] truncate">{p.title}</h4>
                             <Badge variant="outline" className={DIFFICULTY_COLORS[p.difficulty]}>
                               {p.difficulty}
                             </Badge>
@@ -1049,7 +1049,7 @@ export default function AdminPage() {
                               {p.status}
                             </Badge>
                           </div>
-                          <div className="text-[11px] text-zinc-500 font-mono mt-1 flex items-center gap-2">
+                          <div className="text-[11px] text-[var(--text-muted)] font-mono mt-1 flex items-center gap-2">
                             <span>Slug: {p.slug}</span>
                             <span>•</span>
                             <span>Test cases: {p._count?.testCases || 0}</span>
@@ -1064,7 +1064,7 @@ export default function AdminPage() {
                               size="sm"
                               variant="outline"
                               onClick={() => publishProblemMutation.mutate(p.id)}
-                              className="h-8 text-xs border-emerald-900 text-emerald-400 hover:bg-emerald-950/20"
+                              className="h-8 text-xs border-[var(--status-success)]/40 text-[var(--status-success)] hover:bg-[var(--status-success-soft)]"
                             >
                               <Eye className="w-3.5 h-3.5 mr-1" /> Publish
                             </Button>
@@ -1073,7 +1073,7 @@ export default function AdminPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => deleteProblemMutation.mutate(p.id)}
-                            className="h-8 w-8 p-0 border-zinc-800 text-zinc-400 hover:text-rose-400 hover:border-rose-900"
+                            className="h-8 w-8 p-0 border-[var(--border-control)] text-[var(--text-secondary)] hover:text-[var(--status-danger)] hover:border-[var(--status-danger)]/40"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -1086,25 +1086,25 @@ export default function AdminPage() {
             ) : (
               /* Create Problem Form */
               <div className="space-y-6">
-                <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
                   <div className="flex items-center gap-3">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => setProblemView("list")}
-                      className="h-8 text-xs border-zinc-800"
+                      className="h-8 text-xs border-[var(--border-control)] text-[var(--text-primary)]"
                     >
                       ← Back to Problems
                     </Button>
-                    <h2 className="text-base font-bold text-white">Create New Problem</h2>
+                    <h2 className="text-base font-bold text-[var(--text-primary)]">Create New Problem</h2>
                   </div>
                 </div>
 
                 {/* AI Problem Generator Card */}
-                <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950/20 to-purple-950/20 border border-blue-500/20 space-y-3">
+                <div className="p-4 rounded-xl bg-[var(--accent-soft)] border border-[var(--action-primary)]/25 space-y-3">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-blue-400" />
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                    <Sparkles className="w-4 h-4 text-[var(--accent-text)]" />
+                    <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">
                       AI Auto-Generate Problem (Groq Llama-3.3)
                     </span>
                   </div>
@@ -1114,7 +1114,7 @@ export default function AdminPage() {
                         value={generateTopic}
                         onChange={(e) => setGenerateTopic(e.target.value)}
                         placeholder="e.g. Find Kth Smallest Element in a Matrix"
-                        className="bg-black/40 border-zinc-800 text-xs text-white"
+                        className="bg-[var(--surface)] border-[var(--border-control)] text-xs text-[var(--text-primary)]"
                       />
                     </div>
                     <div>
@@ -1122,7 +1122,7 @@ export default function AdminPage() {
                         size="sm"
                         disabled={generatingProblem || !generateTopic.trim()}
                         onClick={generateWithAI}
-                        className="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs h-9"
+                        className="w-full bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs h-9"
                       >
                         {generatingProblem ? "Generating..." : "Generate Draft"}
                       </Button>
@@ -1133,21 +1133,21 @@ export default function AdminPage() {
                 {/* Problem Inputs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs text-zinc-300">Problem Title</Label>
+                    <Label className="text-xs text-[var(--text-secondary)]">Problem Title</Label>
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="Two Sum"
-                      className="bg-[#111319] border-zinc-800 text-xs text-white mt-1"
+                      className="bg-[var(--surface)] border-[var(--border-control)] text-xs text-[var(--text-primary)] mt-1"
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs text-zinc-300">Difficulty</Label>
+                    <Label className="text-xs text-[var(--text-secondary)]">Difficulty</Label>
                     <select
                       value={difficulty}
                       onChange={(e) => setDifficulty(e.target.value)}
-                      className="w-full h-9 rounded-lg bg-[#111319] border border-zinc-800 text-xs text-white px-3 mt-1 outline-none"
+                      className="w-full h-9 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] px-3 mt-1 outline-none"
                     >
                       <option value="EASY">EASY</option>
                       <option value="MEDIUM">MEDIUM</option>
@@ -1157,50 +1157,50 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <Label className="text-xs text-zinc-300">Description</Label>
+                  <Label className="text-xs text-[var(--text-secondary)]">Description</Label>
                   <textarea
                     rows={5}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Problem description and statement..."
-                    className="w-full rounded-lg bg-[#111319] border border-zinc-800 text-xs text-white p-3 mt-1 outline-none font-sans"
+                    className="w-full rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] p-3 mt-1 outline-none font-sans"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs text-zinc-300">Constraints</Label>
+                    <Label className="text-xs text-[var(--text-secondary)]">Constraints</Label>
                     <textarea
                       rows={3}
                       value={constraints}
                       onChange={(e) => setConstraints(e.target.value)}
                       placeholder="1 <= nums.length <= 10^5"
-                      className="w-full rounded-lg bg-[#111319] border border-zinc-800 text-xs text-white p-3 mt-1 outline-none font-mono"
+                      className="w-full rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] p-3 mt-1 outline-none font-mono"
                     />
                   </div>
                   <div>
-                    <Label className="text-xs text-zinc-300">Company Tags (comma separated)</Label>
+                    <Label className="text-xs text-[var(--text-secondary)]">Company Tags (comma separated)</Label>
                     <Input
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       placeholder="Google, Amazon, Meta"
-                      className="bg-[#111319] border-zinc-800 text-xs text-white mt-1"
+                      className="bg-[var(--surface)] border-[var(--border-control)] text-xs text-[var(--text-primary)] mt-1"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t border-zinc-800">
+                <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border-subtle)]">
                   <Button
                     variant="outline"
                     onClick={() => setProblemView("list")}
-                    className="border-zinc-800 text-xs"
+                    className="border-[var(--border-control)] text-[var(--text-secondary)] text-xs"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={() => createProblemMutation.mutate()}
                     disabled={!title.trim() || !description.trim()}
-                    className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-6"
+                    className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs px-6"
                   >
                     Save Problem
                   </Button>
@@ -1215,15 +1215,15 @@ export default function AdminPage() {
           <div className="space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">Assessment MCQ Bank</h2>
-                <p className="text-xs text-zinc-400">Questions used in Competitive Arena and Aptitude Rounds</p>
+                <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">Assessment MCQ Bank</h2>
+                <p className="text-xs text-[var(--text-secondary)]">Questions used in Competitive Arena and Aptitude Rounds</p>
               </div>
 
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
                   onClick={() => setIsNewMcqModalOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs h-8"
+                  className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs h-8"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" /> Add New MCQ
                 </Button>
@@ -1235,7 +1235,7 @@ export default function AdminPage() {
               <select
                 value={mcqCategoryFilter}
                 onChange={(e) => setMcqCategoryFilter(e.target.value)}
-                className="h-8 px-2.5 rounded-lg bg-[#12151E] border border-zinc-800 text-xs text-zinc-300 outline-none"
+                className="h-8 px-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] outline-none"
               >
                 <option value="ALL">All Categories</option>
                 <option value="CORE_CS">CORE_CS</option>
@@ -1245,7 +1245,7 @@ export default function AdminPage() {
               <select
                 value={mcqSubjectFilter}
                 onChange={(e) => setMcqSubjectFilter(e.target.value)}
-                className="h-8 px-2.5 rounded-lg bg-[#12151E] border border-zinc-800 text-xs text-zinc-300 outline-none"
+                className="h-8 px-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] outline-none"
               >
                 <option value="ALL">All Subjects</option>
                 <option value="DBMS">DBMS</option>
@@ -1258,44 +1258,44 @@ export default function AdminPage() {
               </select>
 
               <div className="relative flex-1 min-w-[200px]">
-                <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-2.5" />
+                <Search className="w-3.5 h-3.5 text-[var(--text-muted)] absolute left-3 top-2.5" />
                 <input
                   type="text"
                   value={mcqSearch}
                   onChange={(e) => setMcqSearch(e.target.value)}
                   placeholder="Filter by question text..."
-                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#12151E] border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none"
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--action-primary)]"
                 />
               </div>
             </div>
 
             {isMcqsLoading ? (
-              <p className="text-xs text-zinc-500 py-8 text-center">Loading MCQ bank...</p>
+              <p className="text-xs text-[var(--text-muted)] py-8 text-center">Loading MCQ bank...</p>
             ) : (
               <div className="space-y-3">
                 {(mcqsData || []).map((mcq: any) => (
                   <div
                     key={mcq.id}
-                    className="p-4 rounded-xl bg-[#0D0F14] border border-zinc-800/80 space-y-3"
+                    className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] space-y-3"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-2 mb-1.5">
-                          <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/25 text-[10px]">
+                          <Badge className="bg-[var(--accent-soft)] text-[var(--accent-text)] border-[var(--action-primary)]/25 text-[10px]">
                             {mcq.category}
                           </Badge>
-                          <span className="text-xs font-semibold text-zinc-300">
+                          <span className="text-xs font-semibold text-[var(--text-secondary)]">
                             {mcq.subject} • {mcq.topic}
                           </span>
                         </div>
-                        <p className="text-sm font-medium text-white">{mcq.question}</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)]">{mcq.question}</p>
                       </div>
 
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => deleteMcqMutation.mutate(mcq.id)}
-                        className="h-8 w-8 p-0 border-zinc-800 text-zinc-400 hover:text-rose-400 hover:border-rose-900 shrink-0"
+                        className="h-8 w-8 p-0 border-[var(--border-control)] text-[var(--text-secondary)] hover:text-[var(--status-danger)] hover:border-[var(--status-danger)]/40 shrink-0"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
@@ -1308,8 +1308,8 @@ export default function AdminPage() {
                           key={optIdx}
                           className={`p-2 rounded-lg border text-xs flex items-center gap-2 ${
                             optIdx === mcq.correctOption
-                              ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-300 font-semibold"
-                              : "bg-black/30 border-zinc-800 text-zinc-400"
+                              ? "bg-[var(--status-success-soft)] border-[var(--status-success)]/40 text-[var(--status-success)] font-semibold"
+                              : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
                           }`}
                         >
                           <span className="font-mono text-[10px] w-4 text-center">
@@ -1327,13 +1327,13 @@ export default function AdminPage() {
 
             {/* Modal: Add New MCQ */}
             {isNewMcqModalOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-                <div className="w-full max-w-xl rounded-xl bg-[#12151F] border border-zinc-800 p-6 space-y-4 shadow-2xl">
-                  <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                    <h3 className="text-sm font-bold text-white">Create Assessment MCQ</h3>
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <div className="w-full max-w-xl rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] p-6 space-y-4 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-3">
+                    <h3 className="text-sm font-bold text-[var(--text-primary)]">Create Assessment MCQ</h3>
                     <button
                       onClick={() => setIsNewMcqModalOpen(false)}
-                      className="text-zinc-500 hover:text-white"
+                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -1341,22 +1341,22 @@ export default function AdminPage() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-xs text-zinc-400">Category</Label>
+                      <Label className="text-xs text-[var(--text-secondary)]">Category</Label>
                       <select
                         value={newMcqCategory}
                         onChange={(e) => setNewMcqCategory(e.target.value)}
-                        className="w-full h-8 rounded-lg bg-[#0C0E14] border border-zinc-800 text-xs text-white px-2 mt-1"
+                        className="w-full h-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] px-2 mt-1"
                       >
                         <option value="CORE_CS">CORE_CS</option>
                         <option value="APTITUDE">APTITUDE</option>
                       </select>
                     </div>
                     <div>
-                      <Label className="text-xs text-zinc-400">Subject</Label>
+                      <Label className="text-xs text-[var(--text-secondary)]">Subject</Label>
                       <select
                         value={newMcqSubject}
                         onChange={(e) => setNewMcqSubject(e.target.value)}
-                        className="w-full h-8 rounded-lg bg-[#0C0E14] border border-zinc-800 text-xs text-white px-2 mt-1"
+                        className="w-full h-8 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] px-2 mt-1"
                       >
                         <option value="DBMS">DBMS</option>
                         <option value="OS">OS</option>
@@ -1369,18 +1369,18 @@ export default function AdminPage() {
                   </div>
 
                   <div>
-                    <Label className="text-xs text-zinc-400">Question Text</Label>
+                    <Label className="text-xs text-[var(--text-secondary)]">Question Text</Label>
                     <textarea
                       rows={3}
                       value={newMcqQuestion}
                       onChange={(e) => setNewMcqQuestion(e.target.value)}
                       placeholder="What is the time complexity of building a heap from an array of N elements?"
-                      className="w-full rounded-lg bg-[#0C0E14] border border-zinc-800 text-xs text-white p-2.5 mt-1 outline-none"
+                      className="w-full rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] p-2.5 mt-1 outline-none"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-xs text-zinc-400">Options (Select radio for correct answer)</Label>
+                    <Label className="text-xs text-[var(--text-secondary)]">Options (Select radio for correct answer)</Label>
                     {[0, 1, 2, 3].map((optIdx) => (
                       <div key={optIdx} className="flex items-center gap-2">
                         <input
@@ -1388,9 +1388,9 @@ export default function AdminPage() {
                           name="correctMcq"
                           checked={newMcqCorrect === optIdx}
                           onChange={() => setNewMcqCorrect(optIdx)}
-                          className="accent-blue-500"
+                          className="accent-[var(--action-primary)]"
                         />
-                        <span className="font-mono text-xs text-zinc-400 w-4">
+                        <span className="font-mono text-xs text-[var(--text-secondary)] w-4">
                           {String.fromCharCode(65 + optIdx)}
                         </span>
                         <Input
@@ -1401,28 +1401,28 @@ export default function AdminPage() {
                             setNewMcqOptions(updated);
                           }}
                           placeholder={`Option ${String.fromCharCode(65 + optIdx)}`}
-                          className="bg-[#0C0E14] border-zinc-800 text-xs text-white h-8"
+                          className="bg-[var(--surface-muted)] border-[var(--border-control)] text-xs text-[var(--text-primary)] h-8"
                         />
                       </div>
                     ))}
                   </div>
 
                   <div>
-                    <Label className="text-xs text-zinc-400">Explanation (Optional)</Label>
+                    <Label className="text-xs text-[var(--text-secondary)]">Explanation (Optional)</Label>
                     <Input
                       value={newMcqExplanation}
                       onChange={(e) => setNewMcqExplanation(e.target.value)}
                       placeholder="Bottom-up heap construction runs in O(N) linear time."
-                      className="bg-[#0C0E14] border-zinc-800 text-xs text-white h-8 mt-1"
+                      className="bg-[var(--surface-muted)] border-[var(--border-control)] text-xs text-[var(--text-primary)] h-8 mt-1"
                     />
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-3 border-t border-zinc-800">
+                  <div className="flex justify-end gap-2 pt-3 border-t border-[var(--border-subtle)]">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setIsNewMcqModalOpen(false)}
-                      className="text-xs border-zinc-800"
+                      className="text-xs border-[var(--border-control)] text-[var(--text-secondary)]"
                     >
                       Cancel
                     </Button>
@@ -1430,7 +1430,7 @@ export default function AdminPage() {
                       size="sm"
                       onClick={() => createMcqMutation.mutate()}
                       disabled={!newMcqQuestion.trim() || newMcqOptions.some((o) => !o.trim())}
-                      className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-5"
+                      className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs px-5"
                     >
                       Save Question
                     </Button>
@@ -1446,32 +1446,32 @@ export default function AdminPage() {
           <div className="space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">AI Mock Interviews Surveillance</h2>
-                <p className="text-xs text-zinc-400">
+                <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">AI Mock Interviews Surveillance</h2>
+                <p className="text-xs text-[var(--text-secondary)]">
                   Inspect candidate simulation runs, conversation depth, and AI scorecard evaluations
                 </p>
               </div>
               <div className="relative w-full sm:w-64">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[var(--text-muted)]" />
                 <Input
                   placeholder="Search candidate or role..."
                   value={interviewSearch}
                   onChange={(e) => setInterviewSearch(e.target.value)}
-                  className="pl-8 h-8 text-xs bg-[#0C0E14] border-zinc-800 text-zinc-200"
+                  className="pl-8 h-8 text-xs bg-[var(--surface)] border-[var(--border-control)] text-[var(--text-primary)]"
                 />
               </div>
             </div>
 
             {isInterviewsLoading ? (
-              <p className="text-xs text-zinc-500 py-8 text-center">Loading interview simulation logs...</p>
+              <p className="text-xs text-[var(--text-muted)] py-8 text-center">Loading interview simulation logs...</p>
             ) : (interviewsData || []).length === 0 ? (
-              <div className="p-8 text-center rounded-xl bg-[#0C0E14] border border-zinc-800 text-zinc-400 text-xs">
+              <div className="p-8 text-center rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] text-xs">
                 No mock interviews recorded matching your query.
               </div>
             ) : (
-              <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-[#0C0E14]">
+              <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--surface)]">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#10131B] border-b border-zinc-800 text-zinc-400 font-mono text-[11px]">
+                  <thead className="bg-[var(--surface-muted)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] font-mono text-[11px]">
                     <tr>
                       <th className="p-3">Candidate</th>
                       <th className="p-3">Role & Tech Stack</th>
@@ -1482,20 +1482,20 @@ export default function AdminPage() {
                       <th className="p-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800/60">
+                  <tbody className="divide-y divide-[var(--border-subtle)]">
                     {(interviewsData || []).map((iv: any) => (
-                      <tr key={iv.id} className="hover:bg-zinc-800/20 transition-colors">
+                      <tr key={iv.id} className="hover:bg-[var(--surface-hover)] transition-colors">
                         <td className="p-3">
-                          <div className="font-semibold text-white">{iv.user?.name || "Candidate"}</div>
-                          <div className="text-[11px] text-zinc-400 font-mono">{iv.user?.email}</div>
+                          <div className="font-semibold text-[var(--text-primary)]">{iv.user?.name || "Candidate"}</div>
+                          <div className="text-[11px] text-[var(--text-secondary)] font-mono">{iv.user?.email}</div>
                         </td>
                         <td className="p-3">
-                          <div className="font-medium text-white">{iv.role}</div>
+                          <div className="font-medium text-[var(--text-primary)]">{iv.role}</div>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {(iv.techStack || []).map((t: string) => (
                               <span
                                 key={t}
-                                className="px-1.5 py-0.5 rounded bg-zinc-800/80 text-[10px] font-mono text-zinc-300"
+                                className="px-1.5 py-0.5 rounded bg-[var(--surface-muted)] text-[10px] font-mono text-[var(--text-secondary)]"
                               >
                                 {t}
                               </span>
@@ -1504,10 +1504,10 @@ export default function AdminPage() {
                         </td>
                         <td className="p-3">
                           <div className="flex items-center gap-1.5">
-                            <Badge variant="outline" className="border-zinc-700 text-zinc-300 text-[10px]">
+                            <Badge variant="outline" className="border-[var(--border-control)] text-[var(--text-secondary)] text-[10px]">
                               {iv.difficulty || iv.level || "mid"}
                             </Badge>
-                            <Badge variant="outline" className="border-zinc-800 text-zinc-400 text-[10px]">
+                            <Badge variant="outline" className="border-[var(--border-subtle)] text-[var(--text-muted)] text-[10px]">
                               {iv.mode || iv.type || "technical"}
                             </Badge>
                           </div>
@@ -1516,30 +1516,30 @@ export default function AdminPage() {
                           {iv.evaluation || iv.score != null ? (
                             <div className="space-y-1">
                               <div className="flex items-center gap-1.5">
-                                <span className="font-mono font-bold text-emerald-400">
+                                <span className="font-mono font-bold text-[var(--status-success)]">
                                   {iv.evaluation?.score ?? iv.score ?? "--"}/100
                                 </span>
                                 {iv.evaluation?.feedback && (
-                                  <Badge className="text-[9px] px-1.5 py-0 bg-blue-500/10 text-blue-300 border-blue-500/30">
+                                  <Badge className="text-[9px] px-1.5 py-0 bg-[var(--accent-soft)] text-[var(--accent-text)] border-[var(--action-primary)]/30">
                                     Evaluated
                                   </Badge>
                                 )}
                               </div>
                               <button
                                 onClick={() => setInspectingInterview(iv)}
-                                className="text-[10px] text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                                className="text-[10px] text-[var(--accent-text)] hover:underline underline-offset-2 cursor-pointer"
                               >
                                 View Scorecard
                               </button>
                             </div>
                           ) : (
-                            <span className="text-[11px] text-zinc-500 italic">In progress / pending</span>
+                            <span className="text-[11px] text-[var(--text-muted)] italic">In progress / pending</span>
                           )}
                         </td>
-                        <td className="p-3 font-mono text-zinc-300">
+                        <td className="p-3 font-mono text-[var(--text-secondary)]">
                           {iv._count?.messages || 0} msgs
                         </td>
-                        <td className="p-3 text-zinc-500 text-[11px] font-mono">
+                        <td className="p-3 text-[var(--text-muted)] text-[11px] font-mono">
                           {formatDistanceToNow(new Date(iv.createdAt), { addSuffix: true })}
                         </td>
                         <td className="p-3 text-right">
@@ -1549,7 +1549,7 @@ export default function AdminPage() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setInspectingInterview(iv)}
-                                className="h-7 text-[11px] border-zinc-800 text-zinc-300 hover:text-white"
+                                className="h-7 text-[11px] border-[var(--border-control)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                               >
                                 Details
                               </Button>
@@ -1562,7 +1562,7 @@ export default function AdminPage() {
                                   deleteInterviewMutation.mutate(iv.id);
                                 }
                               }}
-                              className="h-7 text-[11px] border-zinc-800 text-rose-400 hover:bg-rose-950/20"
+                              className="h-7 text-[11px] border-[var(--border-control)] text-[var(--status-danger)] hover:bg-[var(--status-danger)]/10"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </Button>
@@ -1577,56 +1577,56 @@ export default function AdminPage() {
 
             {/* Modal: View Interview Scorecard Details */}
             {inspectingInterview && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                <div className="w-full max-w-xl bg-[#0F1117] border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
-                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <div className="w-full max-w-xl bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
                     <div>
-                      <h3 className="text-sm font-bold text-white">AI Evaluation Scorecard</h3>
-                      <p className="text-[11px] text-zinc-400">
+                      <h3 className="text-sm font-bold text-[var(--text-primary)]">AI Evaluation Scorecard</h3>
+                      <p className="text-[11px] text-[var(--text-secondary)]">
                         {inspectingInterview.user?.name} • {inspectingInterview.role} ({inspectingInterview.level})
                       </p>
                     </div>
                     <button
                       onClick={() => setInspectingInterview(null)}
-                      className="text-zinc-400 hover:text-white transition-colors"
+                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
                   <div className="space-y-3 text-xs">
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-[#0C0E14] border border-zinc-800">
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                       <div>
-                        <span className="text-zinc-400 block text-[11px]">Overall Score</span>
-                        <span className="text-lg font-mono font-bold text-emerald-400">
+                        <span className="text-[var(--text-secondary)] block text-[11px]">Overall Score</span>
+                        <span className="text-lg font-mono font-bold text-[var(--status-success)]">
                           {inspectingInterview.evaluation?.score ?? inspectingInterview.score ?? "--"}/100
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-zinc-400 block text-[11px]">Status</span>
-                        <Badge className="text-xs bg-zinc-800 text-zinc-300">
+                        <span className="text-[var(--text-secondary)] block text-[11px]">Status</span>
+                        <Badge className="text-xs bg-[var(--surface)] text-[var(--text-primary)] border-[var(--border-control)]">
                           {inspectingInterview.status || "COMPLETED"}
                         </Badge>
                       </div>
                     </div>
 
                     {inspectingInterview.evaluation?.feedback && (
-                      <div className="p-3 rounded-xl bg-[#0C0E14] border border-zinc-800">
-                        <span className="text-[11px] font-bold text-zinc-400 block mb-1 uppercase tracking-wider">
+                      <div className="p-3 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+                        <span className="text-[11px] font-bold text-[var(--text-secondary)] block mb-1 uppercase tracking-wider">
                           Executive Feedback
                         </span>
-                        <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
+                        <p className="text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap">
                           {inspectingInterview.evaluation.feedback}
                         </p>
                       </div>
                     )}
 
                     {inspectingInterview.evaluation?.strengths?.length > 0 && (
-                      <div className="p-3 rounded-xl bg-emerald-950/10 border border-emerald-900/30">
-                        <span className="text-[11px] font-bold text-emerald-400 block mb-1.5 uppercase tracking-wider">
+                      <div className="p-3 rounded-xl bg-[var(--status-success-soft)] border border-[var(--status-success)]/30">
+                        <span className="text-[11px] font-bold text-[var(--status-success)] block mb-1.5 uppercase tracking-wider">
                           Key Strengths
                         </span>
-                        <ul className="list-disc list-inside space-y-1 text-zinc-300">
+                        <ul className="list-disc list-inside space-y-1 text-[var(--text-primary)]">
                           {inspectingInterview.evaluation.strengths.map((s: string, idx: number) => (
                             <li key={idx}>{s}</li>
                           ))}
@@ -1635,11 +1635,11 @@ export default function AdminPage() {
                     )}
 
                     {(inspectingInterview.evaluation?.improvements?.length > 0 || inspectingInterview.evaluation?.weaknesses?.length > 0) && (
-                      <div className="p-3 rounded-xl bg-rose-950/10 border border-rose-900/30">
-                        <span className="text-[11px] font-bold text-rose-400 block mb-1.5 uppercase tracking-wider">
+                      <div className="p-3 rounded-xl bg-[var(--status-danger)]/10 border border-[var(--status-danger)]/30">
+                        <span className="text-[11px] font-bold text-[var(--status-danger)] block mb-1.5 uppercase tracking-wider">
                           Areas For Improvement
                         </span>
-                        <ul className="list-disc list-inside space-y-1 text-zinc-300">
+                        <ul className="list-disc list-inside space-y-1 text-[var(--text-primary)]">
                           {(inspectingInterview.evaluation?.improvements || inspectingInterview.evaluation?.weaknesses || []).map((w: string, idx: number) => (
                             <li key={idx}>{w}</li>
                           ))}
@@ -1648,11 +1648,11 @@ export default function AdminPage() {
                     )}
                   </div>
 
-                  <div className="flex justify-end pt-3 border-t border-zinc-800">
+                  <div className="flex justify-end pt-3 border-t border-[var(--border-subtle)]">
                     <Button
                       size="sm"
                       onClick={() => setInspectingInterview(null)}
-                      className="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-4"
+                      className="bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-control)] text-xs px-4"
                     >
                       Close
                     </Button>
@@ -1668,8 +1668,8 @@ export default function AdminPage() {
           <div className="space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">Code Submissions & Judge Log</h2>
-                <p className="text-xs text-zinc-400">
+                <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">Code Submissions & Judge Log</h2>
+                <p className="text-xs text-[var(--text-secondary)]">
                   Live surveillance over testcase judge evaluations, runtimes, memory usage, and code submissions
                 </p>
               </div>
@@ -1677,7 +1677,7 @@ export default function AdminPage() {
                 <select
                   value={submissionVerdictFilter}
                   onChange={(e) => setSubmissionVerdictFilter(e.target.value)}
-                  className="h-8 rounded-lg bg-[#0C0E14] border border-zinc-800 text-xs text-white px-2.5 outline-none font-mono"
+                  className="h-8 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] text-xs text-[var(--text-primary)] px-2.5 outline-none font-mono"
                 >
                   <option value="ALL">All Verdicts</option>
                   <option value="ACCEPTED">ACCEPTED</option>
@@ -1692,15 +1692,15 @@ export default function AdminPage() {
             </div>
 
             {isSubmissionsLoading ? (
-              <p className="text-xs text-zinc-500 py-8 text-center">Loading code submission logs...</p>
+              <p className="text-xs text-[var(--text-muted)] py-8 text-center">Loading code submission logs...</p>
             ) : (submissionsData || []).length === 0 ? (
-              <div className="p-8 text-center rounded-xl bg-[#0C0E14] border border-zinc-800 text-zinc-400 text-xs">
+              <div className="p-8 text-center rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] text-[var(--text-secondary)] text-xs">
                 No code submissions found matching the selected filter.
               </div>
             ) : (
-              <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-[#0C0E14]">
+              <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--surface)]">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#10131B] border-b border-zinc-800 text-zinc-400 font-mono text-[11px]">
+                  <thead className="bg-[var(--surface-muted)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] font-mono text-[11px]">
                     <tr>
                       <th className="p-3">Candidate</th>
                       <th className="p-3">Problem</th>
@@ -1712,22 +1712,22 @@ export default function AdminPage() {
                       <th className="p-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800/60">
+                  <tbody className="divide-y divide-[var(--border-subtle)]">
                     {(submissionsData || []).map((sub: any) => {
                       const verdictStyle =
                         VERDICT_STYLES[sub.verdict] || {
                           label: sub.verdict,
-                          badge: "bg-zinc-800 text-zinc-400 border-zinc-700",
+                          badge: "bg-[var(--surface-muted)] text-[var(--text-secondary)] border-[var(--border-control)]",
                         };
 
                       return (
-                        <tr key={sub.id} className="hover:bg-zinc-800/20 transition-colors">
+                        <tr key={sub.id} className="hover:bg-[var(--surface-hover)] transition-colors">
                           <td className="p-3">
-                            <div className="font-semibold text-white">{sub.user?.name || "Candidate"}</div>
-                            <div className="text-[11px] text-zinc-400 font-mono">{sub.user?.email}</div>
+                            <div className="font-semibold text-[var(--text-primary)]">{sub.user?.name || "Candidate"}</div>
+                            <div className="text-[11px] text-[var(--text-secondary)] font-mono">{sub.user?.email}</div>
                           </td>
                           <td className="p-3">
-                            <div className="font-medium text-white flex items-center gap-1.5">
+                            <div className="font-medium text-[var(--text-primary)] flex items-center gap-1.5">
                               <span>{sub.problem?.title || "Problem"}</span>
                               {sub.problem?.difficulty && (
                                 <Badge
@@ -1740,7 +1740,7 @@ export default function AdminPage() {
                                 </Badge>
                               )}
                             </div>
-                            <div className="text-[11px] text-zinc-500 font-mono">{sub.problem?.slug}</div>
+                            <div className="text-[11px] text-[var(--text-muted)] font-mono">{sub.problem?.slug}</div>
                           </td>
                           <td className="p-3">
                             <Badge className={`text-[10px] font-mono ${verdictStyle.badge}`}>
@@ -1748,15 +1748,15 @@ export default function AdminPage() {
                             </Badge>
                           </td>
                           <td className="p-3">
-                            <Badge variant="outline" className="border-zinc-800 text-zinc-300 font-mono text-[10px]">
+                            <Badge variant="outline" className="border-[var(--border-control)] text-[var(--text-secondary)] font-mono text-[10px]">
                               {sub.language}
                             </Badge>
                           </td>
-                          <td className="p-3 font-mono text-[11px] text-zinc-400">
+                          <td className="p-3 font-mono text-[11px] text-[var(--text-secondary)]">
                             <div>{sub.runtime != null ? `${sub.runtime} ms` : "--"}</div>
                             <div>{sub.memory != null ? `${(sub.memory / 1024).toFixed(1)} MB` : "--"}</div>
                           </td>
-                          <td className="p-3 font-mono text-zinc-300">
+                          <td className="p-3 font-mono text-[var(--text-secondary)]">
                             {sub.testCasesPassed != null && sub.totalTestCases != null ? (
                               <span>
                                 {sub.testCasesPassed}/{sub.totalTestCases}
@@ -1765,7 +1765,7 @@ export default function AdminPage() {
                               "--"
                             )}
                           </td>
-                          <td className="p-3 text-zinc-500 text-[11px] font-mono">
+                          <td className="p-3 text-[var(--text-muted)] text-[11px] font-mono">
                             {formatDistanceToNow(new Date(sub.createdAt), { addSuffix: true })}
                           </td>
                           <td className="p-3 text-right">
@@ -1773,7 +1773,7 @@ export default function AdminPage() {
                               size="sm"
                               variant="outline"
                               onClick={() => setViewingSubmissionCode(sub)}
-                              className="h-7 text-[11px] border-zinc-800 text-blue-400 hover:text-white hover:bg-blue-600/10"
+                              className="h-7 text-[11px] border-[var(--border-control)] text-[var(--accent-text)] hover:bg-[var(--accent-soft)]"
                             >
                               <Eye className="w-3 h-3 mr-1" /> View Code
                             </Button>
@@ -1788,42 +1788,42 @@ export default function AdminPage() {
 
             {/* Modal: View Submission Code */}
             {viewingSubmissionCode && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-                <div className="w-full max-w-2xl bg-[#0F1117] border border-zinc-800 rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
-                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <div className="w-full max-w-2xl bg-[var(--surface)] border border-[var(--border-subtle)] rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                  <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-white">
+                        <h3 className="text-sm font-bold text-[var(--text-primary)]">
                           {viewingSubmissionCode.problem?.title || "Submission Code"}
                         </h3>
                         <Badge
                           className={`text-[10px] font-mono ${
-                            VERDICT_STYLES[viewingSubmissionCode.verdict]?.badge || "bg-zinc-800 text-zinc-400"
+                            VERDICT_STYLES[viewingSubmissionCode.verdict]?.badge || "bg-[var(--surface-muted)] text-[var(--text-secondary)]"
                           }`}
                         >
                           {viewingSubmissionCode.verdict}
                         </Badge>
                       </div>
-                      <p className="text-[11px] text-zinc-400 mt-0.5">
+                      <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                         Candidate: {viewingSubmissionCode.user?.name} ({viewingSubmissionCode.user?.email}) • Language: {viewingSubmissionCode.language}
                       </p>
                     </div>
                     <button
                       onClick={() => setViewingSubmissionCode(null)}
-                      className="text-zinc-400 hover:text-white transition-colors"
+                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
 
                   {viewingSubmissionCode.error && (
-                    <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-900/40 text-rose-300 text-xs font-mono whitespace-pre-wrap max-h-32 overflow-y-auto">
+                    <div className="p-3 rounded-lg bg-[var(--status-danger)]/10 border border-[var(--status-danger)]/30 text-[var(--status-danger)] text-xs font-mono whitespace-pre-wrap max-h-32 overflow-y-auto">
                       {viewingSubmissionCode.error}
                     </div>
                   )}
 
                   <div className="relative">
-                    <div className="flex items-center justify-between px-3 py-1.5 bg-[#08090C] border-t border-l border-r border-zinc-800 rounded-t-lg text-[11px] text-zinc-400 font-mono">
+                    <div className="flex items-center justify-between px-3 py-1.5 bg-[var(--surface-muted)] border-t border-l border-r border-[var(--border-subtle)] rounded-t-lg text-[11px] text-[var(--text-secondary)] font-mono">
                       <span>Source Code ({viewingSubmissionCode.language})</span>
                       <button
                         onClick={() => {
@@ -1831,12 +1831,12 @@ export default function AdminPage() {
                           setCopiedSubmissionCode(true);
                           setTimeout(() => setCopiedSubmissionCode(false), 2000);
                         }}
-                        className="flex items-center gap-1 hover:text-white transition-colors"
+                        className="flex items-center gap-1 hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                       >
                         {copiedSubmissionCode ? (
                           <>
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-emerald-400">Copied</span>
+                            <Check className="w-3.5 h-3.5 text-[var(--status-success)]" />
+                            <span className="text-[var(--status-success)]">Copied</span>
                           </>
                         ) : (
                           <>
@@ -1846,12 +1846,12 @@ export default function AdminPage() {
                         )}
                       </button>
                     </div>
-                    <pre className="p-4 bg-[#050608] border border-zinc-800 rounded-b-lg font-mono text-xs text-zinc-200 overflow-x-auto max-h-[400px] leading-relaxed">
+                    <pre className="p-4 bg-[var(--bg-canvas)] border border-[var(--border-subtle)] rounded-b-lg font-mono text-xs text-[var(--text-primary)] overflow-x-auto max-h-[400px] leading-relaxed">
                       <code>{viewingSubmissionCode.code}</code>
                     </pre>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-zinc-800 text-xs text-zinc-400">
+                  <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
                     <div className="flex items-center gap-3 font-mono text-[11px]">
                       <span>Runtime: {viewingSubmissionCode.runtime != null ? `${viewingSubmissionCode.runtime} ms` : "--"}</span>
                       <span>•</span>
@@ -1867,7 +1867,7 @@ export default function AdminPage() {
                     <Button
                       size="sm"
                       onClick={() => setViewingSubmissionCode(null)}
-                      className="bg-zinc-800 hover:bg-zinc-700 text-white text-xs px-4"
+                      className="bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] border border-[var(--border-control)] text-xs px-4"
                     >
                       Close
                     </Button>
@@ -1882,16 +1882,16 @@ export default function AdminPage() {
         {activeTab === "rooms" && (
           <div className="space-y-5">
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">Active Contest Rooms</h2>
-              <p className="text-xs text-zinc-400">Surveillance over multiplayer coding battles and live sessions</p>
+              <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">Active Contest Rooms</h2>
+              <p className="text-xs text-[var(--text-secondary)]">Surveillance over multiplayer coding battles and live sessions</p>
             </div>
 
             {isRoomsLoading ? (
-              <p className="text-xs text-zinc-500 py-8 text-center">Loading active rooms...</p>
+              <p className="text-xs text-[var(--text-muted)] py-8 text-center">Loading active rooms...</p>
             ) : (
-              <div className="border border-zinc-800/80 rounded-xl overflow-hidden bg-[#0C0E14]">
+              <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden bg-[var(--surface)]">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#10131B] border-b border-zinc-800 text-zinc-400 font-mono text-[11px]">
+                  <thead className="bg-[var(--surface-muted)] border-b border-[var(--border-subtle)] text-[var(--text-secondary)] font-mono text-[11px]">
                     <tr>
                       <th className="p-3">Room Code</th>
                       <th className="p-3">Title & Host</th>
@@ -1901,22 +1901,22 @@ export default function AdminPage() {
                       <th className="p-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800/60">
+                  <tbody className="divide-y divide-[var(--border-subtle)]">
                     {(roomsData || []).map((r: any) => (
-                      <tr key={r.id} className="hover:bg-zinc-800/20 transition-colors">
+                      <tr key={r.id} className="hover:bg-[var(--surface-hover)] transition-colors">
                         <td className="p-3">
-                          <span className="font-mono font-bold text-white px-2 py-0.5 rounded bg-zinc-800 border border-zinc-700">
+                          <span className="font-mono font-bold text-[var(--text-primary)] px-2 py-0.5 rounded bg-[var(--surface-muted)] border border-[var(--border-control)]">
                             {r.code}
                           </span>
                         </td>
                         <td className="p-3">
-                          <div className="font-semibold text-white">{r.title}</div>
-                          <div className="text-[11px] text-zinc-400">
+                          <div className="font-semibold text-[var(--text-primary)]">{r.title}</div>
+                          <div className="text-[11px] text-[var(--text-secondary)]">
                             Host: {r.host?.name || "Host"} ({r.host?.email})
                           </div>
                         </td>
                         <td className="p-3">
-                          <Badge variant="outline" className="border-zinc-700 text-zinc-300 text-[10px]">
+                          <Badge variant="outline" className="border-[var(--border-control)] text-[var(--text-secondary)] text-[10px]">
                             {r.type}
                           </Badge>
                         </td>
@@ -1924,16 +1924,16 @@ export default function AdminPage() {
                           <Badge
                             className={
                               r.status === "ACTIVE"
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
+                                ? "bg-[var(--status-success-soft)] text-[var(--status-success)] border-[var(--status-success)]/30 text-[10px]"
                                 : r.status === "WAITING"
-                                ? "bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px]"
-                                : "bg-zinc-800 text-zinc-500 border-zinc-700 text-[10px]"
+                                ? "bg-[var(--accent-soft)] text-[var(--accent-text)] border-[var(--action-primary)]/30 text-[10px]"
+                                : "bg-[var(--surface-muted)] text-[var(--text-muted)] border-[var(--border-control)] text-[10px]"
                             }
                           >
                             {r.status}
                           </Badge>
                         </td>
-                        <td className="p-3 font-mono text-zinc-300">
+                        <td className="p-3 font-mono text-[var(--text-secondary)]">
                           {r._count?.participants || 0} / {r.maxParticipants || 10}
                         </td>
                         <td className="p-3 text-right">
@@ -1942,7 +1942,7 @@ export default function AdminPage() {
                               size="sm"
                               variant="outline"
                               onClick={() => terminateRoomMutation.mutate(r.id)}
-                              className="h-7 text-[11px] border-rose-900 text-rose-400 hover:bg-rose-950/20"
+                              className="h-7 text-[11px] border-[var(--status-danger)]/40 text-[var(--status-danger)] hover:bg-[var(--status-danger)]/10"
                             >
                               Terminate
                             </Button>

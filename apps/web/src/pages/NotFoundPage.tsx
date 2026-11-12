@@ -10,18 +10,15 @@ export default function NotFoundPage() {
   const isCodingPage = location.pathname.includes("/coding");
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#060709] text-white p-4 relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] opacity-50 pointer-events-none" />
-      
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[var(--canvas)] text-[var(--text-primary)] p-4 relative overflow-hidden">
       <div className="z-10 flex flex-col items-center max-w-md text-center space-y-8">
         <div className="relative">
-          <h1 className="text-[120px] font-bold leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20 select-none">
+          <h1 className="text-[120px] font-bold leading-none text-[var(--text-primary)] select-none">
             {isCodingPage ? "V2" : "404"}
           </h1>
           {isCodingPage && (
             <div className="absolute -top-4 right-3 animate-bounce">
-              <span className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              <span className="bg-[var(--action-primary)] text-[var(--on-primary)] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                 Coming Soon
               </span>
             </div>
@@ -29,12 +26,12 @@ export default function NotFoundPage() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold tracking-tight">
+          <h2 className="text-2xl font-semibold tracking-tight text-[var(--text-primary)]">
             {isCodingPage 
               ? "Coding Practice is Under Construction" 
               : "Oops! Page not found"}
           </h2>
-          <p className="text-zinc-400 text-lg">
+          <p className="text-[var(--text-secondary)] text-lg">
             {isCodingPage 
               ? "We are building an ultra-fast, secure coding sandbox for V2. Stay tuned!"
               : "The page you are looking for doesn't exist or has been moved."}
@@ -46,7 +43,7 @@ export default function NotFoundPage() {
             variant="outline" 
             size="lg" 
             onClick={() => navigate(-1)}
-            className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-300"
+            className="border-[var(--border-control)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)]"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Go Back
@@ -54,7 +51,7 @@ export default function NotFoundPage() {
           <Button 
             size="lg" 
             asChild
-            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(var(--primary),0.3)]"
+            className="bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] shadow-sm"
           >
             <Link to="/dashboard">
               <Home className="mr-2 h-4 w-4" />

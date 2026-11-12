@@ -257,13 +257,13 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto text-[#F3F4F6] font-sans">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto text-[var(--text-primary)] font-sans">
       {/* ─── Profile Brief & Header ───────────────────────────────────── */}
-      <div className="rounded-2xl border border-[#181A20] bg-[#0D0E12] overflow-hidden mb-8 shadow-sm relative">
+      <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] overflow-hidden mb-8 shadow-sm relative">
         {/* Cover Banner */}
-        <div className="h-28 sm:h-36 bg-gradient-to-r from-[#0A0C10] via-[#10192B] to-[#0A0C10] relative border-b border-[#181A20]">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#327CF6_1px,transparent_1px)] [background-size:16px_16px]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0D0E12]" />
+        <div className="h-28 sm:h-36 bg-gradient-to-r from-[var(--surface-muted)] via-[var(--surface-selected)] to-[var(--surface-muted)] relative border-b border-[var(--border-subtle)]">
+          <div className="absolute inset-0 opacity-25 bg-[radial-gradient(var(--action-primary)_1px,transparent_1px)] [background-size:16px_16px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--surface)]/80" />
         </div>
 
         {/* Profile Card Body */}
@@ -271,8 +271,8 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div className="flex flex-col sm:flex-row sm:items-end gap-5 -mt-12 sm:-mt-14 relative z-10">
               {/* Avatar */}
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#08090C] border border-[#181A20] p-1 shadow-lg shrink-0 overflow-hidden relative">
-                <div className="w-full h-full rounded-xl overflow-hidden relative bg-[#14161C]">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[var(--surface)] border border-[var(--border-subtle)] p-1 shadow-lg shrink-0 overflow-hidden relative">
+                <div className="w-full h-full rounded-xl overflow-hidden relative bg-[var(--surface-muted)]">
                   {profile?.avatarUrl || stats?.user?.image || session?.user?.image ? (
                     <img
                       src={profile?.avatarUrl || stats?.user?.image || session?.user?.image || ""}
@@ -281,7 +281,7 @@ export default function ProfilePage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#327CF6] to-[#1E3A8A] flex items-center justify-center text-4xl font-bold text-white shadow-inner">
+                    <div className="w-full h-full rounded-xl bg-[var(--action-primary)] flex items-center justify-center text-4xl font-bold text-[var(--on-primary)] shadow-inner">
                       {displayName[0]?.toUpperCase() || "C"}
                     </div>
                   )}
@@ -291,17 +291,17 @@ export default function ProfilePage() {
               {/* User Meta */}
               <div className="pt-2 sm:pb-1">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
                     {displayName}
                   </h1>
                 </div>
-                <p className="text-xs text-[#525866] font-mono mt-1">@{displayHandle}</p>
+                <p className="text-xs text-[var(--text-muted)] font-mono mt-1">@{displayHandle}</p>
                 <div className="flex items-center gap-2 mt-3.5 flex-wrap">
-                  <span className="text-[11px] text-[#F3F4F6] font-medium flex items-center gap-1.5 bg-[#14161C] px-3 py-1 rounded-full border border-[#1E2229] shadow-sm shadow-black/20">
-                    <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+                  <span className="text-[11px] text-[var(--text-primary)] font-medium flex items-center gap-1.5 bg-[var(--surface-muted)] px-3 py-1 rounded-full border border-[var(--border-subtle)] shadow-sm">
+                    <Sparkles className="w-3.5 h-3.5 text-[var(--status-warning)]" />
                     {profile?.targetRole || "Software Engineer"}
                   </span>
-                  <span className="text-[11px] text-[#8B92A0] bg-[#14161C] px-3 py-1 rounded-full border border-[#1E2229] capitalize shadow-sm shadow-black/20">
+                  <span className="text-[11px] text-[var(--text-secondary)] bg-[var(--surface-muted)] px-3 py-1 rounded-full border border-[var(--border-subtle)] capitalize shadow-sm">
                     {profile?.experienceLevel || "Mid-Level"}
                   </span>
                 </div>
@@ -313,17 +313,17 @@ export default function ProfilePage() {
               <button
                 onClick={() => syncAllMutation.mutate()}
                 disabled={syncAllMutation.isPending}
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-[#08090C] border border-[#181A20] hover:border-[#327CF6]/50 text-xs font-medium text-[#8B92A0] hover:text-white transition-all cursor-pointer disabled:opacity-50"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer disabled:opacity-50"
                 title="Sync all connected platforms"
               >
                 <RefreshCw
-                  className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#327CF6]")}
+                  className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[var(--accent-text)]")}
                 />
                 <span>{syncAllMutation.isPending ? "Syncing..." : "Sync All"}</span>
               </button>
               <Link
                 to="/profile-setup"
-                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white shadow-sm shadow-[#327CF6]/20 transition-all cursor-pointer text-center"
+                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-xs font-semibold text-[var(--on-primary)] shadow-sm transition-all cursor-pointer text-center"
               >
                 <Pencil className="w-3.5 h-3.5" />
                 <span>Edit Profile</span>
@@ -333,8 +333,8 @@ export default function ProfilePage() {
 
           {/* Bio Row */}
           {profile?.bio && (
-            <div className="mt-5 pt-4 border-t border-[#181A20]/80">
-              <p className="text-sm text-[#9CA3AF] max-w-3xl leading-relaxed whitespace-pre-wrap">
+            <div className="mt-5 pt-4 border-t border-[var(--border-subtle)]">
+              <p className="text-sm text-[var(--text-secondary)] max-w-3xl leading-relaxed whitespace-pre-wrap">
                 {profile.bio}
               </p>
             </div>
@@ -347,12 +347,12 @@ export default function ProfilePage() {
         {/* Left 2 Columns: Heatmap + Donut Wheel + Topic Breakdown */}
         <div className="lg:col-span-2 space-y-6">
           {/* 1. Consistency 52-Week Heatmap */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] shadow-sm">
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-[#2F80ED]" />
-                <h2 className="text-base font-semibold text-[#F5F7FA] tracking-tight">Consistency</h2>
-                <span className="text-xs text-[#707784] font-mono ml-2">
+                <Calendar className="w-4 h-4 text-[var(--accent-text)]" />
+                <h2 className="text-base font-semibold text-[var(--text-primary)] tracking-tight">Consistency</h2>
+                <span className="text-xs text-[var(--text-muted)] font-mono ml-2">
                   (52-Week Activity)
                 </span>
               </div>
@@ -364,22 +364,22 @@ export default function ProfilePage() {
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
-                    className="appearance-none bg-[#101216] border border-[#1E2229] rounded-lg text-[#A1A7B3] hover:text-[#F5F7FA] text-xs font-semibold py-1.5 pl-2.5 pr-6 cursor-pointer outline-none transition-colors"
+                    className="appearance-none bg-[var(--surface-muted)] border border-[var(--border-control)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-semibold py-1.5 pl-2.5 pr-6 cursor-pointer outline-none transition-colors"
                   >
                     {yearOptions.map((y) => (
-                      <option key={y} value={y} className="bg-[#101216]">
+                      <option key={y} value={y} className="bg-[var(--surface)] text-[var(--text-primary)]">
                         {y}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-[#707784] absolute right-2 pointer-events-none group-hover:text-[#F5F7FA] transition-colors" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)] absolute right-2 pointer-events-none group-hover:text-[var(--text-primary)] transition-colors" />
                 </div>
 
                 {/* Platform Shadcn Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#101216] border border-[#1E2229] hover:border-[#2F80ED]/40 text-xs font-semibold text-[#F5F7FA] transition-all cursor-pointer">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#2F80ED]" />
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] hover:border-[var(--action-primary)] text-xs font-semibold text-[var(--text-primary)] transition-all cursor-pointer">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--action-primary)]" />
                       <span>
                         {activePlatform === "ALL"
                           ? "All Platforms"
@@ -389,12 +389,12 @@ export default function ProfilePage() {
                           ? "LeetCode"
                           : "Codeforces"}
                       </span>
-                      <ChevronDown className="w-3.5 h-3.5 text-[#707784] ml-0.5" />
+                      <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)] ml-0.5" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="bg-[#14161B] border-[#272B33] text-zinc-300 min-w-[145px] shadow-xl p-1 z-50"
+                    className="bg-[var(--surface-elevated)] border-[var(--border-subtle)] text-[var(--text-secondary)] min-w-[145px] shadow-xl p-1 z-50"
                   >
                     {(
                       [
@@ -410,8 +410,8 @@ export default function ProfilePage() {
                         className={cn(
                           "flex items-center justify-between text-xs px-2.5 py-1.5 rounded-md cursor-pointer transition-colors",
                           activePlatform === p.id
-                            ? "bg-[#2F80ED] text-white font-semibold focus:bg-[#2F80ED] focus:text-white"
-                            : "hover:bg-[#1E2229] hover:text-white text-zinc-300 focus:bg-[#1E2229] focus:text-white"
+                            ? "bg-[var(--action-primary)] text-[var(--on-primary)] font-semibold focus:bg-[var(--action-primary)] focus:text-[var(--on-primary)]"
+                            : "hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] text-[var(--text-secondary)] focus:bg-[var(--surface-hover)] focus:text-[var(--text-primary)]"
                         )}
                       >
                         <span>{p.label}</span>
@@ -428,18 +428,18 @@ export default function ProfilePage() {
                   <select
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
-                    className="appearance-none bg-transparent text-[#A1A7B3] hover:text-[#F5F7FA] text-xs font-semibold py-1 pl-2 pr-6 cursor-pointer outline-none transition-colors"
+                    className="appearance-none bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-semibold py-1 pl-2 pr-6 cursor-pointer outline-none transition-colors"
                   >
                     {yearOptions.map((y) => (
-                      <option key={y} value={y} className="bg-[#101216]">
+                      <option key={y} value={y} className="bg-[var(--surface)] text-[var(--text-primary)]">
                         {y}
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-[#707784] absolute right-1 pointer-events-none group-hover:text-[#F5F7FA] transition-colors" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[var(--text-muted)] absolute right-1 pointer-events-none group-hover:text-[var(--text-primary)] transition-colors" />
                 </div>
 
-                <div className="flex items-center gap-1 p-1 rounded-lg bg-[#101216] border border-[#1E2229] text-xs">
+                <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-xs">
                   {(["ALL", "INTERVUE", "LEETCODE", "CODEFORCES"] as const).map((p) => (
                     <button
                       key={p}
@@ -447,8 +447,8 @@ export default function ProfilePage() {
                       className={cn(
                         "px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer",
                         activePlatform === p
-                          ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
-                          : "text-[#A1A7B3] hover:text-[#F5F7FA]"
+                          ? "bg-[var(--action-primary)] text-[var(--on-primary)] shadow-sm font-semibold"
+                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                       )}
                     >
                       {p === "INTERVUE" ? "Intervue" : p === "ALL" ? "All" : p === "LEETCODE" ? "LeetCode" : "Codeforces"}
@@ -464,7 +464,7 @@ export default function ProfilePage() {
                 <div className="flex gap-3">
                   {calendarMonths.map((monthGroup, mIdx) => (
                     <div key={mIdx} className="flex flex-col gap-1.5">
-                      <div className="text-[10px] text-[#707784] font-medium font-mono pl-0.5">
+                      <div className="text-[10px] text-[var(--text-muted)] font-medium font-mono pl-0.5">
                         {monthGroup.monthStr}
                       </div>
                       <div className="flex gap-[3px]">
@@ -475,14 +475,14 @@ export default function ProfilePage() {
                               const levelBg = day.level === -1
                                 ? "opacity-0 cursor-default pointer-events-none"
                                 : day.level === 0
-                                ? "bg-[#101216] border border-[#1E2229]"
+                                ? "bg-[var(--surface-muted)] border border-[var(--border-subtle)]"
                                 : day.level === 1
-                                ? "bg-[#1D3557]"
+                                ? "bg-blue-200 dark:bg-[#1D3557]"
                                 : day.level === 2
-                                ? "bg-[#1D4ED8]"
+                                ? "bg-blue-400 dark:bg-[#1D4ED8]"
                                 : day.level === 3
-                                ? "bg-[#2F80ED]"
-                                : "bg-[#3B9CFF]";
+                                ? "bg-[var(--action-primary)]"
+                                : "bg-blue-600 dark:bg-[#3B9CFF]";
 
                               return (
                                 <div
@@ -491,7 +491,7 @@ export default function ProfilePage() {
                                   onMouseLeave={() => setHoveredDay(null)}
                                   className={cn(
                                     "w-[11px] h-[11px] rounded-[2px] transition-colors",
-                                    day.date && day.level !== -1 && "cursor-pointer hover:ring-1 hover:ring-[#F5F7FA]/50 ring-offset-0 ring-offset-transparent",
+                                    day.date && day.level !== -1 && "cursor-pointer hover:ring-1 hover:ring-[var(--text-primary)]/40 ring-offset-0 ring-offset-transparent",
                                     levelBg
                                   )}
                                 />
@@ -507,68 +507,68 @@ export default function ProfilePage() {
             </div>
 
             {/* Hover Tooltip Bar */}
-            <div className="h-5 mt-2 text-[11px] text-[#A1A7B3] font-mono flex items-center justify-between">
+            <div className="h-5 mt-2 text-[11px] text-[var(--text-secondary)] font-mono flex items-center justify-between">
               <div>
                 {hoveredDay ? (
                   <span>
-                    <strong className="text-[#F5F7FA]">{hoveredDay.count}</strong> submissions on{" "}
+                    <strong className="text-[var(--text-primary)]">{hoveredDay.count}</strong> submissions on{" "}
                     {hoveredDay.date}
                   </span>
                 ) : (
-                  <span className="text-[#707784]">Hover over any cell to view daily submissions</span>
+                  <span className="text-[var(--text-muted)]">Hover over any cell to view daily submissions</span>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-[#707784] font-mono">
+              <div className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] font-mono">
                 <span>Less</span>
-                <span className="w-2.5 h-2.5 rounded-[2px] bg-[#101216] border border-[#1E2229]" />
-                <span className="w-2.5 h-2.5 rounded-[2px] bg-[#1D3557]" />
-                <span className="w-2.5 h-2.5 rounded-[2px] bg-[#1D4ED8]" />
-                <span className="w-2.5 h-2.5 rounded-[2px] bg-[#2F80ED]" />
-                <span className="w-2.5 h-2.5 rounded-[2px] bg-[#3B9CFF]" />
+                <span className="w-2.5 h-2.5 rounded-[2px] bg-[var(--surface-muted)] border border-[var(--border-subtle)]" />
+                <span className="w-2.5 h-2.5 rounded-[2px] bg-blue-200 dark:bg-[#1D3557]" />
+                <span className="w-2.5 h-2.5 rounded-[2px] bg-blue-400 dark:bg-[#1D4ED8]" />
+                <span className="w-2.5 h-2.5 rounded-[2px] bg-[var(--action-primary)]" />
+                <span className="w-2.5 h-2.5 rounded-[2px] bg-blue-600 dark:bg-[#3B9CFF]" />
                 <span>More</span>
               </div>
             </div>
 
             {/* Heatmap Live Stat Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-[#1E2229]">
-              <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
-                <p className="text-[11px] text-[#A1A7B3] font-medium">Submissions ({activePlatform})</p>
-                <p className="text-lg font-bold text-[#F5F7FA] mt-0.5">{totalSubmissions}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-[var(--border-subtle)]">
+              <div className="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+                <p className="text-[11px] text-[var(--text-secondary)] font-medium">Submissions ({activePlatform})</p>
+                <p className="text-lg font-bold text-[var(--text-primary)] mt-0.5">{totalSubmissions}</p>
               </div>
-              <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
-                <p className="text-[11px] text-[#A1A7B3] font-medium">Current Streak</p>
-                <p className="text-lg font-bold text-[#F59E0B] mt-0.5 flex items-center gap-1.5">
+              <div className="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+                <p className="text-[11px] text-[var(--text-secondary)] font-medium">Current Streak</p>
+                <p className="text-lg font-bold text-[var(--status-warning)] mt-0.5 flex items-center gap-1.5">
                   <img src="/fire.png" alt="Streak" className="w-4 h-4 object-contain" />
-                  {currentStreak} <span className="text-xs font-normal text-[#707784]">days</span>
+                  {currentStreak} <span className="text-xs font-normal text-[var(--text-muted)]">days</span>
                 </p>
               </div>
-              <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
-                <p className="text-[11px] text-[#A1A7B3] font-medium">Best Streak</p>
-                <p className="text-lg font-bold text-[#F5F7FA] mt-0.5">
-                  {bestStreak} <span className="text-xs font-normal text-[#707784]">days</span>
+              <div className="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+                <p className="text-[11px] text-[var(--text-secondary)] font-medium">Best Streak</p>
+                <p className="text-lg font-bold text-[var(--text-primary)] mt-0.5">
+                  {bestStreak} <span className="text-xs font-normal text-[var(--text-muted)]">days</span>
                 </p>
               </div>
-              <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
-                <p className="text-[11px] text-[#A1A7B3] font-medium">Active Days</p>
-                <p className="text-lg font-bold text-[#2F80ED] mt-0.5">
-                  {activeDays} <span className="text-xs font-normal text-[#707784]">days</span>
+              <div className="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+                <p className="text-[11px] text-[var(--text-secondary)] font-medium">Active Days</p>
+                <p className="text-lg font-bold text-[var(--accent-text)] mt-0.5">
+                  {activeDays} <span className="text-xs font-normal text-[var(--text-muted)]">days</span>
                 </p>
               </div>
             </div>
           </div>
 
           {/* 2. Question Wheel + Topic Progress */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] shadow-sm">
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
-                <h2 className="text-base font-semibold text-[#F5F7FA] tracking-tight">
+                <CheckCircle2 className="w-4 h-4 text-[var(--status-success)]" />
+                <h2 className="text-base font-semibold text-[var(--text-primary)] tracking-tight">
                   Problem Solving Progress
                 </h2>
               </div>
 
               {/* Question Wheel Mode Toggle */}
-              <div className="flex items-center gap-1 p-1 rounded-lg bg-[#101216] border border-[#1E2229] text-xs">
+              <div className="flex items-center gap-1 p-1 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-xs">
                 {(["INTERVUE", "LEETCODE", "COMBINED"] as const).map((m) => (
                   <button
                     key={m}
@@ -576,8 +576,8 @@ export default function ProfilePage() {
                     className={cn(
                       "px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer",
                       wheelMode === m
-                        ? "bg-[#2F80ED] text-white shadow-sm font-semibold"
-                        : "text-[#A1A7B3] hover:text-[#F5F7FA]"
+                        ? "bg-[var(--action-primary)] text-[var(--on-primary)] shadow-sm font-semibold"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     )}
                   >
                     {m === "INTERVUE" ? "Intervue DSA" : m === "LEETCODE" ? "LeetCode" : "Combined"}
@@ -597,7 +597,7 @@ export default function ProfilePage() {
                       cy="50"
                       r={radius}
                       fill="transparent"
-                      stroke="#1E2229"
+                      stroke="var(--border-subtle)"
                       strokeWidth="9"
                     />
 
@@ -652,17 +652,17 @@ export default function ProfilePage() {
 
                   {/* Centered Solved Count */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-3xl font-bold text-[#F5F7FA] tracking-tight">
+                    <span className="text-3xl font-bold text-[var(--text-primary)] tracking-tight">
                       {wheelTotalSolved}
                     </span>
-                    <span className="text-[11px] font-mono text-[#707784]">
+                    <span className="text-[11px] font-mono text-[var(--text-muted)]">
                       {wheelMode === "LEETCODE"
                         ? "LC Solved"
                         : wheelMode === "COMBINED"
                         ? `/ ${wheelTotalAvailable} Total`
                         : `/ ${wheelTotalAvailable} Solved`}
                     </span>
-                    <span className="text-[10px] font-semibold text-[#2F80ED] mt-1 uppercase tracking-wider">
+                    <span className="text-[10px] font-semibold text-[var(--accent-text)] mt-1 uppercase tracking-wider">
                       {wheelTotalSolved > 0
                         ? `${((wheelTotalSolved / wheelTotalAvailable) * 100).toFixed(1)}% Complete`
                         : "0% Complete"}
@@ -674,19 +674,19 @@ export default function ProfilePage() {
               {/* Difficulty Breakdown Bars */}
               <div className="space-y-3">
                 {/* Basic (Easy) */}
-                <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                <div className="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="font-semibold text-[#22C55E] flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-[#22C55E]" />
+                    <span className="font-semibold text-[var(--status-success)] flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[var(--status-success)]" />
                       Basic (Easy)
                     </span>
-                    <span className="font-mono text-[#F5F7FA] font-medium">
-                      {wheelEasy} <span className="text-[#707784] font-normal text-[11px]">/ {wheelEasyTotal}</span>
+                    <span className="font-mono text-[var(--text-primary)] font-medium">
+                      {wheelEasy} <span className="text-[var(--text-muted)] font-normal text-[11px]">/ {wheelEasyTotal}</span>
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-[#14161B] overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-[var(--surface)] overflow-hidden">
                     <div
-                      className="h-full bg-[#22C55E] rounded-full transition-all duration-500"
+                      className="h-full bg-[var(--status-success)] rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(
                           (wheelEasy / Math.max(wheelEasyTotal, 1)) * 100,
@@ -698,19 +698,19 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Core (Medium) */}
-                <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                <div className="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="font-semibold text-[#F59E0B] flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+                    <span className="font-semibold text-[var(--status-warning)] flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[var(--status-warning)]" />
                       Core (Medium)
                     </span>
-                    <span className="font-mono text-[#F5F7FA] font-medium">
-                      {wheelMedium} <span className="text-[#707784] font-normal text-[11px]">/ {wheelMediumTotal}</span>
+                    <span className="font-mono text-[var(--text-primary)] font-medium">
+                      {wheelMedium} <span className="text-[var(--text-muted)] font-normal text-[11px]">/ {wheelMediumTotal}</span>
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-[#14161B] overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-[var(--surface)] overflow-hidden">
                     <div
-                      className="h-full bg-[#F59E0B] rounded-full transition-all duration-500"
+                      className="h-full bg-[var(--status-warning)] rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(
                           (wheelMedium / Math.max(wheelMediumTotal, 1)) * 100,
@@ -722,19 +722,19 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Pro (Hard) */}
-                <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                <div className="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="font-semibold text-[#EF4444] flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
+                    <span className="font-semibold text-[var(--status-danger)] flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[var(--status-danger)]" />
                       Pro (Hard)
                     </span>
-                    <span className="font-mono text-[#F5F7FA] font-medium">
-                      {wheelHard} <span className="text-[#707784] font-normal text-[11px]">/ {wheelHardTotal}</span>
+                    <span className="font-mono text-[var(--text-primary)] font-medium">
+                      {wheelHard} <span className="text-[var(--text-muted)] font-normal text-[11px]">/ {wheelHardTotal}</span>
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-[#14161B] overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-[var(--surface)] overflow-hidden">
                     <div
-                      className="h-full bg-[#EF4444] rounded-full transition-all duration-500"
+                      className="h-full bg-[var(--status-danger)] rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(
                           (wheelHard / Math.max(wheelHardTotal, 1)) * 100,
@@ -746,13 +746,13 @@ export default function ProfilePage() {
                 </div>
 
                 {wheelMode === "COMBINED" && cfStats?.solvedCount ? (
-                  <div className="p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                  <div className="p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                     <div className="flex items-center justify-between text-xs mb-1.5">
-                      <span className="font-semibold text-[#2F80ED] flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#2F80ED]" />
+                      <span className="font-semibold text-[var(--accent-text)] flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[var(--accent-text)]" />
                         Codeforces Solved
                       </span>
-                      <span className="font-mono text-[#F5F7FA] font-medium">
+                      <span className="font-mono text-[var(--text-primary)] font-medium">
                         {cfStats.solvedCount}
                       </span>
                     </div>
@@ -763,25 +763,25 @@ export default function ProfilePage() {
           </div>
 
           {/* 3. DSA Topic Analysis */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] shadow-sm flex flex-col">
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm flex flex-col">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-[#A1A7B3] tracking-tight">
+                <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
                   DSA Topic Analysis
                 </h2>
-                <Info className="w-4 h-4 text-[#707784] cursor-pointer hover:text-[#A1A7B3] transition-colors" />
+                <Info className="w-4 h-4 text-[var(--text-muted)] cursor-pointer hover:text-[var(--text-secondary)] transition-colors" />
               </div>
 
-              <div className="flex items-center p-1 rounded-lg bg-[#101216] border border-[#1E2229] text-[11px] font-semibold w-full sm:w-auto overflow-x-auto hide-scrollbar">
+              <div className="flex items-center p-1 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-[11px] font-semibold w-full sm:w-auto overflow-x-auto hide-scrollbar">
                 {(["ALL", "INTERVUE", "LEETCODE", "CODEFORCES"] as const).map((p) => (
                   <button
                     key={p}
                     onClick={() => setTopicPlatform(p)}
                     className={cn(
-                      "px-3 py-1.5 rounded-md transition-all whitespace-nowrap",
+                      "px-3 py-1.5 rounded-md transition-all whitespace-nowrap cursor-pointer",
                       topicPlatform === p
-                        ? "bg-[#2F80ED] text-white shadow-sm"
-                        : "text-[#707784] hover:text-[#A1A7B3] hover:bg-[#1E2229]/50"
+                        ? "bg-[var(--action-primary)] text-[var(--on-primary)] shadow-sm"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
                     )}
                   >
                     {p === "ALL" ? "All Platforms" : p === "INTERVUE" ? "Intervue" : p === "LEETCODE" ? "LeetCode" : "Codeforces"}
@@ -810,7 +810,7 @@ export default function ProfilePage() {
                   <div key={i} className="flex items-center gap-4 w-full">
                     {/* Label */}
                     <div className="w-36 text-right shrink-0">
-                      <span className="text-[13px] text-[#A1A7B3] font-medium leading-tight">
+                      <span className="text-[13px] text-[var(--text-secondary)] font-medium leading-tight">
                         {topic.tag}
                       </span>
                     </div>
@@ -818,7 +818,7 @@ export default function ProfilePage() {
                     {/* Bar Area */}
                     <div className="flex-1 h-[22px] relative flex items-center">
                       <div
-                        className={cn("h-full transition-all duration-1000 ease-out flex items-center justify-center", color)}
+                        className={cn("h-full transition-all duration-1000 ease-out flex items-center justify-center rounded-r", color)}
                         style={{ width: `${percent}%` }}
                       >
                         {topic.count > 0 && (
@@ -838,7 +838,7 @@ export default function ProfilePage() {
               <div className="mt-8 flex justify-center">
                 <button
                   onClick={() => setShowAllTopics(!showAllTopics)}
-                  className="p-1 text-[#707784] hover:text-[#A1A7B3] transition-colors cursor-pointer"
+                  className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                 >
                   {showAllTopics ? (
                     <ChevronUp className="w-5 h-5" />
@@ -855,15 +855,15 @@ export default function ProfilePage() {
         {/* Right 1 Column: Dedicated External Platform Counters & Social Links */}
         <div className="space-y-6">
           {/* LeetCode Dedicated Counter Card */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] relative overflow-hidden">
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm relative overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/10 border border-[#F59E0B]/25 flex items-center justify-center p-1.5 shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-[var(--status-warning-subtle)] border border-[var(--border-subtle)] flex items-center justify-center p-1.5 shrink-0">
                   <img src="/leetcode.svg" alt="LeetCode" className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-[#F5F7FA]">LeetCode</h3>
-                  <p className="text-[11px] text-[#707784] font-mono">
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">LeetCode</h3>
+                  <p className="text-[11px] text-[var(--text-muted)] font-mono">
                     {lcStats?.handle ? `@${lcStats.handle}` : "Not connected"}
                   </p>
                 </div>
@@ -871,7 +871,7 @@ export default function ProfilePage() {
 
               {lcStats?.handle ? (
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/25">
+                  <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-[var(--border-subtle)]">
                     Live
                   </span>
                   <button
@@ -882,14 +882,14 @@ export default function ProfilePage() {
                       });
                     }}
                     disabled={syncAllMutation.isPending}
-                    className="p-1 text-[#707784] hover:text-[#FFA116] transition-colors cursor-pointer disabled:opacity-50"
+                    className="p-1 text-[var(--text-muted)] hover:text-[var(--status-warning)] transition-colors cursor-pointer disabled:opacity-50"
                     title="Sync LeetCode Stats"
                   >
-                    <RefreshCw className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#FFA116]")} />
+                    <RefreshCw className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[var(--status-warning)]")} />
                   </button>
                   <button
                     onClick={() => disconnectMutation.mutate({ platform: "leetcode" })}
-                    className="p-1 text-[#707784] hover:text-[#EF4444] transition-colors cursor-pointer"
+                    className="p-1 text-[var(--text-muted)] hover:text-[var(--status-danger)] transition-colors cursor-pointer"
                     title="Disconnect LeetCode"
                   >
                     <Unlink className="w-3.5 h-3.5" />
@@ -898,7 +898,7 @@ export default function ProfilePage() {
               ) : (
                 <button
                   onClick={() => handleOpenConnect("leetcode")}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-[#F59E0B] hover:text-amber-300 bg-[#F59E0B]/10 hover:bg-[#F59E0B]/20 px-2.5 py-1 rounded-md border border-[#F59E0B]/25 transition-colors cursor-pointer"
+                  className="flex items-center gap-1 text-[11px] font-semibold text-[var(--status-warning)] bg-[var(--status-warning-subtle)] hover:opacity-90 px-2.5 py-1 rounded-md border border-[var(--border-subtle)] transition-colors cursor-pointer"
                 >
                   <Plus className="w-3 h-3" /> Connect
                 </button>
@@ -907,67 +907,67 @@ export default function ProfilePage() {
 
             {lcStats?.handle ? (
               <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                   <div>
-                    <span className="text-[11px] text-[#A1A7B3] block">Contest Rating</span>
+                    <span className="text-[11px] text-[var(--text-secondary)] block">Contest Rating</span>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="text-lg font-bold text-[#FFA116]">
+                      <span className="text-lg font-bold text-[var(--status-warning)]">
                         {lcStats.contestRating && lcStats.contestRating > 0
                           ? lcStats.contestRating
                           : "Unrated"}
                       </span>
                       {lcStats.badge && (
-                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[#FFA116]/15 text-[#FFA116] border border-[#FFA116]/30">
+                        <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border border-[var(--border-subtle)]">
                           {lcStats.badge}
                         </span>
                       )}
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-[11px] text-[#A1A7B3] block">Total Solved</span>
-                    <span className="text-lg font-bold text-[#F5F7FA] mt-0.5 inline-block">
+                    <span className="text-[11px] text-[var(--text-secondary)] block">Total Solved</span>
+                    <span className="text-lg font-bold text-[var(--text-primary)] mt-0.5 inline-block">
                       {lcStats.totalSolved}
                     </span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="p-2 rounded-md bg-[#22C55E]/10 border border-[#22C55E]/20">
-                    <p className="text-[10px] text-[#22C55E] font-semibold">Easy</p>
-                    <p className="font-bold text-[#F5F7FA] mt-0.5">{lcStats.easySolved}</p>
+                  <div className="p-2 rounded-md bg-[var(--status-success-subtle)] border border-[var(--border-subtle)]">
+                    <p className="text-[10px] text-[var(--status-success)] font-semibold">Easy</p>
+                    <p className="font-bold text-[var(--text-primary)] mt-0.5">{lcStats.easySolved}</p>
                   </div>
-                  <div className="p-2 rounded-md bg-[#F59E0B]/10 border border-[#F59E0B]/20">
-                    <p className="text-[10px] text-[#F59E0B] font-semibold">Medium</p>
-                    <p className="font-bold text-[#F5F7FA] mt-0.5">{lcStats.mediumSolved}</p>
+                  <div className="p-2 rounded-md bg-[var(--status-warning-subtle)] border border-[var(--border-subtle)]">
+                    <p className="text-[10px] text-[var(--status-warning)] font-semibold">Medium</p>
+                    <p className="font-bold text-[var(--text-primary)] mt-0.5">{lcStats.mediumSolved}</p>
                   </div>
-                  <div className="p-2 rounded-md bg-[#EF4444]/10 border border-[#EF4444]/20">
-                    <p className="text-[10px] text-[#EF4444] font-semibold">Hard</p>
-                    <p className="font-bold text-[#F5F7FA] mt-0.5">{lcStats.hardSolved}</p>
+                  <div className="p-2 rounded-md bg-[var(--status-danger-subtle)] border border-[var(--border-subtle)]">
+                    <p className="text-[10px] text-[var(--status-danger)] font-semibold">Hard</p>
+                    <p className="font-bold text-[var(--text-primary)] mt-0.5">{lcStats.hardSolved}</p>
                   </div>
                 </div>
 
                 <div className="space-y-1 pt-1">
                   {lcStats.ranking > 0 && (
-                    <div className="flex items-center justify-between text-[11px] text-[#A1A7B3]">
+                    <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)]">
                       <span>Global Practice Rank</span>
-                      <span className="font-mono text-[#F5F7FA] font-medium">
+                      <span className="font-mono text-[var(--text-primary)] font-medium">
                         #{lcStats.ranking.toLocaleString()}
                       </span>
                     </div>
                   )}
                   {Boolean(lcStats.contestGlobalRanking && lcStats.contestGlobalRanking > 0) && (
-                    <div className="flex items-center justify-between text-[11px] text-[#A1A7B3]">
+                    <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)]">
                       <span>Contest Rank</span>
-                      <span className="font-mono text-[#FFA116] font-medium">
+                      <span className="font-mono text-[var(--status-warning)] font-medium">
                         #{lcStats.contestGlobalRanking?.toLocaleString()}
                         {lcStats.topPercentage ? ` (Top ${lcStats.topPercentage}%)` : ""}
                       </span>
                     </div>
                   )}
                   {Boolean(lcStats.attendedContests && lcStats.attendedContests > 0) && (
-                    <div className="flex items-center justify-between text-[11px] text-[#A1A7B3]">
+                    <div className="flex items-center justify-between text-[11px] text-[var(--text-secondary)]">
                       <span>Contests Attended</span>
-                      <span className="font-mono text-[#F5F7FA] font-medium">
+                      <span className="font-mono text-[var(--text-primary)] font-medium">
                         {lcStats.attendedContests}
                       </span>
                     </div>
@@ -978,29 +978,29 @@ export default function ProfilePage() {
                   href={`https://leetcode.com/u/${lcStats.handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-[#101216] border border-[#1E2229] hover:bg-[#191C22] text-xs font-medium text-[#A1A7B3] hover:text-[#F5F7FA] transition-colors"
+                  className="mt-2 flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <span>View LeetCode Profile</span>
-                  <ExternalLink className="w-3 h-3 text-[#707784]" />
+                  <ExternalLink className="w-3 h-3 text-[var(--text-muted)]" />
                 </a>
               </div>
             ) : (
-              <p className="text-xs text-[#707784] mt-2">
+              <p className="text-xs text-[var(--text-muted)] mt-2">
                 Connect your LeetCode username to sync your solved questions, ranking, and activity heatmap.
               </p>
             )}
           </div>
 
           {/* Codeforces Dedicated Counter Card */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] relative overflow-hidden">
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm relative overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#2F80ED]/10 border border-[#2F80ED]/25 flex items-center justify-center p-1.5 shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-[var(--surface-selected)] border border-[var(--border-control)] flex items-center justify-center p-1.5 shrink-0">
                   <img src="/icons8-codeforces-24.png" alt="Codeforces" className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-[#F5F7FA]">Codeforces</h3>
-                  <p className="text-[11px] text-[#707784] font-mono">
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">Codeforces</h3>
+                  <p className="text-[11px] text-[var(--text-muted)] font-mono">
                     {cfStats?.handle ? `@${cfStats.handle}` : "Not connected"}
                   </p>
                 </div>
@@ -1008,7 +1008,7 @@ export default function ProfilePage() {
 
               {cfStats?.handle ? (
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded bg-[#2F80ED]/10 text-[#3B9CFF] border border-[#2F80ED]/25">
+                  <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--border-control)]">
                     Live
                   </span>
                   <button
@@ -1019,14 +1019,14 @@ export default function ProfilePage() {
                       });
                     }}
                     disabled={syncAllMutation.isPending}
-                    className="p-1 text-[#707784] hover:text-[#2F80ED] transition-colors cursor-pointer disabled:opacity-50"
+                    className="p-1 text-[var(--text-muted)] hover:text-[var(--accent-text)] transition-colors cursor-pointer disabled:opacity-50"
                     title="Sync Codeforces Stats"
                   >
-                    <RefreshCw className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[#2F80ED]")} />
+                    <RefreshCw className={cn("w-3.5 h-3.5", syncAllMutation.isPending && "animate-spin text-[var(--accent-text)]")} />
                   </button>
                   <button
                     onClick={() => disconnectMutation.mutate({ platform: "codeforces" })}
-                    className="p-1 text-[#707784] hover:text-[#EF4444] transition-colors cursor-pointer"
+                    className="p-1 text-[var(--text-muted)] hover:text-[var(--status-danger)] transition-colors cursor-pointer"
                     title="Disconnect Codeforces"
                   >
                     <Unlink className="w-3.5 h-3.5" />
@@ -1035,7 +1035,7 @@ export default function ProfilePage() {
               ) : (
                 <button
                   onClick={() => handleOpenConnect("codeforces")}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-[#3B9CFF] hover:text-blue-300 bg-[#2F80ED]/10 hover:bg-[#2F80ED]/20 px-2.5 py-1 rounded-md border border-[#2F80ED]/25 transition-colors cursor-pointer"
+                  className="flex items-center gap-1 text-[11px] font-semibold text-[var(--accent-text)] bg-[var(--surface-selected)] hover:opacity-90 px-2.5 py-1 rounded-md border border-[var(--border-control)] transition-colors cursor-pointer"
                 >
                   <Plus className="w-3 h-3" /> Connect
                 </button>
@@ -1044,88 +1044,88 @@ export default function ProfilePage() {
 
             {cfStats?.handle ? (
               <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#101216] border border-[#1E2229]">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                   <div>
-                    <p className="text-[11px] text-[#A1A7B3]">Current Rating</p>
-                    <p className="text-lg font-bold text-[#3B9CFF] mt-0.5">
+                    <p className="text-[11px] text-[var(--text-secondary)]">Current Rating</p>
+                    <p className="text-lg font-bold text-[var(--accent-text)] mt-0.5">
                       {cfStats.rating && cfStats.rating > 0 ? cfStats.rating : "Unrated"}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-[11px] text-[#A1A7B3]">Rank Title</p>
-                    <p className="text-xs font-semibold text-[#22C55E] capitalize mt-1">
+                    <p className="text-[11px] text-[var(--text-secondary)]">Rank Title</p>
+                    <p className="text-xs font-semibold text-[var(--status-success)] capitalize mt-1">
                       {cfStats.rank || "Unrated"}
                     </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-center text-xs">
-                  <div className="p-2 rounded-md bg-[#101216] border border-[#1E2229]">
-                    <p className="text-[10px] text-[#707784]">Max / Peak Rating</p>
-                    <p className="font-bold text-[#F5F7FA] mt-0.5">
+                  <div className="p-2 rounded-md bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+                    <p className="text-[10px] text-[var(--text-muted)]">Max / Peak Rating</p>
+                    <p className="font-bold text-[var(--text-primary)] mt-0.5">
                       {cfStats.maxRating && cfStats.maxRating > 0 ? cfStats.maxRating : (cfStats.rating || "--")}
                     </p>
                   </div>
-                  <div className="p-2 rounded-md bg-[#101216] border border-[#1E2229]">
-                    <p className="text-[10px] text-[#707784]">Problems Solved</p>
-                    <p className="font-bold text-[#F5F7FA] mt-0.5">{cfStats.solvedCount}</p>
+                  <div className="p-2 rounded-md bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
+                    <p className="text-[10px] text-[var(--text-muted)]">Problems Solved</p>
+                    <p className="font-bold text-[var(--text-primary)] mt-0.5">{cfStats.solvedCount}</p>
                   </div>
                 </div>
                 <a
                   href={`https://codeforces.com/profile/${cfStats.handle}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-[#101216] border border-[#1E2229] hover:bg-[#191C22] text-xs font-medium text-[#A1A7B3] hover:text-[#F5F7FA] transition-colors"
+                  className="mt-2 flex items-center justify-center gap-1.5 w-full py-2 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <span>View Codeforces Profile</span>
-                  <ExternalLink className="w-3 h-3 text-[#707784]" />
+                  <ExternalLink className="w-3 h-3 text-[var(--text-muted)]" />
                 </a>
               </div>
             ) : (
-              <p className="text-xs text-[#707784] mt-2">
+              <p className="text-xs text-[var(--text-muted)] mt-2">
                 Connect your Codeforces handle to track contest rating, max rating, and submission activity.
               </p>
             )}
           </div>
 
           {/* At a Glance Card */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33]">
-            <h2 className="text-xs font-semibold text-[#A1A7B3] uppercase tracking-wider mb-4 flex items-center gap-2">
-              <TrendingUp className="w-3.5 h-3.5 text-[#2F80ED]" />
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm">
+            <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <TrendingUp className="w-3.5 h-3.5 text-[var(--accent-text)]" />
               <span>At a Glance</span>
             </h2>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between py-2 border-b border-[#1E2229] text-xs">
-                <span className="text-[#A1A7B3]">Target Role</span>
-                <span className="font-semibold text-[#F5F7FA]">{profile?.targetRole || "Software Engineer"}</span>
+              <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] text-xs">
+                <span className="text-[var(--text-secondary)]">Target Role</span>
+                <span className="font-semibold text-[var(--text-primary)]">{profile?.targetRole || "Software Engineer"}</span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-[#1E2229] text-xs">
-                <span className="text-[#A1A7B3]">Experience</span>
-                <span className="font-semibold text-[#F5F7FA] capitalize">
+              <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] text-xs">
+                <span className="text-[var(--text-secondary)]">Experience</span>
+                <span className="font-semibold text-[var(--text-primary)] capitalize">
                   {profile?.experienceLevel || "Mid-Level"}
                 </span>
               </div>
-              <div className="flex items-center justify-between py-2 border-b border-[#1E2229] text-xs">
-                <span className="text-[#A1A7B3]">Contests Participated</span>
-                <span className="font-semibold text-[#2F80ED]">{totalContests}</span>
+              <div className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] text-xs">
+                <span className="text-[var(--text-secondary)]">Contests Participated</span>
+                <span className="font-semibold text-[var(--accent-text)]">{totalContests}</span>
               </div>
               <div className="flex items-center justify-between py-2 text-xs">
-                <span className="text-[#A1A7B3]">Member Since</span>
-                <span className="font-mono text-[#707784]">2026</span>
+                <span className="text-[var(--text-secondary)]">Member Since</span>
+                <span className="font-mono text-[var(--text-muted)]">2026</span>
               </div>
             </div>
           </div>
 
           {/* Social Links Card */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33]">
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xs font-semibold text-[#A1A7B3] uppercase tracking-wider">
+              <h2 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
                 Social Profiles
               </h2>
               {!ghStats?.handle && (
                 <button
                   onClick={() => handleOpenConnect("github")}
-                  className="text-[11px] font-semibold text-[#2F80ED] hover:text-[#3B9CFF] transition-colors cursor-pointer"
+                  className="text-[11px] font-semibold text-[var(--accent-text)] hover:opacity-80 transition-colors cursor-pointer"
                 >
                   + Link GitHub
                 </button>
@@ -1139,15 +1139,15 @@ export default function ProfilePage() {
                   href={ghStats?.profileUrl || profile?.githubUrl || ""}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 rounded-lg bg-[#101216] border border-[#1E2229] hover:border-[#272B33] text-xs text-[#A1A7B3] hover:text-[#F5F7FA] transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <span className="flex items-center gap-2.5">
-                    <svg className="w-4 h-4 text-[#707784]" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-4 h-4 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
                     </svg>
                     GitHub ({ghStats?.handle || "Linked"})
                   </span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[#707784]" />
+                  <ExternalLink className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                 </a>
               ) : null}
 
@@ -1157,64 +1157,64 @@ export default function ProfilePage() {
                   href={profile.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 rounded-lg bg-[#101216] border border-[#1E2229] hover:border-[#272B33] text-xs text-[#A1A7B3] hover:text-[#F5F7FA] transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   <span className="flex items-center gap-2.5">
-                    <svg className="w-4 h-4 text-[#2F80ED]" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-4 h-4 text-[var(--accent-text)]" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                     </svg>
                     LinkedIn
                   </span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[#707784]" />
+                  <ExternalLink className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                 </a>
               ) : null}
             </div>
           </div>
 
           {/* Refer & Earn Card */}
-          <div className="p-6 rounded-xl bg-[#14161B] border border-[#272B33] relative overflow-hidden">
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] shadow-sm relative overflow-hidden">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#F59E0B]" />
-                <h3 className="text-sm font-semibold text-[#F5F7FA]">Refer & Earn</h3>
+                <Sparkles className="w-4 h-4 text-[var(--status-warning)]" />
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">Refer & Earn</h3>
               </div>
-              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/30">
+              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-[var(--border-subtle)]">
                 +50 Pts
               </span>
             </div>
 
-            <p className="text-xs text-[#8B92A0] leading-relaxed mb-4">
-              Invite friends to practice on Intervue. When they join, you both get <span className="text-white font-semibold">50 points</span>!
+            <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4">
+              Invite friends to practice on Intervue. When they join, you both get <span className="text-[var(--text-primary)] font-semibold">50 points</span>!
             </p>
 
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-[#101216] border border-[#1E2229]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                 <div>
-                  <span className="text-[10px] text-[#525866] uppercase tracking-wider font-mono block">Your Code</span>
-                  <span className="text-base font-bold font-mono text-[#F5F7FA] tracking-wider">
+                  <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-mono block">Your Code</span>
+                  <span className="text-base font-bold font-mono text-[var(--text-primary)] tracking-wider">
                     {referralData?.referralCode || "..."}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleCopyReferral}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#327CF6] hover:bg-[#2563EB] text-xs font-semibold text-white transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-xs font-semibold text-[var(--on-primary)] transition-all cursor-pointer"
                 >
                   {copiedReferral ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedReferral ? "Copied!" : "Copy Link"}</span>
                 </button>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-[#8B92A0] pt-1 px-1">
+              <div className="flex items-center justify-between text-xs text-[var(--text-secondary)] pt-1 px-1">
                 <span>Friends Referred</span>
-                <span className="font-mono font-bold text-[#F5F7FA]">
+                <span className="font-mono font-bold text-[var(--text-primary)]">
                   {referralData?.totalReferrals ?? 0}
                 </span>
               </div>
 
               {/* Redeem Friend Code Section */}
-              <div className="pt-3 border-t border-[#1E2229]">
-                <span className="text-[10px] text-[#525866] uppercase tracking-wider font-mono block mb-1.5">
+              <div className="pt-3 border-t border-[var(--border-subtle)]">
+                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-mono block mb-1.5">
                   Have an invite code?
                 </span>
                 <form onSubmit={handleClaimCode} className="flex gap-2">
@@ -1223,12 +1223,12 @@ export default function ProfilePage() {
                     value={claimInput}
                     onChange={(e) => setClaimInput(e.target.value.toUpperCase())}
                     placeholder="ENTER CODE"
-                    className="flex-1 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#1E2229] focus:border-[#327CF6]/50 text-xs font-mono text-white placeholder:text-[#525866] outline-none uppercase"
+                    className="flex-1 px-3 py-1.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] focus:border-[var(--action-primary)] text-xs font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none uppercase"
                   />
                   <button
                     type="submit"
                     disabled={isClaiming || !claimInput.trim()}
-                    className="px-3 py-1.5 rounded-lg bg-[#22C55E]/15 hover:bg-[#22C55E]/25 text-[#22C55E] border border-[#22C55E]/30 text-xs font-semibold transition-all disabled:opacity-40 cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg bg-[var(--status-success-subtle)] hover:opacity-90 text-[var(--status-success)] border border-[var(--border-subtle)] text-xs font-semibold transition-all disabled:opacity-40 cursor-pointer"
                   >
                     {isClaiming ? "Claiming..." : "Redeem"}
                   </button>
@@ -1241,11 +1241,11 @@ export default function ProfilePage() {
 
       {/* ─── Connect Platform Modal ────────────────────────────────────── */}
       {connectModal.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-md rounded-xl bg-[#181B21] border border-[#272B33] p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-md rounded-xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] p-6 shadow-2xl relative">
             <button
               onClick={() => setConnectModal((prev) => ({ ...prev, isOpen: false }))}
-              className="absolute top-4 right-4 text-[#707784] hover:text-[#F5F7FA] p-1 transition-colors"
+              className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1255,10 +1255,10 @@ export default function ProfilePage() {
                 className={cn(
                   "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm font-mono border",
                   connectModal.platform === "leetcode"
-                    ? "bg-[#F59E0B]/10 border-[#F59E0B]/25 text-[#F59E0B]"
+                    ? "bg-[var(--status-warning-subtle)] border-[var(--border-subtle)] text-[var(--status-warning)]"
                     : connectModal.platform === "codeforces"
-                    ? "bg-[#2F80ED]/10 border-[#2F80ED]/25 text-[#3B9CFF]"
-                    : "bg-[#101216] border-[#272B33] text-white"
+                    ? "bg-[var(--surface-selected)] border-[var(--border-control)] text-[var(--accent-text)]"
+                    : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-primary)]"
                 )}
               >
                 {connectModal.platform === "leetcode"
@@ -1268,10 +1268,10 @@ export default function ProfilePage() {
                   : "GH"}
               </div>
               <div>
-                <h3 className="text-base font-semibold text-[#F5F7FA] capitalize">
+                <h3 className="text-base font-semibold text-[var(--text-primary)] capitalize">
                   Connect {connectModal.platform}
                 </h3>
-                <p className="text-xs text-[#707784]">
+                <p className="text-xs text-[var(--text-muted)]">
                   Enter your public username to sync live data
                 </p>
               </div>
@@ -1279,7 +1279,7 @@ export default function ProfilePage() {
 
             <form onSubmit={handleConnectSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-[#A1A7B3] block mb-1.5">
+                <label className="text-xs font-medium text-[var(--text-secondary)] block mb-1.5">
                   {connectModal.platform === "leetcode"
                     ? "LeetCode Username"
                     : connectModal.platform === "codeforces"
@@ -1299,13 +1299,13 @@ export default function ProfilePage() {
                       ? "e.g. tourist"
                       : "e.g. octocat"
                   }
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#101216] border border-[#272B33] focus:border-[#2F80ED] focus:outline-none text-sm text-[#F5F7FA] placeholder:text-[#707784] font-mono transition-colors"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-control)] focus:border-[var(--action-primary)] focus:outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-mono transition-colors"
                   autoFocus
                 />
               </div>
 
               {connectModal.error && (
-                <p className="text-xs text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/25 p-2.5 rounded-md">
+                <p className="text-xs text-[var(--status-danger)] bg-[var(--status-danger-subtle)] border border-[var(--border-subtle)] p-2.5 rounded-md">
                   {connectModal.error}
                 </p>
               )}
@@ -1314,18 +1314,18 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setConnectModal((prev) => ({ ...prev, isOpen: false }))}
-                  className="px-4 py-2 rounded-lg text-xs font-medium text-[#707784] hover:text-[#F5F7FA] transition-colors"
+                  className="px-4 py-2 rounded-lg text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={connectPlatformMutation.isPending || !connectModal.handle.trim()}
-                  className="px-5 py-2 rounded-lg bg-[#2F80ED] hover:bg-[#3B9CFF] text-xs font-semibold text-white shadow-sm transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-2 rounded-lg bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-xs font-semibold text-[var(--on-primary)] shadow-sm transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 >
                   {connectPlatformMutation.isPending ? (
                     <>
-                      <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
                       <span>Verifying...</span>
                     </>
                   ) : (
