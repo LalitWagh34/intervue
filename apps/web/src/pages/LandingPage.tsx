@@ -25,58 +25,83 @@ import {
 import { cn } from "@/lib/utils";
 import { BrandIcon } from "@/components/shared/BrandLogo";
 
+const LANDING_COMPANIES = [
+  { name: "Google", logo: "/google.png" },
+  { name: "Amazon", logo: "/amazon.png" },
+  { name: "Meta", logo: "/meta.png" },
+  { name: "Microsoft", logo: "/microsoft.png" },
+  { name: "Apple", logo: "/apple_dark.png" },
+  { name: "Uber", logo: "/uber.png" },
+  { name: "Netflix", logo: "/netflix-1-logo-svgrepo-com.svg" },
+  { name: "NVIDIA", logo: "/nvidia.png" },
+  { name: "Adobe", logo: "/adobe.png" },
+  { name: "Atlassian", logo: "/atlassian.png" },
+  { name: "LinkedIn", logo: "/linkedin.png" },
+  { name: "Salesforce", logo: "/salesforce.png" },
+  { name: "Oracle", logo: "/oracle.png" },
+  { name: "PayPal", logo: "/paypal.png" },
+  { name: "Visa", logo: "/visa.png" },
+  { name: "Bloomberg", logo: "/bloomberg.png" },
+  { name: "Goldman Sachs", logo: "/goldmansachs.png" },
+  { name: "Flipkart", logo: "/flipkart.png" },
+  { name: "Walmart", logo: "/walmart.png" },
+  { name: "Cisco", logo: "/cisco.svg" },
+  { name: "TikTok", logo: "/tiktok.svg" },
+  { name: "PhonePe", logo: "/phonepe-icon.webp" },
+];
+
 export default function LandingPage() {
   return (
-    <div className="w-full bg-[#060709] text-[#F3F4F6] min-h-screen selection:bg-[#327CF6]/30 font-sans overflow-x-hidden">
+    <div className="w-full bg-[#171819] text-[#F1F0EC] min-h-screen selection:bg-[#3969D6]/30 font-sans overflow-x-hidden">
       {/* ─── Top Navigation Header ─────────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50 bg-[#060709]/80 backdrop-blur-xl border-b border-[#181A20]">
+      <header className="fixed top-0 inset-x-0 z-50 bg-[#171819]/80 backdrop-blur-xl border-b border-[#383B40]">
         <div className="h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
           {/* Logo & Brand */}
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#141A29] via-[#0E131F] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center shadow-md shadow-[#327CF6]/20 group-hover:border-[#327CF6]/70 group-hover:scale-105 transition-all">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-b from-[#202123] via-[#202123] to-[#171819] border border-[#3969D6]/40 flex items-center justify-center shadow-md shadow-[#3969D6]/20 group-hover:border-[#3969D6]/70 group-hover:scale-105 transition-all">
                 <BrandIcon className="w-5 h-5" />
               </div>
-              <span className="text-lg font-extrabold tracking-tight text-white group-hover:text-zinc-200 transition-colors">
+              <span className="text-lg font-extrabold tracking-tight text-white group-hover:text-[#E4E3DD] transition-colors">
                 Intervue
               </span>
             </Link>
 
             {/* Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1 text-xs font-medium text-[#8B92A0]">
+            <nav className="hidden md:flex items-center gap-1 text-xs font-medium text-[#A8A7A1]">
               <a
                 href="#features"
-                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#12141B] transition-colors"
+                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#202123] transition-colors"
               >
                 Features
               </a>
               <a
                 href="#companies"
-                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#12141B] transition-colors"
+                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#202123] transition-colors"
               >
                 Company Kits
               </a>
               <a
                 href="#arena"
-                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#12141B] transition-colors"
+                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#202123] transition-colors"
               >
                 Battle Arena
               </a>
               <a
                 href="#scorecards"
-                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#12141B] transition-colors"
+                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#202123] transition-colors"
               >
                 Scorecards
               </a>
               <Link
                 to="/help"
-                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#12141B] transition-colors"
+                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#202123] transition-colors"
               >
                 Help Center
               </Link>
               <Link
                 to="/feedback"
-                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#12141B] transition-colors"
+                className="px-3 py-1.5 rounded-lg hover:text-white hover:bg-[#202123] transition-colors"
               >
                 Feedback
               </Link>
@@ -87,13 +112,13 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             <Link
               to="/login"
-              className="px-3.5 py-1.5 text-xs font-semibold text-[#8B92A0] hover:text-white transition-colors"
+              className="px-3.5 py-1.5 text-xs font-semibold text-[#A8A7A1] hover:text-white transition-colors"
             >
               Sign In
             </Link>
             <Link
               to="/login"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-xs font-semibold shadow-md shadow-[#327CF6]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#3969D6] to-[#3969D6] hover:from-[#3969D6] hover:to-[#3969D6] text-white text-xs font-semibold shadow-md shadow-[#3969D6]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Get Started</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -107,27 +132,27 @@ export default function LandingPage() {
         {/* ─── Hero Section ──────────────────────────────────────────── */}
         <section className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16 pb-8 sm:pb-20 flex flex-col items-center text-center overflow-hidden">
           {/* Ambient Background Glows */}
-          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[680px] h-[320px] bg-[#327CF6]/15 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[680px] h-[320px] bg-[#3969D6]/15 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute top-28 left-1/3 -translate-x-1/2 w-64 h-64 bg-[#8B5CF6]/10 rounded-full blur-[100px] pointer-events-none" />
 
           {/* Hero Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-300 mb-5 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#202123] border border-[#383B40] text-xs font-mono text-[#E4E3DD] mb-5 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-            <span className="text-[#327CF6] font-semibold">AI Technical Mock Cockpit</span>
-            <span className="text-zinc-600 hidden sm:inline">•</span>
-            <span className="text-zinc-400 hidden sm:inline">FAANG Placement Ready</span>
+            <span className="text-[#3969D6] font-semibold">AI Technical Mock Cockpit</span>
+            <span className="text-[#75746E] hidden sm:inline">•</span>
+            <span className="text-[#A8A7A1] hidden sm:inline">FAANG Placement Ready</span>
           </div>
 
           {/* Hero Title */}
           <h1 className="text-3xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight max-w-5xl mx-auto leading-[1.15] mb-4 sm:mb-6">
             Practice like it's the{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#327CF6] via-[#60A5FA] to-[#A78BFA]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3969D6] via-[#9AB9FF] to-[#A78BFA]">
               real interview.
             </span>
           </h1>
 
           {/* Hero Subtitle */}
-          <p className="text-sm sm:text-lg text-[#8B92A0] max-w-2xl mx-auto leading-relaxed mb-6 sm:mb-8">
+          <p className="text-sm sm:text-lg text-[#A8A7A1] max-w-2xl mx-auto leading-relaxed mb-6 sm:mb-8">
             Adaptive AI technical interviews, curated FAANG company prep kits, real-time 1v1 coding battle arenas, and granular diagnostic scorecards.
           </p>
 
@@ -135,7 +160,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap items-center justify-center gap-3 mb-4 sm:mb-5">
             <Link
               to="/login"
-              className="flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-xs sm:text-sm font-semibold shadow-xl shadow-[#327CF6]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#3969D6] to-[#3969D6] hover:from-[#3969D6] hover:to-[#3969D6] text-white text-xs sm:text-sm font-semibold shadow-xl shadow-[#3969D6]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Start Practicing Free</span>
               <ArrowRight className="w-4 h-4" />
@@ -143,72 +168,72 @@ export default function LandingPage() {
 
             <a
               href="#features"
-              className="flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#0D0E12] hover:bg-[#13161F] border border-[#181A20] hover:border-[#327CF6]/40 text-zinc-300 hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-sm"
+              className="flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#202123] hover:bg-[#202123] border border-[#383B40] hover:border-[#3969D6]/40 text-[#E4E3DD] hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-sm"
             >
-              <Sparkles className="w-4 h-4 text-[#327CF6]" />
+              <Sparkles className="w-4 h-4 text-[#3969D6]" />
               <span>Explore Features</span>
             </a>
           </div>
 
           {/* Social Proof Pill */}
-          <p className="text-[11px] sm:text-xs text-[#8B92A0] flex items-center justify-center gap-1.5 sm:gap-2 font-mono">
+          <p className="text-[11px] sm:text-xs text-[#A8A7A1] flex items-center justify-center gap-1.5 sm:gap-2 font-mono">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
             Free practice tier · No credit card required · Instant start
           </p>
 
-          {/* Company Brand Logos Trust Strip */}
-          <div className="mt-8 pt-4 pb-1 border-t border-[#181A20]/60 w-full max-w-4xl mx-auto flex flex-col items-center gap-3">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-500">
+          {/* Company Brand Logos Trust Strip (Sideways Auto-Scroll Marquee) */}
+          <div className="mt-8 pt-4 pb-1 border-t border-[#383B40]/60 w-full max-w-5xl mx-auto flex flex-col items-center gap-3">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#75746E]">
               Targeted practice sets for engineers interviewing at
             </span>
-            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
-                <img src="/google.png" alt="Google" className="h-4 sm:h-5 object-contain" />
-                <span className="text-xs font-semibold text-zinc-300">Google</span>
+            <div className="relative w-full overflow-hidden py-1">
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#171819] to-transparent z-10" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#171819] to-transparent z-10" />
+              <div
+                className="flex w-max items-center gap-3 hover:[animation-play-state:paused]"
+                style={{ animation: "landingMarquee 42s linear infinite" }}
+              >
+                {[...LANDING_COMPANIES, ...LANDING_COMPANIES].map((company, idx) => (
+                  <div
+                    key={`${company.name}-${idx}`}
+                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#202123] border border-[#383B40] shrink-0 hover:border-[#3969D6]/60 transition-colors"
+                  >
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="h-4 sm:h-5 w-auto object-contain rounded-sm"
+                    />
+                    <span className="text-xs font-semibold text-[#E4E3DD] whitespace-nowrap">
+                      {company.name}
+                    </span>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
-                <img src="/amazon.png" alt="Amazon" className="h-4 sm:h-5 object-contain" />
-                <span className="text-xs font-semibold text-zinc-300">Amazon</span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
-                <img src="/meta.png" alt="Meta" className="h-4 sm:h-5 object-contain" />
-                <span className="text-xs font-semibold text-zinc-300">Meta</span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
-                <img src="/microsoft.png" alt="Microsoft" className="h-4 sm:h-5 object-contain" />
-                <span className="text-xs font-semibold text-zinc-300">Microsoft</span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
-                <img src="/apple_dark.png" alt="Apple" className="h-4 sm:h-5 object-contain" />
-                <span className="text-xs font-semibold text-zinc-300">Apple</span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
-                <img src="/uber.png" alt="Uber" className="h-3.5 sm:h-4 object-contain" />
-                <span className="text-xs font-semibold text-zinc-300">Uber</span>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0D0E12] border border-[#181A20]">
-                <img src="/netflix-1-logo-svgrepo-com.svg" alt="Netflix" className="h-4 sm:h-5 object-contain" />
-                <span className="text-xs font-semibold text-zinc-300">Netflix</span>
-              </div>
+              <style>{`
+                @keyframes landingMarquee {
+                  0% { transform: translateX(0); }
+                  100% { transform: translateX(-50%); }
+                }
+              `}</style>
             </div>
           </div>
 
           {/* ─── Hero Product Mockup Terminal (Desktop Only) ─────────── */}
-          <div className="hidden md:block w-full mt-14 rounded-2xl border border-[#181A20] bg-[#0A0C10] shadow-2xl overflow-hidden text-left">
+          <div className="hidden md:block w-full mt-14 rounded-2xl border border-[#383B40] bg-[#171819] shadow-2xl overflow-hidden text-left">
             {/* Window Topbar */}
-            <div className="bg-[#0D0E14] px-5 py-3 border-b border-[#181A20] flex flex-wrap items-center justify-between gap-3">
+            <div className="bg-[#202123] px-5 py-3 border-b border-[#383B40] flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500/50" />
                   <div className="w-3 h-3 rounded-full bg-amber-500/30 border border-amber-500/50" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500/30 border border-emerald-500/50" />
                 </div>
-                <div className="h-4 w-px bg-[#181A20]" />
+                <div className="h-4 w-px bg-[#383B40]" />
                 <div className="flex items-center gap-2">
-                  <Brain className="w-4 h-4 text-[#327CF6]" />
+                  <Brain className="w-4 h-4 text-[#3969D6]" />
                   <span className="text-xs font-semibold text-white">Intervue AI Simulation</span>
-                  <span className="text-xs text-zinc-600">/</span>
-                  <span className="text-xs text-[#8B92A0]">Backend Systems & Scale</span>
+                  <span className="text-xs text-[#75746E]">/</span>
+                  <span className="text-xs text-[#A8A7A1]">Backend Systems & Scale</span>
                 </div>
               </div>
 
@@ -217,64 +242,64 @@ export default function LandingPage() {
                   <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
                   <span>24:18 REMAINING</span>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-[#181A20] text-amber-400 font-mono text-[10px] font-bold uppercase">
+                <span className="px-2 py-0.5 rounded bg-[#383B40] text-amber-400 font-mono text-[10px] font-bold uppercase">
                   Medium
                 </span>
-                <span className="px-2 py-0.5 rounded bg-[#181A20] text-zinc-400 font-mono text-[10px] font-bold uppercase">
+                <span className="px-2 py-0.5 rounded bg-[#383B40] text-[#A8A7A1] font-mono text-[10px] font-bold uppercase">
                   Turn 03 of 08
                 </span>
               </div>
             </div>
 
             {/* Split Simulation Preview */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#181A20]">
+            <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#383B40]">
               {/* Left Column: AI Dialogue */}
-              <div className="lg:col-span-7 p-6 flex flex-col gap-4 bg-[#0A0C10]">
+              <div className="lg:col-span-7 p-6 flex flex-col gap-4 bg-[#171819]">
                 {/* AI Prompt Bubble */}
-                <div className="p-4 rounded-xl bg-[#0D0E14] border border-[#181A20] flex gap-3.5">
-                  <div className="w-9 h-9 rounded-xl bg-[#327CF6]/15 border border-[#327CF6]/30 flex items-center justify-center shrink-0 text-[#327CF6]">
+                <div className="p-4 rounded-xl bg-[#202123] border border-[#383B40] flex gap-3.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#3969D6]/15 border border-[#3969D6]/30 flex items-center justify-center shrink-0 text-[#3969D6]">
                     <Brain className="w-5 h-5" />
                   </div>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white">Intervue AI (Staff Evaluator)</span>
-                      <span className="text-[10px] font-mono text-zinc-500">14:02:18</span>
+                      <span className="text-[10px] font-mono text-[#75746E]">14:02:18</span>
                     </div>
-                    <p className="text-xs text-zinc-300 leading-relaxed">
-                      "Design a distributed URL shortener that sustains <span className="font-mono text-[#327CF6] font-semibold">10M writes/day</span> with sub-50ms p99 read latency. How do you structure key generation, and where do you introduce your caching hierarchy to handle hotspot keys?"
+                    <p className="text-xs text-[#E4E3DD] leading-relaxed">
+                      "Design a distributed URL shortener that sustains <span className="font-mono text-[#3969D6] font-semibold">10M writes/day</span> with sub-50ms p99 read latency. How do you structure key generation, and where do you introduce your caching hierarchy to handle hotspot keys?"
                     </p>
                   </div>
                 </div>
 
                 {/* Candidate Solution Workspace */}
-                <div className="p-4 rounded-xl bg-[#060709] border border-[#181A20] space-y-2.5 font-mono text-xs">
-                  <div className="flex items-center justify-between text-zinc-500 pb-1 border-b border-[#181A20]/60">
-                    <span className="text-zinc-400 font-semibold">architecture_spec.py</span>
+                <div className="p-4 rounded-xl bg-[#171819] border border-[#383B40] space-y-2.5 font-mono text-xs">
+                  <div className="flex items-center justify-between text-[#75746E] pb-1 border-b border-[#383B40]/60">
+                    <span className="text-[#A8A7A1] font-semibold">architecture_spec.py</span>
                     <span className="text-[10px] text-emerald-400">● Synced</span>
                   </div>
-                  <pre className="text-zinc-300 overflow-x-auto leading-relaxed">
-                    <span className="text-zinc-600">1 </span><span className="text-[#8B5CF6]">class</span> <span className="text-blue-400">URLCompressorCluster</span>:{"\n"}
-                    <span className="text-zinc-600">2 </span>  cache_layer = init_distributed_cache(replicas=<span className="text-amber-400">3</span>){"\n"}
-                    <span className="text-zinc-600">3 </span>  db_shards = init_sharded_storage(key=<span className="text-emerald-400">"short_hash[0:2]"</span>){"\n"}
-                    <span className="text-zinc-600">4 </span>{"\n"}
-                    <span className="text-zinc-600">5 </span>  <span className="text-[#8B5CF6]">async def</span> <span className="text-blue-400">resolve_url</span>(self, short_code: str) -&gt; str:{"\n"}
-                    <span className="text-zinc-600">6 </span>    <span className="text-[#8B5CF6]">if</span> cached := <span className="text-[#8B5CF6]">await</span> self.cache_layer.get(short_code):{"\n"}
-                    <span className="text-zinc-600">7 </span>      <span className="text-[#8B5CF6]">return</span> cached  <span className="text-zinc-500"># &lt;5ms p99 latency via read replicas</span>{"\n"}
-                    <span className="text-zinc-600">8 </span>    target = <span className="text-[#8B5CF6]">await</span> self.db_shards.query_by_hash(short_code){"\n"}
-                    <span className="text-zinc-600">9 </span>    <span className="text-[#8B5CF6]">return</span> target
+                  <pre className="text-[#E4E3DD] overflow-x-auto leading-relaxed">
+                    <span className="text-[#75746E]">1 </span><span className="text-[#8B5CF6]">class</span> <span className="text-blue-400">URLCompressorCluster</span>:{"\n"}
+                    <span className="text-[#75746E]">2 </span>  cache_layer = init_distributed_cache(replicas=<span className="text-amber-400">3</span>){"\n"}
+                    <span className="text-[#75746E]">3 </span>  db_shards = init_sharded_storage(key=<span className="text-emerald-400">"short_hash[0:2]"</span>){"\n"}
+                    <span className="text-[#75746E]">4 </span>{"\n"}
+                    <span className="text-[#75746E]">5 </span>  <span className="text-[#8B5CF6]">async def</span> <span className="text-blue-400">resolve_url</span>(self, short_code: str) -&gt; str:{"\n"}
+                    <span className="text-[#75746E]">6 </span>    <span className="text-[#8B5CF6]">if</span> cached := <span className="text-[#8B5CF6]">await</span> self.cache_layer.get(short_code):{"\n"}
+                    <span className="text-[#75746E]">7 </span>      <span className="text-[#8B5CF6]">return</span> cached  <span className="text-[#75746E]"># &lt;5ms p99 latency via read replicas</span>{"\n"}
+                    <span className="text-[#75746E]">8 </span>    target = <span className="text-[#8B5CF6]">await</span> self.db_shards.query_by_hash(short_code){"\n"}
+                    <span className="text-[#75746E]">9 </span>    <span className="text-[#8B5CF6]">return</span> target
                   </pre>
                 </div>
               </div>
 
               {/* Right Column: Live Telemetry */}
-              <div className="lg:col-span-5 p-6 bg-[#0D0E14] flex flex-col justify-between gap-5">
+              <div className="lg:col-span-5 p-6 bg-[#202123] flex flex-col justify-between gap-5">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-xs font-bold text-white">Live Evaluation Telemetry</h4>
-                      <p className="text-[11px] text-[#8B92A0]">Adaptive assessment in progress</p>
+                      <p className="text-[11px] text-[#A8A7A1]">Adaptive assessment in progress</p>
                     </div>
-                    <span className="px-2 py-1 rounded-lg bg-[#327CF6]/15 border border-[#327CF6]/30 text-[#327CF6] font-mono font-bold text-xs">
+                    <span className="px-2 py-1 rounded-lg bg-[#3969D6]/15 border border-[#3969D6]/30 text-[#3969D6] font-mono font-bold text-xs">
                       SCORE 84/100
                     </span>
                   </div>
@@ -283,30 +308,30 @@ export default function LandingPage() {
                   <div className="space-y-2.5">
                     <div>
                       <div className="flex justify-between text-[11px] mb-1">
-                        <span className="text-zinc-400">Technical Knowledge</span>
+                        <span className="text-[#A8A7A1]">Technical Knowledge</span>
                         <span className="font-mono text-white font-bold">85 / 100</span>
                       </div>
-                      <div className="h-1.5 w-full bg-[#181A20] rounded-full overflow-hidden">
-                        <div className="h-full bg-[#327CF6] rounded-full w-[85%]" />
+                      <div className="h-1.5 w-full bg-[#383B40] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#3969D6] rounded-full w-[85%]" />
                       </div>
                     </div>
 
                     <div>
                       <div className="flex justify-between text-[11px] mb-1">
-                        <span className="text-zinc-400">System Decomposition</span>
+                        <span className="text-[#A8A7A1]">System Decomposition</span>
                         <span className="font-mono text-white font-bold">82 / 100</span>
                       </div>
-                      <div className="h-1.5 w-full bg-[#181A20] rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full bg-[#383B40] rounded-full overflow-hidden">
                         <div className="h-full bg-[#8B5CF6] rounded-full w-[82%]" />
                       </div>
                     </div>
 
                     <div>
                       <div className="flex justify-between text-[11px] mb-1">
-                        <span className="text-zinc-400">Trade-off Articulation</span>
+                        <span className="text-[#A8A7A1]">Trade-off Articulation</span>
                         <span className="font-mono text-white font-bold">86 / 100</span>
                       </div>
-                      <div className="h-1.5 w-full bg-[#181A20] rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full bg-[#383B40] rounded-full overflow-hidden">
                         <div className="h-full bg-[#10B981] rounded-full w-[86%]" />
                       </div>
                     </div>
@@ -314,7 +339,7 @@ export default function LandingPage() {
 
                   {/* Detected System Concepts */}
                   <div className="space-y-1.5 pt-1">
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+                    <span className="text-[10px] font-mono text-[#75746E] uppercase tracking-wider">
                       Detected Architecture Concepts
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -333,7 +358,7 @@ export default function LandingPage() {
 
                 <Link
                   to="/login"
-                  className="w-full py-2 px-3 rounded-xl bg-[#181A20] hover:bg-[#327CF6] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full py-2 px-3 rounded-xl bg-[#383B40] hover:bg-[#3969D6] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <span>Launch Practice Simulation</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -344,35 +369,35 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Highlights Numbers Strip ──────────────────────────────── */}
-        <section className="w-full border-y border-[#181A20] bg-[#0A0C10] py-6 sm:py-8">
+        <section className="w-full border-y border-[#383B40] bg-[#171819] py-6 sm:py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-            <div className="p-3 sm:p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
-              <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#327CF6]">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#202123] border border-[#383B40]">
+              <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#3969D6]">
                 Adaptive
               </span>
               <p className="text-xs font-bold text-white mt-0.5">AI Evaluator</p>
-              <p className="text-[10px] sm:text-[11px] text-[#8B92A0]">Adjusts difficulty dynamically</p>
+              <p className="text-[10px] sm:text-[11px] text-[#A8A7A1]">Adjusts difficulty dynamically</p>
             </div>
-            <div className="p-3 sm:p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#202123] border border-[#383B40]">
               <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#8B5CF6]">
                 6+ Pillars
               </span>
               <p className="text-xs font-bold text-white mt-0.5">Tech Domains</p>
-              <p className="text-[10px] sm:text-[11px] text-[#8B92A0]">DSA, Systems, OS & DBMS</p>
+              <p className="text-[10px] sm:text-[11px] text-[#A8A7A1]">DSA, Systems, OS & DBMS</p>
             </div>
-            <div className="p-3 sm:p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#202123] border border-[#383B40]">
               <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#F59E0B]">
                 FAANG
               </span>
               <p className="text-xs font-bold text-white mt-0.5">Company Kits</p>
-              <p className="text-[10px] sm:text-[11px] text-[#8B92A0]">Google, Meta, Amazon sets</p>
+              <p className="text-[10px] sm:text-[11px] text-[#A8A7A1]">Google, Meta, Amazon sets</p>
             </div>
-            <div className="p-3 sm:p-4 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#202123] border border-[#383B40]">
               <span className="text-xl sm:text-3xl font-extrabold font-mono text-[#10B981]">
                 Real-Time
               </span>
               <p className="text-xs font-bold text-white mt-0.5">1v1 Arena</p>
-              <p className="text-[10px] sm:text-[11px] text-[#8B92A0]">Multiplayer coding duels</p>
+              <p className="text-[10px] sm:text-[11px] text-[#A8A7A1]">Multiplayer coding duels</p>
             </div>
           </div>
         </section>
@@ -380,39 +405,39 @@ export default function LandingPage() {
         {/* ─── Core Features Ecosystem ──────────────────────────────── */}
         <section id="features" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 space-y-8 sm:space-y-12">
           <div className="text-center max-w-3xl mx-auto space-y-2 sm:space-y-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#327CF6]/10 border border-[#327CF6]/20 text-[11px] font-mono text-[#327CF6] font-semibold uppercase">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3969D6]/10 border border-[#3969D6]/20 text-[11px] font-mono text-[#3969D6] font-semibold uppercase">
               Comprehensive Platform
             </span>
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
               One platform. Your entire placement readiness.
             </h2>
-            <p className="text-xs sm:text-sm text-[#8B92A0] leading-relaxed max-w-xl mx-auto">
+            <p className="text-xs sm:text-sm text-[#A8A7A1] leading-relaxed max-w-xl mx-auto">
               An integrated telemetry-driven interview cockpit with mock interviews, 1v1 arenas, and company tracks.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Feature 1 */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#327CF6]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
+            <div className="p-5 sm:p-6 rounded-2xl bg-[#171819] border border-[#383B40] hover:border-[#3969D6]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
               <div className="space-y-2.5 sm:space-y-3">
-                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#327CF6]/10 border border-[#327CF6]/20 flex items-center justify-center text-[#327CF6] group-hover:scale-105 transition-transform">
+                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#3969D6]/10 border border-[#3969D6]/20 flex items-center justify-center text-[#3969D6] group-hover:scale-105 transition-transform">
                   <Brain className="w-5 sm:w-6 h-5 sm:h-6" />
                 </div>
-                <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#327CF6] transition-colors">
+                <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#3969D6] transition-colors">
                   AI Technical Interviews
                 </h3>
-                <p className="text-xs text-[#8B92A0] leading-relaxed">
+                <p className="text-xs text-[#A8A7A1] leading-relaxed">
                   Multi-turn dialogues that challenge your architecture, probe edge cases, and evaluate algorithmic efficiency in real-time.
                 </p>
               </div>
-              <div className="p-2.5 sm:p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-[11px] sm:text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#202123] border border-[#383B40] text-[11px] sm:text-xs font-mono text-[#A8A7A1] flex items-center justify-between">
                 <span>&gt; adaptive_depth: true</span>
-                <span className="text-[#327CF6] font-semibold">Active</span>
+                <span className="text-[#3969D6] font-semibold">Active</span>
               </div>
             </div>
 
             {/* Feature 2 */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#F59E0B]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
+            <div className="p-5 sm:p-6 rounded-2xl bg-[#171819] border border-[#383B40] hover:border-[#F59E0B]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
               <div className="space-y-2.5 sm:space-y-3">
                 <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20 flex items-center justify-center text-[#F59E0B] group-hover:scale-105 transition-transform">
                   <Building2 className="w-5 sm:w-6 h-5 sm:h-6" />
@@ -420,18 +445,18 @@ export default function LandingPage() {
                 <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#F59E0B] transition-colors">
                   Target Company Prep Kits
                 </h3>
-                <p className="text-xs text-[#8B92A0] leading-relaxed">
+                <p className="text-xs text-[#A8A7A1] leading-relaxed">
                   Tailored question banks for Google, Amazon, Meta, and Microsoft categorized by company frequency and difficulty.
                 </p>
               </div>
-              <div className="p-2.5 sm:p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-[11px] sm:text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#202123] border border-[#383B40] text-[11px] sm:text-xs font-mono text-[#A8A7A1] flex items-center justify-between">
                 <span>FAANG / Top Tier</span>
                 <span className="text-[#F59E0B] font-semibold">Updated</span>
               </div>
             </div>
 
             {/* Feature 3 */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-red-500/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
+            <div className="p-5 sm:p-6 rounded-2xl bg-[#171819] border border-[#383B40] hover:border-red-500/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
               <div className="space-y-2.5 sm:space-y-3">
                 <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 group-hover:scale-105 transition-transform">
                   <Swords className="w-5 sm:w-6 h-5 sm:h-6" />
@@ -439,18 +464,18 @@ export default function LandingPage() {
                 <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-red-400 transition-colors">
                   Live 1v1 Battle Arena
                 </h3>
-                <p className="text-xs text-[#8B92A0] leading-relaxed">
+                <p className="text-xs text-[#A8A7A1] leading-relaxed">
                   Join real-time coding showdowns against peers with room lobbies, shared timers, and live winner evaluation.
                 </p>
               </div>
-              <div className="p-2.5 sm:p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-[11px] sm:text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#202123] border border-[#383B40] text-[11px] sm:text-xs font-mono text-[#A8A7A1] flex items-center justify-between">
                 <span>Multiplayer Lobby</span>
                 <span className="text-red-400 font-semibold">Live</span>
               </div>
             </div>
 
             {/* Feature 4 */}
-            <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#10B981]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
+            <div className="p-5 sm:p-6 rounded-2xl bg-[#171819] border border-[#383B40] hover:border-[#10B981]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group">
               <div className="space-y-2.5 sm:space-y-3">
                 <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#10B981]/10 border border-[#10B981]/20 flex items-center justify-center text-[#10B981] group-hover:scale-105 transition-transform">
                   <Award className="w-5 sm:w-6 h-5 sm:h-6" />
@@ -458,18 +483,18 @@ export default function LandingPage() {
                 <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#10B981] transition-colors">
                   Diagnostic Scorecards
                 </h3>
-                <p className="text-xs text-[#8B92A0] leading-relaxed">
+                <p className="text-xs text-[#A8A7A1] leading-relaxed">
                   Granular post-interview assessments with category percentages, pinpointed weak spots, and targeted drill recommendations.
                 </p>
               </div>
-              <div className="p-2.5 sm:p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-[11px] sm:text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-2.5 sm:p-3 rounded-xl bg-[#202123] border border-[#383B40] text-[11px] sm:text-xs font-mono text-[#A8A7A1] flex items-center justify-between">
                 <span>Overall Readiness</span>
                 <span className="text-[#10B981] font-semibold">Instant</span>
               </div>
             </div>
 
             {/* Feature 5 (Desktop Only) */}
-            <div className="hidden md:flex p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-[#8B5CF6]/40 transition-all flex-col justify-between gap-5 group">
+            <div className="hidden md:flex p-6 rounded-2xl bg-[#171819] border border-[#383B40] hover:border-[#8B5CF6]/40 transition-all flex-col justify-between gap-5 group">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-xl bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 flex items-center justify-center text-[#8B5CF6] group-hover:scale-105 transition-transform">
                   <MessageSquare className="w-6 h-6" />
@@ -477,18 +502,18 @@ export default function LandingPage() {
                 <h3 className="text-base font-bold text-white group-hover:text-[#8B5CF6] transition-colors">
                   AI Tech Mentor
                 </h3>
-                <p className="text-xs text-[#8B92A0] leading-relaxed">
+                <p className="text-xs text-[#A8A7A1] leading-relaxed">
                   Stuck on algorithmic trade-offs? Ask for subtle conceptual hints, complexity explanations, and alternative approaches.
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-[#202123] border border-[#383B40] text-xs font-mono text-[#A8A7A1] flex items-center justify-between">
                 <span>24/7 Mentor</span>
                 <span className="text-[#8B5CF6] font-semibold">Available</span>
               </div>
             </div>
 
             {/* Feature 6 (Desktop Only) */}
-            <div className="hidden md:flex p-6 rounded-2xl bg-[#0A0C10] border border-[#181A20] hover:border-amber-400/40 transition-all flex-col justify-between gap-5 group">
+            <div className="hidden md:flex p-6 rounded-2xl bg-[#171819] border border-[#383B40] hover:border-amber-400/40 transition-all flex-col justify-between gap-5 group">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
                   <NotebookPen className="w-6 h-6" />
@@ -496,11 +521,11 @@ export default function LandingPage() {
                 <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors">
                   Notes & Hint Vault
                 </h3>
-                <p className="text-xs text-[#8B92A0] leading-relaxed">
+                <p className="text-xs text-[#A8A7A1] leading-relaxed">
                   Save personal code snippets, architectural notes, and bookmark key interview questions for quick revision before your rounds.
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-[#0D0E12] border border-[#181A20] text-xs font-mono text-zinc-400 flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-[#202123] border border-[#383B40] text-xs font-mono text-[#A8A7A1] flex items-center justify-between">
                 <span>Encrypted Storage</span>
                 <span className="text-amber-400 font-semibold">Synced</span>
               </div>
@@ -509,7 +534,7 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Company Tracks Section ────────────────────────────────── */}
-        <section id="companies" className="w-full bg-[#0A0C10] border-y border-[#181A20] py-12 md:py-24">
+        <section id="companies" className="w-full bg-[#171819] border-y border-[#383B40] py-12 md:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
               <div className="space-y-1.5 sm:space-y-2">
@@ -520,7 +545,7 @@ export default function LandingPage() {
                   Prepare for the companies you target.
                 </h2>
               </div>
-              <p className="text-xs sm:text-sm text-[#8B92A0] max-w-md">
+              <p className="text-xs sm:text-sm text-[#A8A7A1] max-w-md">
                 Structured kits mapped to company interview patterns, favorite problem archetypes, and difficulty distributions.
               </p>
             </div>
@@ -579,40 +604,40 @@ export default function LandingPage() {
                 <div
                   key={comp.code}
                   className={cn(
-                    "p-5 sm:p-6 rounded-2xl bg-[#0D0E12] border border-[#181A20] hover:border-[#327CF6]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group",
+                    "p-5 sm:p-6 rounded-2xl bg-[#202123] border border-[#383B40] hover:border-[#3969D6]/40 transition-all flex flex-col justify-between gap-4 sm:gap-5 group",
                     idx >= 3 && "hidden md:flex"
                   )}
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#14171F] border border-[#232731] flex items-center justify-center p-2 group-hover:border-[#327CF6]/50 transition-colors shadow-sm">
+                      <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl bg-[#202123] border border-[#292B2E] flex items-center justify-center p-2 group-hover:border-[#3969D6]/50 transition-colors shadow-sm">
                         <img
                           src={comp.logo}
                           alt={comp.name}
                           className="w-full h-full object-contain"
                         />
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#181A20] text-zinc-400">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#383B40] text-[#A8A7A1]">
                         {comp.tag}
                       </span>
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#327CF6] transition-colors">
+                    <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-[#3969D6] transition-colors">
                       {comp.name}
                     </h3>
-                    <p className="text-xs text-[#8B92A0] leading-relaxed line-clamp-1">
+                    <p className="text-xs text-[#A8A7A1] leading-relaxed line-clamp-1">
                       {comp.desc}
                     </p>
                     <div className="flex flex-wrap items-center gap-1.5 pt-1">
                       {comp.topics.slice(0, 2).map((t) => (
                         <span
                           key={t}
-                          className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#141720] text-zinc-400 border border-white/[0.04]"
+                          className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#202123] text-[#A8A7A1] border border-white/[0.04]"
                         >
                           {t}
                         </span>
                       ))}
                       {comp.topics.length > 2 && (
-                        <span className="text-[10px] font-mono text-zinc-500 pl-0.5">
+                        <span className="text-[10px] font-mono text-[#75746E] pl-0.5">
                           +{comp.topics.length - 2}
                         </span>
                       )}
@@ -621,7 +646,7 @@ export default function LandingPage() {
 
                   <Link
                     to="/login"
-                    className="text-xs font-semibold text-[#327CF6] hover:text-[#5B95F8] flex items-center gap-1 transition-colors"
+                    className="text-xs font-semibold text-[#3969D6] hover:text-[#9AB9FF] flex items-center gap-1 transition-colors"
                   >
                     <span>Practice this track</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -634,7 +659,7 @@ export default function LandingPage() {
 
         {/* ─── Battle Arena Spotlight ───────────────────────────────── */}
         <section id="arena" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
-          <div className="rounded-3xl bg-gradient-to-br from-[#0D0E14] via-[#0A0C10] to-[#120B16] border border-[#181A20] p-6 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10 relative overflow-hidden">
+          <div className="rounded-3xl bg-gradient-to-br from-[#202123] via-[#171819] to-[#202123] border border-[#383B40] p-6 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-10 relative overflow-hidden">
             <div className="space-y-3 sm:space-y-4 max-w-xl text-left">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-[11px] font-mono text-red-400 font-semibold uppercase">
                 <Swords className="w-3.5 h-3.5" />
@@ -643,7 +668,7 @@ export default function LandingPage() {
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Challenge fellow engineers in real-time 1v1 battles.
               </h2>
-              <p className="text-xs sm:text-sm text-[#8B92A0] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#A8A7A1] leading-relaxed">
                 Test your problem-solving speed under real competitive pressure. Create private lobby codes, set round duration, and race to pass all test cases first.
               </p>
               <div className="pt-2 flex flex-wrap gap-3">
@@ -658,8 +683,8 @@ export default function LandingPage() {
             </div>
 
             {/* Arena Preview Card (Desktop Only) */}
-            <div className="hidden lg:block w-full lg:w-96 rounded-2xl bg-[#060709] border border-[#181A20] p-5 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#181A20] pb-3">
+            <div className="hidden lg:block w-full lg:w-96 rounded-2xl bg-[#171819] border border-[#383B40] p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-[#383B40] pb-3">
                 <div className="flex items-center gap-2 font-mono text-xs">
                   <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
                   <span className="text-white font-bold">ROOM #BATTLE-981</span>
@@ -670,34 +695,34 @@ export default function LandingPage() {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#202123] border border-[#383B40]">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-xs font-bold font-mono">
                       Y
                     </div>
                     <div>
                       <p className="text-xs font-bold text-white">You</p>
-                      <p className="text-[10px] text-zinc-500 font-mono">Solved 2/3</p>
+                      <p className="text-[10px] text-[#75746E] font-mono">Solved 2/3</p>
                     </div>
                   </div>
                   <span className="text-xs font-mono font-bold text-[#10B981]">08:14</span>
                 </div>
 
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0D0E12] border border-[#181A20]">
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#202123] border border-[#383B40]">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center text-xs font-bold font-mono">
                       O
                     </div>
                     <div>
                       <p className="text-xs font-bold text-white">Opponent</p>
-                      <p className="text-[10px] text-zinc-500 font-mono">Solved 1/3</p>
+                      <p className="text-[10px] text-[#75746E] font-mono">Solved 1/3</p>
                     </div>
                   </div>
-                  <span className="text-xs font-mono font-bold text-zinc-400">11:42</span>
+                  <span className="text-xs font-mono font-bold text-[#A8A7A1]">11:42</span>
                 </div>
               </div>
 
-              <div className="text-[11px] font-mono text-center text-zinc-500 pt-1">
+              <div className="text-[11px] font-mono text-center text-[#75746E] pt-1">
                 Synchronized timer · Automated judge evaluation
               </div>
             </div>
@@ -705,7 +730,7 @@ export default function LandingPage() {
         </section>
 
         {/* ─── Diagnostic Scorecard Showcase ────────────────────────── */}
-        <section id="scorecards" className="w-full bg-[#0A0C10] border-t border-[#181A20] py-12 md:py-24">
+        <section id="scorecards" className="w-full bg-[#171819] border-t border-[#383B40] py-12 md:py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
             <div className="text-center max-w-2xl mx-auto space-y-2 sm:space-y-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#10B981]/10 border border-[#10B981]/20 text-[11px] font-mono text-[#10B981] font-semibold uppercase">
@@ -714,18 +739,18 @@ export default function LandingPage() {
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Don't just practice. Understand your score.
               </h2>
-              <p className="text-xs sm:text-sm text-[#8B92A0]">
+              <p className="text-xs sm:text-sm text-[#A8A7A1]">
                 Every mock session yields actionable, quote-attributed assessments rather than generic feedback.
               </p>
             </div>
 
-            <div className="rounded-2xl bg-[#0D0E12] border border-[#181A20] p-4 sm:p-8 space-y-6 shadow-xl">
+            <div className="rounded-2xl bg-[#202123] border border-[#383B40] p-4 sm:p-8 space-y-6 shadow-xl">
               {/* Scorecard Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 sm:pb-6 border-b border-[#181A20]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 sm:pb-6 border-b border-[#383B40]">
                 <div className="flex items-center gap-3.5 sm:gap-4">
-                  <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl bg-[#060709] border border-[#181A20] flex flex-col items-center justify-center shrink-0">
+                  <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl bg-[#171819] border border-[#383B40] flex flex-col items-center justify-center shrink-0">
                     <span className="text-xl sm:text-2xl font-black font-mono text-white">82</span>
-                    <span className="text-[9px] sm:text-[10px] font-mono text-zinc-500">/ 100</span>
+                    <span className="text-[9px] sm:text-[10px] font-mono text-[#75746E]">/ 100</span>
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -736,52 +761,52 @@ export default function LandingPage() {
                         Strong Hire
                       </span>
                     </div>
-                    <p className="text-[11px] sm:text-xs text-[#8B92A0] font-mono mt-0.5">
+                    <p className="text-[11px] sm:text-xs text-[#A8A7A1] font-mono mt-0.5">
                       Session #IV-9481 • Completed in 38 mins
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-center">
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
-                    <span className="text-xs sm:text-sm font-bold font-mono text-[#327CF6]">84%</span>
-                    <p className="text-[9px] sm:text-[10px] text-zinc-500">Problem Solving</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#171819] border border-[#383B40]">
+                    <span className="text-xs sm:text-sm font-bold font-mono text-[#3969D6]">84%</span>
+                    <p className="text-[9px] sm:text-[10px] text-[#75746E]">Problem Solving</p>
                   </div>
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#171819] border border-[#383B40]">
                     <span className="text-xs sm:text-sm font-bold font-mono text-[#8B5CF6]">82%</span>
-                    <p className="text-[9px] sm:text-[10px] text-zinc-500">System Depth</p>
+                    <p className="text-[9px] sm:text-[10px] text-[#75746E]">System Depth</p>
                   </div>
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#171819] border border-[#383B40]">
                     <span className="text-xs sm:text-sm font-bold font-mono text-[#10B981]">88%</span>
-                    <p className="text-[9px] sm:text-[10px] text-zinc-500">Communication</p>
+                    <p className="text-[9px] sm:text-[10px] text-[#75746E]">Communication</p>
                   </div>
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#060709] border border-[#181A20]">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#171819] border border-[#383B40]">
                     <span className="text-xs sm:text-sm font-bold font-mono text-[#F59E0B]">78%</span>
-                    <p className="text-[9px] sm:text-[10px] text-zinc-500">Trade-offs</p>
+                    <p className="text-[9px] sm:text-[10px] text-[#75746E]">Trade-offs</p>
                   </div>
                 </div>
               </div>
 
               {/* Strengths & Improvements (Desktop Only) */}
               <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-[#060709] border border-[#181A20] space-y-2.5">
+                <div className="p-4 rounded-xl bg-[#171819] border border-[#383B40] space-y-2.5">
                   <span className="text-xs font-bold text-[#10B981] flex items-center gap-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Demonstrated Strengths
                   </span>
-                  <ul className="text-xs text-zinc-300 space-y-2 leading-relaxed">
+                  <ul className="text-xs text-[#E4E3DD] space-y-2 leading-relaxed">
                     <li>• Clear identification of hot partition bottlenecks and write-heavy workloads.</li>
                     <li>• Proactive formulation of multi-region replication and failover constraints.</li>
                     <li>• Confident explanation of time complexity tradeoffs between hash vs range sharding.</li>
                   </ul>
                 </div>
 
-                <div className="p-4 rounded-xl bg-[#060709] border border-[#181A20] space-y-2.5">
+                <div className="p-4 rounded-xl bg-[#171819] border border-[#383B40] space-y-2.5">
                   <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
                     <ArrowRight className="w-3.5 h-3.5" />
                     Target Improvement Areas
                   </span>
-                  <ul className="text-xs text-zinc-300 space-y-2 leading-relaxed">
+                  <ul className="text-xs text-[#E4E3DD] space-y-2 leading-relaxed">
                     <li>• Consider write-through cache eviction mechanisms rather than relying solely on TTL.</li>
                     <li>• Address circuit breaker degradation patterns when downstream services experience throttling.</li>
                   </ul>
@@ -793,8 +818,8 @@ export default function LandingPage() {
 
         {/* ─── Bottom CTA Banner ─────────────────────────────────────── */}
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
-          <div className="rounded-3xl bg-gradient-to-tr from-[#0D0E12] via-[#0A0C10] to-[#121626] border border-[#181A20] p-6 sm:p-16 text-center space-y-4 sm:space-y-6 relative overflow-hidden shadow-2xl">
-            <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-[#0B0D13] border border-[#1F2430] flex items-center justify-center mx-auto shadow-md shadow-[#007BFA]/20">
+          <div className="rounded-3xl bg-gradient-to-tr from-[#202123] via-[#171819] to-[#202123] border border-[#383B40] p-6 sm:p-16 text-center space-y-4 sm:space-y-6 relative overflow-hidden shadow-2xl">
+            <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-[#171819] border border-[#383B40] flex items-center justify-center mx-auto shadow-md shadow-[#3969D6]/20">
               <BrandIcon className="w-6 sm:w-7 h-6 sm:h-7" />
             </div>
 
@@ -802,21 +827,21 @@ export default function LandingPage() {
               Ready to ace your next technical round?
             </h2>
 
-            <p className="text-xs sm:text-sm text-[#8B92A0] max-w-lg mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#A8A7A1] max-w-lg mx-auto leading-relaxed">
               Join candidates using Intervue to master system design, solve curated company problem kits, and simulate real interview pressure.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#327CF6] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white text-xs sm:text-sm font-semibold shadow-lg shadow-[#327CF6]/30 transition-all hover:scale-[1.02]"
+                className="flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-[#3969D6] to-[#3969D6] hover:from-[#3969D6] hover:to-[#3969D6] text-white text-xs sm:text-sm font-semibold shadow-lg shadow-[#3969D6]/30 transition-all hover:scale-[1.02]"
               >
                 <span>Get Started for Free</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
-            <p className="text-[11px] sm:text-xs font-mono text-zinc-500 pt-1">
+            <p className="text-[11px] sm:text-xs font-mono text-[#75746E] pt-1">
               No download required · Runs in any browser · Instant start
             </p>
           </div>
@@ -824,10 +849,10 @@ export default function LandingPage() {
       </main>
 
       {/* ─── Footer ─────────────────────────────────────────────────── */}
-      <footer className="w-full border-t border-[#181A20] bg-[#060709] py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#8B92A0]">
+      <footer className="w-full border-t border-[#383B40] bg-[#171819] py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-[#A8A7A1]">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-b from-[#141A29] to-[#0A0D14] border border-[#327CF6]/40 flex items-center justify-center text-white shadow-sm shadow-[#327CF6]/20">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-b from-[#202123] to-[#171819] border border-[#3969D6]/40 flex items-center justify-center text-white shadow-sm shadow-[#3969D6]/20">
               <BrandIcon className="w-4 h-4" />
             </div>
             <span className="font-bold text-white">Intervue</span>
@@ -852,7 +877,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <div className="text-[11px] font-mono text-zinc-600">
+          <div className="text-[11px] font-mono text-[#75746E]">
             © {new Date().getFullYear()} Intervue. All rights reserved.
           </div>
         </div>
