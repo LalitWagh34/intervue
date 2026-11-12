@@ -1,14 +1,19 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useInterview } from "@/hooks/useInterview";
+import { useInterviewRecommendations } from "@/hooks/useLearn";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertCircle, Loader2, RefreshCw } from "lucide-react";
+import { CheckCircle2, AlertCircle, Loader2, RefreshCw, BookOpen, Clock, ArrowRight } from "lucide-react";
 import { formatInterviewScore } from "@/lib/score";
 
 export default function ResultsPage() {
   const { id } = useParams();
+  const [isDismissed, setIsDismissed] = useState(false);
   const { data: interview, isLoading, isError, refetch } = useInterview(id);
+  const { data: recData } = useInterviewRecommendations(id);
+  const recommendations = recData?.recommendations || [];
 
   if (isLoading) {
     return (
@@ -193,6 +198,84 @@ export default function ResultsPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Explainable Concept Recommendations from Learn & Revise Hub */}
+          {recommendations.length > 0 && !isDismissed && (
+            <Card className="bg-[var(--surface)] border-[var(--border-subtle)] mb-6 shadow-sm overflow-hidden">
+              <CardContent className="pt-6 pb-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--action-primary)]/10 text-[var(--action-primary)]">
+                      <BookOpen className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                        Targeted Concept Revision
+                      </h3>
+                      <p className="text-xs text-[var(--text-secondary)]">
+                        Curated lessons mapped directly from your interview evaluator feedback
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsDismissed(true)}
+                    className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors cursor-pointer"
+                    title="Dismiss recommendations"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {recommendations.map((rec) => (
+                    <div
+                      key={rec.concept.slug}
+                      className="flex flex-col justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-4 transition-all hover:border-[var(--border-control)]"
+                    >
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] font-medium bg-[var(--surface)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
+                          >
+                            {rec.concept.module.subject.title}
+                          </Badge>
+                          <span className="text-[11px] text-[var(--text-muted)] flex items-center gap-1 font-mono">
+                            <Clock className="h-3 w-3" />
+                            {rec.concept.estimatedMinutes}m
+                          </span>
+                        </div>
+
+                        <div>
+                          <h4 className="text-sm font-semibold text-[var(--text-primary)]">
+                            {rec.concept.title}
+                          </h4>
+                          <p className="text-xs text-[var(--text-secondary)] line-clamp-2 mt-0.5">
+                            {rec.concept.summary}
+                          </p>
+                        </div>
+
+                        <div className="rounded-lg bg-[var(--surface)]/90 p-2.5 border border-[var(--border-subtle)] text-[11px] text-[var(--text-muted)]">
+                          <span className="font-medium text-[var(--status-warning)]">Evaluator feedback: </span>
+                          <span className="italic text-[var(--text-secondary)]">"{rec.matchedFeedback}"</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-3">
+                        <Button asChild size="sm" className="w-full text-xs font-medium cursor-pointer">
+                          <Link to={`/learn/concepts/${rec.concept.slug}`}>
+                            Revise Concept <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </>
       )}
 

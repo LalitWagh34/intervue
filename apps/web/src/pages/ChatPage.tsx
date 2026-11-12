@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useChats, useChat } from "@/hooks/useChats";
 import { api } from "@/lib/api";
@@ -50,6 +50,7 @@ const MENTOR_SUGGESTIONS = [
 
 export default function ChatPage() {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: chats } = useChats();
@@ -64,6 +65,7 @@ export default function ChatPage() {
 
   const isStreamingRef = useRef(false);
   const activeChatIdRef = useRef(id);
+  const autoSentRef = useRef(false);
 
   // Synchronize active chat ID changes (e.g. user clicks another chat in the sidebar)
   useEffect(() => {
@@ -232,6 +234,23 @@ export default function ChatPage() {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }
+
+  // Handle incoming ?prompt=... and ?autoSend=true parameters (e.g. from Learn & Revise Hub)
+  useEffect(() => {
+    const promptParam = searchParams.get("prompt");
+    const autoSendParam = searchParams.get("autoSend");
+
+    if (promptParam && !id && !autoSentRef.current) {
+      if (autoSendParam === "true" || autoSendParam === "1") {
+        autoSentRef.current = true;
+        setSearchParams({}, { replace: true });
+        sendMessage(promptParam);
+      } else {
+        setInput(promptParam);
+        setTimeout(() => inputRef.current?.focus(), 50);
+      }
+    }
+  }, [searchParams, id]);
 
   return (
     <div className="flex flex-1 min-h-0 h-full bg-[var(--canvas)] text-[var(--text-primary)] overflow-hidden relative">

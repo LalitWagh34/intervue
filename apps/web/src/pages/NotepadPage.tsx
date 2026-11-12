@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useNotes, useSaveNote, useDeleteNote } from "@/hooks/useNotes";
-import { NotebookPen, Search, Trash2, Save, Loader2, StickyNote, ArrowLeft } from "lucide-react";
+import { NotebookPen, Search, Trash2, Save, Loader2, StickyNote, ArrowLeft, ExternalLink } from "lucide-react";
 import { cn, formatDistanceToNow } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -235,7 +236,19 @@ export default function NotepadPage() {
                   </button>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{selectedNote.problemTitle}</p>
-                    <p className="text-[11px] text-[var(--text-muted)] font-mono truncate">{selectedNote.problemSlug}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-[11px] text-[var(--text-muted)] font-mono truncate">{selectedNote.problemSlug}</p>
+                      {selectedNote.problemSlug.startsWith("learn:") && (
+                        <Link
+                          to={`/learn/concepts/${selectedNote.problemSlug.replace(/^learn:/, "")}`}
+                          className="inline-flex items-center gap-1 text-[11px] text-[var(--action-primary)] hover:underline shrink-0"
+                          title="Open concept in Learn & Revise"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          Open Concept
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">

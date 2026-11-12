@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useBookmarks, useToggleBookmark } from "@/hooks/useBookmarks";
 import { Bookmark, Search, BookmarkX, ExternalLink, Loader2 } from "lucide-react";
 import { cn, formatDistanceToNow } from "@/lib/utils";
@@ -121,15 +122,25 @@ export default function BookmarksPage() {
                   <span className="text-[10px] text-[var(--text-muted)] font-mono hidden sm:block">
                     {formatDistanceToNow(new Date(bookmark.createdAt), { addSuffix: true })}
                   </span>
-                  <a
-                    href={`https://leetcode.com/problems/${bookmark.problemSlug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
-                    title="Open on LeetCode"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  {bookmark.problemSlug.startsWith("learn:") ? (
+                    <Link
+                      to={`/learn/concepts/${bookmark.problemSlug.replace(/^learn:/, "")}`}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+                      title="Open Concept Reader"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </Link>
+                  ) : (
+                    <a
+                      href={`https://leetcode.com/problems/${bookmark.problemSlug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
+                      title="Open on LeetCode"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
                   <button
                     onClick={() =>
                       toggleBookmark.mutate({
