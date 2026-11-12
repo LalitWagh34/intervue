@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet, Link } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -26,6 +26,7 @@ import { useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { Analytics } from "@vercel/analytics/react";
 import { SessionVerificationLoader } from "@/components/shared/SessionVerificationLoader";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { toast } from "sonner";
 // import VoiceInterviewPage from "./pages/VoiceInterviewPage";
 
@@ -91,6 +92,53 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Renders inside AppLayout when authenticated, or a lightweight public shell when logged out
+function MixedAccessLayout() {
+  const { data: session, isPending } = useSession();
+
+  if (isPending) {
+    return (
+      <SessionVerificationLoader
+        title="Loading page..."
+        subtitle="Preparing your workspace..."
+      />
+    );
+  }
+
+  if (session) {
+    return <AppLayout />;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#08090C] text-[#EDEDED] flex flex-col">
+      <header className="sticky top-0 z-40 border-b border-[#181A20] bg-[#08090C]/90 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+          <Link to="/" className="flex items-center gap-2">
+            <BrandLogo />
+          </Link>
+          <nav aria-label="Public navigation" className="flex items-center gap-4 text-xs font-medium text-zinc-400">
+            <Link to="/help" className="hover:text-white transition-colors">
+              Help Center
+            </Link>
+            <Link to="/feedback" className="hover:text-white transition-colors">
+              Feedback
+            </Link>
+            <Link
+              to="/login"
+              className="px-3 py-1.5 rounded-lg bg-[#327CF6] hover:bg-[#2563EB] text-white font-semibold transition-colors"
+            >
+              Sign In
+            </Link>
+          </nav>
+        </div>
+      </header>
+      <main className="flex-1 p-4 sm:p-6">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
 import { Toaster } from "@/components/ui/sonner";
 import { CommandPalette } from "@/components/shared/CommandPalette";
 
@@ -110,6 +158,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+
+        <Route element={<MixedAccessLayout />}>
+          <Route path="/help" element={<HelpCenterPage />} />
+          <Route path="/feedback" element={<FeedbackPage />} />
+        </Route>
 
         <Route
           path="/profile-setup"
@@ -153,8 +206,6 @@ export default function App() {
           />
           <Route path="/notes" element={<NotepadPage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
-          <Route path="/help" element={<HelpCenterPage />} />
-          <Route path="/feedback" element={<FeedbackPage />} />
           
           {/* Coding Practice disabled for V1 - redirect to Prep Hub */}
           <Route path="/coding" element={<Navigate to="/practice" replace />} />

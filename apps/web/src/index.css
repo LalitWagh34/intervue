@@ -1,45 +1,203 @@
 @import "tailwindcss";
 
-:root {
-  /* TUF Obsidian & Elevated 3-Tier Surface Identity */
-  --bg-app: #090A0F;
-  --bg-base: #090A0F;
-  --bg-surface-1: #11131A;
-  --border-surface-1: rgba(255, 255, 255, 0.07);
-  --bg-surface-2: #1A1D27;
-  --border-surface-2: rgba(255, 255, 255, 0.12);
+/* ============================================================================
+   Warm Precision Design System — Canonical Semantic Tokens
+   Default (:root / .dark): Graphite Dark Warm Precision
+   Light (:root.light / [data-theme="light"]): Warm Stone Light Precision
+   ============================================================================ */
 
-  --bg-soft: #0A0C10;
-  --surface: #11131A;
-  --surface-hover: #161922;
-  --surface-active: #1A1D27;
-  --surface-elevated: #1A1D27;
+:root,
+:root.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
 
-  --border: rgba(255, 255, 255, 0.07);
-  --border-soft: #14161C;
-  --border-hover: rgba(255, 255, 255, 0.14);
+  /* Warm Precision — Dark Palette */
+  --canvas: #171819;
+  --surface: #202123;
+  --surface-muted: #292B2E;
+  --surface-elevated: #303236;
+  --surface-hover: #34373B;
+  --surface-selected: #253650;
 
-  --text-primary: #F8FAFC;
-  --text-body: #94A3B8;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
+  --border-subtle: #383B40;
+  --border-control: #777C85;
+  --border-strong: #959B95;
 
-  --primary-blue: #3B82F6;
-  --primary-indigo: #6366F1;
-  --cta-gradient: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%);
-  --blue-hover: #2563EB;
-  --blue-pressed: #1D4ED8;
+  --text-primary: #F1F0EC;
+  --text-secondary: #B9BCB7;
+  --text-muted: #959B95;
+  --text-inverse: #252723;
 
-  /* Semantic Colors */
-  --success: #10B981;
-  --warning: #F59E0B;
-  --error: #EF4444;
-  --purple-ai: #8B5CF6;
-  --cyan: #06B6D4;
+  --action-primary: #3969D6;
+  --action-primary-hover: #4778E8;
+  --action-primary-pressed: #2D56B8;
+  --on-primary: #FFFFFF;
+
+  --accent-text: #9AB9FF;
+  --accent-secondary: #A1BCA5;
+
+  --status-success: #91CFAB;
+  --status-success-subtle: #22382C;
+  --status-warning: #E2BD75;
+  --status-warning-subtle: #3D321F;
+  --status-danger: #F0A1A1;
+  --status-danger-subtle: #40282A;
+  --status-info: #9AB9FF;
+  --status-info-subtle: #253650;
+
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  /* Shared UI Primitive Aliases (shadcn / Tailwind v4) */
+  --background: var(--canvas);
+  --foreground: var(--text-primary);
+  --card: var(--surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--action-primary);
+  --primary-foreground: var(--on-primary);
+  --secondary: var(--surface-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--surface-selected);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--status-danger);
+  --destructive-foreground: #171819;
+  --border: var(--border-subtle);
+  --input: var(--border-control);
+  --ring: var(--accent-text);
+  --radius: 0.5rem;
+
+  /* Legacy Variable Aliases (for incremental page migration) */
+  --bg-app: var(--canvas);
+  --bg-base: var(--canvas);
+  --bg-surface-1: var(--surface);
+  --border-surface-1: var(--border-subtle);
+  --bg-surface-2: var(--surface-elevated);
+  --border-surface-2: var(--border-control);
+  --bg-soft: var(--surface-muted);
+  --surface-active: var(--surface-selected);
+  --border-soft: var(--border-subtle);
+  --border-hover: var(--border-control);
+  --text-body: var(--text-secondary);
+  --primary-blue: var(--action-primary);
+  --primary-indigo: var(--action-primary);
+  --blue-hover: var(--action-primary-hover);
+  --blue-pressed: var(--action-primary-pressed);
+  --success: var(--status-success);
+  --warning: var(--status-warning);
+  --error: var(--status-danger);
+
+  /* Elevation Shadows (overlays primarily) */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-modal: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+:root.light,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Warm Precision — Light Palette */
+  --canvas: #F6F4EF;
+  --surface: #FFFFFF;
+  --surface-muted: #EEECE6;
+  --surface-elevated: #FFFEFC;
+  --surface-hover: #E8E5DE;
+  --surface-selected: #E8EEFC;
+
+  --border-subtle: #DDD9D0;
+  --border-control: #858078;
+  --border-strong: #5E625B;
+
+  --text-primary: #252723;
+  --text-secondary: #5E625B;
+  --text-muted: #6C7068;
+  --text-inverse: #F1F0EC;
+
+  --action-primary: #315FCE;
+  --action-primary-hover: #254EAF;
+  --action-primary-pressed: #1E4093;
+  --on-primary: #FFFFFF;
+
+  --accent-text: #315FCE;
+  --accent-secondary: #526A57;
+
+  --status-success: #286342;
+  --status-success-subtle: #E8F2EB;
+  --status-warning: #805600;
+  --status-warning-subtle: #FFF2D8;
+  --status-danger: #AD3737;
+  --status-danger-subtle: #FBEAEA;
+  --status-info: #315FCE;
+  --status-info-subtle: #E8EEFC;
+
+  --overlay: rgba(23, 24, 25, 0.4);
+
+  /* Shared UI Primitive Aliases */
+  --background: var(--canvas);
+  --foreground: var(--text-primary);
+  --card: var(--surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--surface-elevated);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--action-primary);
+  --primary-foreground: var(--on-primary);
+  --secondary: var(--surface-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--surface-selected);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--status-danger);
+  --destructive-foreground: #FFFFFF;
+  --border: var(--border-subtle);
+  --input: var(--border-control);
+  --ring: var(--accent-text);
 
   /* Elevation Shadows */
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.25);
-  --shadow-modal: 0 24px 70px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 1px 3px rgba(37, 39, 35, 0.06);
+  --shadow-modal: 0 18px 44px rgba(37, 39, 35, 0.16);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-selected: var(--surface-selected);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-control: var(--border-control);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-error: var(--status-danger);
+
+  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 * {
@@ -47,7 +205,7 @@
 }
 
 body {
-  background-color: var(--bg-app);
+  background-color: var(--canvas);
   color: var(--text-primary);
   font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   letter-spacing: -0.015em;
@@ -55,7 +213,7 @@ body {
 }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid #3B9CFF;
+  outline: 2px solid var(--accent-text);
   outline-offset: 2px;
 }
 
@@ -70,66 +228,89 @@ body {
   }
 }
 
-/* Monospace font utility (Section 5) */
+/* Monospace font utility */
 .font-mono-code {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/* Layer System Classes (Section 4) */
-.bg-layer-app {
-  background-color: #0b0c0f;
+/* Layer System Utilities (mapped to canonical Warm Precision tokens) */
+.bg-layer-app,
+.bg-canvas {
+  background-color: var(--canvas);
 }
 
 .bg-layer-soft {
-  background-color: #101216;
+  background-color: var(--surface-muted);
 }
 
-.bg-layer-card {
-  background-color: #14161b;
+.bg-layer-card,
+.bg-surface-1 {
+  background-color: var(--surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.bg-surface-2 {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
 }
 
 .bg-layer-hover:hover {
-  background-color: #191c22;
+  background-color: var(--surface-hover);
 }
 
 .bg-layer-active {
-  background-color: #1d2129;
+  background-color: var(--surface-selected);
 }
 
 .bg-layer-modal {
-  background-color: #181b21;
+  background-color: var(--surface-elevated);
 }
 
-/* Card Style (Section 8, 7) */
+/* Card Primitive */
 .tuf-card {
-  background-color: #14161b;
-  border: 1px solid #272b33;
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .tuf-card-hover:hover {
-  background-color: #191c22;
-  border-color: #3b9cff33;
-  transform: translateY(-1px);
+  background-color: var(--surface-hover);
+  border-color: var(--border-control);
 }
 
-/* Buttons (Section 7) */
-.btn-primary {
-  background-color: #2f80ed;
-  color: #ffffff;
-  border-radius: 12px;
+/* Primary & Secondary Button Utilities */
+.btn-primary,
+.btn-cta-primary {
+  background-color: var(--action-primary);
+  color: var(--on-primary);
+  border-radius: 8px;
   font-weight: 600;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease;
 }
 
-.btn-primary:hover {
-  background-color: #3b9cff;
+.btn-primary:hover,
+.btn-cta-primary:hover {
+  background-color: var(--action-primary-hover);
 }
 
-.btn-primary:active {
-  background-color: #2563eb;
+.btn-primary:active,
+.btn-cta-primary:active {
+  background-color: var(--action-primary-pressed);
+}
+
+.btn-secondary-neutral {
+  background-color: var(--surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-radius: 8px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-secondary-neutral:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--border-control);
 }
 
 /* Custom scrollbar */
@@ -138,173 +319,12 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0c0f;
+  background: var(--canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #272b33;
+  background: var(--border-subtle);
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b9cff;
-}
-@theme {
-  --color-on-primary-fixed: #001b3f;
-  --color-surface-elevated: #14161B;
-  --color-surface-container-high: #292a2d;
-  --color-tertiary: #4cd7f6;
-  --color-surface-dim: #121316;
-  --color-on-surface-variant: #c1c6d5;
-  --color-primary: #abc7ff;
-  --color-status-warning: #F59E0B;
-  --color-on-error-container: #ffdad6;
-  --color-surface-container-low: #1b1b1f;
-  --color-on-surface: #e3e2e6;
-  --color-inverse-surface: #e3e2e6;
-  --color-secondary: #d0bcff;
-  --color-surface-bright: #38393c;
-  --color-surface-variant: #343538;
-  --color-tertiary-container: #009eb9;
-  --color-primary-fixed-dim: #abc7ff;
-  --color-tertiary-fixed-dim: #4cd7f6;
-  --color-outline: #8b919f;
-  --color-on-tertiary-fixed-variant: #004e5c;
-  --color-on-tertiary-fixed: #001f26;
-  --color-secondary-container: #571bc1;
-  --color-surface-container: #1f1f23;
-  --color-status-success: #22C55E;
-  --color-on-primary: #002f65;
-  --color-surface-base: #101216;
-  --color-secondary-fixed-dim: #d0bcff;
-  --color-surface-tint: #abc7ff;
-  --color-on-error: #690005;
-  --color-border-subtle: #1E2229;
-  --color-surface-hover: #191C22;
-  --color-status-error: #EF4444;
-  --color-text-muted: #707784;
-  --color-surface-container-highest: #343538;
-  --color-text-secondary: #A1A7B3;
-  --color-primary-fixed: #d7e3ff;
-  --color-on-tertiary-container: #002f38;
-  --color-surface: #121316;
-  --color-outline-variant: #414753;
-  --color-border-hairline: #272B33;
-  --color-error: #ffb4ab;
-  --color-inverse-primary: #005cba;
-  --color-on-primary-fixed-variant: #00458e;
-  --color-tertiary-fixed: #acedff;
-  --color-secondary-fixed: #e9ddff;
-  --color-background: #121316;
-  --color-on-background: #e3e2e6;
-  --color-on-secondary-container: #c4abff;
-  --color-on-primary-container: #002959;
-  --color-text-primary: #F5F7FA;
-  --color-primary-container: #448ffd;
-  --color-on-secondary-fixed-variant: #5516be;
-  --color-on-tertiary: #003640;
-  --color-surface-container-lowest: #0d0e11;
-  --color-surface-active: #1D2129;
-  --color-error-container: #93000a;
-  --color-inverse-on-surface: #303034;
-  --color-on-secondary-fixed: #23005c;
-  --color-on-secondary: #3c0091;
-  --color-border-focus: #3B9CFF33;
-  --spacing-space-xs: 0.25rem;
-  --spacing-space-md: 1rem;
-  --spacing-margin-desktop: 2.5rem;
-  --spacing-gutter: 1rem;
-  --spacing-space-xl: 2.5rem;
-  --spacing-space-sm: 0.5rem;
-  --spacing-gutter-desktop: 1.5rem;
-  --spacing-margin: 1rem;
-  --spacing-space-lg: 1.5rem;
-  --font-badge-caps: "Geist";
-  --font-headline-page-mobile: "Geist";
-  --font-headline-section: "Geist";
-  --font-code-bold: "JetBrains Mono";
-  --font-headline-page: "Geist";
-  --font-title-card: "Geist";
-  --font-metadata-sm: "Manrope";
-  --font-display-hero: "Geist";
-  --font-code-base: "JetBrains Mono";
-  --font-display-hero-mobile: "Geist";
-  --font-body-base: "Manrope";
-  --font-body-bold: "Manrope";
-  --text-badge-caps: 10px;
-  --text-badge-caps--line-height: 14px;
-  --text-badge-caps--letter-spacing: 0.04em;
-  --text-badge-caps--font-weight: 700;
-  --text-headline-page-mobile: 24px;
-  --text-headline-page-mobile--line-height: 32px;
-  --text-headline-page-mobile--letter-spacing: -0.015em;
-  --text-headline-page-mobile--font-weight: 700;
-  --text-headline-section: 22px;
-  --text-headline-section--line-height: 30px;
-  --text-headline-section--letter-spacing: -0.015em;
-  --text-headline-section--font-weight: 600;
-  --text-code-bold: 13px;
-  --text-code-bold--line-height: 20px;
-  --text-code-bold--letter-spacing: 0em;
-  --text-code-bold--font-weight: 600;
-  --text-headline-page: 32px;
-  --text-headline-page--line-height: 40px;
-  --text-headline-page--letter-spacing: -0.02em;
-  --text-headline-page--font-weight: 700;
-  --text-title-card: 16px;
-  --text-title-card--line-height: 24px;
-  --text-title-card--letter-spacing: -0.01em;
-  --text-title-card--font-weight: 600;
-  --text-metadata-sm: 12px;
-  --text-metadata-sm--line-height: 18px;
-  --text-metadata-sm--letter-spacing: 0em;
-  --text-metadata-sm--font-weight: 500;
-  --text-display-hero: 48px;
-  --text-display-hero--line-height: 56px;
-  --text-display-hero--letter-spacing: -0.025em;
-  --text-display-hero--font-weight: 800;
-  --text-code-base: 13px;
-  --text-code-base--line-height: 20px;
-  --text-code-base--letter-spacing: 0em;
-  --text-code-base--font-weight: 400;
-  --text-display-hero-mobile: 32px;
-  --text-display-hero-mobile--line-height: 40px;
-  --text-display-hero-mobile--letter-spacing: -0.02em;
-  --text-display-hero-mobile--font-weight: 800;
-  --text-body-base: 14px;
-  --text-body-base--line-height: 22px;
-  --text-body-base--letter-spacing: -0.015em;
-  --text-body-base--font-weight: 400;
-  --text-body-bold: 14px;
-  --text-body-bold--line-height: 22px;
-  --text-body-bold--letter-spacing: -0.015em;
-  --text-body-bold--font-weight: 600;
-}
-
-/* 3-Tier Surface System */
-.bg-canvas {
-  background-color: #090A0F;
-}
-.bg-surface-1 {
-  background-color: #11131A;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-.bg-surface-2 {
-  background-color: #1A1D27;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-.btn-cta-primary {
-  background-image: linear-gradient(135deg, #6366F1 0%, #3B82F6 100%);
-  color: #FFFFFF;
-}
-.btn-cta-primary:hover {
-  background-image: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%);
-}
-.btn-secondary-neutral {
-  background-color: #11131A;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #E2E8F0;
-}
-.btn-secondary-neutral:hover {
-  background-color: #1A1D27;
-  border-color: rgba(255, 255, 255, 0.16);
-  color: #FFFFFF;
+  background: var(--border-control);
 }
