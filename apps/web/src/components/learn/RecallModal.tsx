@@ -261,7 +261,7 @@ export function RecallModal({
                   type="button"
                   onClick={handlePrev}
                   disabled={currentIndex === 0}
-                  className="inline-flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                  className="inline-flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Previous
@@ -293,7 +293,7 @@ export function RecallModal({
                   type="button"
                   onClick={handleNext}
                   disabled={currentIndex === totalQuestions - 1 && !currentResult}
-                  className="inline-flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                  className="inline-flex items-center gap-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
                 >
                   Next
                   <ChevronRight className="h-4 w-4" />
@@ -329,15 +329,15 @@ export function RecallModal({
                       "w-full text-left p-3.5 sm:p-4 rounded-xl border transition-all flex items-start gap-3.5 group",
                       !hasResult && (
                         isSelected
-                          ? "bg-[var(--action-primary)]/10 border-[var(--action-primary)] shadow-xs"
-                          : "bg-[var(--surface-muted)]/50 border-[var(--border-subtle)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)]"
+                          ? "bg-[var(--action-primary)]/10 border-[var(--action-primary)] shadow-xs cursor-pointer"
+                          : "bg-[var(--surface-muted)]/50 border-[var(--border-subtle)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)] cursor-pointer"
                       ),
                       hasResult && (
                         isCorrectOption
-                          ? "bg-emerald-500/15 border-emerald-500/50 text-foreground"
+                          ? "bg-emerald-500/15 border-emerald-500/50 text-foreground cursor-default"
                           : isSelectedIncorrect
-                          ? "bg-rose-500/15 border-rose-500/50 text-foreground"
-                          : "bg-[var(--surface-muted)]/30 border-[var(--border-subtle)] opacity-50"
+                          ? "bg-rose-500/15 border-rose-500/50 text-foreground cursor-default"
+                          : "bg-[var(--surface-muted)]/30 border-[var(--border-subtle)] opacity-50 cursor-default"
                       )
                     )}
                   >
@@ -346,15 +346,15 @@ export function RecallModal({
                         "h-6 w-6 rounded-lg text-xs font-mono font-semibold flex items-center justify-center shrink-0 border transition-colors",
                         !hasResult && (
                           isSelected
-                            ? "bg-[var(--action-primary)] text-[var(--on-primary)] border-[var(--action-primary)]"
-                            : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border-subtle)] group-hover:text-[var(--text-primary)]"
+                            ? "bg-[var(--action-primary)] text-[var(--on-primary)] border-[var(--action-primary)] cursor-pointer"
+                            : "bg-[var(--surface)] text-[var(--text-secondary)] border-[var(--border-subtle)] group-hover:text-[var(--text-primary)] cursor-pointer"
                         ),
                         hasResult && (
                           isCorrectOption
-                            ? "bg-emerald-500 text-white border-emerald-500"
+                            ? "bg-emerald-500 text-white border-emerald-500 cursor-default"
                             : isSelectedIncorrect
-                            ? "bg-rose-500 text-white border-rose-500"
-                            : "bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border-subtle)]"
+                            ? "bg-rose-500 text-white border-rose-500 cursor-default"
+                            : "bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border-subtle)] cursor-default"
                         )
                       )}
                     >
@@ -365,7 +365,10 @@ export function RecallModal({
                       )}
                     </span>
 
-                    <span className="text-xs sm:text-sm leading-relaxed text-[var(--text-primary)] flex-1 pt-0.5">
+                    <span className={cn(
+                      "text-xs sm:text-sm leading-relaxed text-[var(--text-primary)] flex-1 pt-0.5",
+                      !hasResult ? "cursor-pointer" : "cursor-default"
+                    )}>
                       {optText}
                     </span>
                   </button>
@@ -410,7 +413,7 @@ export function RecallModal({
                 size="sm"
                 onClick={handlePrev}
                 disabled={currentIndex === 0}
-                className="text-xs text-[var(--text-secondary)]"
+                className="text-xs text-[var(--text-secondary)] cursor-pointer"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Previous Question
@@ -423,7 +426,7 @@ export function RecallModal({
                     size="sm"
                     onClick={handleSubmitCurrent}
                     disabled={currentSelected === undefined || isSubmitting}
-                    className="text-xs font-semibold px-5"
+                    className="text-xs font-semibold px-5 cursor-pointer"
                   >
                     {isSubmitting ? "Checking..." : "Submit Answer"}
                   </Button>
@@ -432,7 +435,7 @@ export function RecallModal({
                     type="button"
                     size="sm"
                     onClick={handleNext}
-                    className="text-xs font-semibold px-5"
+                    className="text-xs font-semibold px-5 cursor-pointer"
                   >
                     Next Question
                     <ChevronRight className="h-4 w-4 ml-1" />
@@ -442,7 +445,7 @@ export function RecallModal({
                     type="button"
                     size="sm"
                     onClick={() => setShowSummary(true)}
-                    className="text-xs font-semibold px-5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="text-xs font-semibold px-5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
                   >
                     <Trophy className="h-3.5 w-3.5 mr-1.5" />
                     View Results Summary
@@ -484,7 +487,7 @@ export function RecallModal({
                   setShowSummary(false);
                   setCurrentIndex(0);
                 }}
-                className="text-xs font-medium"
+                className="text-xs font-medium cursor-pointer"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
                 Review All Questions
@@ -493,7 +496,7 @@ export function RecallModal({
               <Button
                 size="sm"
                 onClick={onClose}
-                className="text-xs font-medium px-5"
+                className="text-xs font-medium px-5 cursor-pointer"
               >
                 Done &amp; Return to Lesson
               </Button>
@@ -504,3 +507,4 @@ export function RecallModal({
     </Dialog>
   );
 }
+
