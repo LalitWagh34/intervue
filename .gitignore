@@ -64,3 +64,6 @@ strivers_a2z_with_links.json
 intervue_solutions_and_redesign_approach.md
 intervue-banner.jpg
 *.code-workspace
+
+# Test files to exclude from remote
+*.test.tsx
