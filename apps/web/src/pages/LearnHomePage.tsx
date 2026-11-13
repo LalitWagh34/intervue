@@ -128,7 +128,7 @@ export default function LearnHomePage() {
             <span className="text-xs text-[var(--text-muted)] font-mono">
               Subject Tracks &bull; V1 Pilot
             </span>
-            {queue.length > 0 ? (
+            {/* {queue.length > 0 ? (
               <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 text-amber-500 border border-amber-500/30 px-2 py-0.5 text-xs font-mono font-semibold">
                 <RotateCcw className="h-3 w-3" />
                 {queue.length} due for revision
@@ -138,15 +138,15 @@ export default function LearnHomePage() {
                 <CheckCircle2 className="h-3 w-3" />
                 All caught up
               </span>
-            )}
+            )} */}
           </div>
 
           <div className="space-y-1 max-w-3xl">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
-              Choose a Subject Track
+              Start Learning Subjects
             </h1>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
-              Select a subject track below to explore modules, rapid interview revision templates, and deep dive conceptual explanations.
+              Select a subject  below to explore modules and deep dive conceptual explanations.
             </p>
           </div>
         </header>
