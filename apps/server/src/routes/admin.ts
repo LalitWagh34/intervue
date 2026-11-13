@@ -644,6 +644,45 @@ app.patch("/learn/revisions/:id", async (c) => {
   return c.json({ revision: updatedRevision, forked: false });
 });
 
+// Publishing Completeness Validator
+function validateRevisionCompleteness(
+  revision: {
+    quickRevisionMd: string;
+    deepDiveMd: string;
+    keyTakeaways: string[];
+    commonMistakes: string[];
+  },
+  questions: Array<{ prompt: string; options: any; correctOption: number }>
+) {
+  const errors: string[] = [];
+  if (!revision.quickRevisionMd || revision.quickRevisionMd.trim().length < 100) {
+    errors.push("Quick Revision markdown must be at least 100 characters");
+  }
+  if (!revision.deepDiveMd || revision.deepDiveMd.trim().length < 300) {
+    errors.push("Deep Dive markdown must be at least 300 characters");
+  }
+  if (!Array.isArray(revision.keyTakeaways) || revision.keyTakeaways.length < 2) {
+    errors.push("At least 2 key takeaways are required");
+  }
+  if (!Array.isArray(revision.commonMistakes) || revision.commonMistakes.length < 1) {
+    errors.push("At least 1 common mistake is required");
+  }
+  if (!Array.isArray(questions) || questions.length < 2) {
+    errors.push("At least 2 active recall questions are required before publishing");
+  } else {
+    questions.forEach((q, idx) => {
+      const opts = Array.isArray(q.options) ? q.options : [];
+      if (opts.length < 2) {
+        errors.push(`Question ${idx + 1} must have at least 2 options`);
+      }
+      if (typeof q.correctOption !== "number" || q.correctOption < 0 || q.correctOption >= opts.length) {
+        errors.push(`Question ${idx + 1} has an invalid correctOption index`);
+      }
+    });
+  }
+  return errors;
+}
+
 // Publish a concept's revision transactionally
 app.post("/learn/concepts/:id/publish", async (c) => {
   const id = c.req.param("id");
@@ -663,6 +702,22 @@ app.post("/learn/concepts/:id/publish", async (c) => {
 
   if (!targetRevision) {
     return c.json({ error: "Target revision not found" }, 404);
+  }
+
+  // Completeness check before publishing
+  const questions = await db.learnRecallQuestion.findMany({
+    where: { conceptId: concept.id, isPublished: true },
+  });
+
+  const validationErrors = validateRevisionCompleteness(targetRevision, questions);
+  if (validationErrors.length > 0) {
+    return c.json(
+      {
+        error: "Revision completeness validation failed before publishing",
+        validationErrors,
+      },
+      400
+    );
   }
 
   await db.$transaction([

@@ -1189,6 +1189,11 @@ async function seedLearn() {
     const moduleId = moduleMap[item.moduleSlug];
     if (!moduleId) throw new Error(`Unknown moduleSlug: ${item.moduleSlug}`);
 
+    const existingConcept = await db.learnConcept.findUnique({
+      where: { slug: item.slug },
+      select: { id: true, publishedRevisionId: true },
+    });
+
     const concept = await db.learnConcept.upsert({
       where: { slug: item.slug },
       update: {
@@ -1202,40 +1207,41 @@ async function seedLearn() {
       },
     });
 
-    const revision = await db.learnConceptRevision.upsert({
+    const existingV1 = await db.learnConceptRevision.findUnique({
       where: { conceptId_version: { conceptId: concept.id, version: 1 } },
-      update: {
-        status: LearnRevisionStatus.PUBLISHED,
-        title: item.title,
-        summary: item.summary,
-        quickRevisionMd: item.quickRevisionMd,
-        deepDiveMd: item.deepDiveMd,
-        estimatedMinutes: item.estimatedMinutes,
-        difficulty: item.difficulty,
-        keyTakeaways: item.keyTakeaways,
-        commonMistakes: item.commonMistakes,
-        publishedAt: new Date(),
-      },
-      create: {
-        conceptId: concept.id,
-        version: 1,
-        status: LearnRevisionStatus.PUBLISHED,
-        title: item.title,
-        summary: item.summary,
-        quickRevisionMd: item.quickRevisionMd,
-        deepDiveMd: item.deepDiveMd,
-        estimatedMinutes: item.estimatedMinutes,
-        difficulty: item.difficulty,
-        keyTakeaways: item.keyTakeaways,
-        commonMistakes: item.commonMistakes,
-        publishedAt: new Date(),
-      },
     });
 
-    await db.learnConcept.update({
-      where: { id: concept.id },
-      data: { publishedRevisionId: revision.id },
-    });
+    let revision;
+    if (!existingV1) {
+      revision = await db.learnConceptRevision.create({
+        data: {
+          conceptId: concept.id,
+          version: 1,
+          status: LearnRevisionStatus.PUBLISHED,
+          title: item.title,
+          summary: item.summary,
+          quickRevisionMd: item.quickRevisionMd,
+          deepDiveMd: item.deepDiveMd,
+          estimatedMinutes: item.estimatedMinutes,
+          difficulty: item.difficulty,
+          keyTakeaways: item.keyTakeaways,
+          commonMistakes: item.commonMistakes,
+          sources: ["Intervue Curriculum Team"],
+          changeSummary: "Initial seed lesson",
+          publishedAt: new Date(),
+        },
+      });
+    } else {
+      revision = existingV1;
+    }
+
+    // Only set publishedRevisionId if currently unset, preserving admin edits & newer published revisions
+    if (!existingConcept?.publishedRevisionId) {
+      await db.learnConcept.update({
+        where: { id: concept.id },
+        data: { publishedRevisionId: revision.id },
+      });
+    }
 
     const recallList = RECALL_QUESTIONS[item.slug] || [];
     for (let qIdx = 0; qIdx < recallList.length; qIdx++) {
@@ -1247,6 +1253,7 @@ async function seedLearn() {
         await db.learnRecallQuestion.update({
           where: { id: existingQ.id },
           data: {
+            revisionId: existingQ.revisionId || revision.id,
             prompt: recall.prompt,
             options: recall.options,
             correctOption: recall.correctOption,
@@ -1258,6 +1265,7 @@ async function seedLearn() {
         await db.learnRecallQuestion.create({
           data: {
             conceptId: concept.id,
+            revisionId: revision.id,
             prompt: recall.prompt,
             options: recall.options,
             correctOption: recall.correctOption,

@@ -421,6 +421,9 @@ learn.get("/concepts/:slug/recall", async (c) => {
           status: progress.status,
           recallAttempts: progress.recallAttempts,
           recallCorrect: progress.recallCorrect,
+          reviewStage: progress.reviewStage,
+          confidence: progress.confidence,
+          lastSessionScore: progress.lastSessionScore,
           nextReviewAt: progress.nextReviewAt,
         }
       : null,
@@ -429,7 +432,8 @@ learn.get("/concepts/:slug/recall", async (c) => {
 
 /**
  * POST /api/learn/concepts/:slug/recall
- * Grades a recall answer, updates spaced repetition review stages, and returns answer verification.
+ * Immediate feedback on a single question without advancing the spaced review stage.
+ * Records overall attempt counters on the concept progress.
  */
 learn.post("/concepts/:slug/recall", async (c) => {
   const user = c.get("user");
@@ -458,45 +462,19 @@ learn.post("/concepts/:slug/recall", async (c) => {
 
   const isCorrect = selectedOption === question.correctOption;
 
-  // Spaced Repetition interval calculation: 1d -> 3d -> 7d -> 14d
-  const STAGE_DAYS = [1, 3, 7, 14];
-
-  const currentProgress = await db.userConceptProgress.findUnique({
-    where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
-  });
-
-  const prevStage = currentProgress?.reviewStage || 0;
-  const newStage = isCorrect ? Math.min(prevStage + 1, 4) : 0;
-  const daysToAdd = STAGE_DAYS[Math.max(0, newStage - 1)] || 1;
-
-  const nextReviewAt = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000);
-  const newStatus = isCorrect
-    ? newStage >= 2
-      ? "DEMONSTRATED_UNDERSTANDING"
-      : "CONFIDENT"
-    : "NEEDS_REVISION";
-
+  // Single question attempts record counts for immediate feedback without mutating review schedule
   const updatedProgress = await db.userConceptProgress.upsert({
     where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
     update: {
-      status: newStatus as any,
-      reviewStage: newStage,
       recallAttempts: { increment: 1 },
       recallCorrect: isCorrect ? { increment: 1 } : undefined,
-      lastReviewedAt: new Date(),
-      lastStudiedAt: new Date(),
-      nextReviewAt,
     },
     create: {
       userId: user.id,
       conceptId: concept.id,
-      status: newStatus as any,
-      reviewStage: newStage,
+      status: "STUDYING",
       recallAttempts: 1,
       recallCorrect: isCorrect ? 1 : 0,
-      lastReviewedAt: new Date(),
-      lastStudiedAt: new Date(),
-      nextReviewAt,
     },
   });
 
@@ -515,26 +493,207 @@ learn.post("/concepts/:slug/recall", async (c) => {
 });
 
 /**
+ * POST /api/learn/concepts/:slug/recall/session
+ * Records a completed recall session with atomic answers, grades performance,
+ * and advances the spaced repetition schedule (reviewStage) at most once per eligible session.
+ */
+learn.post("/concepts/:slug/recall/session", async (c) => {
+  const user = c.get("user");
+  const slug = c.req.param("slug");
+  const body = await c.req.json();
+  const { answers, isScheduledReview, revisionId } = body;
+
+  if (!Array.isArray(answers) || answers.length === 0) {
+    return c.json({ error: "answers array is required and must not be empty" }, 400);
+  }
+
+  const concept = await db.learnConcept.findUnique({
+    where: { slug },
+    select: { id: true, publishedRevisionId: true },
+  });
+
+  if (!concept) return c.json({ error: "Concept not found" }, 404);
+
+  // Retrieve all questions answered in this session
+  const questionIds = answers.map((a: { questionId: string }) => a.questionId);
+  const dbQuestions = await db.learnRecallQuestion.findMany({
+    where: { id: { in: questionIds }, conceptId: concept.id },
+  });
+  const questionMap = new Map(dbQuestions.map((q) => [q.id, q]));
+
+  let correctCount = 0;
+  const gradedAnswers: Array<{ questionId: string; selectedOption: number; isCorrect: boolean }> = [];
+
+  for (const item of answers) {
+    const q = questionMap.get(item.questionId);
+    if (!q) {
+      return c.json({ error: `Question ${item.questionId} not found for concept` }, 400);
+    }
+    const isCorrect = item.selectedOption === q.correctOption;
+    if (isCorrect) correctCount++;
+    gradedAnswers.push({
+      questionId: item.questionId,
+      selectedOption: item.selectedOption,
+      isCorrect,
+    });
+  }
+
+  const questionsCount = gradedAnswers.length;
+  const score = Number((correctCount / questionsCount).toFixed(2));
+
+  // Current progress check
+  const currentProgress = await db.userConceptProgress.findUnique({
+    where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
+  });
+
+  const stageBefore = currentProgress?.reviewStage || 0;
+  const now = new Date();
+
+  // Spaced Repetition interval steps in days: Stage 0: 1d, Stage 1: 3d, Stage 2: 7d, Stage 3: 14d, Stage 4: 30d
+  const STAGE_DAYS = [1, 3, 7, 14, 30];
+
+  // A session is eligible to advance the spaced schedule if:
+  // 1. Explicitly flagged as isScheduledReview, OR
+  // 2. nextReviewAt is null or already past (due in queue), OR
+  // 3. status is NEEDS_REVISION
+  const isDue =
+    !currentProgress?.nextReviewAt ||
+    currentProgress.nextReviewAt <= now ||
+    currentProgress.status === "NEEDS_REVISION";
+  const eligibleForSchedule = Boolean(isScheduledReview || isDue);
+
+  let stageAfter = stageBefore;
+  let nextReviewAt = currentProgress?.nextReviewAt || null;
+  let newStatus = currentProgress?.status || "STUDIED";
+
+  if (eligibleForSchedule) {
+    if (score >= 0.7) {
+      stageAfter = Math.min(stageBefore + 1, 4);
+      const daysToAdd = STAGE_DAYS[stageAfter] || 30;
+      nextReviewAt = new Date(now.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+      newStatus = stageAfter >= 3 ? "DEMONSTRATED_UNDERSTANDING" : "CONFIDENT";
+    } else {
+      // Failed review: reset stage to 0 and schedule immediate retry tomorrow
+      stageAfter = 0;
+      nextReviewAt = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000);
+      newStatus = "NEEDS_REVISION";
+    }
+  } else {
+    // Unscheduled / practice attempt between intervals: preserve schedule, mark studied if fresh
+    if (!currentProgress || currentProgress.status === "NOT_STARTED" || currentProgress.status === "STUDYING") {
+      newStatus = "STUDIED";
+      nextReviewAt = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000);
+    }
+  }
+
+  // Transaction: Create session + answers and update progress
+  const targetRevisionId = revisionId || concept.publishedRevisionId;
+
+  const [session, progress] = await db.$transaction([
+    db.userRecallSession.create({
+      data: {
+        userId: user.id,
+        conceptId: concept.id,
+        revisionId: targetRevisionId,
+        isScheduledReview: eligibleForSchedule,
+        questionsCount,
+        correctCount,
+        score,
+        stageBefore,
+        stageAfter,
+        completedAt: now,
+        answers: {
+          create: gradedAnswers.map((ga) => ({
+            questionId: ga.questionId,
+            selectedOption: ga.selectedOption,
+            isCorrect: ga.isCorrect,
+            createdAt: now,
+          })),
+        },
+      },
+    }),
+    db.userConceptProgress.upsert({
+      where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
+      update: {
+        status: newStatus as any,
+        reviewStage: stageAfter,
+        lastSessionScore: score,
+        lastReviewedAt: now,
+        lastStudiedAt: now,
+        nextReviewAt,
+        recallAttempts: { increment: questionsCount },
+        recallCorrect: { increment: correctCount },
+      },
+      create: {
+        userId: user.id,
+        conceptId: concept.id,
+        status: newStatus as any,
+        reviewStage: stageAfter,
+        lastSessionScore: score,
+        lastReviewedAt: now,
+        lastStudiedAt: now,
+        nextReviewAt,
+        recallAttempts: questionsCount,
+        recallCorrect: correctCount,
+      },
+    }),
+  ]);
+
+  return c.json({
+    session: {
+      id: session.id,
+      score: session.score,
+      questionsCount: session.questionsCount,
+      correctCount: session.correctCount,
+      stageBefore: session.stageBefore,
+      stageAfter: session.stageAfter,
+      isScheduledReview: session.isScheduledReview,
+      completedAt: session.completedAt,
+    },
+    progress: {
+      status: progress.status,
+      reviewStage: progress.reviewStage,
+      lastSessionScore: progress.lastSessionScore,
+      nextReviewAt: progress.nextReviewAt,
+      recallAttempts: progress.recallAttempts,
+      recallCorrect: progress.recallCorrect,
+    },
+  });
+});
+
+/**
  * PATCH /api/learn/concepts/:slug/progress
- * Manually update concept status (e.g. STUDYING, STUDIED, CONFIDENT, NEEDS_REVISION)
+ * Manually update concept status or self-reported confidence.
+ * Note: DEMONSTRATED_UNDERSTANDING is reserved for server-calculated session results.
+ * Setting status to STUDIED schedules the first review in 1 day.
  */
 learn.patch("/concepts/:slug/progress", async (c) => {
   const user = c.get("user");
   const slug = c.req.param("slug");
   const body = await c.req.json();
-  const { status } = body;
+  const { status, confidence } = body;
 
-  const validStatuses = [
+  const validManualStatuses = [
     "NOT_STARTED",
     "STUDYING",
     "STUDIED",
     "NEEDS_REVISION",
     "CONFIDENT",
-    "DEMONSTRATED_UNDERSTANDING",
   ];
 
-  if (!status || !validStatuses.includes(status)) {
-    return c.json({ error: "Valid status is required" }, 400);
+  if (status && !validManualStatuses.includes(status)) {
+    return c.json(
+      { error: "Invalid status. DEMONSTRATED_UNDERSTANDING is server-calculated and cannot be set manually." },
+      400
+    );
+  }
+
+  if (confidence !== undefined && (typeof confidence !== "number" || confidence < 1 || confidence > 5)) {
+    return c.json({ error: "Confidence must be an integer between 1 and 5" }, 400);
+  }
+
+  if (!status && confidence === undefined) {
+    return c.json({ error: "Either status or confidence is required" }, 400);
   }
 
   const concept = await db.learnConcept.findUnique({
@@ -544,16 +703,29 @@ learn.patch("/concepts/:slug/progress", async (c) => {
 
   if (!concept) return c.json({ error: "Concept not found" }, 404);
 
+  const existing = await db.userConceptProgress.findUnique({
+    where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
+  });
+
+  let nextReviewAt = existing?.nextReviewAt;
+  if (status === "STUDIED" && !nextReviewAt) {
+    nextReviewAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  }
+
   const progress = await db.userConceptProgress.upsert({
     where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
     update: {
-      status: status as any,
+      ...(status ? { status: status as any } : {}),
+      ...(confidence !== undefined ? { confidence } : {}),
+      ...(nextReviewAt ? { nextReviewAt } : {}),
       lastStudiedAt: new Date(),
     },
     create: {
       userId: user.id,
       conceptId: concept.id,
-      status: status as any,
+      status: (status as any) || "STUDIED",
+      confidence: confidence ?? null,
+      nextReviewAt: status === "STUDIED" ? new Date(Date.now() + 24 * 60 * 60 * 1000) : null,
       lastStudiedAt: new Date(),
     },
   });

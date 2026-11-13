@@ -10,6 +10,7 @@ const mockCreateRevision = mock(async () => ({}) as any);
 const mockUpdateConcept = mock(async () => ({}) as any);
 const mockUpdateRevision = mock(async () => ({}) as any);
 const mockDeleteConcept = mock(async () => ({}) as any);
+const mockFindManyQuestions = mock(async () => [] as any[]);
 const mockTransaction = mock(async (arg: any) => {
   if (typeof arg === "function") {
     return arg({
@@ -34,6 +35,9 @@ mock.module("@intervue/db", () => ({
       findUnique: mockFindUniqueConcept,
       update: mockUpdateConcept,
       delete: mockDeleteConcept,
+    },
+    learnRecallQuestion: {
+      findMany: mockFindManyQuestions,
     },
     learnConceptRevision: {
       findUnique: mockFindUniqueRevision,
@@ -69,6 +73,7 @@ describe("Admin Learn & Revise CMS Endpoints", () => {
     mockFindManySubjects.mockReset();
     mockFindManyConcepts.mockReset();
     mockFindUniqueConcept.mockReset();
+    mockFindManyQuestions.mockReset();
     mockFindUniqueRevision.mockReset();
     mockFindFirstRevision.mockReset();
     mockCreateRevision.mockReset();
@@ -106,11 +111,43 @@ describe("Admin Learn & Revise CMS Endpoints", () => {
     expect(res.status).toBe(201);
   });
 
-  it("POST /admin/learn/concepts/:id/publish sets concept publishedRevisionId", async () => {
+  it("POST /admin/learn/concepts/:id/publish rejects incomplete revisions", async () => {
     mockFindUniqueConcept.mockResolvedValue({
       id: "c1",
-      revisions: [{ id: "r1", version: 1 }],
+      revisions: [{ id: "r1", version: 1, quickRevisionMd: "", deepDiveMd: "" }],
     });
+    mockFindManyQuestions.mockResolvedValue([]);
+
+    const res = await app.request("/admin/learn/concepts/c1/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("Revision completeness validation failed");
+    expect(body.validationErrors.length).toBeGreaterThan(0);
+  });
+
+  it("POST /admin/learn/concepts/:id/publish sets concept publishedRevisionId when complete", async () => {
+    mockFindUniqueConcept.mockResolvedValue({
+      id: "c1",
+      revisions: [
+        {
+          id: "r1",
+          version: 1,
+          quickRevisionMd: "A".repeat(120),
+          deepDiveMd: "B".repeat(350),
+          keyTakeaways: ["Point 1", "Point 2"],
+          commonMistakes: ["Mistake 1"],
+        },
+      ],
+    });
+    mockFindManyQuestions.mockResolvedValue([
+      { id: "q1", prompt: "Q1", options: ["A", "B"], correctOption: 0 },
+      { id: "q2", prompt: "Q2", options: ["A", "B"], correctOption: 1 },
+    ]);
 
     const res = await app.request("/admin/learn/concepts/c1/publish", {
       method: "POST",

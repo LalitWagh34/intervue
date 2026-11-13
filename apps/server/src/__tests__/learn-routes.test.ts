@@ -12,11 +12,14 @@ const mockFindUniqueQuestion = mock(async () => null as any);
 const mockFindUniqueProgress = mock(async () => null as any);
 const mockFindManyProgress = mock(async () => [] as any[]);
 const mockUpsertProgress = mock(async () => ({} as any));
+const mockCreateSession = mock(async () => ({} as any));
+const mockTransaction = mock(async (ops: any[]) => Promise.all(ops));
 const mockFindFirstInterview = mock(async () => null as any);
 const mockGetSession = mock(async () => null as any);
 
 mock.module("@intervue/db", () => ({
   db: {
+    $transaction: mockTransaction,
     interview: {
       findFirst: mockFindFirstInterview,
     },
@@ -40,6 +43,9 @@ mock.module("@intervue/db", () => ({
       findUnique: mockFindUniqueProgress,
       findMany: mockFindManyProgress,
       upsert: mockUpsertProgress,
+    },
+    userRecallSession: {
+      create: mockCreateSession,
     },
     session: {
       findUnique: mock(async () => null),
@@ -73,6 +79,9 @@ describe("Learn Routes", () => {
     mockFindUniqueProgress.mockReset();
     mockFindManyProgress.mockReset();
     mockUpsertProgress.mockReset();
+    mockCreateSession.mockReset();
+    mockTransaction.mockReset();
+    mockTransaction.mockImplementation(async (ops: any[]) => Promise.all(ops));
     mockGetSession.mockReset();
   });
 
@@ -334,26 +343,97 @@ describe("Learn Routes", () => {
       expect(body.progress.status).toBe("CONFIDENT");
     });
 
-    it("PATCH /api/learn/concepts/:slug/progress updates concept status", async () => {
+    it("POST /api/learn/concepts/:slug/recall/session records atomic session and advances review stage", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q1", correctOption: 1 },
+        { id: "q2", correctOption: 0 },
+      ]);
+      mockFindUniqueProgress.mockResolvedValue({ reviewStage: 0, nextReviewAt: new Date(Date.now() - 1000) });
+
+      mockCreateSession.mockResolvedValue({
+        id: "sess-1",
+        score: 1.0,
+        questionsCount: 2,
+        correctCount: 2,
+        stageBefore: 0,
+        stageAfter: 1,
+        isScheduledReview: true,
+        completedAt: new Date(),
+      });
+
+      mockUpsertProgress.mockResolvedValue({
+        status: "CONFIDENT",
+        reviewStage: 1,
+        lastSessionScore: 1.0,
+        nextReviewAt: new Date(Date.now() + 3 * 86400000),
+        recallAttempts: 2,
+        recallCorrect: 2,
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          answers: [
+            { questionId: "q1", selectedOption: 1 },
+            { questionId: "q2", selectedOption: 0 },
+          ],
+        }),
+      });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.session.score).toBe(1.0);
+      expect(body.session.stageBefore).toBe(0);
+      expect(body.session.stageAfter).toBe(1);
+      expect(body.progress.reviewStage).toBe(1);
+    });
+
+    it("PATCH /api/learn/concepts/:slug/progress rejects manual DEMONSTRATED_UNDERSTANDING", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/progress", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "DEMONSTRATED_UNDERSTANDING" }),
+      });
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toContain("DEMONSTRATED_UNDERSTANDING is server-calculated");
+    });
+
+    it("PATCH /api/learn/concepts/:slug/progress updates concept status and schedules review on STUDIED", async () => {
       mockGetSession.mockResolvedValue({
         user: { id: "u1", email: "test@example.com", role: "user" },
         session: { id: "s1" },
       });
       mockFindUniqueConcept.mockResolvedValue({ id: "c1" });
+      mockFindUniqueProgress.mockResolvedValue(null);
       mockUpsertProgress.mockResolvedValue({
         status: "STUDIED",
+        nextReviewAt: new Date(Date.now() + 86400000),
         lastStudiedAt: new Date(),
       });
 
       const res = await app.request("/api/learn/concepts/two-pointers/progress", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "STUDIED" }),
+        body: JSON.stringify({ status: "STUDIED", confidence: 4 }),
       });
 
       expect(res.status).toBe(200);
       const body = await res.json();
       expect(body.progress.status).toBe("STUDIED");
+      expect(body.progress.nextReviewAt).toBeDefined();
     });
   });
 

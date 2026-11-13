@@ -18,8 +18,10 @@ import {
 import {
   useRecallQuestions,
   useSubmitRecall,
+  useSubmitRecallSession,
   useUpdateConceptProgress,
   RecallResult,
+  RecallSessionResult,
 } from "@/hooks/useLearn";
 import {
   Dialog,
@@ -54,6 +56,7 @@ export function RecallModal({
 }: RecallModalProps) {
   const { data, isLoading } = useRecallQuestions(conceptSlug);
   const submitRecall = useSubmitRecall(conceptSlug);
+  const submitSession = useSubmitRecallSession(conceptSlug);
   const updateProgress = useUpdateConceptProgress(conceptSlug);
 
   const questions = data?.questions || [];
@@ -64,12 +67,15 @@ export function RecallModal({
   const [results, setResults] = useState<Record<string, RecallResult>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [sessionResult, setSessionResult] = useState<RecallSessionResult | null>(null);
+  const [isFinalizingSession, setIsFinalizingSession] = useState(false);
 
   // Reset or initialize on open
   useEffect(() => {
     if (isOpen) {
       setCurrentIndex(0);
       setShowSummary(false);
+      setSessionResult(null);
     }
   }, [isOpen, conceptSlug]);
 
@@ -113,6 +119,25 @@ export function RecallModal({
     }
   };
 
+  const handleFinishAndShowSummary = async () => {
+    setShowSummary(true);
+    const answerEntries = Object.entries(selectedOptions).map(([questionId, selectedOption]) => ({
+      questionId,
+      selectedOption,
+    }));
+    if (answerEntries.length > 0 && !sessionResult && !isFinalizingSession) {
+      setIsFinalizingSession(true);
+      try {
+        const res = await submitSession.mutateAsync({ answers: answerEntries });
+        setSessionResult(res);
+      } catch (e) {
+        console.error("Failed to record recall session", e);
+      } finally {
+        setIsFinalizingSession(false);
+      }
+    }
+  };
+
   const handlePrev = () => {
     if (currentIndex > 0) {
       setCurrentIndex((prev) => prev - 1);
@@ -123,7 +148,7 @@ export function RecallModal({
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex((prev) => prev + 1);
     } else {
-      setShowSummary(true);
+      handleFinishAndShowSummary();
     }
   };
 
@@ -444,11 +469,12 @@ export function RecallModal({
                   <Button
                     type="button"
                     size="sm"
-                    onClick={() => setShowSummary(true)}
+                    onClick={handleFinishAndShowSummary}
+                    disabled={isFinalizingSession}
                     className="text-xs font-semibold px-5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
                   >
                     <Trophy className="h-3.5 w-3.5 mr-1.5" />
-                    View Results Summary
+                    {isFinalizingSession ? "Recording Session..." : "View Results Summary"}
                   </Button>
                 )}
               </div>
@@ -469,14 +495,34 @@ export function RecallModal({
               </h3>
               <p className="text-sm text-[var(--text-secondary)] max-w-md mx-auto">
                 You scored <span className="font-semibold text-foreground">{correctCount}</span> out of{" "}
-                <span className="font-semibold text-foreground">{totalQuestions}</span> questions correct on{" "}
-                <span className="font-semibold text-foreground">{conceptTitle}</span>.
+                <span className="font-semibold text-foreground">{totalQuestions}</span> questions (
+                <span className="font-semibold text-emerald-500">
+                  {totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0}%
+                </span>
+                ) on <span className="font-semibold text-foreground">{conceptTitle}</span>.
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 py-2 text-xs font-mono">
-              <Clock className="h-4 w-4 text-emerald-500" />
-              <span>Retention Stage: {progress?.recallAttempts ?? 1} reviews completed</span>
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
+              <div className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3.5 py-2 text-xs font-mono">
+                <Clock className="h-4 w-4 text-emerald-500" />
+                <span>
+                  Review Stage:{" "}
+                  {sessionResult
+                    ? `Stage ${sessionResult.session.stageBefore} → Stage ${sessionResult.session.stageAfter}`
+                    : `Stage ${progress?.reviewStage ?? 0}`}
+                </span>
+              </div>
+
+              {sessionResult?.session.isScheduledReview ? (
+                <Badge className="bg-emerald-500/15 text-emerald-500 border-emerald-500/30 text-[11px] py-1">
+                  Spaced Schedule Updated
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-[11px] py-1 border-[var(--border-subtle)] text-[var(--text-secondary)]">
+                  Practice Run Recorded
+                </Badge>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">

@@ -84,7 +84,7 @@ export function AdminLearnPanel() {
   const [deepDiveMd, setDeepDiveMd] = useState("");
   const [keyTakeaways, setKeyTakeaways] = useState("");
   const [commonMistakes, setCommonMistakes] = useState("");
-  const [autoPublish, setAutoPublish] = useState(true);
+  const [autoPublish, setAutoPublish] = useState(false);
 
   // Queries
   const { data: modulesData } = useQuery<{ subjects: SubjectWithModules[] }>({

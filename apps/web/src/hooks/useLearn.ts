@@ -162,6 +162,20 @@ export interface RecallResult {
   progress: ConceptProgressState;
 }
 
+export interface RecallSessionResult {
+  session: {
+    id: string;
+    score: number;
+    questionsCount: number;
+    correctCount: number;
+    stageBefore: number;
+    stageAfter: number;
+    isScheduledReview: boolean;
+    completedAt: string;
+  };
+  progress: ConceptProgressState;
+}
+
 export function useRecallQuestions(slug?: string) {
   return useQuery<RecallResponse>({
     queryKey: ["learn", "recall", slug],
@@ -197,12 +211,44 @@ export function useSubmitRecall(slug?: string) {
   });
 }
 
+export function useSubmitRecallSession(slug?: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      answers,
+      isScheduledReview,
+      revisionId,
+    }: {
+      answers: Array<{ questionId: string; selectedOption: number }>;
+      isScheduledReview?: boolean;
+      revisionId?: string;
+    }) => {
+      const { data } = await api.post<RecallSessionResult>(
+        `/learn/concepts/${slug}/recall/session`,
+        { answers, isScheduledReview, revisionId }
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learn", "recall", slug] });
+      queryClient.invalidateQueries({ queryKey: ["learn", "concept", slug] });
+      queryClient.invalidateQueries({ queryKey: ["learn", "queue"] });
+    },
+  });
+}
+
 export function useUpdateConceptProgress(slug?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (status: ConceptProgressState["status"]) => {
-      const { data } = await api.patch(`/learn/concepts/${slug}/progress`, { status });
+    mutationFn: async (
+      input:
+        | ConceptProgressState["status"]
+        | { status?: ConceptProgressState["status"]; confidence?: number }
+    ) => {
+      const payload = typeof input === "string" ? { status: input } : input;
+      const { data } = await api.patch(`/learn/concepts/${slug}/progress`, payload);
       return data;
     },
     onSuccess: () => {

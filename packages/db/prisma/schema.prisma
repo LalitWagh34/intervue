@@ -167,6 +167,7 @@ model User {
   roomMcqAnswers    RoomMcqAnswer[]
   learnRevisions    LearnConceptRevision[]
   conceptProgress   UserConceptProgress[]
+  recallSessions    UserRecallSession[]
 }
 
 model UserSolvedProblem {
@@ -633,6 +634,7 @@ model LearnConcept {
   publishedRevision   LearnConceptRevision? @relation("PublishedConceptRevision", fields: [publishedRevisionId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   recallQuestions     LearnRecallQuestion[]
   userProgress        UserConceptProgress[]
+  recallSessions      UserRecallSession[]
 
   @@index([moduleId, orderIndex])
 }
@@ -650,14 +652,20 @@ model LearnConceptRevision {
   difficulty       LearnDifficulty     @default(FOUNDATION)
   keyTakeaways     String[]
   commonMistakes   String[]
+  sources          String[]            @default([])
+  reviewer         String?
+  reviewedAt       DateTime?
+  changeSummary    String?
   authorId         String?
   publishedAt      DateTime?
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
-  concept             LearnConcept     @relation("ConceptRevisions", fields: [conceptId], references: [id], onDelete: Cascade)
-  publishedForConcept LearnConcept?    @relation("PublishedConceptRevision")
-  author              User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  concept             LearnConcept          @relation("ConceptRevisions", fields: [conceptId], references: [id], onDelete: Cascade)
+  publishedForConcept LearnConcept?         @relation("PublishedConceptRevision")
+  author              User?                 @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  questions           LearnRecallQuestion[]
+  recallSessions      UserRecallSession[]
 
   @@unique([conceptId, version])
   @@index([conceptId, status])
@@ -674,40 +682,83 @@ enum UserConceptProgressStatus {
 }
 
 model LearnRecallQuestion {
-  id            String       @id @default(cuid())
+  id            String                @id @default(cuid())
   conceptId     String
-  prompt        String       @db.Text
-  options       Json         // Array of strings
-  correctOption Int          // 0-indexed integer
-  explanation   String       @db.Text
-  orderIndex    Int          @default(0)
-  isPublished   Boolean      @default(true)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  revisionId    String?
+  prompt        String                @db.Text
+  options       Json                  // Array of strings
+  correctOption Int                   // 0-indexed integer
+  explanation   String                @db.Text
+  orderIndex    Int                   @default(0)
+  isPublished   Boolean               @default(true)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
 
-  concept       LearnConcept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  concept       LearnConcept          @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  revision      LearnConceptRevision? @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  userAnswers   UserRecallAnswer[]
 
   @@index([conceptId, isPublished, orderIndex])
+  @@index([revisionId])
 }
 
 model UserConceptProgress {
-  id             String                    @id @default(cuid())
-  userId         String
-  conceptId      String
-  status         UserConceptProgressStatus @default(NOT_STARTED)
-  reviewStage    Int                       @default(0) // 0 -> 1d -> 3d -> 7d -> 14d
-  recallAttempts Int                       @default(0)
-  recallCorrect  Int                       @default(0)
-  lastStudiedAt  DateTime?
-  lastReviewedAt DateTime?
-  nextReviewAt   DateTime?
-  createdAt      DateTime                  @default(now())
-  updatedAt      DateTime                  @updatedAt
+  id              String                    @id @default(cuid())
+  userId          String
+  conceptId       String
+  status          UserConceptProgressStatus @default(NOT_STARTED)
+  reviewStage     Int                       @default(0) // 0 -> 1d -> 3d -> 7d -> 14d
+  confidence      Int?                      // Self-reported confidence (1-5)
+  lastSessionScore Float?
+  recallAttempts  Int                       @default(0)
+  recallCorrect   Int                       @default(0)
+  lastStudiedAt   DateTime?
+  lastReviewedAt  DateTime?
+  nextReviewAt    DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
 
-  user           User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  concept        LearnConcept              @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concept         LearnConcept              @relation(fields: [conceptId], references: [id], onDelete: Cascade)
 
   @@unique([userId, conceptId])
   @@index([userId, status])
   @@index([userId, nextReviewAt])
+}
+
+model UserRecallSession {
+  id                 String               @id @default(cuid())
+  userId             String
+  conceptId          String
+  revisionId         String?
+  isScheduledReview  Boolean              @default(false)
+  questionsCount     Int
+  correctCount       Int
+  score              Float
+  stageBefore        Int
+  stageAfter         Int
+  completedAt        DateTime             @default(now())
+
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  concept            LearnConcept         @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  revision           LearnConceptRevision? @relation(fields: [revisionId], references: [id], onDelete: SetNull)
+  answers            UserRecallAnswer[]
+
+  @@index([userId, conceptId])
+  @@index([userId, completedAt])
+}
+
+model UserRecallAnswer {
+  id             String              @id @default(cuid())
+  sessionId      String
+  questionId     String
+  selectedOption Int
+  isCorrect      Boolean
+  createdAt      DateTime            @default(now())
+
+  session        UserRecallSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question       LearnRecallQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([questionId])
 }
