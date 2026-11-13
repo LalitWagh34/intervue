@@ -12,8 +12,7 @@ import {
   Bookmark,
   NotebookPen,
   Sparkles,
-  Code2,
-  ExternalLink,
+  Brain,
 } from "lucide-react";
 import { useLearnConcept } from "@/hooks/useLearn";
 import { useBookmarkSlugs, useToggleBookmark } from "@/hooks/useBookmarks";
@@ -23,8 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { RecallCheckWidget } from "@/components/learn/RecallCheckWidget";
-import { CONCEPT_PRACTICE_MAP } from "@/data/conceptPracticeMap";
+import { RecallModal } from "@/components/learn/RecallModal";
 import { toast } from "sonner";
 
 type ReaderMode = "quick" | "deep";
@@ -44,15 +42,7 @@ export default function ConceptReaderPage() {
   const { data: bookmarkedSlugs = [] } = useBookmarkSlugs();
   const toggleBookmark = useToggleBookmark();
   const [isConceptNotesOpen, setIsConceptNotesOpen] = useState(false);
-  const [activeProblemNote, setActiveProblemNote] = useState<{
-    isOpen: boolean;
-    slug: string;
-    title: string;
-  }>({
-    isOpen: false,
-    slug: "",
-    title: "",
-  });
+  const [isRecallModalOpen, setIsRecallModalOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -93,7 +83,6 @@ export default function ConceptReaderPage() {
   const { concept, navigation } = data;
   const activeMarkdown = mode === "quick" ? concept.quickRevisionMd : concept.deepDiveMd;
   const isConceptBookmarked = bookmarkedSlugs.includes(`learn:${concept.slug}`);
-  const practiceProblems = CONCEPT_PRACTICE_MAP[concept.slug] || [];
 
   const handleToggleConceptBookmark = async () => {
     try {
@@ -117,29 +106,8 @@ export default function ConceptReaderPage() {
     }
   };
 
-  const handleToggleProblemBookmark = async (
-    problemSlug: string,
-    problemTitle: string,
-    difficulty: string
-  ) => {
-    try {
-      const res = await toggleBookmark.mutateAsync({
-        problemSlug,
-        problemTitle,
-        difficulty,
-      });
-      if (res.bookmarked) {
-        toast.success(`Bookmarked "${problemTitle}"`);
-      } else {
-        toast.info(`Removed "${problemTitle}" from bookmarks`);
-      }
-    } catch {
-      toast.error("Failed to update bookmark");
-    }
-  };
-
   const mentorQuery = encodeURIComponent(
-    `I am revising "${concept.title}" in ${concept.subject.title}. Could you explain the core invariants, when to use it, common trap questions, and key edge cases in coding interviews?`
+    `I am revising "${concept.title}" in ${concept.subject.title}. Could you explain the core invariants, when to use it, common trap questions, and key edge cases in technical interviews?`
   );
 
   return (
@@ -163,7 +131,7 @@ export default function ConceptReaderPage() {
         </nav>
 
         {/* Concept Header */}
-        <header className="space-y-4 rounded-xl border border-border bg-card p-6">
+        <header className="space-y-4 rounded-xl border border-border bg-card p-6 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge
@@ -172,7 +140,7 @@ export default function ConceptReaderPage() {
               >
                 {concept.difficulty.charAt(0) + concept.difficulty.slice(1).toLowerCase()}
               </Badge>
-              <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground font-mono">
                 <Clock className="h-3.5 w-3.5" />
                 {concept.estimatedMinutes} min
               </span>
@@ -193,7 +161,7 @@ export default function ConceptReaderPage() {
                 aria-selected={mode === "quick"}
                 onClick={() => setMode("quick")}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer",
                   mode === "quick"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -208,7 +176,7 @@ export default function ConceptReaderPage() {
                 aria-selected={mode === "deep"}
                 onClick={() => setMode("deep")}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                  "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer",
                   mode === "deep"
                     ? "bg-background text-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -222,14 +190,24 @@ export default function ConceptReaderPage() {
 
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-1.5 max-w-2xl">
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 {concept.title}
               </h1>
               <p className="text-sm leading-6 text-muted-foreground">{concept.summary}</p>
             </div>
 
-            {/* Action Bar: Ask AI Mentor, Concept Notes, Bookmark */}
+            {/* Action Bar: Solve MCQs, Ask AI Mentor, Concept Notes, Bookmark */}
             <div className="flex flex-wrap items-center gap-2 shrink-0 pt-1">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setIsRecallModalOpen(true)}
+                className="h-8 gap-1.5 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs font-semibold shadow-xs cursor-pointer"
+              >
+                <Brain className="h-3.5 w-3.5" />
+                Solve MCQs
+              </Button>
+
               <Button
                 asChild
                 variant="outline"
@@ -247,7 +225,7 @@ export default function ConceptReaderPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsConceptNotesOpen(true)}
-                className="h-8 gap-1.5 border-border bg-background text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                className="h-8 gap-1.5 border-border bg-background text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 cursor-pointer"
                 title="Concept Notes"
               >
                 <NotebookPen className="h-3.5 w-3.5" />
@@ -260,7 +238,7 @@ export default function ConceptReaderPage() {
                 size="sm"
                 onClick={handleToggleConceptBookmark}
                 className={cn(
-                  "h-8 gap-1.5 border-border bg-background text-xs font-medium transition-colors",
+                  "h-8 gap-1.5 border-border bg-background text-xs font-medium transition-colors cursor-pointer",
                   isConceptBookmarked
                     ? "text-emerald-600 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -275,8 +253,8 @@ export default function ConceptReaderPage() {
         </header>
 
         {/* Lesson Markdown Body */}
-        <Card className="border-border bg-card">
-          <CardContent className="p-6 sm:p-8">
+        <Card className="border-border bg-card shadow-xs">
+          <CardContent className="p-6 sm:p-9">
             <SafeMarkdown content={activeMarkdown} />
           </CardContent>
         </Card>
@@ -285,16 +263,16 @@ export default function ConceptReaderPage() {
         {(concept.keyTakeaways.length > 0 || concept.commonMistakes.length > 0) && (
           <div className="grid gap-4 md:grid-cols-2">
             {concept.keyTakeaways.length > 0 && (
-              <Card className="border-border bg-card">
-                <CardContent className="p-5 space-y-3">
+              <Card className="border-border bg-card shadow-xs">
+                <CardContent className="p-5.5 space-y-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    Key Takeaways
+                    Key Takeaways &amp; Core Invariants
                   </div>
-                  <ul className="space-y-2 text-xs leading-5 text-muted-foreground">
+                  <ul className="space-y-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
                     {concept.keyTakeaways.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500/70" />
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -304,16 +282,16 @@ export default function ConceptReaderPage() {
             )}
 
             {concept.commonMistakes.length > 0 && (
-              <Card className="border-border bg-card">
-                <CardContent className="p-5 space-y-3">
+              <Card className="border-border bg-card shadow-xs">
+                <CardContent className="p-5.5 space-y-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <AlertTriangle className="h-4 w-4 text-amber-500" />
-                    Common Mistakes
+                    Common Pitfalls &amp; Interview Traps
                   </div>
-                  <ul className="space-y-2 text-xs leading-5 text-muted-foreground">
+                  <ul className="space-y-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
                     {concept.commonMistakes.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500/70" />
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -324,103 +302,34 @@ export default function ConceptReaderPage() {
           </div>
         )}
 
-        {/* Practice & Apply in Coding Interviews */}
-        {practiceProblems.length > 0 && (
-          <section className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-                  <Code2 className="h-4 w-4 text-[var(--action-primary)]" />
-                  Now Let's Practise
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Curated problems that test the invariants and edge cases of {concept.title}
-                </p>
+        {/* Big Action Banner to Launch Active Recall Quiz Modal */}
+        <Card className="border-[var(--border-subtle)] bg-[var(--surface)] shadow-xs">
+          <CardContent className="p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--action-primary)]/10 text-[var(--action-primary)]">
+                  <Brain className="h-4 w-4" />
+                </span>
+                <h3 className="text-base font-semibold text-[var(--text-primary)]">
+                  Ready to Test Your Recall?
+                </h3>
               </div>
-              <Button asChild variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground">
-                <Link to="/practice?view=sheets_catalog&subject=dsa">
-                  For More Similar Problems <ArrowRight className="h-3 w-3 ml-1" />
-                </Link>
-              </Button>
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl leading-relaxed">
+                Step through verified interview MCQs with instant reasoning and explanation breakdowns to lock in your mental model for {concept.title}.
+              </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {practiceProblems.map((prob) => {
-                const isProbBookmarked = bookmarkedSlugs.includes(prob.slug);
-                return (
-                  <Card key={prob.slug} className="border-border bg-card hover:border-[var(--border-control)] transition-all">
-                    <CardContent className="p-4 flex flex-col justify-between h-full gap-3">
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-[10px] font-medium uppercase tracking-wider",
-                              prob.difficulty === "Easy"
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                                : prob.difficulty === "Medium"
-                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                                : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
-                            )}
-                          >
-                            {prob.difficulty}
-                          </Badge>
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setActiveProblemNote({
-                                  isOpen: true,
-                                  slug: prob.slug,
-                                  title: prob.title,
-                                })
-                              }
-                              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                              title={`Notes for ${prob.title}`}
-                            >
-                              <NotebookPen className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleToggleProblemBookmark(prob.slug, prob.title, prob.difficulty)
-                              }
-                              className={cn(
-                                "p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors",
-                                isProbBookmarked && "text-emerald-500"
-                              )}
-                              title={isProbBookmarked ? "Remove Bookmark" : "Bookmark for Revision"}
-                            >
-                              <Bookmark className={cn("h-3.5 w-3.5", isProbBookmarked && "fill-current")} />
-                            </button>
-                          </div>
-                        </div>
-                        <h3 className="text-sm font-semibold text-foreground line-clamp-1">{prob.title}</h3>
-                        {prob.recommendedInvariants && (
-                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                            {prob.recommendedInvariants}
-                          </p>
-                        )}
-                      </div>
-                      <a
-                        href={prob.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--action-primary)] hover:underline pt-1"
-                      >
-                        Solve on {prob.source}
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Interactive Active Recall Check */}
-        <RecallCheckWidget conceptSlug={concept.slug} />
+            <Button
+              type="button"
+              onClick={() => setIsRecallModalOpen(true)}
+              className="shrink-0 text-xs sm:text-sm font-semibold px-5 py-2.5 h-auto cursor-pointer flex items-center gap-2 bg-[var(--action-primary)] text-[var(--on-primary)] shadow-sm hover:bg-[var(--action-primary-hover)] transition-all"
+            >
+              <Brain className="h-4 w-4" />
+              Solve MCQs &amp; Active Recall
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Deep Intuition & Follow-up with AI Mentor */}
         <Card className="border-border bg-card/60 backdrop-blur-xs">
@@ -521,12 +430,14 @@ export default function ConceptReaderPage() {
         problemTitle={concept.title}
       />
 
-      {/* Slide-over Problem Notes Drawer */}
-      <QuestionNoteDrawer
-        isOpen={activeProblemNote.isOpen}
-        onClose={() => setActiveProblemNote((prev) => ({ ...prev, isOpen: false }))}
-        problemSlug={activeProblemNote.slug}
-        problemTitle={activeProblemNote.title}
+      {/* Global Big Active Recall Quiz Modal with Question Slider */}
+      <RecallModal
+        isOpen={isRecallModalOpen}
+        onClose={() => setIsRecallModalOpen(false)}
+        conceptSlug={concept.slug}
+        conceptTitle={concept.title}
+        subjectTitle={concept.subject.title}
+        moduleTitle={concept.module.title}
       />
     </div>
   );
