@@ -316,6 +316,128 @@ Both \`AtMost(K)\` and \`AtMost(K-1)\` are monotonically continuous, making each
   },
 
   // ───────────────────────────────────────────────────────────────────────────
+  // DSA Track — Prefix Sum & Kadane's Algorithm
+  // ───────────────────────────────────────────────────────────────────────────
+  {
+    moduleSlug: "arrays-patterns",
+    slug: "prefix-sum",
+    orderIndex: 3,
+    title: "Prefix Sum & Kadane's Algorithm",
+    summary:
+      "Precompute cumulative arrays to answer range queries in O(1) time and find maximum contiguous subarrays via Kadane's dynamic programming in O(n) time.",
+    difficulty: LearnDifficulty.FOUNDATION,
+    estimatedMinutes: 12,
+    keyTakeaways: [
+      "Prefix sum transforms range queries from O(n) to instantaneous O(1) math: Sum(arr[L..R]) = P[R+1] - P[L].",
+      "When an array contains negative numbers, sliding window fails; Prefix Sum combined with a Hash Map of historical prefixes (prefixSum - target) solves subarray sums in O(n) time.",
+      "Kadane's algorithm solves maximum subarray sum in O(n) time and O(1) extra space by evaluating: currentSum = max(x, currentSum + x).",
+      "Difference arrays allow multiple range additions [L, R] += val in O(1) time per query by marking boundaries (+val at L, -val at R+1), followed by a single prefix sweep.",
+    ],
+    commonMistakes: [
+      "Off-by-one errors when querying ranges: subarray arr[L ... R] requires P[R+1] - P[L], not P[R] - P[L].",
+      "Forgetting to initialize the frequency Hash Map with (0 -> 1) when counting subarrays summing to target k (missing valid subarrays starting from index 0).",
+      "Attempting to apply sliding window on arrays with negative numbers instead of prefix sum + hash map.",
+      "Integer overflow in running prefix sums for large arrays (use 64-bit BigInt / long in typed languages).",
+    ],
+    quickRevisionMd: `## Core Idea
+Precompute a cumulative sum array \`P\` where \`P[0] = 0\` and \`P[i] = P[i-1] + arr[i-1]\`. Any arbitrary range sum query from index \`L\` to \`R\` (inclusive) can now be evaluated in **\`O(1)\` time**:
+
+\`\`\`
+Array:       [  3,   1,   4,   1,   5,   9,   2 ]
+Prefix P: [ 0,  3,   4,   8,   9,  14,  23,  25 ]
+
+Sum(arr[2 ... 5]) = P[5 + 1] - P[2] = P[6] - P[2] = 23 - 4 = 19 (O(1) time!)
+\`\`\`
+
+---
+
+### Universal Mental Template: Subarray Sum Equals K (Negative Numbers Allowed)
+\`\`\`ts
+function subarraySum(nums: number[], k: number): number {
+  let count = 0;
+  let currentSum = 0;
+  // Map stores frequency of seen prefix sums: prefixSum -> count
+  const prefixCount = new Map<number, number>();
+  prefixCount.set(0, 1); // Crucial: represents the empty prefix before index 0
+
+  for (const num of nums) {
+    currentSum += num;
+
+    // If (currentSum - k) was seen before, there is a subarray summing to k ending here!
+    if (prefixCount.has(currentSum - k)) {
+      count += prefixCount.get(currentSum - k)!;
+    }
+
+    prefixCount.set(currentSum, (prefixCount.get(currentSum) || 0) + 1);
+  }
+
+  return count;
+}
+\`\`\`
+
+---
+
+### Kadane's Algorithm: Max Subarray Sum
+\`\`\`ts
+function maxSubArray(nums: number[]): number {
+  let maxSoFar = nums[0];
+  let currentSum = nums[0];
+
+  for (let i = 1; i < nums.length; i++) {
+    // Decision: extend prior subarray or start fresh from current element
+    currentSum = Math.max(nums[i], currentSum + nums[i]);
+    maxSoFar = Math.max(maxSoFar, currentSum);
+  }
+
+  return maxSoFar;
+}
+\`\`\``,
+    deepDiveMd: `## Why Prefix Sum + Hash Map Solves Negative Number Subarrays
+
+Sliding window requires monotonicity (expanding right increases sum; shrinking left decreases sum). When negative numbers are present, this monotonicity is destroyed.
+
+### The Subarray Algebraic Identity
+A contiguous subarray from index \`i\` to \`j\` has sum:
+\`\`\`
+Sum(arr[i ... j]) = P[j + 1] - P[i]
+\`\`\`
+We want this subarray sum to equal target \`k\`:
+\`\`\`
+P[j + 1] - P[i] = k  ===>  P[i] = P[j + 1] - k
+\`\`\`
+As we iterate index \`j\` through the array, we ask:
+*"How many historical prefix sums equal \`currentSum - k\`?"*
+A simple Hash Map records seen prefix sums, allowing us to find all matching subarrays in **\`O(n)\` single pass** without requiring any sorting or monotonic properties!
+
+---
+
+## Difference Arrays: O(1) Range Updates
+
+Suppose you have an array initialized to zeros and must execute \`Q\` range update operations of the form:
+*"Add \`val\` to all elements in range \`[L, R]\`."*
+
+- **Brute Force:** Updating each range iteratively takes \`O(Q × n)\`.
+- **Difference Array Technique:**
+  1. Maintain a difference array \`diff\` where \`diff[i] = arr[i] - arr[i-1]\`.
+  2. To update range \`[L, R]\` by \`+val\`:
+     - \`diff[L] += val\` (starts the increment at index \`L\`)
+     - \`diff[R + 1] -= val\` (cancels the increment beyond index \`R\`)
+  3. After all \`Q\` updates, compute the prefix sum of \`diff\` to reconstruct the final array in **\`O(n + Q)\` total time**!
+
+---
+
+## Kadane's Mathematical Invariant
+
+Kadane's algorithm is dynamic programming with space optimization:
+- Let \`dp[i]\` be the maximum subarray sum ending strictly at index \`i\`.
+- Bellman transition equation:
+  \`\`\`
+  dp[i] = max(nums[i], dp[i-1] + nums[i])
+  \`\`\`
+- Since \`dp[i]\` depends only on \`dp[i-1]\`, we compress the array into a single scalar variable \`currentSum\`, running in **\`O(n)\` time and \`O(1)\` extra memory**.`,
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
   // DSA Track — Searching
   // ───────────────────────────────────────────────────────────────────────────
   {
@@ -442,6 +564,397 @@ In a rotated sorted array without duplicates (\`[4, 5, 6, 7, 0, 1, 2]\`), one ha
   - Check if target falls in \`[nums[left], nums[mid]]\`. If yes, \`right = mid - 1\`; else \`left = mid + 1\`.
 - Else: The **right half is sorted**.
   - Check if target falls in \`[nums[mid], nums[right]]\`. If yes, \`left = mid + 1\`; else \`right = mid - 1\`.`,
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // DSA Track — Stacks & Queues
+  // ───────────────────────────────────────────────────────────────────────────
+  {
+    moduleSlug: "stacks-queues",
+    slug: "monotonic-stack",
+    orderIndex: 1,
+    title: "Monotonic Stack",
+    summary:
+      "Maintain a strictly increasing or decreasing stack to solve Next Greater / Previous Smaller Element problems in amortized O(n) time.",
+    difficulty: LearnDifficulty.INTERMEDIATE,
+    estimatedMinutes: 14,
+    keyTakeaways: [
+      "A monotonic stack enforces an invariant where elements from bottom to top are strictly increasing or strictly decreasing.",
+      "To find the Next Greater Element, maintain a decreasing stack; incoming greater elements pop smaller elements and immediately resolve their answer.",
+      "Each array element is pushed onto the stack exactly once and popped at most once, bounding total runtime strictly to O(n) amortized time.",
+      "Monotonic stacks solve classic interview patterns: Next Greater Element, Daily Temperatures, Largest Rectangle in Histogram, and Trapping Rain Water.",
+    ],
+    commonMistakes: [
+      "Storing values instead of indices on the stack when distance/width calculations are required (e.g. Daily Temperatures, Histogram).",
+      "Using strictly greater (>) vs greater-or-equal (>=) inconsistently, causing duplicates to break width boundaries in histogram calculations.",
+      "Forgetting to flush remaining stack elements with default answers (-1 or array length) after iterating the entire array.",
+      "Using a nested while loop and mistakenly assuming the runtime is O(n²) instead of recognizing amortized O(n).",
+    ],
+    quickRevisionMd: `## Core Idea
+A **Monotonic Stack** keeps its elements in either strictly ascending or strictly descending order. Whenever an incoming element violates the order, you repeatedly \`pop()\` from the stack until the invariant is restored.
+
+\`\`\`
+Input: [ 2, 1, 2, 4, 3 ]
+Stack Invariant: Decreasing (Bottom -> Top)
+
+1. Push 2: [ 2 ]
+2. Push 1: [ 2, 1 ] (1 < 2, valid decreasing)
+3. Incoming 2: 2 > 1!
+   -> Pop 1: Next greater for 1 is 2!
+   -> Push 2: [ 2, 2 ]
+4. Incoming 4: 4 > 2!
+   -> Pop 2, Pop 2: Next greater for both is 4!
+   -> Push 4: [ 4 ]
+\`\`\`
+
+---
+
+### Universal Template: Next Greater Element
+\`\`\`ts
+function nextGreaterElement(nums: number[]): number[] {
+  const n = nums.length;
+  const result = new Array(n).fill(-1);
+  const stack: number[] = []; // stores indices!
+
+  for (let i = 0; i < n; i++) {
+    // While stack top is smaller than incoming element, resolve it!
+    while (stack.length > 0 && nums[stack[stack.length - 1]] < nums[i]) {
+      const poppedIndex = stack.pop()!;
+      result[poppedIndex] = nums[i];
+    }
+    stack.push(i);
+  }
+
+  return result;
+}
+\`\`\``,
+    deepDiveMd: `## The Amortized O(n) Runtime Proof
+
+Why is a \`while\` loop nested inside a \`for\` loop strictly \`O(n)\`?
+- Every index \`i\` from \`0\` to \`n-1\` is pushed onto the stack **exactly once**.
+- An element can only be popped from the stack if it was previously pushed.
+- Therefore, the inner \`while\` loop executes at most \`n\` \`pop()\` operations across the **entire lifecycle of the algorithm**.
+- Total operations: at most \`n\` pushes + \`n\` pops = **\`2n\` operations**.
+- Total time complexity: **strictly \`O(n)\` amortized**.
+
+---
+
+## Classic Applications
+
+### 1. Daily Temperatures (Distance to Warmer Day)
+Instead of storing the value in \`result\`, store the **index difference**:
+\`\`\`ts
+function dailyTemperatures(temperatures: number[]): number[] {
+  const res = new Array(temperatures.length).fill(0);
+  const stack: number[] = []; // indices
+
+  for (let i = 0; i < temperatures.length; i++) {
+    while (stack.length > 0 && temperatures[stack[stack.length - 1]] < temperatures[i]) {
+      const prevIdx = stack.pop()!;
+      res[prevIdx] = i - prevIdx; // number of days!
+    }
+    stack.push(i);
+  }
+  return res;
+}
+\`\`\`
+
+---
+
+### 2. Largest Rectangle in Histogram
+For each bar, find how far it can extend left and right where all bars are at least as tall as itself.
+- A **monotonically increasing stack** identifies the previous smaller and next smaller bars in \`O(n)\` time.
+- Width = \`nextSmaller - prevSmaller - 1\`.
+- Area = \`heights[i] * width\`.`,
+  },
+  {
+    moduleSlug: "stacks-queues",
+    slug: "stack-queue-fundamentals",
+    orderIndex: 2,
+    title: "Stack & Queue Fundamentals",
+    summary:
+      "LIFO vs FIFO ordering mechanics, Valid Parentheses, Min Stack with O(1) retrieval, and Queue implementation using dual stacks.",
+    difficulty: LearnDifficulty.FOUNDATION,
+    estimatedMinutes: 10,
+    keyTakeaways: [
+      "Stack follows Last-In-First-Out (LIFO); Queue follows First-In-First-Out (FIFO).",
+      "Valid Parentheses is solved by matching closing brackets against the top of a stack of expected opening brackets.",
+      "Min Stack achieves O(1) getMin() by maintaining a parallel stack of historical minimums or storing [val, currentMin] tuples.",
+      "Implementing a Queue with two Stacks (inbox and outbox) achieves amortized O(1) per dequeue/peek operation.",
+    ],
+    commonMistakes: [
+      "Popping from an empty stack without boundary checks, causing runtime crashes or undefined returns.",
+      "Shuffling elements between inbox and outbox on every single push/pop instead of lazy transfers only when outbox is empty.",
+      "Failing to validate that opening and closing brackets match specific types: e.g. '(]' is invalid even though lengths match.",
+    ],
+    quickRevisionMd: `## Core Data Structures: LIFO vs FIFO
+
+| Structure | Principle | Primary Operations | Standard Array Implementation |
+| :--- | :--- | :--- | :--- |
+| **Stack** | **LIFO** (Last In, First Out) | \`push(x)\`, \`pop()\`, \`peek()\` in \`O(1)\` | Append to end / pop from end |
+| **Queue** | **FIFO** (First In, First Out) | \`enqueue(x)\`, \`dequeue()\` in \`O(1)\` | Circular buffer or doubly-linked list |
+
+---
+
+### Valid Parentheses Template
+\`\`\`ts
+function isValid(s: string): boolean {
+  const stack: string[] = [];
+  const map: Record<string, string> = { ')': '(', '}': '{', ']': '[' };
+
+  for (const char of s) {
+    if (char === '(' || char === '{' || char === '[') {
+      stack.push(char);
+    } else {
+      if (stack.length === 0 || stack.pop() !== map[char]) {
+        return false;
+      }
+    }
+  }
+
+  return stack.length === 0;
+}
+\`\`\``,
+    deepDiveMd: `## Min Stack in O(1) Time and Space
+
+Design a stack that supports \`push\`, \`pop\`, \`top\`, and retrieving the minimum element in **\`O(1)\` time**.
+
+### Approach 1: Parallel Minimums Stack
+Maintain two stacks: \`mainStack\` and \`minStack\`.
+- \`push(x)\`: push \`x\` to \`mainStack\`. Push \`min(x, minStack.top())\` to \`minStack\`.
+- \`pop()\`: pop from both stacks simultaneously.
+- \`getMin()\`: return \`minStack.top()\`.
+
+### Approach 2: Value-Difference Encoding (O(1) Extra Space)
+Store the difference between the pushed value and current minimum:
+\`\`\`ts
+class MinStack {
+  private stack: number[] = [];
+  private min: number = 0;
+
+  push(val: number): void {
+    if (this.stack.length === 0) {
+      this.stack.push(0);
+      this.min = val;
+    } else {
+      this.stack.push(val - this.min);
+      if (val < this.min) this.min = val;
+    }
+  }
+
+  pop(): void {
+    const diff = this.stack.pop()!;
+    if (diff < 0) {
+      // Prior min was min - diff
+      this.min = this.min - diff;
+    }
+  }
+
+  top(): number {
+    const diff = this.stack[this.stack.length - 1];
+    return diff < 0 ? this.min : this.min + diff;
+  }
+
+  getMin(): number {
+    return this.min;
+  }
+}
+\`\`\``,
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // DSA Track — Linked Lists
+  // ───────────────────────────────────────────────────────────────────────────
+  {
+    moduleSlug: "linked-lists",
+    slug: "linked-list-reversal",
+    orderIndex: 1,
+    title: "Linked List Reversal & In-Place Manipulation",
+    summary:
+      "Iteratively redirect node pointers in O(n) time and O(1) auxiliary space without allocating new nodes.",
+    difficulty: LearnDifficulty.FOUNDATION,
+    estimatedMinutes: 12,
+    keyTakeaways: [
+      "Iterative reversal requires 3 pointers: prev (tail of reversed prefix), curr (active node), and nextTemp (preserved forward reference).",
+      "Always save nextTemp = curr.next before mutating curr.next = prev to prevent losing access to remaining unvisited nodes.",
+      "Dummy Head nodes (sentinel nodes) eliminate special-case edge handling for head deletions, insertions, and list partitions.",
+      "In-place reversal operates with strictly O(1) auxiliary space, unlike recursive approaches which consume O(n) call stack memory.",
+    ],
+    commonMistakes: [
+      "Accidentally mutating curr.next before storing nextTemp, permanently severing the linked list.",
+      "Forgetting to update the old head's next pointer to null, creating an infinite circular cycle.",
+      "Returning curr instead of prev after the loop terminates (when curr === null, prev is the new head).",
+      "Null pointer dereference when accessing node.next on an already null reference.",
+    ],
+    quickRevisionMd: `## Core Idea: The 4-Step Iterative Dance
+To reverse a singly linked list in-place:
+1. \`const nextTemp = curr.next;\` (Preserve forward chain)
+2. \`curr.next = prev;\` (Reverse directed pointer)
+3. \`prev = curr;\` (Advance reversed boundary)
+4. \`curr = nextTemp;\` (Advance inspection pointer)
+
+\`\`\`
+Initial:   null <- [ 1 ] -> [ 2 ] -> [ 3 ] -> null
+Pointers:  prev    curr     nextTemp
+
+After:     null <- [ 1 ] <- [ 2 ]    [ 3 ] -> null
+Pointers:          prev     curr     nextTemp
+\`\`\`
+
+---
+
+### Clean TypeScript Implementation
+\`\`\`ts
+class ListNode {
+  val: number;
+  next: ListNode | null;
+  constructor(val = 0, next = null) {
+    this.val = val;
+    this.next = next;
+  }
+}
+
+function reverseList(head: ListNode | null): ListNode | null {
+  let prev: ListNode | null = null;
+  let curr = head;
+
+  while (curr !== null) {
+    const nextTemp = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = nextTemp;
+  }
+
+  return prev; // prev is now the new head!
+}
+\`\`\``,
+    deepDiveMd: `## Reversing in K-Groups: Recursive & Iterative Boundaries
+
+In technical interviews (*LeetCode 25: Reverse Nodes in k-Group*), you must reverse sub-lists of size \`k\`.
+
+### Invariant Strategy
+1. Count if at least \`k\` nodes remain. If fewer than \`k\`, leave them in original order.
+2. Reverse exactly \`k\` nodes using standard 3-pointer reversal.
+3. Connect the original head (now the tail of reversed group) to the result of the recursive/iterative call for the next group.
+
+\`\`\`ts
+function reverseKGroup(head: ListNode | null, k: number): ListNode | null {
+  let node = head;
+  for (let i = 0; i < k; i++) {
+    if (!node) return head; // Fewer than k nodes left
+    node = node.next;
+  }
+
+  // Reverse k nodes
+  let prev: ListNode | null = null;
+  let curr = head;
+  for (let i = 0; i < k; i++) {
+    const next = curr!.next;
+    curr!.next = prev;
+    prev = curr;
+    curr = next;
+  }
+
+  // Original head is now group tail: connect to next reversed group!
+  head!.next = reverseKGroup(curr, k);
+  return prev;
+}
+\`\`\``,
+  },
+  {
+    moduleSlug: "linked-lists",
+    slug: "linked-list-fast-slow",
+    orderIndex: 2,
+    title: "Fast & Slow Pointers & Cycle Topology",
+    summary:
+      "Exploit a 2:1 pointer speed differential to find list midpoints in one pass and locate cycle entry nodes via Floyd's Tortoise and Hare algorithm.",
+    difficulty: LearnDifficulty.INTERMEDIATE,
+    estimatedMinutes: 12,
+    keyTakeaways: [
+      "Fast pointer advances 2 steps while slow pointer advances 1 step (2:1 velocity ratio).",
+      "For midpoint search: when fast reaches the end, slow is precisely at the midpoint (handles both odd and even lengths).",
+      "Floyd's Cycle Detection proves that fast closes the distance to slow by 1 step per iteration inside any cycle of length C.",
+      "To find the cycle start node: after meeting, reset one pointer to head; advance both at 1 step/iter; their collision point is strictly the cycle entrance.",
+    ],
+    commonMistakes: [
+      "Checking only while (fast !== null) instead of while (fast !== null && fast.next !== null), causing null pointer dereference on fast.next.next.",
+      "Off-by-one midpoint selection on even-length lists: choosing the first middle vs second middle depends on whether loop checks fast.next or fast.next.next.",
+      "Assuming cycle detection requires a Hash Set of visited memory addresses (Floyd's algorithm runs in O(1) auxiliary memory).",
+    ],
+    quickRevisionMd: `## Core Idea
+Advance \`slow\` by 1 node and \`fast\` by 2 nodes on each step.
+
+\`\`\`
+1. Midpoint Search:
+   List: [ 1 ] -> [ 2 ] -> [ 3 ] -> [ 4 ] -> [ 5 ]
+   Step 0: slow=1, fast=1
+   Step 1: slow=2, fast=3
+   Step 2: slow=3, fast=5 (fast.next === null -> slow is exactly at mid!)
+\`\`\`
+
+---
+
+### Finding the Middle of a Linked List
+\`\`\`ts
+function middleNode(head: ListNode | null): ListNode | null {
+  let slow = head;
+  let fast = head;
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow!.next;
+    fast = fast.next.next;
+  }
+
+  return slow;
+}
+\`\`\``,
+    deepDiveMd: `## Mathematical Proof: Floyd's Cycle Detection & Cycle Entry Point
+
+Suppose a linked list has:
+- Distance from head to cycle entrance: \`L\`
+- Cycle circumference: \`C\`
+- Meeting point is distance \`x\` from the cycle entrance inside the cycle.
+
+### 1. Distance Traveled at Meeting
+- Slow distance: \`d_slow = L + x\`
+- Fast distance: \`d_fast = L + kC + x\` (where \`k\` is number of loops fast completed)
+- Since fast travels at twice the speed of slow:
+\`\`\`
+d_fast = 2 * d_slow
+L + kC + x = 2(L + x)
+L + kC + x = 2L + 2x
+kC = L + x
+L = kC - x = (k - 1)C + (C - x)
+\`\`\`
+
+### 2. The Cycle Start Algorithm
+- \`L\` is the distance from \`head\` to the cycle entrance.
+- \`(C - x)\` is the remaining distance from the meeting point to the cycle entrance!
+- **Conclusion:** If you place one pointer at \`head\` and leave one pointer at the \`meeting point\`, and advance **both pointers by 1 step at a time**, they are mathematically guaranteed to collide exactly at the **cycle entrance**!
+
+\`\`\`ts
+function detectCycle(head: ListNode | null): ListNode | null {
+  let slow = head;
+  let fast = head;
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow!.next;
+    fast = fast.next.next;
+    if (slow === fast) {
+      // Cycle confirmed! Find entrance:
+      let ptr1 = head;
+      let ptr2 = slow;
+      while (ptr1 !== ptr2) {
+        ptr1 = ptr1!.next;
+        ptr2 = ptr2!.next;
+      }
+      return ptr1; // Cycle entrance node!
+    }
+  }
+
+  return null; // No cycle
+}
+\`\`\``,
   },
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -843,6 +1356,49 @@ const RECALL_QUESTIONS: Record<
     },
   ],
 
+  // ─── Prefix Sum ────────────────────────────────────────────────────────────
+  "prefix-sum": [
+    {
+      prompt:
+        "Why is it essential to seed the prefix frequency Hash Map with `map.set(0, 1)` when solving 'Subarray Sum Equals K'?",
+      options: [
+        "To prevent null pointer exceptions when accessing array index 0.",
+        "To account for valid subarrays that start from index 0 whose prefix sum equals k directly.",
+        "Because JavaScript maps cannot store negative keys without a zero entry.",
+        "To track the total number of negative elements in the array.",
+      ],
+      correctOption: 1,
+      explanation:
+        "If a subarray starting at index 0 sums to k (i.e. P[j] = k), the lookup requires P[j] - k = 0. Without pre-seeding (0 -> 1), subarrays starting at index 0 would be omitted from the count.",
+    },
+    {
+      prompt:
+        "In a Difference Array, how do you apply a range update that adds `val` to all elements from index `L` to `R` (inclusive) in O(1) time?",
+      options: [
+        "diff[L] += val; diff[R + 1] -= val;",
+        "diff[L] += val; diff[R] -= val;",
+        "diff[L - 1] += val; diff[R + 1] += val;",
+        "diff[0] += val; diff[R - L] -= val;",
+      ],
+      correctOption: 0,
+      explanation:
+        "Incrementing diff[L] causes all prefix sums from index L onward to increase by val. Subtracting val at diff[R + 1] terminates the increment, leaving elements past index R unchanged.",
+    },
+    {
+      prompt:
+        "In Kadane's algorithm for maximum subarray sum, when does the algorithm discard the previous accumulated prefix sum and start fresh?",
+      options: [
+        "Whenever the current element is greater than the running sum (nums[i] > currentSum + nums[i]).",
+        "Only when the current element is equal to 0.",
+        "Whenever the array length is an odd number.",
+        "Only at the midpoint of the array.",
+      ],
+      correctOption: 0,
+      explanation:
+        "If currentSum before adding nums[i] was negative (currentSum < 0), then currentSum + nums[i] < nums[i]. Continuing the old prefix drags down the sum, so Kadane's starts a new contiguous subarray at nums[i].",
+    },
+  ],
+
   // ─── Binary Search ─────────────────────────────────────────────────────────
   "binary-search": [
     {
@@ -882,6 +1438,178 @@ const RECALL_QUESTIONS: Record<
       correctOption: 1,
       explanation:
         "Since the array was originally sorted and rotated once, the pivot inflection point can only exist in one half. If `nums[left] <= nums[mid]`, no pivot exists between `left` and `mid`, proving the left half is strictly sorted.",
+    },
+  ],
+
+  // ─── Monotonic Stack ───────────────────────────────────────────────────────
+  "monotonic-stack": [
+    {
+      prompt:
+        "What is the amortized runtime complexity of finding the Next Greater Element for all elements in an array of size n using a monotonic stack?",
+      options: [
+        "O(n²) in the worst case due to nested while loops.",
+        "O(n log n) because of sorting operations on the stack.",
+        "Strictly O(n) amortized because each element is pushed onto the stack exactly once and popped at most once.",
+        "O(k) where k is the maximum element in the array.",
+      ],
+      correctOption: 2,
+      explanation:
+        "Even though there is an inner while loop popping elements, no element can be popped more than once. Across the entire algorithm, there are at most n pushes and at most n pops (at most 2n operations total), yielding strictly O(n) amortized time.",
+    },
+    {
+      prompt:
+        "To find the Next Greater Element to the right, what monotonic stack invariant should be maintained?",
+      options: [
+        "Monotonically strictly increasing (bottom to top).",
+        "Monotonically strictly decreasing (bottom to top).",
+        "Alternating even and odd indices.",
+        "A min-heap priority queue structure.",
+      ],
+      correctOption: 1,
+      explanation:
+        "A decreasing stack holds candidate elements waiting for a greater value. When an incoming element arr[i] is greater than the stack top, it breaks the decreasing order, identifying arr[i] as the immediate Next Greater Element for the popped items.",
+    },
+    {
+      prompt:
+        "Why is it common practice to store array indices on the monotonic stack rather than raw values?",
+      options: [
+        "JavaScript does not support storing numbers on stacks.",
+        "Indices allow immediate calculation of distance/width (e.g., in Daily Temperatures and Largest Rectangle in Histogram) while still permitting value access via arr[idx].",
+        "Indices reduce memory usage by 50%.",
+        "Indices prevent hash collisions in JavaScript Map lookups.",
+      ],
+      correctOption: 1,
+      explanation:
+        "Storing indices gives you both the index (for calculating span width: i - poppedIndex) and the element value (via arr[poppedIndex]), enabling solutions to distance-based questions like Daily Temperatures and Histogram.",
+    },
+  ],
+
+  // ─── Stack & Queue Fundamentals ────────────────────────────────────────────
+  "stack-queue-fundamentals": [
+    {
+      prompt:
+        "How can a FIFO Queue be implemented using two LIFO Stacks with amortized O(1) time per operation?",
+      options: [
+        "Transfer all elements between stacks on every single enqueue and dequeue.",
+        "Enqueue elements into an `inbox` stack. Only when `outbox` is empty, pop all elements from `inbox` into `outbox` (reversing their order to FIFO).",
+        "Use a recursive helper that reverses the stack before every peek.",
+        "Store elements alternately in stack 1 and stack 2.",
+      ],
+      correctOption: 1,
+      explanation:
+        "By lazily transferring elements from inbox to outbox only when outbox is completely empty, each element is pushed twice and popped twice across its lifecycle, yielding amortized O(1) cost per operation.",
+    },
+    {
+      prompt:
+        "In the Valid Parentheses problem, when does a string containing '(', '{', '[', ')', '}', ']' fail validation?",
+      options: [
+        "Only when the total string length is an odd number.",
+        "When encountering a closing bracket with an empty stack, or when the closing bracket does not match the type of the stack top opening bracket, or if the stack is non-empty after full traversal.",
+        "Whenever two opening brackets appear consecutively.",
+        "Only when curly braces enclose square brackets.",
+      ],
+      correctOption: 1,
+      explanation:
+        "A string is invalid if: (1) a closing bracket arrives with no matching open bracket on the stack, (2) the popped opening bracket doesn't match the closing type, or (3) unclosed opening brackets remain on the stack at the end.",
+    },
+    {
+      prompt:
+        "How does a Min Stack achieve O(1) time retrieval of the minimum element without allocating O(n) extra nodes?",
+      options: [
+        "By sorting the stack array after every push operation.",
+        "By storing each element alongside the current running minimum, or maintaining a parallel stack of historical minimums that only pushes when val <= currentMin.",
+        "By running a binary search on the stack elements on each getMin() call.",
+        "By utilizing a circular doubly-linked list.",
+      ],
+      correctOption: 1,
+      explanation:
+        "By coupling each element with the minimum element at the time of its insertion, the minimum up to that point is always available at the top of the min-stack in O(1) time without rescanning.",
+    },
+  ],
+
+  // ─── Linked List Reversal ──────────────────────────────────────────────────
+  "linked-list-reversal": [
+    {
+      prompt:
+        "In iterative in-place linked list reversal, why must `const nextTemp = curr.next` be saved BEFORE executing `curr.next = prev`?",
+      options: [
+        "To satisfy TypeScript null-checking constraints.",
+        "Because mutating `curr.next` severs the reference to the rest of the unvisited linked list, causing permanent data loss.",
+        "Because `prev` cannot be assigned unless `curr.next` is non-null.",
+        "To enable the JavaScript garbage collector to track memory.",
+      ],
+      correctOption: 1,
+      explanation:
+        "Once `curr.next` is redirected backwards to `prev`, the forward pointer to the next node is overwritten. Without saving `nextTemp` beforehand, the algorithm loses access to all downstream nodes.",
+    },
+    {
+      prompt:
+        "What does the `prev` pointer point to after the while loop `while (curr !== null)` completes during list reversal?",
+      options: [
+        "The old tail of the list, which is now the new head of the reversed list.",
+        "Null.",
+        "The original head of the list.",
+        "The midpoint node of the list.",
+      ],
+      correctOption: 0,
+      explanation:
+        "The loop terminates when `curr === null`. In the iteration immediately prior, `prev` was assigned to the last non-null node (the original tail), which is now the head of the reversed list.",
+    },
+    {
+      prompt:
+        "What is the primary benefit of using a Dummy Head (sentinel node) in linked list problems like Remove Elements or Partition List?",
+      options: [
+        "It reduces the time complexity from O(n) to O(log n).",
+        "It eliminates special-case edge handling when modifying or deleting the head node of the list.",
+        "It automatically detects cycles in the linked list.",
+        "It sorts the linked list in ascending order.",
+      ],
+      correctOption: 1,
+      explanation:
+        "A dummy head provides a stable predecessor for the actual head node, allowing head updates, insertions, and deletions to use the exact same pointer reassignment logic as interior nodes without special `if (head === ...)` checks.",
+    },
+  ],
+
+  // ─── Fast & Slow Pointers ──────────────────────────────────────────────────
+  "linked-list-fast-slow": [
+    {
+      prompt:
+        "In Floyd's Tortoise and Hare algorithm, how do you find the EXACT start node of a cycle after `slow` and `fast` meet?",
+      options: [
+        "Reverse the linked list starting from the meeting point.",
+        "Keep one pointer at the meeting point, reset the second pointer to `head`, and advance both by 1 step per iteration until they collide.",
+        "Advance `fast` by 3 steps and `slow` by 1 step until they meet again.",
+        "Count the total nodes and divide by the cycle length.",
+      ],
+      correctOption: 1,
+      explanation:
+        "The mathematical proof shows L = kC - x, meaning the distance from head to cycle entrance (L) equals the remaining distance from the meeting point to cycle entrance (C - x). Moving both pointers 1 step at a time guarantees collision at the cycle entrance.",
+    },
+    {
+      prompt:
+        "When finding the middle node of a singly linked list using fast and slow pointers, which loop condition safely avoids null pointer dereferencing on even-length lists?",
+      options: [
+        "`while (slow !== null)`",
+        "`while (fast !== null && fast.next !== null)`",
+        "`while (fast.next.next !== null)`",
+        "`while (slow !== fast)`",
+      ],
+      correctOption: 1,
+      explanation:
+        "Since `fast` advances by `fast.next.next`, you must check that both `fast` and `fast.next` are non-null before dereferencing, ensuring safe execution on both odd and even length lists.",
+    },
+    {
+      prompt:
+        "What is the space complexity of Floyd's Cycle-Finding Algorithm compared to the Hash Set approach?",
+      options: [
+        "Floyd's algorithm uses O(1) auxiliary space; Hash Set uses O(n) space.",
+        "Floyd's algorithm uses O(n) space; Hash Set uses O(1) space.",
+        "Both use O(log n) space.",
+        "Both use O(n) space.",
+      ],
+      correctOption: 0,
+      explanation:
+        "A Hash Set stores references to all visited nodes consuming O(n) auxiliary memory. Floyd's two-pointer algorithm only maintains two pointer variables (`slow` and `fast`), achieving strictly O(1) space.",
     },
   ],
 
@@ -1141,6 +1869,42 @@ async function seedLearn() {
     },
   });
 
+  const stacksQueuesModule = await db.learnModule.upsert({
+    where: { subjectId_slug: { subjectId: dsaSubject.id, slug: "stacks-queues" } },
+    update: {
+      title: "Stacks & Queues",
+      description: "LIFO vs FIFO ordering invariants, Monotonic Stacks, and O(1) Min Stacks.",
+      orderIndex: 3,
+      isPublished: true,
+    },
+    create: {
+      subjectId: dsaSubject.id,
+      slug: "stacks-queues",
+      title: "Stacks & Queues",
+      description: "LIFO vs FIFO ordering invariants, Monotonic Stacks, and O(1) Min Stacks.",
+      orderIndex: 3,
+      isPublished: true,
+    },
+  });
+
+  const linkedListsModule = await db.learnModule.upsert({
+    where: { subjectId_slug: { subjectId: dsaSubject.id, slug: "linked-lists" } },
+    update: {
+      title: "Linked Lists",
+      description: "In-place pointer manipulation, multi-pointer traversal, and Floyd's cycle topology.",
+      orderIndex: 4,
+      isPublished: true,
+    },
+    create: {
+      subjectId: dsaSubject.id,
+      slug: "linked-lists",
+      title: "Linked Lists",
+      description: "In-place pointer manipulation, multi-pointer traversal, and Floyd's cycle topology.",
+      orderIndex: 4,
+      isPublished: true,
+    },
+  });
+
   const indexingModule = await db.learnModule.upsert({
     where: { subjectId_slug: { subjectId: dbmsSubject.id, slug: "indexing-storage" } },
     update: {
@@ -1180,6 +1944,8 @@ async function seedLearn() {
   const moduleMap: Record<string, string> = {
     "arrays-patterns": arraysModule.id,
     searching: searchingModule.id,
+    "stacks-queues": stacksQueuesModule.id,
+    "linked-lists": linkedListsModule.id,
     "indexing-storage": indexingModule.id,
     "transactions-concurrency": transactionsModule.id,
   };

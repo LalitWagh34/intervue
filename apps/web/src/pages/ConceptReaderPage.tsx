@@ -23,9 +23,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { RecallModal } from "@/components/learn/RecallModal";
+import { TwoPointersVisualizer } from "@/components/learn/visualizations/renderers/TwoPointersVisualizer";
+import { BPlusTreeVisualizer } from "@/components/learn/visualizations/renderers/BPlusTreeVisualizer";
+import { SlidingWindowVisualizer } from "@/components/learn/visualizations/renderers/SlidingWindowVisualizer";
+import { BinarySearchVisualizer } from "@/components/learn/visualizations/renderers/BinarySearchVisualizer";
+import { PrefixSumVisualizer } from "@/components/learn/visualizations/renderers/PrefixSumVisualizer";
+import { MonotonicStackVisualizer } from "@/components/learn/visualizations/renderers/MonotonicStackVisualizer";
+import { LinkedListReversalVisualizer } from "@/components/learn/visualizations/renderers/LinkedListReversalVisualizer";
 import { toast } from "sonner";
 
-type ReaderMode = "quick" | "deep";
+type ReaderMode = "quick" | "deep" | "visualize";
 
 const DIFFICULTY_STYLES: Record<string, string> = {
   FOUNDATION: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
@@ -46,6 +53,7 @@ export default function ConceptReaderPage() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    setMode("quick");
   }, [slug]);
 
   if (isLoading) {
@@ -81,7 +89,15 @@ export default function ConceptReaderPage() {
   }
 
   const { concept, navigation } = data;
-  const activeMarkdown = mode === "quick" ? concept.quickRevisionMd : concept.deepDiveMd;
+  const hasVisualization =
+    concept.slug === "two-pointers" ||
+    concept.slug === "sliding-window" ||
+    concept.slug === "binary-search" ||
+    concept.slug === "prefix-sum" ||
+    concept.slug === "monotonic-stack" ||
+    concept.slug === "linked-list-reversal" ||
+    concept.slug === "b-plus-trees";
+  const activeMarkdown = mode === "deep" ? concept.deepDiveMd : concept.quickRevisionMd;
   const isConceptBookmarked = bookmarkedSlugs.includes(`learn:${concept.slug}`);
 
   const handleToggleConceptBookmark = async () => {
@@ -149,7 +165,7 @@ export default function ConceptReaderPage() {
               </span>
             </div>
 
-            {/* Quick Revision vs Deep Dive Toggle */}
+            {/* Quick Revision vs Deep Dive vs Visualize Toggle */}
             <div
               role="tablist"
               aria-label="Reading mode"
@@ -185,6 +201,23 @@ export default function ConceptReaderPage() {
                 <Layers className="h-3.5 w-3.5" />
                 Deep Dive
               </button>
+              {hasVisualization && (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "visualize"}
+                  onClick={() => setMode("visualize")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer",
+                    mode === "visualize"
+                      ? "bg-background text-foreground shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  Visualize
+                </button>
+              )}
             </div>
           </div>
 
@@ -252,15 +285,33 @@ export default function ConceptReaderPage() {
           </div>
         </header>
 
-        {/* Lesson Markdown Body */}
-        <Card className="border-border bg-card shadow-xs">
-          <CardContent className="p-6 sm:p-9">
-            <SafeMarkdown content={activeMarkdown} />
-          </CardContent>
-        </Card>
+        {/* Lesson Body: Visualization OR SafeMarkdown */}
+        {mode === "visualize" && hasVisualization ? (
+          concept.slug === "b-plus-trees" ? (
+            <BPlusTreeVisualizer />
+          ) : concept.slug === "sliding-window" ? (
+            <SlidingWindowVisualizer />
+          ) : concept.slug === "binary-search" ? (
+            <BinarySearchVisualizer />
+          ) : concept.slug === "prefix-sum" ? (
+            <PrefixSumVisualizer />
+          ) : concept.slug === "monotonic-stack" ? (
+            <MonotonicStackVisualizer />
+          ) : concept.slug === "linked-list-reversal" ? (
+            <LinkedListReversalVisualizer />
+          ) : (
+            <TwoPointersVisualizer />
+          )
+        ) : (
+          <Card className="border-border bg-card shadow-xs">
+            <CardContent className="p-6 sm:p-9">
+              <SafeMarkdown content={activeMarkdown} />
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Key Takeaways & Common Mistakes */}
-        {(concept.keyTakeaways.length > 0 || concept.commonMistakes.length > 0) && (
+        {/* Key Takeaways & Common Mistakes (Quick & Deep modes only) */}
+        {mode !== "visualize" && (concept.keyTakeaways.length > 0 || concept.commonMistakes.length > 0) && (
           <div className="grid gap-4 md:grid-cols-2">
             {concept.keyTakeaways.length > 0 && (
               <Card className="border-border bg-card shadow-xs">
@@ -302,83 +353,87 @@ export default function ConceptReaderPage() {
           </div>
         )}
 
-        {/* Big Action Banner to Launch Active Recall Quiz Modal */}
-        <Card className="border-[var(--border-subtle)] bg-[var(--surface)] shadow-xs">
-          <CardContent className="p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--action-primary)]/10 text-[var(--action-primary)]">
-                  <Brain className="h-4 w-4" />
-                </span>
-                <h3 className="text-base font-semibold text-[var(--text-primary)]">
-                  Ready to Test Your Recall?
-                </h3>
-              </div>
-              <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl leading-relaxed">
-                Step through verified interview MCQs with instant reasoning and explanation breakdowns to lock in your mental model for {concept.title}.
-              </p>
-            </div>
-
-            <Button
-              type="button"
-              onClick={() => setIsRecallModalOpen(true)}
-              className="shrink-0 text-xs sm:text-sm font-semibold px-5 py-2.5 h-auto cursor-pointer flex items-center gap-2 bg-[var(--action-primary)] text-[var(--on-primary)] shadow-sm hover:bg-[var(--action-primary-hover)] transition-all"
-            >
-              <Brain className="h-4 w-4" />
-              Solve MCQs &amp; Active Recall
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Deep Intuition & Follow-up with AI Mentor */}
-        <Card className="border-border bg-card/60 backdrop-blur-xs">
-          <CardContent className="p-5 sm:p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500">
-                <Sparkles className="h-4.5 w-4.5" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground">
-                  Need deeper intuition or have follow-up questions?
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Discuss {concept.title} with your dedicated AI Mentor for customized examples, proofs, and interview drill-downs.
+        {/* Big Action Banner to Launch Active Recall Quiz Modal (Quick & Deep modes only) */}
+        {mode !== "visualize" && (
+          <Card className="border-[var(--border-subtle)] bg-[var(--surface)] shadow-xs">
+            <CardContent className="p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--action-primary)]/10 text-[var(--action-primary)]">
+                    <Brain className="h-4 w-4" />
+                  </span>
+                  <h3 className="text-base font-semibold text-[var(--text-primary)]">
+                    Ready to Test Your Recall?
+                  </h3>
+                </div>
+                <p className="text-xs sm:text-sm text-[var(--text-secondary)] max-w-xl leading-relaxed">
+                  Step through verified interview MCQs with instant reasoning and explanation breakdowns to lock in your mental model for {concept.title}.
                 </p>
               </div>
-            </div>
 
-            <div className="grid gap-2 sm:grid-cols-3 pt-1">
-              {[
-                {
-                  label: "Invariant Proofs",
-                  prompt: `Can you explain the formal invariant proof for ${concept.title}? Why is its correctness guaranteed and what happens if boundaries are off by 1?`,
-                },
-                {
-                  label: "Code Templates",
-                  prompt: `Give me production-quality code templates for ${concept.title} in Python, C++, and Java with clean edge-case handling.`,
-                },
-                {
-                  label: "Tricky Edge Cases",
-                  prompt: `What are the most common trap questions and subtle edge cases interviewers use to test candidates on ${concept.title}?`,
-                },
-              ].map((item, i) => (
-                <Link
-                  key={i}
-                  to={`/chat?prompt=${encodeURIComponent(item.prompt)}&autoSend=true`}
-                  className="flex flex-col justify-between rounded-lg border border-border bg-muted/20 p-3 text-left hover:bg-muted/50 hover:border-border transition-colors group"
-                >
-                  <span className="text-xs font-medium text-foreground group-hover:text-[var(--action-primary)] transition-colors">
-                    {item.label}
-                  </span>
-                  <span className="text-[11px] text-muted-foreground line-clamp-2 mt-1 leading-snug">
-                    {item.prompt}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              <Button
+                type="button"
+                onClick={() => setIsRecallModalOpen(true)}
+                className="shrink-0 text-xs sm:text-sm font-semibold px-5 py-2.5 h-auto cursor-pointer flex items-center gap-2 bg-[var(--action-primary)] text-[var(--on-primary)] shadow-sm hover:bg-[var(--action-primary-hover)] transition-all"
+              >
+                <Brain className="h-4 w-4" />
+                Solve MCQs &amp; Active Recall
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Deep Intuition & Follow-up with AI Mentor (Quick & Deep modes only) */}
+        {mode !== "visualize" && (
+          <Card className="border-border bg-card/60 backdrop-blur-xs">
+            <CardContent className="p-5 sm:p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500">
+                  <Sparkles className="h-4.5 w-4.5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Need deeper intuition or have follow-up questions?
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Discuss {concept.title} with your dedicated AI Mentor for customized examples, proofs, and interview drill-downs.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-3 pt-1">
+                {[
+                  {
+                    label: "Invariant Proofs",
+                    prompt: `Can you explain the formal invariant proof for ${concept.title}? Why is its correctness guaranteed and what happens if boundaries are off by 1?`,
+                  },
+                  {
+                    label: "Code Templates",
+                    prompt: `Give me production-quality code templates for ${concept.title} in Python, C++, and Java with clean edge-case handling.`,
+                  },
+                  {
+                    label: "Tricky Edge Cases",
+                    prompt: `What are the most common trap questions and subtle edge cases interviewers use to test candidates on ${concept.title}?`,
+                  },
+                ].map((item, i) => (
+                  <Link
+                    key={i}
+                    to={`/chat?prompt=${encodeURIComponent(item.prompt)}&autoSend=true`}
+                    className="flex flex-col justify-between rounded-lg border border-border bg-muted/20 p-3 text-left hover:bg-muted/50 hover:border-border transition-colors group"
+                  >
+                    <span className="text-xs font-medium text-foreground group-hover:text-[var(--action-primary)] transition-colors">
+                      {item.label}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground line-clamp-2 mt-1 leading-snug">
+                      {item.prompt}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Prev / Next Navigation */}
         <footer className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">

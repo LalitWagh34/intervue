@@ -10,9 +10,8 @@ import {
   CheckCircle2,
   ArrowRight,
   BookOpen,
-  RotateCcw,
 } from "lucide-react";
-import { useLearnSubjects, useRevisionQueue } from "@/hooks/useLearn";
+import { useLearnSubjects } from "@/hooks/useLearn";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -83,9 +82,7 @@ const SUBJECT_TEMPLATES = [
 
 export default function LearnHomePage() {
   const { data, isLoading } = useLearnSubjects();
-  const { data: queueData } = useRevisionQueue();
   const liveSubjects = data?.subjects || [];
-  const queue = queueData?.queue || [];
 
   const allCards: SubjectCardItem[] = SUBJECT_TEMPLATES.map((tmpl) => {
     const live = liveSubjects.find((s) => s.slug === tmpl.slug);
@@ -128,17 +125,6 @@ export default function LearnHomePage() {
             <span className="text-xs text-[var(--text-muted)] font-mono">
               Subject Tracks &bull; V1 Pilot
             </span>
-            {/* {queue.length > 0 ? (
-              <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 text-amber-500 border border-amber-500/30 px-2 py-0.5 text-xs font-mono font-semibold">
-                <RotateCcw className="h-3 w-3" />
-                {queue.length} due for revision
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-2 py-0.5 text-xs font-mono">
-                <CheckCircle2 className="h-3 w-3" />
-                All caught up
-              </span>
-            )} */}
           </div>
 
           <div className="space-y-1 max-w-3xl">
@@ -146,64 +132,10 @@ export default function LearnHomePage() {
               Start Learning Subjects
             </h1>
             <p className="text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed">
-              Select a subject  below to explore modules and deep dive conceptual explanations.
+              Select a subject below to explore modules and deep dive conceptual explanations.
             </p>
           </div>
         </header>
-
-        {/* ─── Due for Revision Queue (Spaced Repetition) ─── */}
-        {queue.length > 0 && (
-          <section className="space-y-3.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-500 border border-amber-500/30">
-                  <RotateCcw className="h-4 w-4" />
-                </div>
-                <div>
-                  <h2 className="text-base font-semibold text-[var(--text-primary)]">
-                    Due for Revision ({queue.length})
-                  </h2>
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    Concepts scheduled for active recall reinforcement
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {queue.map((item) => (
-                <div
-                  key={item.progressId}
-                  className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 flex flex-col justify-between gap-3 shadow-xs"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <Badge variant="outline" className="text-[10px] bg-amber-500/15 text-amber-500 border-amber-500/30 font-semibold">
-                        {item.status === "NEEDS_REVISION" ? "Review Needed" : `Stage ${item.reviewStage} Due`}
-                      </Badge>
-                      <span className="text-[11px] font-mono text-[var(--text-muted)]">
-                        ~{item.concept.estimatedMinutes}m
-                      </span>
-                    </div>
-
-                    <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-                      {item.concept.title}
-                    </h3>
-                    <p className="text-xs text-[var(--text-secondary)] line-clamp-1">
-                      {item.concept.module.subject.title} &bull; {item.concept.module.title}
-                    </p>
-                  </div>
-
-                  <Button asChild size="sm" className="w-full h-7 text-xs font-semibold gap-1 bg-[#327CF6] hover:bg-[#2563EB] text-white">
-                    <Link to={`/learn/concepts/${item.concept.slug}`}>
-                      Quick Revise <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* ─── Subject Boxes Side by Side (Grid Layout) ─── */}
         <section className="space-y-4">

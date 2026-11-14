@@ -37,8 +37,9 @@
 1. **AI Technical Mock Interviews**: Lifelike conversational interviews powered by Llama 3.3 70B with adaptive questioning ladders and multi-dimensional rubric evaluations.
 2. **Real-Time Multiplayer Battle Arenas**: Timed competitive rooms with authoritative WebSockets, dynamic countdown clocks, spectator consoles, and live podiums.
 3. **Triple-Sensor Anti-Cheat Surveillance**: Automated proctoring detecting tab switching, window defocus, and clipboard injection with a 3-strike escalation penalty system.
-4. **Target Company Practice Kits & 470+ Archive**: Curated problem loops for Google, Amazon, Meta, Apple, Microsoft, Netflix, Uber, Accenture, and 470+ companies ranked by ask rate and interview frequency.
-5. **Interview Target Tracker (POTD)**: Daily problem challenge loops, streak tracking, and customizable goals synced with your LeetCode progress.
+4. **Learn & Revise Hub with Interactive Visualizers**: Deep conceptual lessons (Quick Revision + Deep Dive) across DSA and DBMS paired with GPU-accelerated interactive step-by-step visualizers and spaced-repetition active recall MCQs.
+5. **Target Company Practice Kits & 470+ Archive**: Curated problem loops for Google, Amazon, Meta, Apple, Microsoft, Netflix, Uber, Accenture, and 470+ companies ranked by ask rate and interview frequency.
+6. **Interview Target Tracker (POTD)**: Daily problem challenge loops, streak tracking, and customizable goals synced with your LeetCode progress.
 
 ---
 
@@ -49,11 +50,12 @@
   - [2. Authoritative Anti-Cheat Surveillance](#2-authoritative-anti-cheat-surveillance)
   - [3. Live Spectator Command Center](#3-live-spectator-command-center--code-streaming)
   - [4. AI Technical Mock Interviews & Automated Grading](#4-ai-technical-mock-interviews--automated-grading)
-  - [5. Target Company Practice Kits & 470+ Archive](#5-target-company-practice-kits--470-archive)
-  - [6. Interview Target Tracker (POTD Loops)](#6-interview-target-tracker-potd-loops)
-  - [7. Curated Learning Hub & Flagship Sheets](#7-curated-learning-hub--flagship-sheets)
-  - [8. Notes & Revision Bookmarks](#8-notes--revision-bookmarks)
-  - [9. Unified Analytics & Cross-Platform Sync](#9-unified-analytics--cross-platform-sync)
+  - [5. Learn & Revise Hub & Interactive Visualizers](#5-learn--revise-hub--interactive-visualizers)
+  - [6. Target Company Practice Kits & 470+ Archive](#6-target-company-practice-kits--470-archive)
+  - [7. Interview Target Tracker (POTD Loops)](#7-interview-target-tracker-potd-loops)
+  - [8. Curated Learning Hub & Flagship Sheets](#8-curated-learning-hub--flagship-sheets)
+  - [9. Notes & Revision Bookmarks](#9-notes--revision-bookmarks)
+  - [10. Unified Analytics & Cross-Platform Sync](#10-unified-analytics--cross-platform-sync)
 - [System Architecture](#-system-architecture)
 - [Monorepo Directory Structure](#-monorepo-structure)
 - [Tech Stack](#-tech-stack)
@@ -109,7 +111,25 @@
   * Post-interview diagnostic reports scored across 4 core dimensions: **Technical Accuracy**, **Problem Solving & Complexity**, **Communication & Clarity**, and **Edge-Case Resilience**.
   * Provides granular feedback, strengths, priority improvement areas, and level calibration (Junior $\to$ Staff).
 
-### 5. Target Company Practice Kits & 470+ Archive
+### 5. Learn & Revise Hub & Interactive Visualizers
+* **Dual-Depth Conceptual Learning**:
+  * **Quick Revision**: Condensed architectural summaries, universal code templates, and complexity comparative tables for high-velocity pre-interview reviews.
+  * **Deep Dive**: Rigorous mathematical invariant proofs, memory layout traces, execution plans (`EXPLAIN ANALYZE`), and senior engineer trap questions.
+* **Interactive Algorithmic & Storage Visualizers**:
+  * **Two Pointers Visualizer**: Step through boundary pointer convergence, sorting invariants, and Dutch National Flag 3-way partitioning.
+  * **Sliding Window Visualizer**: Dynamic contiguous window expansions and contractions with live metrics (running sum, minimum/maximum window records).
+  * **Prefix Sum & Kadane's Visualizer**: Dual-array visualization demonstrating instantaneous $O(1)$ range queries ($P[R+1] - P[L]$) and Kadane's dynamic programming prefix restarts.
+  * **Binary Search Visualizer**: Monotonic space halving, overflow-safe midpoint calculation, discarded region shading, and absence/insertion proofs.
+  * **Monotonic Stack Visualizer**: Decreasing/increasing LIFO stack state, Next Greater Element lookup, and popped element resolution.
+  * **Linked List Reversal Visualizer**: 4-step pointer dance (`nextTemp = curr.next`, `curr.next = prev`, `prev = curr`, `curr = nextTemp`), animated bidirectional node arrows, and pointer badges.
+  * **DBMS B+ Tree Visualizer**: Real 3-level tree simulation showing point lookups with absence proofs, dynamic range scans, and leaf pointer linking.
+  * **Unified Playback HUD**: Play/pause, step scrubbing, speed toggling (0.5x, 1x, 1.5x, 2x), and scoped keyboard shortcuts.
+* **Spaced-Repetition Active Recall Engine**:
+  * 3+ verified MCQs per concept with detailed reasoning and explanation breakdowns.
+  * Multi-stage mastery progression: `UNSEEN` $\to$ `LEARNING` $\to$ `REVIEW_DUE` $\to$ `MASTERED`.
+  * Atomic session tracking with automated scheduling based on retention performance.
+
+### 6. Target Company Practice Kits & 470+ Archive
 * **Curated Company Prep Kits**: High-yield interview problem tracks specifically tailored to **Google**, **Amazon**, **Meta**, **Microsoft**, **Apple**, **Netflix**, **Uber**, **Accenture**, and startups.
 * **470+ Company Archive**: Deep archive of real questions tagged with popularity metrics:
   * 🔥 *Very Hot* (Frequency $\ge$ 2.5)
@@ -118,25 +138,25 @@
 * **Interactive Filtering**: Filter by Difficulty (Easy, Medium, Hard), Ask Rate, Solved Status, and Topics (Arrays, Trees, Graphs, DP).
 * **Direct LeetCode Integration**: Quick-launch links directly to original LeetCode problems with optimistic solved-state synchronization.
 
-### 6. Interview Target Tracker (POTD Loops)
+### 7. Interview Target Tracker (POTD Loops)
 * **Active Target Selectors**: Choose up to 5 target companies you are interviewing with.
 * **Daily POTD Challenge Generation**: Automatically pulls high-frequency problems matching your selected companies every morning.
 * **Configurable Goals**: Toggle daily goals (1, 2, 3, or 5 problems per day) with streak rewards.
 * **Cross-Company Tagging**: See exactly which of your target companies ask each daily problem.
 
-### 7. Curated Learning Hub & Flagship Sheets
+### 8. Curated Learning Hub & Flagship Sheets
 * **Striver A2Z DSA Sheet**: Comprehensive roadmap covering step-by-step algorithms from foundational data structures to advanced graphs and dynamic programming.
 * **NeetCode 150 / NeetCode 75 / Blind 75**: Curated industry-standard interview preparation problem sets with live solved-status tracking.
 * **Granular Progress & Difficulty Breakdowns**:
   * Interactive progress tracking across Basic (Easy), Core (Medium), and Pro (Hard) tiers.
   * Direct LeetCode problem quick-launch integration with optimistic synchronization.
 
-### 8. Notes & Revision Bookmarks
+### 9. Notes & Revision Bookmarks
 * **Problem-Linked Notes**: Record intuition, edge cases, and time complexity directly while practicing.
 * **Responsive 2-Column Workspace**: Search by problem title or keyword, toggle full-width notes editor on mobile, and sync notes securely to your account.
 * **Revision Bookmarks**: Bookmark questions across company kits and sheets for quick revision sessions.
 
-### 9. Unified Analytics & Cross-Platform Sync
+### 10. Unified Analytics & Cross-Platform Sync
 * **Cross-Platform Activity Heatmap**: Unified Github-style activity heatmap tracking contributions across **interVue**, **LeetCode**, and **Codeforces**.
 * **Daily Streak & Rewards**: Auto-claiming daily streak counter and points economy (`Intervue Coins`).
 * **Profile Customization**: Customizable engineering title, target companies, platform usernames, and bio.
@@ -188,8 +208,10 @@ intervue/
 │   │   │   ├── middleware/             # requireAuth, requireAdmin auth guards
 │   │   │   ├── routes/
 │   │   │   │   ├── admin.ts            # Problem CMS & AI problem generation
+│   │   │   │   ├── adminLearn.ts       # Learn & Revise CMS, revision forking & publishing gates
 │   │   │   │   ├── chat.ts             # AI interview coaching chat (SSE)
 │   │   │   │   ├── interview.ts        # Mock interview lifecycle, turn handling
+│   │   │   │   ├── learn.ts            # Learn & Revise catalog, reader, recall session & progress
 │   │   │   │   ├── profile.ts          # Candidate profiles, streaks & heatmaps
 │   │   │   │   ├── rooms.ts            # Contest rooms, lobbies, arena submissions
 │   │   │   │   ├── search.ts           # Global search query provider
@@ -206,17 +228,24 @@ intervue/
 │       │   ├── components/
 │       │   │   ├── company/            # CompanyKitWorkspace, CompanyKitsCatalog
 │       │   │   ├── layout/             # AppLayout, Sidebar, Navbar, HUD
+│       │   │   ├── learn/              # RecallModal, Active Recall quiz flow
+│       │   │   │   └── visualizations/ # Renderers (Two Pointers, B+ Tree, Sliding Window, etc.) & Controls
 │       │   │   ├── shared/             # TargetCompanyTracker, DailyTargetTracker, Modals
 │       │   │   └── ui/                 # Buttons, Dialogs, Badges, Tabs, Tooltips
 │       │   ├── hooks/
 │       │   │   ├── useAntiCheat.ts     # Browser sensors (tabs, blur, paste threshold)
 │       │   │   ├── useDailyTargets.ts  # POTD tracking & goal management
+│       │   │   ├── useLearn.ts         # Learn & Revise catalog, concept, and recall queries
 │       │   │   ├── useNotes.ts         # In-context notepad management
 │       │   │   ├── useProfile.ts       # Profile & cross-platform statistics
 │       │   │   └── useRoomSocket.ts    # WebSocket client (sync, leaderboard, code stream)
+│       │   ├── lib/
+│       │   │   └── visualizations/     # Algorithmic step models & playback traces
 │       │   ├── pages/
+│       │   │   ├── ConceptReaderPage.tsx # Dual-depth reader & interactive visualizer page
 │       │   │   ├── DashboardPage.tsx   # User analytics, streaks, quick launcher
 │       │   │   ├── InterviewPage.tsx   # AI technical mock interview room
+│       │   │   ├── LearnHomePage.tsx   # Learn & Revise Hub overview & catalog
 │       │   │   ├── NotepadPage.tsx     # Notes & Hints workspace
 │       │   │   ├── PracticeHubPage.tsx # Curated company kits & DSA sheets
 │       │   │   ├── ProfilePage.tsx     # Cross-platform heatmap & profile stats

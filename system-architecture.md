@@ -17,6 +17,7 @@
    - [4.3 Authoritative Anti-Cheat Surveillance System](#43-authoritative-anti-cheat-surveillance-system)
    - [4.4 Target Company Preparation Kits & Flagship Sheets](#44-target-company-preparation-kits--flagship-sheets)
    - [4.5 Gamification & Consistency Tracking Engine](#45-gamification--consistency-tracking-engine)
+   - [4.6 Learn & Revise Hub, Interactive Visualizers & Spaced Repetition](#46-learn--revise-hub-interactive-visualizers--spaced-repetition)
 5. [Data Architecture & Database Modeling](#5-data-architecture--database-modeling)
 6. [Observability, Resilience & Security](#6-observability-resilience--security)
 7. [Deployment Topology & Infrastructure](#7-deployment-topology--infrastructure)
@@ -46,6 +47,7 @@ flowchart TD
         AuthService["Better-Auth Service + Session Handler"]
         RoomManager["RoomSocketManager (Authoritative In-Memory Sync)"]
         EvaluationEngine["Post-Interview Evaluation Engine"]
+        LearnEngine["Learn & Revise Engine (Curriculum & Spaced Repetition)"]
         MetricsPino["Prometheus Metrics (/metrics) + Pino Logger"]
     end
 
@@ -63,12 +65,14 @@ flowchart TD
     HonoApp --> AuthService
     HonoApp --> RoomManager
     HonoApp --> EvaluationEngine
+    HonoApp --> LearnEngine
     HonoApp --> MetricsPino
 
     AuthService --> NeonDB
     RoomManager --> NeonDB
     EvaluationEngine --> GroqAI
     EvaluationEngine --> NeonDB
+    LearnEngine --> NeonDB
     HonoApp --> ExternalPlatforms
 ```
 
@@ -223,6 +227,33 @@ To safeguard contest integrity, the battle arena incorporates a client-side sens
 * **Target Company POTD Loops**: Automatically recommends daily problems based on the candidate's selected dream companies.
 * **Streak & Points Economy (`Intervue Coins`)**: Daily check-ins, interview completion milestones, and contest victories award coins and maintain active consistency streaks.
 
+### 4.6 Learn & Revise Hub, Interactive Visualizers & Spaced Repetition
+
+The Learn & Revise Hub forms an interview-focused conceptual mastery layer bridging theory, algorithmic step-by-step visualization, and spaced-repetition retention:
+
+* **Curriculum Hierarchy**:
+  * **`LearnSubject`**: High-level learning tracks (e.g. `dsa` - Data Structures & Algorithms, `dbms` - Database Management Systems).
+  * **`LearnModule`**: Thematic chapters in curriculum order (e.g. Arrays & Patterns, Searching, Stacks & Queues, Linked Lists, Indexing & Storage Engines, Transactions & Concurrency).
+  * **`LearnConcept` & `LearnConceptRevision`**: Versioned, immutable concept revisions with publication completeness validation (`validateRevisionCompleteness`) preventing publication of draft or incomplete material.
+* **Dual-Depth Lesson Engine**:
+  * **Quick Revision**: Distilled conceptual definitions, universal mental models, ASCII state diagrams, and complexity comparisons.
+  * **Deep Dive**: Invariant proofs (e.g. Floyd's cycle meeting proof, Monotonic stack amortized $O(n)$ proofs, B+ tree fan-out calculations), execution plans, and interview trap questions.
+* **GPU-Accelerated Interactive Visualizers**:
+  * Built with **Framer Motion** and a shared playback engine (`useVisualizationPlayback` and `PlaybackControls`).
+  * Features scrubber bar, variable inspector, step explanations, speed multiplier controls (0.5x, 1x, 1.5x, 2x), and mobile-responsive horizontal bounds.
+  * **Supported Visualizations**:
+    1. *Two Pointers*: Sorted boundary convergence and Dutch National Flag 3-way partitioning.
+    2. *Sliding Window*: Fixed size $K$ sliding, variable minimum feasible window ($\ge S$), and variable maximum allowed sum ($\le K$).
+    3. *Prefix Sum & Kadane's Algorithm*: Dual-array cumulative tables, $O(1)$ range queries ($P[R+1] - P[L]$), and Kadane's dynamic prefix restart on negative prefixes.
+    4. *Binary Search*: Logarithmic space halving, overflow-safe midpoint calculation, and discarded region shading.
+    5. *Monotonic Stack*: Decreasing/increasing LIFO stack state, Next Greater Element lookup, and popped element resolution.
+    6. *Linked List Reversal*: 4-step pointer dance (`nextTemp = curr.next`, `curr.next = prev`, `prev = curr`, `curr = nextTemp`), animated bidirectional node arrows, and pointer badges.
+    7. *DBMS B+ Tree*: Real 3-level tree traversal, point lookups with absence proofs, dynamic range scans, and leaf pointer linking.
+* **Active Recall & Spaced Repetition**:
+  * Verified Multiple-Choice Questions (MCQs) testing core invariants and trap cases.
+  * **Mastery Stages**: `UNSEEN` $\to$ `LEARNING` $\to$ `REVIEW_DUE` $\to$ `MASTERED`.
+  * Atomic session evaluation (`POST /api/learn/concepts/:slug/recall/session`) advancing review intervals upon achieving $\ge 70\%$ score accuracy.
+
 ---
 
 ## 5. Data Architecture & Database Modeling
@@ -239,12 +270,21 @@ erDiagram
     User ||--o{ UserSolvedProblem : "solves"
     User ||--o{ UserBookmark : "bookmarks"
     User ||--o{ UserQuestionNote : "authors"
+    User ||--o{ UserConceptProgress : "tracks"
+    User ||--o{ UserRecallSession : "records"
 
     Room ||--o{ RoomParticipant : "contains"
     Room ||--o{ RoomSubmission : "records"
     Room ||--o{ RoomMcqAnswer : "collects"
 
     Interview ||--o| Evaluation : "evaluated by"
+
+    LearnSubject ||--o{ LearnModule : "contains"
+    LearnModule ||--o{ LearnConcept : "contains"
+    LearnConcept ||--o{ LearnConceptRevision : "has revisions"
+    LearnConcept ||--o{ LearnRecallQuestion : "quizzes"
+    LearnConcept ||--o{ UserConceptProgress : "progress"
+    UserRecallSession ||--o{ UserRecallAnswer : "answers"
 ```
 
 ### Core Entities
@@ -252,6 +292,10 @@ erDiagram
 * **`Profile`**: Experience level, target engineering role, bio, and external competitive handles (LeetCode, Codeforces, GitHub).
 * **`Interview` & `Evaluation`**: Full mock interview conversational trajectory, mode (`text`, `system_design`), rubric breakdown scores, and detailed AI feedback.
 * **`Room` & `RoomParticipant`**: Real-time room metadata, 6-character room codes, penalty clocks, anti-cheat strike counts, and disqualification flags.
+* **`LearnSubject`, `LearnModule`, `LearnConcept`**: Hierarchical concept taxonomy organizing CS fundamentals and problem-solving patterns.
+* **`LearnConceptRevision`**: Immutable, versioned lesson revisions containing Quick Revision markdown, Deep Dive markdown, key takeaways, and common pitfalls.
+* **`LearnRecallQuestion`**: Multi-question active recall MCQs with answer verification and explanations.
+* **`UserConceptProgress` & `UserRecallSession`**: Spaced repetition tracking, mastery stages (`UNSEEN`, `LEARNING`, `REVIEW_DUE`, `MASTERED`), and session scores.
 * **`Verification`**: Temporary cryptographic storage for OAuth state parameters, PKCE verification strings, and email verification tokens with auto-expiration.
 
 ---
