@@ -12,7 +12,7 @@ interface SessionVerificationLoaderProps {
 export function SessionVerificationLoader({
   title = "Checking your session...",
   subtitle,
-  showEscapeHatchAfterMs = 7000,
+  showEscapeHatchAfterMs = 5000,
 }: SessionVerificationLoaderProps) {
   const [elapsed, setElapsed] = useState(0);
   const [showEscape, setShowEscape] = useState(false);
@@ -32,12 +32,14 @@ export function SessionVerificationLoader({
 
   // Progressive descriptive hints based on wait time
   const getProgressiveMessage = () => {
-    if (subtitle) return subtitle;
-    if (elapsed < 2000) {
+    if (subtitle && elapsed < 3000) return subtitle;
+    if (elapsed < 3000) {
       return "Verifying secure credentials & workspace...";
     }
-
-    return "Waking up cloud service (first load may take a moment)...";
+    if (elapsed < 8000) {
+      return "Cloud server is waking up from idle... (Render free instances take ~15s on first visit)";
+    }
+    return "Still initializing backend & database connection... thank you for your patience.";
   };
 
   return (

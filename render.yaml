@@ -5,7 +5,7 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     region: oregon
-    healthCheckPath: /api/profile
+    healthCheckPath: /health
     envVars:
       - key: PORT
         value: 3000

@@ -101,13 +101,30 @@ app.get("/", (c) => {
   return c.json({ status: "healthy", service: "intervue-backend", timestamp: new Date().toISOString() });
 });
 
+// Lightweight public health check for Render / monitoring without DB or Auth overhead
+app.get("/health", (c) => {
+  return c.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.get("/test-auth", (c) => {
   return c.json({ auth: typeof auth, handler: typeof auth.handler });
 });
 
 // Auth routes — better-auth handles everything under /api/auth/* (Google OAuth + Email/Password)
 app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
+  const isGetSession = c.req.path.includes("get-session");
+  const authStart = Date.now();
   const res = await auth.handler(c.req.raw);
+
+  if (isGetSession) {
+    const duration = Date.now() - authStart;
+    pinoLogger.info({
+      route: "get-session",
+      durationMs: duration,
+      status: res.status,
+      msg: `[Session Check] completed in ${duration}ms`,
+    });
+  }
 
   // If redirecting back to frontend (e.g. after Google OAuth completion), attach session_token
   // to URL query so mobile browsers with strict 3rd-party cookie blocking (iOS Safari ITP) can capture it.

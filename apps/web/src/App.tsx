@@ -1,38 +1,49 @@
+import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, Navigate, Outlet, Link } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import AppLayout from "./components/layout/AppLayout";
-import ProfileSetupPage from "./pages/ProfileSetupPage";
-import ProfilePage from "./pages/ProfilePage";
-import InterviewPage from "./pages/InterviewPage";
-import ResultsPage from "./pages/ResultsPage";
-import PracticeHubPage from "./pages/PracticeHubPage";
-import LearnHomePage from "./pages/LearnHomePage";
-import SubjectCatalogPage from "./pages/SubjectCatalogPage";
-import ModuleTopicsPage from "./pages/ModuleTopicsPage";
-import ConceptReaderPage from "./pages/ConceptReaderPage";
-import HistoryPage from "./pages/HistoryPage";
-import ChatPage from "./pages/ChatPage";
-import AdminPage from "./pages/AdminPage";
-import CodingPage from "./pages/CodingPage";
-import RoomsPage from "./pages/rooms/RoomsPage";
-import RoomLobbyPage from "./pages/rooms/RoomLobbyPage";
-import RoomArenaPage from "./pages/rooms/RoomArenaPage";
-import RoomResultsPage from "./pages/rooms/RoomResultsPage";
-import NotFoundPage from "./pages/NotFoundPage";
-import { useEffect } from "react";
-import NotepadPage from "./pages/NotepadPage";
-import BookmarksPage from "./pages/BookmarksPage";
-import HelpCenterPage from "./pages/HelpCenterPage";
-import FeedbackPage from "./pages/FeedbackPage";
 import { useSession } from "@/lib/auth";
 import { useProfileStats } from "@/hooks/useProfile";
 import { Analytics } from "@vercel/analytics/react";
 import { SessionVerificationLoader } from "@/components/shared/SessionVerificationLoader";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { toast } from "sonner";
-// import VoiceInterviewPage from "./pages/VoiceInterviewPage";
+import { Toaster } from "@/components/ui/sonner";
+import { CommandPalette } from "@/components/shared/CommandPalette";
+
+// Lazy-load heavier routes to keep initial bundle size tiny and fast to parse
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const AppLayout = lazy(() => import("./components/layout/AppLayout"));
+const ProfileSetupPage = lazy(() => import("./pages/ProfileSetupPage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const InterviewPage = lazy(() => import("./pages/InterviewPage"));
+const ResultsPage = lazy(() => import("./pages/ResultsPage"));
+const PracticeHubPage = lazy(() => import("./pages/PracticeHubPage"));
+const LearnHomePage = lazy(() => import("./pages/LearnHomePage"));
+const SubjectCatalogPage = lazy(() => import("./pages/SubjectCatalogPage"));
+const ModuleTopicsPage = lazy(() => import("./pages/ModuleTopicsPage"));
+const ConceptReaderPage = lazy(() => import("./pages/ConceptReaderPage"));
+const HistoryPage = lazy(() => import("./pages/HistoryPage"));
+const ChatPage = lazy(() => import("./pages/ChatPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
+const RoomsPage = lazy(() => import("./pages/rooms/RoomsPage"));
+const RoomLobbyPage = lazy(() => import("./pages/rooms/RoomLobbyPage"));
+const RoomArenaPage = lazy(() => import("./pages/rooms/RoomArenaPage"));
+const RoomResultsPage = lazy(() => import("./pages/rooms/RoomResultsPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const NotepadPage = lazy(() => import("./pages/NotepadPage"));
+const BookmarksPage = lazy(() => import("./pages/BookmarksPage"));
+const HelpCenterPage = lazy(() => import("./pages/HelpCenterPage"));
+const FeedbackPage = lazy(() => import("./pages/FeedbackPage"));
+
+function PageFallback() {
+  return (
+    <div className="w-full min-h-[50vh] flex flex-col items-center justify-center p-8 space-y-3">
+      <div className="w-6 h-6 border-2 border-[var(--border-subtle)] border-t-[var(--action-primary)] rounded-full animate-spin" />
+      <span className="text-xs text-[var(--text-muted)] font-mono">Loading workspace...</span>
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = useSession();
@@ -78,18 +89,10 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Redirects logged-in users away from public pages (like Landing and Login)
+// Renders public pages (Landing and Login) immediately without waiting for backend cold start!
+// If an authenticated session is confirmed in the background, smoothly redirects to /dashboard.
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { data: session, isPending } = useSession();
-
-  if (isPending) {
-    return (
-      <SessionVerificationLoader
-        title="Checking your session..."
-        subtitle="Resuming your active workspace..."
-      />
-    );
-  }
+  const { data: session } = useSession();
 
   if (session) return <Navigate to="/dashboard" replace />;
 
@@ -97,17 +100,9 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 // Renders inside AppLayout when authenticated, or a lightweight public shell when logged out
+// Does NOT block on useSession() so public pages (/help, /feedback) render instantly
 function MixedAccessLayout() {
-  const { data: session, isPending } = useSession();
-
-  if (isPending) {
-    return (
-      <SessionVerificationLoader
-        title="Loading page..."
-        subtitle="Preparing your workspace..."
-      />
-    );
-  }
+  const { data: session } = useSession();
 
   if (session) {
     return <AppLayout />;
@@ -143,99 +138,98 @@ function MixedAccessLayout() {
   );
 }
 
-import { Toaster } from "@/components/ui/sonner";
-import { CommandPalette } from "@/components/shared/CommandPalette";
-
 export default function App() {
-  // Speculative backend pre-warm: Wake up sleeping Render container in background on first visit
+  // Speculative backend pre-warm: Wake up sleeping Render container via lightweight /health endpoint
   useEffect(() => {
     try {
       const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
       const serverUrl = apiBase.replace(/\/api\/?$/, "");
-      fetch(`${serverUrl}/`, { mode: "no-cors" }).catch(() => {});
+      fetch(`${serverUrl}/health`, { mode: "no-cors" }).catch(() => {});
     } catch {}
   }, []);
 
   return (
     <>
       <CommandPalette />
-      <Routes>
-        <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
-        <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Suspense fallback={<PageFallback />}>
+        <Routes>
+          <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
 
-        <Route element={<MixedAccessLayout />}>
-          <Route path="/help" element={<HelpCenterPage />} />
-          <Route path="/feedback" element={<FeedbackPage />} />
-        </Route>
+          <Route element={<MixedAccessLayout />}>
+            <Route path="/help" element={<HelpCenterPage />} />
+            <Route path="/feedback" element={<FeedbackPage />} />
+          </Route>
 
-        <Route
-          path="/profile-setup"
-          element={
-            <ProtectedRoute>
-              <ProfileSetupPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          element={
-            <ProtectedRoute>
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/interview" element={<InterviewPage />} />
-          <Route path="/results/:id" element={<ResultsPage />} />
-          <Route path="/practice" element={<PracticeHubPage />} />
-          <Route path="/learn" element={<LearnHomePage />} />
-          <Route path="/learn/subjects/:slug" element={<SubjectCatalogPage />} />
-          <Route path="/learn/subjects/:subjectSlug/modules/:moduleSlug" element={<ModuleTopicsPage />} />
-          <Route path="/learn/concepts/:slug" element={<ConceptReaderPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/chat/:id" element={<ChatPage />} />
           <Route
-            path="/admin"
+            path="/profile-setup"
             element={
-              <AdminRoute>
-                <AdminPage />
-              </AdminRoute>
+              <ProtectedRoute>
+                <ProfileSetupPage />
+              </ProtectedRoute>
             }
           />
+
           <Route
-            path="/admin/:panel"
             element={
-              <AdminRoute>
-                <AdminPage />
-              </AdminRoute>
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/interview" element={<InterviewPage />} />
+            <Route path="/results/:id" element={<ResultsPage />} />
+            <Route path="/practice" element={<PracticeHubPage />} />
+            <Route path="/learn" element={<LearnHomePage />} />
+            <Route path="/learn/subjects/:slug" element={<SubjectCatalogPage />} />
+            <Route path="/learn/subjects/:subjectSlug/modules/:moduleSlug" element={<ModuleTopicsPage />} />
+            <Route path="/learn/concepts/:slug" element={<ConceptReaderPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/chat/:id" element={<ChatPage />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/:panel"
+              element={
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
+              }
+            />
+            <Route path="/notes" element={<NotepadPage />} />
+            <Route path="/bookmarks" element={<BookmarksPage />} />
+            
+            {/* Coding Practice disabled for V1 - redirect to Prep Hub */}
+            <Route path="/coding" element={<Navigate to="/practice" replace />} />
+            <Route path="/coding/:slug" element={<Navigate to="/practice" replace />} />
+            
+            <Route path="/rooms" element={<RoomsPage />} />
+            <Route path="/rooms/:code/lobby" element={<RoomLobbyPage />} />
+            <Route path="/rooms/:code/results" element={<RoomResultsPage />} />
+            {/* <Route path="/voice-interview" element={<VoiceInterviewPage />} /> */}
+            
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+
+          <Route
+            path="/rooms/:code/arena"
+            element={
+              <ProtectedRoute>
+                <RoomArenaPage />
+              </ProtectedRoute>
             }
           />
-          <Route path="/notes" element={<NotepadPage />} />
-          <Route path="/bookmarks" element={<BookmarksPage />} />
-          
-          {/* Coding Practice disabled for V1 - redirect to Prep Hub */}
-          <Route path="/coding" element={<Navigate to="/practice" replace />} />
-          <Route path="/coding/:slug" element={<Navigate to="/practice" replace />} />
-          
-          <Route path="/rooms" element={<RoomsPage />} />
-          <Route path="/rooms/:code/lobby" element={<RoomLobbyPage />} />
-          <Route path="/rooms/:code/results" element={<RoomResultsPage />} />
-          {/* <Route path="/voice-interview" element={<VoiceInterviewPage />} /> */}
-          
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-
-        <Route
-          path="/rooms/:code/arena"
-          element={
-            <ProtectedRoute>
-              <RoomArenaPage />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+        </Routes>
+      </Suspense>
       <Toaster position="bottom-right" richColors />
       <Analytics />
     </>
