@@ -101,11 +101,6 @@ app.get("/", (c) => {
   return c.json({ status: "healthy", service: "intervue-backend", timestamp: new Date().toISOString() });
 });
 
-// Lightweight public health check for Render / monitoring without DB or Auth overhead
-app.get("/health", (c) => {
-  return c.json({ status: "ok", timestamp: new Date().toISOString() });
-});
-
 app.get("/test-auth", (c) => {
   return c.json({ auth: typeof auth, handler: typeof auth.handler });
 });

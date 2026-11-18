@@ -37,7 +37,7 @@ export function SessionVerificationLoader({
       return "Verifying secure credentials & workspace...";
     }
     if (elapsed < 8000) {
-      return "Cloud server is waking up from idle... (Render free instances take ~15s on first visit)";
+      return "Starting your workspace. The first visit after inactivity may take a moment.";
     }
     return "Still initializing backend & database connection... thank you for your patience.";
   };
