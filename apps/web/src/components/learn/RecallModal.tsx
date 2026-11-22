@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Brain,
   CheckCircle2,
@@ -14,6 +14,8 @@ import {
   ChevronRight,
   Clock,
   Layers,
+  BookOpen,
+  AlertCircle,
 } from "lucide-react";
 import {
   useRecallQuestions,
@@ -69,13 +71,33 @@ export function RecallModal({
   const [showSummary, setShowSummary] = useState(false);
   const [sessionResult, setSessionResult] = useState<RecallSessionResult | null>(null);
   const [isFinalizingSession, setIsFinalizingSession] = useState(false);
+  const [mode, setMode] = useState<"quiz" | "review">("quiz");
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const isFinalizingRef = useRef(false);
 
-  // Reset or initialize on open
+  // Explicit retake action: completely clears state for a fresh attempt
+  const handleRetake = () => {
+    setSelectedOptions({});
+    setResults({});
+    setCurrentIndex(0);
+    setShowSummary(false);
+    setSessionResult(null);
+    setSubmissionError(null);
+    setMode("quiz");
+    isFinalizingRef.current = false;
+  };
+
+  // Explicit read-only review action
+  const handleStartReview = () => {
+    setMode("review");
+    setShowSummary(false);
+    setCurrentIndex(0);
+  };
+
+  // Reopening or concept navigation always starts fresh unless already open
   useEffect(() => {
     if (isOpen) {
-      setCurrentIndex(0);
-      setShowSummary(false);
-      setSessionResult(null);
+      handleRetake();
     }
   }, [isOpen, conceptSlug]);
 
@@ -85,7 +107,8 @@ export function RecallModal({
   const currentResult = currentQuestion ? results[currentQuestion.id] : undefined;
 
   const handleSelectOption = (idx: number) => {
-    if (currentResult || !currentQuestion) return; // Prevent changing after submission
+    // In review mode or when already answered in quiz mode, options are read-only
+    if (mode === "review" || currentResult || !currentQuestion) return;
     setSelectedOptions((prev) => ({
       ...prev,
       [currentQuestion.id]: idx,
@@ -93,7 +116,7 @@ export function RecallModal({
   };
 
   const handleSubmitCurrent = async () => {
-    if (currentSelected === undefined || !currentQuestion || isSubmitting) return;
+    if (currentSelected === undefined || !currentQuestion || isSubmitting || mode === "review") return;
 
     setIsSubmitting(true);
     try {
@@ -125,15 +148,23 @@ export function RecallModal({
       questionId,
       selectedOption,
     }));
-    if (answerEntries.length > 0 && !sessionResult && !isFinalizingSession) {
+
+    // Prevent duplicate submission via ref + state guard
+    if (answerEntries.length > 0 && !sessionResult && !isFinalizingRef.current) {
+      isFinalizingRef.current = true;
       setIsFinalizingSession(true);
+      setSubmissionError(null);
       try {
         const res = await submitSession.mutateAsync({ answers: answerEntries });
         setSessionResult(res);
-      } catch (e) {
+      } catch (e: any) {
         console.error("Failed to record recall session", e);
+        const errMsg = e?.response?.data?.error || "Failed to record session on server. Your answers are preserved.";
+        setSubmissionError(errMsg);
+        toast.error("Could not record session. You can retry below.");
       } finally {
         setIsFinalizingSession(false);
+        isFinalizingRef.current = false;
       }
     }
   };
@@ -178,6 +209,12 @@ export function RecallModal({
           </div>
 
           <div className="flex items-center gap-2 shrink-0 pr-6">
+            {mode === "review" && (
+              <Badge className="bg-amber-500/15 text-amber-500 border-amber-500/30 text-[11px] py-1">
+                <BookOpen className="h-3 w-3 mr-1 inline" />
+                Read-Only Review
+              </Badge>
+            )}
             {progress?.status && (
               <Badge variant="outline" className="text-[11px] border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)]">
                 Status: {progress.status.replace(/_/g, " ")}
@@ -445,7 +482,42 @@ export function RecallModal({
               </Button>
 
               <div className="flex items-center gap-2">
-                {!currentResult ? (
+                {mode === "review" ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRetake}
+                      className="text-xs font-medium cursor-pointer"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+                      Retake Quiz
+                    </Button>
+
+                    {currentIndex < totalQuestions - 1 ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleNext}
+                        className="text-xs font-semibold px-5 cursor-pointer"
+                      >
+                        Next Question
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => setShowSummary(true)}
+                        className="text-xs font-semibold px-5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                      >
+                        <Trophy className="h-3.5 w-3.5 mr-1.5" />
+                        Return to Summary
+                      </Button>
+                    )}
+                  </>
+                ) : !currentResult ? (
                   <Button
                     type="button"
                     size="sm"
@@ -503,6 +575,24 @@ export function RecallModal({
               </p>
             </div>
 
+            {submissionError && (
+              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-500 flex flex-wrap items-center justify-between gap-3 text-left max-w-lg mx-auto">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{submissionError}</span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleFinishAndShowSummary}
+                  disabled={isFinalizingSession}
+                  className="text-xs font-medium cursor-pointer"
+                >
+                  {isFinalizingSession ? "Retrying..." : "Retry Recording"}
+                </Button>
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <div className="inline-flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3.5 py-2 text-xs font-mono">
                 <Clock className="h-4 w-4 text-emerald-500" />
@@ -529,14 +619,21 @@ export function RecallModal({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setShowSummary(false);
-                  setCurrentIndex(0);
-                }}
+                onClick={handleStartReview}
+                className="text-xs font-medium cursor-pointer"
+              >
+                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+                Review Answers
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRetake}
                 className="text-xs font-medium cursor-pointer"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
-                Review All Questions
+                Retake Quiz
               </Button>
 
               <Button

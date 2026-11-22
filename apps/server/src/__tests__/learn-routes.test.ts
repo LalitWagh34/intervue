@@ -9,46 +9,73 @@ const mockFindManySubjects = mock(async () => [] as any[]);
 const mockFindUniqueSubject = mock(async () => null as any);
 const mockFindManyQuestions = mock(async () => [] as any[]);
 const mockFindUniqueQuestion = mock(async () => null as any);
+const mockCountQuestions = mock(async () => 0);
 const mockFindUniqueProgress = mock(async () => null as any);
 const mockFindManyProgress = mock(async () => [] as any[]);
 const mockUpsertProgress = mock(async () => ({} as any));
 const mockCreateSession = mock(async () => ({} as any));
-const mockTransaction = mock(async (ops: any[]) => Promise.all(ops));
+const mockTransaction = mock(async (arg: any) => {
+  if (typeof arg === "function") {
+    return arg(mockDb);
+  }
+  return Promise.all(arg);
+});
 const mockFindFirstInterview = mock(async () => null as any);
 const mockGetSession = mock(async () => null as any);
 
+const mockQueryRaw = mock(async () => [] as any[]);
+const dbModels: Record<string, any> = {};
+const mockDb = new Proxy({
+  $transaction: mockTransaction,
+  $queryRaw: mockQueryRaw,
+  interview: {
+    findFirst: mockFindFirstInterview,
+  },
+  learnSubject: {
+    findMany: mockFindManySubjects,
+    findUnique: mockFindUniqueSubject,
+  },
+  learnModule: {
+    findFirst: mockFindFirstModule,
+  },
+  learnConcept: {
+    findFirst: mockFindFirst,
+    findUnique: mockFindUniqueConcept,
+    findMany: mockFindManyConcepts,
+  },
+  learnRecallQuestion: {
+    findMany: mockFindManyQuestions,
+    findUnique: mockFindUniqueQuestion,
+    count: mockCountQuestions,
+  },
+  userConceptProgress: {
+    findUnique: mockFindUniqueProgress,
+    findMany: mockFindManyProgress,
+    upsert: mockUpsertProgress,
+  },
+  userRecallSession: {
+    create: mockCreateSession,
+  },
+  session: {
+    findUnique: mock(async () => null),
+  },
+}, {
+  get(target, prop: string) {
+    if (prop in target) return (target as any)[prop];
+    if (!dbModels[prop]) dbModels[prop] = {};
+    return dbModels[prop];
+  },
+  set(target, prop: string, value) {
+    (target as any)[prop] = value;
+    return true;
+  }
+});
+
 mock.module("@intervue/db", () => ({
-  db: {
-    $transaction: mockTransaction,
-    interview: {
-      findFirst: mockFindFirstInterview,
-    },
-    learnSubject: {
-      findMany: mockFindManySubjects,
-      findUnique: mockFindUniqueSubject,
-    },
-    learnModule: {
-      findFirst: mockFindFirstModule,
-    },
-    learnConcept: {
-      findFirst: mockFindFirst,
-      findUnique: mockFindUniqueConcept,
-      findMany: mockFindManyConcepts,
-    },
-    learnRecallQuestion: {
-      findMany: mockFindManyQuestions,
-      findUnique: mockFindUniqueQuestion,
-    },
-    userConceptProgress: {
-      findUnique: mockFindUniqueProgress,
-      findMany: mockFindManyProgress,
-      upsert: mockUpsertProgress,
-    },
-    userRecallSession: {
-      create: mockCreateSession,
-    },
-    session: {
-      findUnique: mock(async () => null),
+  db: mockDb,
+  Prisma: {
+    TransactionIsolationLevel: {
+      Serializable: "Serializable",
     },
   },
 }));
@@ -76,12 +103,19 @@ describe("Learn Routes", () => {
     mockFindUniqueSubject.mockReset();
     mockFindManyQuestions.mockReset();
     mockFindUniqueQuestion.mockReset();
+    mockCountQuestions.mockReset();
+    mockCountQuestions.mockResolvedValue(0);
     mockFindUniqueProgress.mockReset();
     mockFindManyProgress.mockReset();
     mockUpsertProgress.mockReset();
     mockCreateSession.mockReset();
     mockTransaction.mockReset();
-    mockTransaction.mockImplementation(async (ops: any[]) => Promise.all(ops));
+    mockTransaction.mockImplementation(async (arg: any) => {
+      if (typeof arg === "function") {
+        return arg(mockDb);
+      }
+      return Promise.all(arg);
+    });
     mockGetSession.mockReset();
   });
 
@@ -287,7 +321,7 @@ describe("Learn Routes", () => {
         user: { id: "u1", email: "test@example.com", role: "user" },
         session: { id: "s1" },
       });
-      mockFindUniqueConcept.mockResolvedValue({ id: "c1" });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
       mockFindManyQuestions.mockResolvedValue([
         { id: "q1", prompt: "What is two pointers?", options: ["A", "B"], orderIndex: 1 },
       ]);
@@ -308,25 +342,101 @@ describe("Learn Routes", () => {
       expect(body.progress.status).toBe("CONFIDENT");
     });
 
-    it("POST /api/learn/concepts/:slug/recall grades answer and updates spaced repetition stage", async () => {
+    it("GET /api/learn/concepts/:slug/recall enforces non-mixing: queries revision-bound questions when revision has bound questions", async () => {
       mockGetSession.mockResolvedValue({
         user: { id: "u1", email: "test@example.com", role: "user" },
         session: { id: "s1" },
       });
-      mockFindUniqueConcept.mockResolvedValue({ id: "c1" });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-2" });
+      mockCountQuestions.mockResolvedValue(3); // 3 bound questions exist for rev-2
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q-rev2-1", prompt: "Bound to rev-2", options: ["A", "B"], orderIndex: 1 },
+      ]);
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall");
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.questions.length).toBe(1);
+      expect(body.questions[0].prompt).toBe("Bound to rev-2");
+      // Check query where clause passed to db
+      expect(mockFindManyQuestions).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            conceptId: "c1",
+            revisionId: "rev-2",
+            isPublished: true,
+          },
+        })
+      );
+    });
+
+    it("does not expose recall questions for an unpublished concept", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: null });
+
+      const getResponse = await app.request("/api/learn/concepts/draft-concept/recall");
+      const answerResponse = await app.request("/api/learn/concepts/draft-concept/recall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: "legacy-q1", selectedOption: 0 }),
+      });
+      const sessionResponse = await app.request("/api/learn/concepts/draft-concept/recall/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers: [{ questionId: "legacy-q1", selectedOption: 0 }] }),
+      });
+
+      expect(getResponse.status).toBe(404);
+      expect(answerResponse.status).toBe(404);
+      expect(sessionResponse.status).toBe(404);
+      expect(mockFindManyQuestions).not.toHaveBeenCalled();
+      expect(mockFindUniqueQuestion).not.toHaveBeenCalled();
+    });
+
+    it("POST /api/learn/concepts/:slug/recall rejects legacy unversioned question when revision has bound questions", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-2" });
+      mockCountQuestions.mockResolvedValue(3); // rev-2 has bound questions
+      mockFindUniqueQuestion.mockResolvedValue({
+        id: "q-legacy",
+        conceptId: "c1",
+        revisionId: null, // Legacy unversioned row!
+        isPublished: true,
+        options: ["A", "B"],
+        correctOption: 0,
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: "q-legacy", selectedOption: 0 }),
+      });
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toContain("does not belong to the current published revision");
+    });
+
+    it("POST /api/learn/concepts/:slug/recall returns immediate feedback without mutating progress or review schedule", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
       mockFindUniqueQuestion.mockResolvedValue({
         id: "q1",
         conceptId: "c1",
+        revisionId: "rev-1",
+        isPublished: true,
+        options: ["Option 0", "Option 1", "Option 2"],
         correctOption: 1,
         explanation: "Sorting creates monotonicity.",
-      });
-      mockFindUniqueProgress.mockResolvedValue({ reviewStage: 0 });
-      mockUpsertProgress.mockResolvedValue({
-        status: "CONFIDENT",
-        recallAttempts: 1,
-        recallCorrect: 1,
-        reviewStage: 1,
-        nextReviewAt: new Date(),
       });
 
       const res = await app.request("/api/learn/concepts/two-pointers/recall", {
@@ -340,7 +450,61 @@ describe("Learn Routes", () => {
       expect(body.isCorrect).toBe(true);
       expect(body.correctOption).toBe(1);
       expect(body.explanation).toBe("Sorting creates monotonicity.");
-      expect(body.progress.status).toBe("CONFIDENT");
+      // Must NOT contain progress and must NOT call upsertProgress
+      expect(body.progress).toBeUndefined();
+      expect(mockUpsertProgress).not.toHaveBeenCalled();
+    });
+
+    it("POST /api/learn/concepts/:slug/recall rejects out-of-bounds selectedOption", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
+      mockFindUniqueQuestion.mockResolvedValue({
+        id: "q1",
+        conceptId: "c1",
+        revisionId: "rev-1",
+        isPublished: true,
+        options: ["A", "B"],
+        correctOption: 0,
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: "q1", selectedOption: 5 }), // out of bounds
+      });
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toContain("out of bounds");
+    });
+
+    it("POST /api/learn/concepts/:slug/recall rejects stale revision questions", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-2" });
+      mockFindUniqueQuestion.mockResolvedValue({
+        id: "q1",
+        conceptId: "c1",
+        revisionId: "rev-1", // Old revision!
+        isPublished: true,
+        options: ["A", "B"],
+        correctOption: 0,
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: "q1", selectedOption: 0 }),
+      });
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toContain("published revision");
     });
 
     it("POST /api/learn/concepts/:slug/recall/session records atomic session and advances review stage", async () => {
@@ -350,10 +514,16 @@ describe("Learn Routes", () => {
       });
       mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
       mockFindManyQuestions.mockResolvedValue([
-        { id: "q1", correctOption: 1 },
-        { id: "q2", correctOption: 0 },
+        { id: "q1", conceptId: "c1", revisionId: "rev-1", isPublished: true, options: ["A", "B"], correctOption: 1 },
+        { id: "q2", conceptId: "c1", revisionId: "rev-1", isPublished: true, options: ["A", "B"], correctOption: 0 },
       ]);
-      mockFindUniqueProgress.mockResolvedValue({ reviewStage: 0, nextReviewAt: new Date(Date.now() - 1000) });
+      mockFindUniqueProgress.mockResolvedValue({
+        reviewStage: 0,
+        nextReviewAt: new Date(Date.now() - 1000), // Due!
+        recallAttempts: 2,
+        recallCorrect: 2,
+        status: "STUDIED",
+      });
 
       mockCreateSession.mockResolvedValue({
         id: "sess-1",
@@ -371,8 +541,8 @@ describe("Learn Routes", () => {
         reviewStage: 1,
         lastSessionScore: 1.0,
         nextReviewAt: new Date(Date.now() + 3 * 86400000),
-        recallAttempts: 2,
-        recallCorrect: 2,
+        recallAttempts: 4,
+        recallCorrect: 4,
       });
 
       const res = await app.request("/api/learn/concepts/two-pointers/recall/session", {
@@ -391,7 +561,247 @@ describe("Learn Routes", () => {
       expect(body.session.score).toBe(1.0);
       expect(body.session.stageBefore).toBe(0);
       expect(body.session.stageAfter).toBe(1);
-      expect(body.progress.reviewStage).toBe(1);
+      expect(body.session.isScheduledReview).toBe(true);
+      expect(mockTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    it("POST /api/learn/concepts/:slug/recall/session rejects duplicate question IDs", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          answers: [
+            { questionId: "q1", selectedOption: 0 },
+            { questionId: "q1", selectedOption: 1 }, // Duplicate!
+          ],
+        }),
+      });
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toContain("Duplicate questionId");
+    });
+
+    it("POST /api/learn/concepts/:slug/recall/session ignores client isScheduledReview for early casual practice", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q1", conceptId: "c1", revisionId: "rev-1", isPublished: true, options: ["A", "B"], correctOption: 1 },
+      ]);
+      const futureReview = new Date(Date.now() + 5 * 86400000);
+      mockFindUniqueProgress.mockResolvedValue({
+        reviewStage: 2,
+        nextReviewAt: futureReview, // NOT due!
+        recallAttempts: 5,
+        recallCorrect: 4,
+        status: "CONFIDENT",
+      });
+
+      mockCreateSession.mockResolvedValue({
+        id: "sess-2",
+        score: 1.0,
+        questionsCount: 1,
+        correctCount: 1,
+        stageBefore: 2,
+        stageAfter: 2,
+        isScheduledReview: false,
+        completedAt: new Date(),
+      });
+
+      mockUpsertProgress.mockResolvedValue({
+        status: "CONFIDENT",
+        reviewStage: 2,
+        lastSessionScore: 1.0,
+        nextReviewAt: futureReview,
+        recallAttempts: 6,
+        recallCorrect: 5,
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isScheduledReview: true, // Malicious/premature client claim!
+          answers: [{ questionId: "q1", selectedOption: 1 }],
+        }),
+      });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      // Server must override to false because review is NOT due
+      expect(body.session.isScheduledReview).toBe(false);
+      expect(body.session.stageBefore).toBe(2);
+      expect(body.session.stageAfter).toBe(2);
+    });
+
+    it("POST /api/learn/concepts/:slug/recall/session handles first completion by keeping stage 0 and scheduling +1 day", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q1", conceptId: "c1", revisionId: "rev-1", isPublished: true, options: ["A", "B"], correctOption: 1 },
+      ]);
+      // Brand new user: null progress
+      mockFindUniqueProgress.mockResolvedValue(null);
+
+      mockCreateSession.mockResolvedValue({
+        id: "sess-first",
+        score: 1.0,
+        questionsCount: 1,
+        correctCount: 1,
+        stageBefore: 0,
+        stageAfter: 0,
+        isScheduledReview: true,
+        completedAt: new Date(),
+      });
+
+      mockUpsertProgress.mockResolvedValue({
+        status: "STUDIED",
+        reviewStage: 0,
+        lastSessionScore: 1.0,
+        nextReviewAt: new Date(Date.now() + 86400000),
+        recallAttempts: 1,
+        recallCorrect: 1,
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          answers: [{ questionId: "q1", selectedOption: 1 }],
+        }),
+      });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.session.stageBefore).toBe(0);
+      expect(body.session.stageAfter).toBe(0);
+      expect(body.session.isScheduledReview).toBe(true);
+    });
+
+    it("POST /api/learn/concepts/:slug/recall/session handles simultaneous concurrent submissions under serializable isolation", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q1", conceptId: "c1", revisionId: "rev-1", isPublished: true, options: ["A", "B"], correctOption: 1 },
+      ]);
+
+      let simulatedStage = 0;
+      mockFindUniqueProgress.mockImplementation(async () => {
+        return {
+          id: "prog-1",
+          reviewStage: simulatedStage,
+          nextReviewAt: null,
+          recallAttempts: simulatedStage * 2,
+          recallCorrect: simulatedStage * 2,
+          status: simulatedStage === 0 ? "STUDIED" : "CONFIDENT",
+        };
+      });
+
+      mockCreateSession.mockImplementation(async (args: any) => ({
+        id: `sess-${Math.random()}`,
+        score: 1.0,
+        questionsCount: 1,
+        correctCount: 1,
+        stageBefore: args.data.stageBefore,
+        stageAfter: args.data.stageAfter,
+        isScheduledReview: true,
+        completedAt: new Date(),
+      }));
+
+      mockUpsertProgress.mockImplementation(async (args: any) => {
+        simulatedStage = args.update.reviewStage;
+        return {
+          id: "prog-1",
+          status: args.update.status,
+          reviewStage: args.update.reviewStage,
+          lastSessionScore: 1.0,
+          recallAttempts: 1,
+          recallCorrect: 1,
+        };
+      });
+
+      // Execute simultaneous submissions concurrently
+      const [res1, res2] = await Promise.all([
+        app.request("/api/learn/concepts/two-pointers/recall/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: [{ questionId: "q1", selectedOption: 1 }] }),
+        }),
+        app.request("/api/learn/concepts/two-pointers/recall/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: [{ questionId: "q1", selectedOption: 1 }] }),
+        }),
+      ]);
+
+      expect(res1.status).toBe(200);
+      expect(res2.status).toBe(200);
+      expect(mockTransaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        expect.objectContaining({ isolationLevel: "Serializable" })
+      );
+    });
+
+    it("POST /api/learn/concepts/:slug/recall/session retries on serialization conflict (P2034) and recovers", async () => {
+      mockGetSession.mockResolvedValue({
+        user: { id: "u1", email: "test@example.com", role: "user" },
+        session: { id: "s1" },
+      });
+      mockFindUniqueConcept.mockResolvedValue({ id: "c1", publishedRevisionId: "rev-1" });
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q1", conceptId: "c1", revisionId: "rev-1", isPublished: true, options: ["A", "B"], correctOption: 1 },
+      ]);
+      mockFindUniqueProgress.mockResolvedValue(null);
+      mockCreateSession.mockResolvedValue({
+        id: "sess-retried",
+        score: 1.0,
+        questionsCount: 1,
+        correctCount: 1,
+        stageBefore: 0,
+        stageAfter: 0,
+        isScheduledReview: true,
+        completedAt: new Date(),
+      });
+      mockUpsertProgress.mockResolvedValue({
+        status: "STUDIED",
+        reviewStage: 0,
+        recallAttempts: 1,
+        recallCorrect: 1,
+      });
+
+      // Simulate a P2034 write conflict on the first attempt, then success on second attempt
+      let attempts = 0;
+      mockTransaction.mockImplementationOnce(async () => {
+        attempts++;
+        const p2034Error: any = new Error("Transaction failed due to a write conflict or deadlock (P2034)");
+        p2034Error.code = "P2034";
+        throw p2034Error;
+      });
+
+      const res = await app.request("/api/learn/concepts/two-pointers/recall/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers: [{ questionId: "q1", selectedOption: 1 }] }),
+      });
+
+      expect(res.status).toBe(200);
+      expect(attempts).toBe(1);
+      const body = await res.json();
+      expect(body.session.id).toBe("sess-retried");
     });
 
     it("PATCH /api/learn/concepts/:slug/progress rejects manual DEMONSTRATED_UNDERSTANDING", async () => {

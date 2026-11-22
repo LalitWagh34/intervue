@@ -507,7 +507,8 @@ app.get("/learn/concepts/:id", async (c) => {
   return c.json({ concept });
 });
 
-// Create a new concept with Revision v1
+// Create a new concept with Revision v1 in DRAFT state
+// All publishing must go through validateRevisionCompleteness via /learn/concepts/:id/publish
 app.post("/learn/concepts", async (c) => {
   const user = c.get("user");
   const body = await c.req.json();
@@ -523,7 +524,6 @@ app.post("/learn/concepts", async (c) => {
     keyTakeaways = [],
     commonMistakes = [],
     orderIndex = 0,
-    autoPublish = false,
   } = body;
 
   if (!moduleId || !slug || !title) {
@@ -534,9 +534,6 @@ app.post("/learn/concepts", async (c) => {
   if (existing) {
     return c.json({ error: "A concept with this slug already exists" }, 409);
   }
-
-  const status = autoPublish ? "PUBLISHED" : "DRAFT";
-  const publishedAt = autoPublish ? new Date() : null;
 
   const concept = await db.$transaction(async (tx) => {
     const newConcept = await tx.learnConcept.create({
@@ -551,7 +548,7 @@ app.post("/learn/concepts", async (c) => {
       data: {
         conceptId: newConcept.id,
         version: 1,
-        status,
+        status: "DRAFT",
         title,
         summary: summary || "",
         quickRevisionMd: quickRevisionMd || "",
@@ -561,17 +558,9 @@ app.post("/learn/concepts", async (c) => {
         keyTakeaways: Array.isArray(keyTakeaways) ? keyTakeaways : [],
         commonMistakes: Array.isArray(commonMistakes) ? commonMistakes : [],
         authorId: user.id,
-        publishedAt,
+        publishedAt: null,
       },
     });
-
-    if (autoPublish) {
-      return await tx.learnConcept.update({
-        where: { id: newConcept.id },
-        data: { publishedRevisionId: revision.id },
-        include: { publishedRevision: true, revisions: true },
-      });
-    }
 
     return await tx.learnConcept.findUnique({
       where: { id: newConcept.id },
@@ -596,7 +585,7 @@ app.patch("/learn/revisions/:id", async (c) => {
     return c.json({ error: "Revision not found" }, 404);
   }
 
-  // If already published, preserve audit history and fork into a new DRAFT revision
+  // If already published, preserve audit history and fork into a new DRAFT revision, cloning its questions
   if (currentRevision.status === "PUBLISHED") {
     const maxRev = await db.learnConceptRevision.findFirst({
       where: { conceptId: currentRevision.conceptId },
@@ -606,21 +595,47 @@ app.patch("/learn/revisions/:id", async (c) => {
 
     const newVersion = (maxRev?.version || currentRevision.version) + 1;
 
-    const forkedRevision = await db.learnConceptRevision.create({
-      data: {
-        conceptId: currentRevision.conceptId,
-        version: newVersion,
-        status: "DRAFT",
-        title: body.title ?? currentRevision.title,
-        summary: body.summary ?? currentRevision.summary,
-        quickRevisionMd: body.quickRevisionMd ?? currentRevision.quickRevisionMd,
-        deepDiveMd: body.deepDiveMd ?? currentRevision.deepDiveMd,
-        estimatedMinutes: body.estimatedMinutes !== undefined ? Number(body.estimatedMinutes) : currentRevision.estimatedMinutes,
-        difficulty: body.difficulty ?? currentRevision.difficulty,
-        keyTakeaways: body.keyTakeaways ?? currentRevision.keyTakeaways,
-        commonMistakes: body.commonMistakes ?? currentRevision.commonMistakes,
-        authorId: user.id,
-      },
+    // Fetch existing questions bound to the source revision
+    const sourceQuestions = await db.learnRecallQuestion.findMany({
+      where: { revisionId: currentRevision.id },
+      orderBy: { orderIndex: "asc" },
+    });
+
+    const forkedRevision = await db.$transaction(async (tx) => {
+      const rev = await tx.learnConceptRevision.create({
+        data: {
+          conceptId: currentRevision.conceptId,
+          version: newVersion,
+          status: "DRAFT",
+          title: body.title ?? currentRevision.title,
+          summary: body.summary ?? currentRevision.summary,
+          quickRevisionMd: body.quickRevisionMd ?? currentRevision.quickRevisionMd,
+          deepDiveMd: body.deepDiveMd ?? currentRevision.deepDiveMd,
+          estimatedMinutes: body.estimatedMinutes !== undefined ? Number(body.estimatedMinutes) : currentRevision.estimatedMinutes,
+          difficulty: body.difficulty ?? currentRevision.difficulty,
+          keyTakeaways: body.keyTakeaways ?? currentRevision.keyTakeaways,
+          commonMistakes: body.commonMistakes ?? currentRevision.commonMistakes,
+          authorId: user.id,
+        },
+      });
+
+      // Clone each question with a new ID, bound to the new revision
+      for (const sq of (sourceQuestions || [])) {
+        await tx.learnRecallQuestion.create({
+          data: {
+            conceptId: currentRevision.conceptId,
+            revisionId: rev.id,
+            prompt: sq.prompt,
+            options: sq.options,
+            correctOption: sq.correctOption,
+            explanation: sq.explanation,
+            orderIndex: sq.orderIndex,
+            isPublished: sq.isPublished,
+          },
+        });
+      }
+
+      return rev;
     });
 
     return c.json({ revision: forkedRevision, forked: true });
@@ -638,10 +653,281 @@ app.patch("/learn/revisions/:id", async (c) => {
       difficulty: body.difficulty,
       keyTakeaways: body.keyTakeaways,
       commonMistakes: body.commonMistakes,
+      authorId: user.id,
     },
   });
 
   return c.json({ revision: updatedRevision, forked: false });
+});
+
+// Recall Question Validation Helper
+function validateQuestionPayload(payload: {
+  prompt?: string;
+  options?: any;
+  correctOption?: number;
+  explanation?: string;
+}) {
+  const errors: string[] = [];
+
+  if (payload.prompt !== undefined) {
+    if (typeof payload.prompt !== "string" || payload.prompt.trim().length < 5) {
+      errors.push("Question prompt must be at least 5 characters long");
+    }
+  }
+
+  if (payload.options !== undefined) {
+    if (!Array.isArray(payload.options) || payload.options.length < 2 || payload.options.length > 6) {
+      errors.push("Question must have between 2 and 6 options");
+    } else if (payload.options.some((opt: any) => typeof opt !== "string" || !opt.trim())) {
+      errors.push("All options must be non-empty strings");
+    }
+  }
+
+  if (payload.correctOption !== undefined) {
+    if (typeof payload.correctOption !== "number" || !Number.isInteger(payload.correctOption)) {
+      errors.push("correctOption must be an integer index");
+    } else if (payload.options && Array.isArray(payload.options)) {
+      if (payload.correctOption < 0 || payload.correctOption >= payload.options.length) {
+        errors.push(`correctOption must be between 0 and ${payload.options.length - 1}`);
+      }
+    }
+  }
+
+  if (payload.explanation !== undefined) {
+    if (typeof payload.explanation !== "string" || payload.explanation.trim().length === 0) {
+      errors.push("Explanation is required");
+    }
+  }
+
+  return errors;
+}
+
+// ─── Revision-Scoped Recall Question Management ────────────────────────
+
+// GET /admin/learn/revisions/:revisionId/questions
+app.get("/learn/revisions/:revisionId/questions", async (c) => {
+  const revisionId = c.req.param("revisionId");
+
+  const revision = await db.learnConceptRevision.findUnique({
+    where: { id: revisionId },
+    select: { id: true, conceptId: true },
+  });
+  if (!revision) return c.json({ error: "Revision not found" }, 404);
+
+  const questions = await db.learnRecallQuestion.findMany({
+    where: { revisionId },
+    orderBy: { orderIndex: "asc" },
+  });
+
+  return c.json({ questions });
+});
+
+// POST /admin/learn/revisions/:revisionId/questions
+app.post("/learn/revisions/:revisionId/questions", async (c) => {
+  const user = c.get("user");
+  const revisionId = c.req.param("revisionId");
+  const body = await c.req.json().catch(() => ({}));
+  const { prompt, options, correctOption, explanation, orderIndex, isPublished = true } = body;
+
+  const revision = await db.learnConceptRevision.findUnique({
+    where: { id: revisionId },
+    select: { id: true, conceptId: true, status: true },
+  });
+  if (!revision) return c.json({ error: "Revision not found" }, 404);
+  if (revision.status === "PUBLISHED") {
+    return c.json({ error: "Cannot add questions to a published revision. Fork into a new draft revision to add questions." }, 400);
+  }
+
+  const validationErrors = validateQuestionPayload({ prompt, options, correctOption, explanation });
+  if (!prompt || !options || correctOption === undefined || !explanation) {
+    validationErrors.push("prompt, options, correctOption, and explanation are required");
+  }
+  if (validationErrors.length > 0) {
+    return c.json({ error: "Validation failed", validationErrors }, 400);
+  }
+
+  let finalOrderIndex = orderIndex;
+  if (typeof finalOrderIndex !== "number") {
+    const lastQ = await db.learnRecallQuestion.findFirst({
+      where: { revisionId },
+      orderBy: { orderIndex: "desc" },
+      select: { orderIndex: true },
+    });
+    finalOrderIndex = (lastQ?.orderIndex ?? 0) + 1;
+  }
+
+  const question = await db.learnRecallQuestion.create({
+    data: {
+      conceptId: revision.conceptId,
+      revisionId: revision.id,
+      prompt: prompt.trim(),
+      options: options.map((o: string) => o.trim()),
+      correctOption,
+      explanation: explanation.trim(),
+      orderIndex: finalOrderIndex,
+      isPublished: Boolean(isPublished),
+    },
+  });
+
+  if (user?.id) {
+    await db.learnConceptRevision.update({
+      where: { id: revision.id },
+      data: { authorId: user.id },
+    });
+  }
+
+  return c.json({ question }, 201);
+});
+
+// PATCH /admin/learn/questions/:id
+app.patch("/learn/questions/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const body = await c.req.json().catch(() => ({}));
+
+  const existing = await db.learnRecallQuestion.findUnique({
+    where: { id },
+    include: { revision: { select: { status: true } } },
+  });
+  if (!existing) return c.json({ error: "Question not found" }, 404);
+
+  if (existing.revision && existing.revision.status === "PUBLISHED") {
+    return c.json(
+      { error: "Cannot edit questions belonging to a published revision. Fork into a new draft revision to edit." },
+      400
+    );
+  }
+
+  const finalOptions = body.options ?? existing.options;
+  const finalCorrect = body.correctOption ?? existing.correctOption;
+
+  const validationErrors = validateQuestionPayload({
+    prompt: body.prompt,
+    options: body.options,
+    correctOption: body.correctOption,
+    explanation: body.explanation,
+  });
+
+  if (Array.isArray(finalOptions) && typeof finalCorrect === "number") {
+    if (finalCorrect < 0 || finalCorrect >= finalOptions.length) {
+      validationErrors.push(`correctOption must be between 0 and ${finalOptions.length - 1}`);
+    }
+  }
+
+  if (validationErrors.length > 0) {
+    return c.json({ error: "Validation failed", validationErrors }, 400);
+  }
+
+  const updated = await db.learnRecallQuestion.update({
+    where: { id },
+    data: {
+      prompt: body.prompt ? body.prompt.trim() : undefined,
+      options: body.options ? body.options.map((o: string) => o.trim()) : undefined,
+      correctOption: body.correctOption !== undefined ? Number(body.correctOption) : undefined,
+      explanation: body.explanation ? body.explanation.trim() : undefined,
+      orderIndex: body.orderIndex !== undefined ? Number(body.orderIndex) : undefined,
+      isPublished: body.isPublished !== undefined ? Boolean(body.isPublished) : undefined,
+    },
+  });
+
+  if (existing.revisionId && user?.id) {
+    await db.learnConceptRevision.update({
+      where: { id: existing.revisionId },
+      data: { authorId: user.id },
+    });
+  }
+
+  return c.json({ question: updated });
+});
+
+// DELETE /admin/learn/questions/:id
+app.delete("/learn/questions/:id", async (c) => {
+  const user = c.get("user");
+  const id = c.req.param("id");
+  const existing = await db.learnRecallQuestion.findUnique({
+    where: { id },
+    include: { revision: { select: { status: true } } },
+  });
+  if (!existing) return c.json({ error: "Question not found" }, 404);
+
+  if (existing.revision && existing.revision.status === "PUBLISHED") {
+    return c.json(
+      { error: "Cannot delete questions belonging to a published revision. Fork into a new draft revision to delete." },
+      400
+    );
+  }
+
+  await db.learnRecallQuestion.delete({ where: { id } });
+
+  if (existing.revisionId && user?.id) {
+    await db.learnConceptRevision.update({
+      where: { id: existing.revisionId },
+      data: { authorId: user.id },
+    });
+  }
+
+  return c.json({ success: true, deletedId: id });
+});
+
+// PUT /admin/learn/revisions/:revisionId/questions/reorder
+app.put("/learn/revisions/:revisionId/questions/reorder", async (c) => {
+  const user = c.get("user");
+  const revisionId = c.req.param("revisionId");
+  const body = await c.req.json().catch(() => ({}));
+  const { questionIds } = body;
+
+  if (!Array.isArray(questionIds) || questionIds.length === 0) {
+    return c.json({ error: "questionIds array is required and must not be empty" }, 400);
+  }
+
+  const revision = await db.learnConceptRevision.findUnique({ where: { id: revisionId } });
+  if (!revision) return c.json({ error: "Revision not found" }, 404);
+
+  if (revision.status === "PUBLISHED") {
+    return c.json(
+      { error: "Cannot reorder questions in a published revision. Fork into a new draft revision to reorder." },
+      400
+    );
+  }
+
+  const existingQuestions = await db.learnRecallQuestion.findMany({
+    where: { revisionId: revision.id },
+    select: { id: true },
+  });
+
+  const existingIdSet = new Set(existingQuestions.map((q) => q.id));
+  const questionIdSet = new Set(questionIds);
+
+  if (
+    questionIds.length !== existingQuestions.length ||
+    questionIdSet.size !== questionIds.length ||
+    questionIds.some((id) => !existingIdSet.has(id))
+  ) {
+    return c.json(
+      {
+        error: "questionIds must contain a complete, non-duplicate list of all question IDs belonging to this revision",
+      },
+      400
+    );
+  }
+
+  await db.$transaction(
+    questionIds.map((qId: string, idx: number) =>
+      db.learnRecallQuestion.update({
+        where: { id: qId },
+        data: { orderIndex: idx + 1 },
+      })
+    )
+  );
+
+  if (user?.id) {
+    await db.learnConceptRevision.update({
+      where: { id: revisionId },
+      data: { authorId: user.id },
+    });
+  }
+
+  return c.json({ success: true });
 });
 
 // Publishing Completeness Validator
@@ -672,8 +958,8 @@ function validateRevisionCompleteness(
   } else {
     questions.forEach((q, idx) => {
       const opts = Array.isArray(q.options) ? q.options : [];
-      if (opts.length < 2) {
-        errors.push(`Question ${idx + 1} must have at least 2 options`);
+      if (opts.length < 2 || opts.length > 6) {
+        errors.push(`Question ${idx + 1} must have between 2 and 6 options`);
       }
       if (typeof q.correctOption !== "number" || q.correctOption < 0 || q.correctOption >= opts.length) {
         errors.push(`Question ${idx + 1} has an invalid correctOption index`);
@@ -704,9 +990,14 @@ app.post("/learn/concepts/:id/publish", async (c) => {
     return c.json({ error: "Target revision not found" }, 404);
   }
 
-  // Completeness check before publishing
+  // Completeness check before publishing: check questions bound specifically to targetRevision
   const questions = await db.learnRecallQuestion.findMany({
-    where: { conceptId: concept.id, isPublished: true },
+    where: {
+      conceptId: concept.id,
+      revisionId: targetRevision.id,
+      isPublished: true,
+    },
+    orderBy: { orderIndex: "asc" },
   });
 
   const validationErrors = validateRevisionCompleteness(targetRevision, questions);

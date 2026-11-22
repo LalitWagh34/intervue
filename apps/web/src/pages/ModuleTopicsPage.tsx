@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -11,7 +12,7 @@ import {
   CheckCircle2,
   Sparkles,
 } from "lucide-react";
-import { useLearnModule } from "@/hooks/useLearn";
+import { useLearnModule, useRevisionQueue, RevisionQueueItem } from "@/hooks/useLearn";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,30 @@ export default function ModuleTopicsPage() {
 
   const { data, isLoading, isError } = useLearnModule(subjectSlug, moduleSlug);
   const moduleItem = data?.module;
+
+  const [filter, setFilter] = useState<"all" | "due">("all");
+  const { data: queueData } = useRevisionQueue();
+
+  const queueMap = useMemo(() => {
+    const map = new Map<string, RevisionQueueItem>();
+    for (const item of queueData?.queue || []) {
+      map.set(item.concept.slug, item);
+    }
+    return map;
+  }, [queueData]);
+
+  const dueCount = useMemo(() => {
+    if (!moduleItem?.concepts) return 0;
+    return moduleItem.concepts.filter((c) => queueMap.has(c.slug)).length;
+  }, [moduleItem, queueMap]);
+
+  const displayedConcepts = useMemo(() => {
+    if (!moduleItem?.concepts) return [];
+    if (filter === "due") {
+      return moduleItem.concepts.filter((c) => queueMap.has(c.slug));
+    }
+    return moduleItem.concepts;
+  }, [moduleItem, filter, queueMap]);
 
   if (isLoading) {
     return (
@@ -137,8 +162,8 @@ export default function ModuleTopicsPage() {
         </div>
 
         {/* Topics / Concepts Grid */}
-        <section className="space-y-3.5">
-          <div className="flex items-center justify-between">
+        <section className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-base sm:text-lg font-semibold text-[var(--text-primary)]">
                 Topics &amp; Concepts
@@ -147,50 +172,118 @@ export default function ModuleTopicsPage() {
                 Select a concept to start fast revision or explore deep dive invariant proofs
               </p>
             </div>
-            <span className="text-xs font-mono text-[var(--text-muted)]">
-              {moduleItem.concepts.length} {moduleItem.concepts.length === 1 ? "topic" : "topics"}
-            </span>
+
+            {/* Filter: All Topics | Ready for Review */}
+            <div className="inline-flex items-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-1 text-xs shrink-0">
+              <button
+                type="button"
+                onClick={() => setFilter("all")}
+                className={cn(
+                  "px-3 py-1 rounded-md font-medium transition-all cursor-pointer",
+                  filter === "all"
+                    ? "bg-[var(--surface)] text-[var(--text-primary)] shadow-xs"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                )}
+              >
+                All topics ({moduleItem.concepts.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilter("due")}
+                className={cn(
+                  "px-3 py-1 rounded-md font-medium transition-all flex items-center gap-1.5 cursor-pointer",
+                  filter === "due"
+                    ? "bg-[var(--surface)] text-[var(--text-primary)] shadow-xs"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                )}
+              >
+                <span>Ready for review</span>
+                {dueCount > 0 ? (
+                  <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500/20 px-1 text-[10px] font-semibold text-amber-500">
+                    {dueCount}
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-[var(--text-muted)]">(0)</span>
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {moduleItem.concepts.map((concept) => (
-              <Card
-                key={concept.id}
-                className="border-[var(--border-subtle)] bg-[var(--surface)] hover:border-[#327CF6]/50 hover:shadow-md transition-all flex flex-col justify-between"
-              >
-                <CardContent className="p-5 space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <Badge
-                      variant="outline"
-                      className={cn("text-[10px] uppercase font-semibold", DIFFICULTY_STYLES[concept.difficulty])}
-                    >
-                      {concept.difficulty.charAt(0) + concept.difficulty.slice(1).toLowerCase()}
-                    </Badge>
-                    <span className="inline-flex items-center gap-1 font-mono text-[11px] text-[var(--text-muted)]">
-                      <Clock className="h-3 w-3" />
-                      ~{concept.estimatedMinutes}m
-                    </span>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <h3 className="text-sm sm:text-base font-semibold text-[var(--text-primary)]">
-                      {concept.title}
-                    </h3>
-                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-3">
-                      {concept.summary}
-                    </p>
-                  </div>
-                </CardContent>
-
-                <div className="p-4 pt-0">
-                  <Button asChild size="sm" className="w-full h-8 text-xs font-semibold gap-1.5 bg-[#327CF6] hover:bg-[#2563EB] text-white">
-                    <Link to={`/learn/concepts/${concept.slug}`}>
-                      Revise Concept <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
+            {displayedConcepts.length === 0 ? (
+              <div className="col-span-full py-12 text-center space-y-2 border border-dashed border-[var(--border-subtle)] rounded-xl">
+                <CheckCircle2 className="h-8 w-8 mx-auto text-emerald-500" />
+                <div className="text-sm font-semibold text-[var(--text-primary)]">
+                  All caught up!
                 </div>
-              </Card>
-            ))}
+                <p className="text-xs text-[var(--text-secondary)]">
+                  No topics in this module are currently due for spaced review.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFilter("all")}
+                  className="mt-2 h-7 text-xs"
+                >
+                  Show all topics
+                </Button>
+              </div>
+            ) : (
+              displayedConcepts.map((concept) => {
+                const queueItem = queueMap.get(concept.slug);
+                const isDue = Boolean(queueItem);
+
+                return (
+                  <Card
+                    key={concept.id}
+                    className="border-[var(--border-subtle)] bg-[var(--surface)] hover:border-[#327CF6]/50 hover:shadow-md transition-all flex flex-col justify-between"
+                  >
+                    <CardContent className="p-5 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Badge
+                            variant="outline"
+                            className={cn("text-[10px] uppercase font-semibold", DIFFICULTY_STYLES[concept.difficulty])}
+                          >
+                            {concept.difficulty.charAt(0) + concept.difficulty.slice(1).toLowerCase()}
+                          </Badge>
+                          {isDue && (
+                            <Badge
+                              variant="outline"
+                              className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] gap-1 font-medium"
+                            >
+                              <Clock className="h-3 w-3" />
+                              Review due {queueItem?.reviewStage !== undefined ? `• Stage ${queueItem.reviewStage}` : ""}
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="inline-flex items-center gap-1 font-mono text-[11px] text-[var(--text-muted)]">
+                          <Clock className="h-3 w-3" />
+                          ~{concept.estimatedMinutes}m
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <h3 className="text-sm sm:text-base font-semibold text-[var(--text-primary)]">
+                          {concept.title}
+                        </h3>
+                        <p className="text-xs text-[var(--text-secondary)] leading-relaxed line-clamp-3">
+                          {concept.summary}
+                        </p>
+                      </div>
+                    </CardContent>
+
+                    <div className="p-4 pt-0">
+                      <Button asChild size="sm" className="w-full h-8 text-xs font-semibold gap-1.5 bg-[#327CF6] hover:bg-[#2563EB] text-white">
+                        <Link to={`/learn/concepts/${concept.slug}`}>
+                          {isDue ? "Scheduled Review" : "Revise Concept"} <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })
+            )}
           </div>
         </section>
       </div>

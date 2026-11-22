@@ -1,7 +1,12 @@
 import { Hono } from "hono";
-import { db } from "@intervue/db";
+import { db, Prisma } from "@intervue/db";
 import { requireAuth } from "../middleware/auth";
 import type { AuthVariables } from "../types";
+import { calculateSpacedSchedule } from "../lib/learn-scheduler";
+import {
+  getAuthoritativeRecallFilter,
+  isQuestionEligibleForRevision,
+} from "../lib/learn-revision-guard";
 
 const learn = new Hono<{ Variables: AuthVariables }>();
 
@@ -394,13 +399,16 @@ learn.get("/concepts/:slug/recall", async (c) => {
 
   const concept = await db.learnConcept.findUnique({
     where: { slug },
-    select: { id: true },
+    select: { id: true, publishedRevisionId: true },
   });
 
-  if (!concept) return c.json({ error: "Concept not found" }, 404);
+  if (!concept?.publishedRevisionId) return c.json({ error: "Published concept not found" }, 404);
+
+  // Non-mixing revision compatibility rule
+  const eligibility = await getAuthoritativeRecallFilter(concept, db);
 
   const questions = await db.learnRecallQuestion.findMany({
-    where: { conceptId: concept.id, isPublished: true },
+    where: eligibility,
     orderBy: { orderIndex: "asc" },
     select: {
       id: true,
@@ -432,79 +440,17 @@ learn.get("/concepts/:slug/recall", async (c) => {
 
 /**
  * POST /api/learn/concepts/:slug/recall
- * Immediate feedback on a single question without advancing the spaced review stage.
- * Records overall attempt counters on the concept progress.
+ * Immediate feedback on a single question without mutating progress counters or schedule.
+ * Returns isCorrect, correctOption, and explanation.
  */
 learn.post("/concepts/:slug/recall", async (c) => {
   const user = c.get("user");
   const slug = c.req.param("slug");
-  const body = await c.req.json();
+  const body = await c.req.json().catch(() => ({}));
   const { questionId, selectedOption } = body;
 
-  if (!questionId || typeof selectedOption !== "number") {
-    return c.json({ error: "questionId and selectedOption are required" }, 400);
-  }
-
-  const concept = await db.learnConcept.findUnique({
-    where: { slug },
-    select: { id: true },
-  });
-
-  if (!concept) return c.json({ error: "Concept not found" }, 404);
-
-  const question = await db.learnRecallQuestion.findUnique({
-    where: { id: questionId },
-  });
-
-  if (!question || question.conceptId !== concept.id) {
-    return c.json({ error: "Question not found for this concept" }, 404);
-  }
-
-  const isCorrect = selectedOption === question.correctOption;
-
-  // Single question attempts record counts for immediate feedback without mutating review schedule
-  const updatedProgress = await db.userConceptProgress.upsert({
-    where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
-    update: {
-      recallAttempts: { increment: 1 },
-      recallCorrect: isCorrect ? { increment: 1 } : undefined,
-    },
-    create: {
-      userId: user.id,
-      conceptId: concept.id,
-      status: "STUDYING",
-      recallAttempts: 1,
-      recallCorrect: isCorrect ? 1 : 0,
-    },
-  });
-
-  return c.json({
-    isCorrect,
-    correctOption: question.correctOption,
-    explanation: question.explanation,
-    progress: {
-      status: updatedProgress.status,
-      recallAttempts: updatedProgress.recallAttempts,
-      recallCorrect: updatedProgress.recallCorrect,
-      reviewStage: updatedProgress.reviewStage,
-      nextReviewAt: updatedProgress.nextReviewAt,
-    },
-  });
-});
-
-/**
- * POST /api/learn/concepts/:slug/recall/session
- * Records a completed recall session with atomic answers, grades performance,
- * and advances the spaced repetition schedule (reviewStage) at most once per eligible session.
- */
-learn.post("/concepts/:slug/recall/session", async (c) => {
-  const user = c.get("user");
-  const slug = c.req.param("slug");
-  const body = await c.req.json();
-  const { answers, isScheduledReview, revisionId } = body;
-
-  if (!Array.isArray(answers) || answers.length === 0) {
-    return c.json({ error: "answers array is required and must not be empty" }, 400);
+  if (!questionId || typeof questionId !== "string" || typeof selectedOption !== "number" || !Number.isInteger(selectedOption)) {
+    return c.json({ error: "questionId and integer selectedOption are required" }, 400);
   }
 
   const concept = await db.learnConcept.findUnique({
@@ -512,95 +458,156 @@ learn.post("/concepts/:slug/recall/session", async (c) => {
     select: { id: true, publishedRevisionId: true },
   });
 
-  if (!concept) return c.json({ error: "Concept not found" }, 404);
+  if (!concept?.publishedRevisionId) return c.json({ error: "Published concept not found" }, 404);
 
-  // Retrieve all questions answered in this session
-  const questionIds = answers.map((a: { questionId: string }) => a.questionId);
-  const dbQuestions = await db.learnRecallQuestion.findMany({
-    where: { id: { in: questionIds }, conceptId: concept.id },
+  const question = await db.learnRecallQuestion.findUnique({
+    where: { id: questionId },
   });
+
+  if (!question) {
+    return c.json({ error: "Question not found" }, 404);
+  }
+
+  // Enforce identical non-mixing revision eligibility
+  const eligibility = await getAuthoritativeRecallFilter(concept, db);
+  const check = isQuestionEligibleForRevision(question, concept, eligibility);
+  if (!check.eligible) {
+    return c.json({ error: check.reason || "Question is not eligible for this concept revision" }, 400);
+  }
+
+  const options = Array.isArray(question.options) ? question.options : [];
+  if (selectedOption < 0 || selectedOption >= options.length) {
+    return c.json({ error: "selectedOption out of bounds" }, 400);
+  }
+
+  const isCorrect = selectedOption === question.correctOption;
+
+  // Pure answer check: no mutations to progress, schedule, session, or history
+  return c.json({
+    isCorrect,
+    correctOption: question.correctOption,
+    explanation: question.explanation,
+  });
+});
+
+/**
+ * POST /api/learn/concepts/:slug/recall/session
+ * Records a completed recall session with atomic answers, grades performance,
+ * and updates progress/schedule exactly once based on authoritative server evaluation.
+ */
+learn.post("/concepts/:slug/recall/session", async (c) => {
+  const user = c.get("user");
+  const slug = c.req.param("slug");
+  const body = await c.req.json().catch(() => ({}));
+  const { answers } = body;
+
+  if (!Array.isArray(answers) || answers.length === 0) {
+    return c.json({ error: "answers array is required and must not be empty" }, 400);
+  }
+
+  // Reject duplicate question IDs and validate option index integers
+  const seenIds = new Set<string>();
+  for (const item of answers) {
+    if (!item || typeof item.questionId !== "string" || !item.questionId) {
+      return c.json({ error: "Invalid questionId in answers" }, 400);
+    }
+    if (seenIds.has(item.questionId)) {
+      return c.json({ error: `Duplicate questionId detected: ${item.questionId}` }, 400);
+    }
+    seenIds.add(item.questionId);
+    if (typeof item.selectedOption !== "number" || !Number.isInteger(item.selectedOption)) {
+      return c.json({ error: `Invalid selectedOption for question ${item.questionId}` }, 400);
+    }
+  }
+
+  const concept = await db.learnConcept.findUnique({
+    where: { slug },
+    select: { id: true, publishedRevisionId: true },
+  });
+
+  if (!concept?.publishedRevisionId) return c.json({ error: "Published concept not found" }, 404);
+
+  // Retrieve authoritative questions for the answers submitted
+  const questionIds = Array.from(seenIds);
+  const dbQuestions = await db.learnRecallQuestion.findMany({
+    where: { id: { in: questionIds } },
+  });
+
+  if (dbQuestions.length !== questionIds.length) {
+    return c.json({ error: "One or more questions were not found" }, 400);
+  }
+
   const questionMap = new Map(dbQuestions.map((q) => [q.id, q]));
 
-  let correctCount = 0;
-  const gradedAnswers: Array<{ questionId: string; selectedOption: number; isCorrect: boolean }> = [];
+  // Enforce authoritative revision eligibility across every question in session
+  const eligibility = await getAuthoritativeRecallFilter(concept, db);
 
   for (const item of answers) {
     const q = questionMap.get(item.questionId);
     if (!q) {
-      return c.json({ error: `Question ${item.questionId} not found for concept` }, 400);
+      return c.json({ error: `Question ${item.questionId} not found` }, 400);
     }
+    const check = isQuestionEligibleForRevision(q, concept, eligibility);
+    if (!check.eligible) {
+      return c.json({ error: `Question ${item.questionId}: ${check.reason}` }, 400);
+    }
+    const options = Array.isArray(q.options) ? q.options : [];
+    if (item.selectedOption < 0 || item.selectedOption >= options.length) {
+      return c.json({ error: `selectedOption out of bounds for question ${item.questionId}` }, 400);
+    }
+  }
+
+  // Authoritative server-side grading
+  let correctCount = 0;
+  const gradedAnswers = answers.map((item) => {
+    const q = questionMap.get(item.questionId)!;
     const isCorrect = item.selectedOption === q.correctOption;
     if (isCorrect) correctCount++;
-    gradedAnswers.push({
+    return {
       questionId: item.questionId,
       selectedOption: item.selectedOption,
       isCorrect,
-    });
-  }
-
-  const questionsCount = gradedAnswers.length;
-  const score = Number((correctCount / questionsCount).toFixed(2));
-
-  // Current progress check
-  const currentProgress = await db.userConceptProgress.findUnique({
-    where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
+    };
   });
 
-  const stageBefore = currentProgress?.reviewStage || 0;
+  const questionsCount = gradedAnswers.length;
+  const score = Number((correctCount / questionsCount).toFixed(4));
   const now = new Date();
+  const targetRevisionId = concept.publishedRevisionId;
 
-  // Spaced Repetition interval steps in days: Stage 0: 1d, Stage 1: 3d, Stage 2: 7d, Stage 3: 14d, Stage 4: 30d
-  const STAGE_DAYS = [1, 3, 7, 14, 30];
+  // Single atomic transaction with SERIALIZABLE isolation, row locking, and retry
+  const { session, progress } = await executeSerializableTransaction(async (tx) => {
+    let currentProgress = await tx.userConceptProgress.findUnique({
+      where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
+    });
 
-  // A session is eligible to advance the spaced schedule if:
-  // 1. Explicitly flagged as isScheduledReview, OR
-  // 2. nextReviewAt is null or already past (due in queue), OR
-  // 3. status is NEEDS_REVISION
-  const isDue =
-    !currentProgress?.nextReviewAt ||
-    currentProgress.nextReviewAt <= now ||
-    currentProgress.status === "NEEDS_REVISION";
-  const eligibleForSchedule = Boolean(isScheduledReview || isDue);
-
-  let stageAfter = stageBefore;
-  let nextReviewAt = currentProgress?.nextReviewAt || null;
-  let newStatus = currentProgress?.status || "STUDIED";
-
-  if (eligibleForSchedule) {
-    if (score >= 0.7) {
-      stageAfter = Math.min(stageBefore + 1, 4);
-      const daysToAdd = STAGE_DAYS[stageAfter] || 30;
-      nextReviewAt = new Date(now.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
-      newStatus = stageAfter >= 3 ? "DEMONSTRATED_UNDERSTANDING" : "CONFIDENT";
-    } else {
-      // Failed review: reset stage to 0 and schedule immediate retry tomorrow
-      stageAfter = 0;
-      nextReviewAt = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000);
-      newStatus = "NEEDS_REVISION";
+    if (currentProgress) {
+      try {
+        if (typeof tx.$queryRaw === "function") {
+          await tx.$queryRaw`SELECT id FROM "UserConceptProgress" WHERE "userId" = ${user.id} AND "conceptId" = ${concept.id} FOR UPDATE`;
+          currentProgress = await tx.userConceptProgress.findUnique({
+            where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
+          });
+        }
+      } catch {
+        // Fallback gracefully in test/mock environments without raw SQL
+      }
     }
-  } else {
-    // Unscheduled / practice attempt between intervals: preserve schedule, mark studied if fresh
-    if (!currentProgress || currentProgress.status === "NOT_STARTED" || currentProgress.status === "STUDYING") {
-      newStatus = "STUDIED";
-      nextReviewAt = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000);
-    }
-  }
 
-  // Transaction: Create session + answers and update progress
-  const targetRevisionId = revisionId || concept.publishedRevisionId;
+    // Server-authoritative scheduling calculation based on atomically read progress
+    const schedule = calculateSpacedSchedule(currentProgress, score, now);
 
-  const [session, progress] = await db.$transaction([
-    db.userRecallSession.create({
+    const sessionRecord = await tx.userRecallSession.create({
       data: {
         userId: user.id,
         conceptId: concept.id,
         revisionId: targetRevisionId,
-        isScheduledReview: eligibleForSchedule,
+        isScheduledReview: schedule.isScheduledReview,
         questionsCount,
         correctCount,
         score,
-        stageBefore,
-        stageAfter,
+        stageBefore: schedule.stageBefore,
+        stageAfter: schedule.stageAfter,
         completedAt: now,
         answers: {
           create: gradedAnswers.map((ga) => ({
@@ -611,33 +618,36 @@ learn.post("/concepts/:slug/recall/session", async (c) => {
           })),
         },
       },
-    }),
-    db.userConceptProgress.upsert({
+    });
+
+    const updatedProgress = await tx.userConceptProgress.upsert({
       where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
       update: {
-        status: newStatus as any,
-        reviewStage: stageAfter,
+        status: schedule.newStatus as any,
+        reviewStage: schedule.stageAfter,
         lastSessionScore: score,
         lastReviewedAt: now,
         lastStudiedAt: now,
-        nextReviewAt,
+        nextReviewAt: schedule.nextReviewAt,
         recallAttempts: { increment: questionsCount },
         recallCorrect: { increment: correctCount },
       },
       create: {
         userId: user.id,
         conceptId: concept.id,
-        status: newStatus as any,
-        reviewStage: stageAfter,
+        status: schedule.newStatus as any,
+        reviewStage: schedule.stageAfter,
         lastSessionScore: score,
         lastReviewedAt: now,
         lastStudiedAt: now,
-        nextReviewAt,
+        nextReviewAt: schedule.nextReviewAt,
         recallAttempts: questionsCount,
         recallCorrect: correctCount,
       },
-    }),
-  ]);
+    });
+
+    return { session: sessionRecord, progress: updatedProgress };
+  });
 
   return c.json({
     session: {
@@ -928,5 +938,49 @@ learn.get("/recommendations/interview/:interviewId", async (c) => {
 
   return c.json({ recommendations });
 });
+
+/**
+ * Execute a transaction under SERIALIZABLE isolation with jittered exponential retry
+ * to protect against concurrent recall submission races, serialization failures (P2034 / 40001),
+ * deadlocks, or write conflicts.
+ */
+export async function executeSerializableTransaction<T>(
+  fn: (tx: any) => Promise<T>,
+  options: { maxRetries?: number; dbClient?: any } = {}
+): Promise<T> {
+  const maxRetries = options.maxRetries ?? 3;
+  const client = options.dbClient ?? db;
+  let attempt = 0;
+
+  while (true) {
+    try {
+      return await client.$transaction(
+        async (tx: any) => {
+          return await fn(tx);
+        },
+        {
+          isolationLevel: (Prisma as any)?.TransactionIsolationLevel?.Serializable ?? "Serializable",
+        }
+      );
+    } catch (err: any) {
+      attempt++;
+      const isSerializationConflict =
+        err?.code === "P2034" ||
+        err?.code === "40001" ||
+        err?.message?.includes("P2034") ||
+        err?.message?.includes("could not serialize access") ||
+        err?.message?.includes("deadlock detected") ||
+        err?.message?.includes("write conflict") ||
+        err?.message?.includes("serialization failure");
+
+      if (isSerializationConflict && attempt < maxRetries) {
+        const jitter = Math.floor(Math.random() * 20);
+        await new Promise((r) => setTimeout(r, 25 * Math.pow(2, attempt - 1) + jitter));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
 
 export default learn;

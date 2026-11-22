@@ -159,7 +159,7 @@ export interface RecallResult {
   isCorrect: boolean;
   correctOption: number;
   explanation: string;
-  progress: ConceptProgressState;
+  progress?: ConceptProgressState;
 }
 
 export interface RecallSessionResult {

@@ -11,6 +11,12 @@ const mockUpdateConcept = mock(async () => ({}) as any);
 const mockUpdateRevision = mock(async () => ({}) as any);
 const mockDeleteConcept = mock(async () => ({}) as any);
 const mockFindManyQuestions = mock(async () => [] as any[]);
+const mockFindUniqueQuestion = mock(async () => null as any);
+const mockFindFirstQuestion = mock(async () => null as any);
+const mockCreateQuestion = mock(async () => ({}) as any);
+const mockUpdateQuestion = mock(async () => ({}) as any);
+const mockDeleteQuestion = mock(async () => ({}) as any);
+
 const mockTransaction = mock(async (arg: any) => {
   if (typeof arg === "function") {
     return arg({
@@ -20,35 +26,70 @@ const mockTransaction = mock(async (arg: any) => {
         findUnique: mock(async () => ({ id: "c-new" })),
       },
       learnConceptRevision: {
-        create: mock(async () => ({ id: "rev-new", version: 1 })),
+        create: mock(async (data: any) => ({
+          id: "r2",
+          conceptId: "c1",
+          version: data?.data?.version ?? 2,
+          status: "DRAFT",
+          ...data?.data,
+        })),
+      },
+      learnRecallQuestion: {
+        findMany: mockFindManyQuestions,
+        findFirst: mockFindFirstQuestion,
+        create: mockCreateQuestion,
+        update: mockUpdateQuestion,
       },
     });
   }
   return Promise.all(arg);
 });
 
+const dbModels: Record<string, any> = {};
+const mockDb = new Proxy({
+  learnSubject: { findMany: mockFindManySubjects },
+  learnConcept: {
+    findMany: mockFindManyConcepts,
+    findUnique: mockFindUniqueConcept,
+    update: mockUpdateConcept,
+    delete: mockDeleteConcept,
+  },
+  learnRecallQuestion: {
+    findMany: mockFindManyQuestions,
+    findUnique: mockFindUniqueQuestion,
+    findFirst: mockFindFirstQuestion,
+    create: mockCreateQuestion,
+    update: mockUpdateQuestion,
+    delete: mockDeleteQuestion,
+  },
+  learnConceptRevision: {
+    findUnique: mockFindUniqueRevision,
+    findFirst: mockFindFirstRevision,
+    create: mockCreateRevision,
+    update: mockUpdateRevision,
+  },
+  user: {
+    findUnique: mock(async () => ({ role: "admin" })),
+  },
+  $transaction: mockTransaction,
+}, {
+  get(target, prop: string) {
+    if (prop in target) return (target as any)[prop];
+    if (!dbModels[prop]) dbModels[prop] = {};
+    return dbModels[prop];
+  },
+  set(target, prop: string, value) {
+    (target as any)[prop] = value;
+    return true;
+  }
+});
+
 mock.module("@intervue/db", () => ({
-  db: {
-    learnSubject: { findMany: mockFindManySubjects },
-    learnConcept: {
-      findMany: mockFindManyConcepts,
-      findUnique: mockFindUniqueConcept,
-      update: mockUpdateConcept,
-      delete: mockDeleteConcept,
+  db: mockDb,
+  Prisma: {
+    TransactionIsolationLevel: {
+      Serializable: "Serializable",
     },
-    learnRecallQuestion: {
-      findMany: mockFindManyQuestions,
-    },
-    learnConceptRevision: {
-      findUnique: mockFindUniqueRevision,
-      findFirst: mockFindFirstRevision,
-      create: mockCreateRevision,
-      update: mockUpdateRevision,
-    },
-    user: {
-      findUnique: mock(async () => ({ role: "admin" })),
-    },
-    $transaction: mockTransaction,
   },
 }));
 
@@ -74,6 +115,11 @@ describe("Admin Learn & Revise CMS Endpoints", () => {
     mockFindManyConcepts.mockReset();
     mockFindUniqueConcept.mockReset();
     mockFindManyQuestions.mockReset();
+    mockFindUniqueQuestion.mockReset();
+    mockFindFirstQuestion.mockReset();
+    mockCreateQuestion.mockReset();
+    mockUpdateQuestion.mockReset();
+    mockDeleteQuestion.mockReset();
     mockFindUniqueRevision.mockReset();
     mockFindFirstRevision.mockReset();
     mockCreateRevision.mockReset();
@@ -203,6 +249,284 @@ describe("Admin Learn & Revise CMS Endpoints", () => {
     expect(body.forked).toBe(true);
     expect(body.revision.version).toBe(2);
     expect(body.revision.status).toBe("DRAFT");
+  });
+
+  describe("Admin Question CMS Endpoints", () => {
+    it("GET /admin/learn/revisions/:revisionId/questions returns questions list", async () => {
+      mockFindUniqueRevision.mockResolvedValue({ id: "r1", conceptId: "c1" });
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q1", revisionId: "r1", prompt: "What is time complexity of binary search?", options: ["O(1)", "O(log n)"], correctOption: 1, orderIndex: 0 },
+      ]);
+
+      const res = await app.request("/admin/learn/revisions/r1/questions");
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.questions.length).toBe(1);
+      expect(body.questions[0].prompt).toContain("binary search");
+    });
+
+    it("POST /admin/learn/revisions/:revisionId/questions validates invalid payload", async () => {
+      mockFindUniqueRevision.mockResolvedValue({ id: "r1", conceptId: "c1" });
+
+      const res = await app.request("/admin/learn/revisions/r1/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "abc", // too short
+          options: ["Only one"], // < 2
+          correctOption: 5, // out of bounds
+        }),
+      });
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toBeDefined();
+    });
+
+    it("POST /admin/learn/revisions/:revisionId/questions creates valid question bound to revision", async () => {
+      mockFindUniqueRevision.mockResolvedValue({ id: "r1", conceptId: "c1" });
+      mockFindManyQuestions.mockResolvedValue([]);
+      mockCreateQuestion.mockResolvedValue({
+        id: "q-new",
+        revisionId: "r1",
+        conceptId: "c1",
+        prompt: "What is the worst-case space complexity?",
+        options: ["O(1)", "O(n)"],
+        correctOption: 0,
+        explanation: "In-place algorithms use O(1) auxiliary space.",
+        orderIndex: 0,
+      });
+
+      const res = await app.request("/admin/learn/revisions/r1/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "What is the worst-case space complexity?",
+          options: ["O(1)", "O(n)"],
+          correctOption: 0,
+          explanation: "In-place algorithms use O(1) auxiliary space.",
+        }),
+      });
+
+      expect(res.status).toBe(201);
+      const body = await res.json();
+      expect(body.question.id).toBe("q-new");
+      expect(mockCreateQuestion).toHaveBeenCalledTimes(1);
+    });
+
+    it("PATCH /admin/learn/questions/:id updates question fields with validation", async () => {
+      mockFindUniqueQuestion.mockResolvedValue({
+        id: "q1",
+        revisionId: "r1",
+        conceptId: "c1",
+        prompt: "Old prompt text?",
+        options: ["A", "B"],
+        correctOption: 0,
+      });
+      mockUpdateQuestion.mockResolvedValue({
+        id: "q1",
+        prompt: "Updated prompt text?",
+        options: ["A", "B", "C"],
+        correctOption: 2,
+      });
+
+      const res = await app.request("/admin/learn/questions/q1", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "Updated prompt text?",
+          options: ["A", "B", "C"],
+          correctOption: 2,
+        }),
+      });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.question.prompt).toBe("Updated prompt text?");
+      expect(mockUpdateQuestion).toHaveBeenCalledTimes(1);
+    });
+
+    it("DELETE /admin/learn/questions/:id deletes the question", async () => {
+      mockFindUniqueQuestion.mockResolvedValue({ id: "q1", revisionId: "r1" });
+      mockDeleteQuestion.mockResolvedValue({ id: "q1" });
+
+      const res = await app.request("/admin/learn/questions/q1", {
+        method: "DELETE",
+      });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.success).toBe(true);
+      expect(mockDeleteQuestion).toHaveBeenCalledTimes(1);
+    });
+
+    it("PUT /admin/learn/revisions/:revisionId/questions/reorder updates order indices", async () => {
+      mockFindUniqueRevision.mockResolvedValue({ id: "r1", conceptId: "c1" });
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q1", revisionId: "r1" },
+        { id: "q2", revisionId: "r1" },
+      ]);
+      mockUpdateQuestion.mockResolvedValue({});
+
+      const res = await app.request("/admin/learn/revisions/r1/questions/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionIds: ["q2", "q1"] }),
+      });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.success).toBe(true);
+      expect(mockTransaction).toHaveBeenCalled();
+    });
+
+    it("forking a published revision copies its recall questions into the new revision", async () => {
+      mockFindUniqueRevision.mockResolvedValue({
+        id: "r1",
+        conceptId: "c1",
+        version: 1,
+        status: "PUBLISHED",
+        title: "Version 1",
+        summary: "Summary v1",
+      });
+      mockFindFirstRevision.mockResolvedValue({ version: 1 });
+      mockFindManyQuestions.mockResolvedValue([
+        {
+          id: "q1",
+          conceptId: "c1",
+          revisionId: "r1",
+          prompt: "Question 1?",
+          options: ["A", "B"],
+          correctOption: 0,
+          explanation: "Exp 1",
+          orderIndex: 0,
+        },
+      ]);
+      mockCreateQuestion.mockResolvedValue({ id: "q2", revisionId: "r2" });
+
+      const res = await app.request("/admin/learn/revisions/r1", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "Version 2 draft" }),
+      });
+
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.forked).toBe(true);
+      expect(mockCreateQuestion).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects modifying or deleting questions belonging to a published revision", async () => {
+      mockFindUniqueQuestion.mockResolvedValue({
+        id: "q1",
+        revisionId: "r-pub",
+        revision: { status: "PUBLISHED" },
+      });
+
+      const patchRes = await app.request("/admin/learn/questions/q1", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: "Attempted edit on published question" }),
+      });
+      expect(patchRes.status).toBe(400);
+      const patchBody = await patchRes.json();
+      expect(patchBody.error).toContain("published revision");
+
+      const deleteRes = await app.request("/admin/learn/questions/q1", {
+        method: "DELETE",
+      });
+      expect(deleteRes.status).toBe(400);
+      const deleteBody = await deleteRes.json();
+      expect(deleteBody.error).toContain("published revision");
+    });
+
+    it("rejects adding or reordering questions in a published revision", async () => {
+      mockFindUniqueRevision.mockResolvedValue({
+        id: "r-pub",
+        conceptId: "c1",
+        status: "PUBLISHED",
+      });
+
+      const postRes = await app.request("/admin/learn/revisions/r-pub/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: "Valid prompt here?",
+          options: ["A", "B"],
+          correctOption: 0,
+          explanation: "Valid explanation",
+        }),
+      });
+      expect(postRes.status).toBe(400);
+      const postBody = await postRes.json();
+      expect(postBody.error).toContain("published revision");
+
+      const putRes = await app.request("/admin/learn/revisions/r-pub/questions/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionIds: ["q1", "q2"] }),
+      });
+      expect(putRes.status).toBe(400);
+      const putBody = await putRes.json();
+      expect(putBody.error).toContain("published revision");
+    });
+
+    it("PUT /questions/reorder rejects when questionIds list does not match revision questions set", async () => {
+      mockFindUniqueRevision.mockResolvedValue({ id: "r1", conceptId: "c1", status: "DRAFT" });
+      mockFindManyQuestions.mockResolvedValue([
+        { id: "q1", revisionId: "r1" },
+        { id: "q2", revisionId: "r1" },
+      ]);
+
+      // Missing q2, injecting qForeign
+      const res = await app.request("/admin/learn/revisions/r1/questions/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionIds: ["q1", "qForeign"] }),
+      });
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toContain("complete, non-duplicate list");
+    });
+
+    it("POST /publish rejects when target revision has no revision-bound questions (ignoring legacy null questions)", async () => {
+      mockFindUniqueConcept.mockResolvedValue({
+        id: "c1",
+        revisions: [
+          {
+            id: "rev-draft",
+            version: 2,
+            status: "DRAFT",
+            quickRevisionMd: "A".repeat(120),
+            deepDiveMd: "B".repeat(350),
+            keyTakeaways: ["Point 1", "Point 2"],
+            commonMistakes: ["Mistake 1"],
+          },
+        ],
+      });
+      // Database has 0 questions bound to rev-draft, but 2 legacy questions with revisionId: null
+      mockFindManyQuestions.mockImplementation(async ({ where }: any) => {
+        if (where?.revisionId === "rev-draft") {
+          return [];
+        }
+        return [
+          { id: "q-legacy-1", revisionId: null, prompt: "Legacy Q1", options: ["A", "B"], correctOption: 0 },
+          { id: "q-legacy-2", revisionId: null, prompt: "Legacy Q2", options: ["A", "B"], correctOption: 1 },
+        ];
+      });
+
+      const res = await app.request("/admin/learn/concepts/c1/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ revisionId: "rev-draft" }),
+      });
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect(body.error).toContain("Revision completeness validation failed");
+      expect(body.validationErrors.some((e: string) => e.includes("At least 2 active recall questions"))).toBe(true);
+    });
   });
 });
 

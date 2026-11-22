@@ -14,7 +14,9 @@ import {
   Sparkles,
   Brain,
 } from "lucide-react";
-import { useLearnConcept } from "@/hooks/useLearn";
+import { useLearnConcept, useRecallQuestions } from "@/hooks/useLearn";
+import { useSession } from "@/lib/auth";
+import { rememberLesson } from "@/lib/lastLesson";
 import { useBookmarkSlugs, useToggleBookmark } from "@/hooks/useBookmarks";
 import { QuestionNoteDrawer } from "@/components/shared/QuestionNoteDrawer";
 import { SafeMarkdown } from "@/components/shared/SafeMarkdown";
@@ -44,6 +46,22 @@ export default function ConceptReaderPage() {
   const { slug } = useParams<{ slug: string }>();
   const [mode, setMode] = useState<ReaderMode>("quick");
   const { data, isLoading, isError } = useLearnConcept(slug);
+  const { data: recallData } = useRecallQuestions(slug);
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+  const lesson = data?.concept;
+
+  const progress = recallData?.progress;
+  const isReviewDue = Boolean(
+    (progress?.nextReviewAt && new Date(progress.nextReviewAt) <= new Date()) ||
+    progress?.status === "NEEDS_REVISION"
+  );
+
+  useEffect(() => {
+    if (userId && lesson && lesson.slug === slug && !isError) {
+      rememberLesson(userId, lesson);
+    }
+  }, [userId, lesson, slug, isError]);
 
   // Bookmarks & Notes integration
   const { data: bookmarkedSlugs = [] } = useBookmarkSlugs();
@@ -156,6 +174,23 @@ export default function ConceptReaderPage() {
               >
                 {concept.difficulty.charAt(0) + concept.difficulty.slice(1).toLowerCase()}
               </Badge>
+              {isReviewDue ? (
+                <Badge
+                  variant="outline"
+                  className="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-medium gap-1"
+                >
+                  <Clock className="h-3 w-3" />
+                  Scheduled review due {progress?.reviewStage !== undefined ? `• Stage ${progress.reviewStage}` : ""}
+                </Badge>
+              ) : progress?.reviewStage !== undefined && progress.reviewStage > 0 ? (
+                <Badge
+                  variant="outline"
+                  className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-medium gap-1"
+                >
+                  <CheckCircle2 className="h-3 w-3" />
+                  Stage {progress.reviewStage}
+                </Badge>
+              ) : null}
               <span className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground font-mono">
                 <Clock className="h-3.5 w-3.5" />
                 {concept.estimatedMinutes} min
@@ -235,10 +270,15 @@ export default function ConceptReaderPage() {
                 type="button"
                 size="sm"
                 onClick={() => setIsRecallModalOpen(true)}
-                className="h-8 gap-1.5 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs font-semibold shadow-xs cursor-pointer"
+                className={cn(
+                  "h-8 gap-1.5 text-xs font-semibold shadow-xs cursor-pointer",
+                  isReviewDue
+                    ? "bg-amber-600 hover:bg-amber-700 text-white"
+                    : "bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)]"
+                )}
               >
                 <Brain className="h-3.5 w-3.5" />
-                Solve MCQs
+                {isReviewDue ? "Scheduled review" : "Practice recall"}
               </Button>
 
               <Button

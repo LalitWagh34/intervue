@@ -20,8 +20,10 @@ import {
   X,
   Send,
   Zap,
+  HelpCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { AdminQuestionEditor } from "./AdminQuestionEditor";
 
 interface SubjectWithModules {
   id: string;
@@ -72,6 +74,13 @@ export function AdminLearnPanel() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [activeQuestionEditor, setActiveQuestionEditor] = useState<{
+    revisionId: string;
+    conceptId: string;
+    conceptTitle: string;
+    revisionVersion: number;
+    isPublished: boolean;
+  } | null>(null);
 
   // Form State
   const [selectedModuleId, setSelectedModuleId] = useState("");
@@ -84,7 +93,6 @@ export function AdminLearnPanel() {
   const [deepDiveMd, setDeepDiveMd] = useState("");
   const [keyTakeaways, setKeyTakeaways] = useState("");
   const [commonMistakes, setCommonMistakes] = useState("");
-  const [autoPublish, setAutoPublish] = useState(false);
 
   // Queries
   const { data: modulesData } = useQuery<{ subjects: SubjectWithModules[] }>({
@@ -117,7 +125,6 @@ export function AdminLearnPanel() {
         deepDiveMd,
         keyTakeaways: keyTakeaways.split("\n").map((s) => s.trim()).filter(Boolean),
         commonMistakes: commonMistakes.split("\n").map((s) => s.trim()).filter(Boolean),
-        autoPublish,
       };
       const { data } = await api.post("/admin/learn/concepts", payload);
       return data;
@@ -190,7 +197,6 @@ export function AdminLearnPanel() {
     setDeepDiveMd("");
     setKeyTakeaways("");
     setCommonMistakes("");
-    setAutoPublish(true);
   };
 
   const handleTitleChange = (val: string) => {
@@ -337,6 +343,28 @@ export function AdminLearnPanel() {
                               Publish
                             </Button>
                           )}
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const targetRev = c.revisions[0];
+                              if (targetRev) {
+                                setActiveQuestionEditor({
+                                  revisionId: targetRev.id,
+                                  conceptId: c.id,
+                                  conceptTitle: targetRev.title || c.slug,
+                                  revisionVersion: targetRev.version,
+                                  isPublished: Boolean(c.publishedRevisionId),
+                                });
+                              }
+                            }}
+                            className="h-7 px-2 text-[11px] text-[#327CF6] hover:text-[#2563EB] gap-1"
+                            title="Manage Recall Questions"
+                          >
+                            <HelpCircle className="h-3.5 w-3.5" />
+                            Questions
+                          </Button>
 
                           <Button
                             asChild
@@ -516,17 +544,11 @@ export function AdminLearnPanel() {
                 />
               </div>
 
-              <div className="sm:col-span-2 flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="autoPublish"
-                  checked={autoPublish}
-                  onChange={(e) => setAutoPublish(e.target.checked)}
-                  className="rounded border-[var(--border-control)] bg-[var(--surface-muted)] text-[#327CF6]"
-                />
-                <label htmlFor="autoPublish" className="text-xs font-medium text-[var(--text-secondary)]">
-                  Publish immediately (students can view right away)
-                </label>
+              <div className="sm:col-span-2 flex items-center gap-2 pt-1 p-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)]">
+                <Clock className="h-4 w-4 text-amber-500 shrink-0" />
+                <span>
+                  Concepts are initially saved in <strong>Draft</strong> status. You can add recall questions and publish once validated.
+                </span>
               </div>
             </div>
 
@@ -552,6 +574,18 @@ export function AdminLearnPanel() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Recall Questions Editor Modal */}
+      {activeQuestionEditor && (
+        <AdminQuestionEditor
+          revisionId={activeQuestionEditor.revisionId}
+          conceptId={activeQuestionEditor.conceptId}
+          conceptTitle={activeQuestionEditor.conceptTitle}
+          revisionVersion={activeQuestionEditor.revisionVersion}
+          isPublished={activeQuestionEditor.isPublished}
+          onClose={() => setActiveQuestionEditor(null)}
+        />
       )}
     </div>
   );

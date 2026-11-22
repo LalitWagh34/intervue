@@ -16,9 +16,10 @@ import { cn } from "@/lib/utils";
 interface DailyTargetTrackerProps {
   className?: string;
   compact?: boolean;
+  streak?: number;
 }
 
-export function DailyTargetTracker({ className, compact = false }: DailyTargetTrackerProps) {
+export function DailyTargetTracker({ className, compact = false, streak }: DailyTargetTrackerProps) {
   const {
     targets,
     completedCount,
@@ -64,10 +65,20 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
     <div
       className={cn(
         "rounded-xl bg-[var(--surface)] border border-[var(--border-subtle)] p-5 sm:p-6 shadow-sm space-y-4",
+        compact && "min-w-0 rounded-2xl space-y-3 p-5 shadow-none sm:p-5",
         className
       )}
     >
       {/* Header & Progress */}
+      {compact ? (
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <h2 className="font-semibold">Today’s goals</h2>
+          <p className="text-xs text-[var(--text-secondary)]">
+            {completedCount} of {totalCount} done
+            {typeof streak === "number" && streak > 0 && ` · ${streak}-day streak`}
+          </p>
+        </div>
+      ) : (
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -115,6 +126,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
         </div>
       </div>
 
+      )}
       {/* Progress Bar */}
       <div className="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
         <div
@@ -135,21 +147,39 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
             type="text"
             value={inputTitle}
             onChange={(e) => setInputTitle(e.target.value)}
-            placeholder="Add new daily target (e.g. Solve 2 Trees problems)..."
+            aria-label="Daily goal"
+            placeholder={compact ? "Add a goal" : "Add new daily target (e.g. Solve 2 Trees problems)..."}
             style={{ minWidth: 0, flex: 1 }}
             className="min-w-0 flex-1 px-3.5 py-2.5 rounded-lg bg-[var(--surface)] border border-[var(--border-control)] focus:border-[var(--action-primary)] focus:ring-1 focus:ring-[var(--accent-text)]/30 focus:outline-none text-xs sm:text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-colors"
           />
           <button
             type="submit"
             style={{ flexShrink: 0 }}
-            className="shrink-0 flex-shrink-0 px-4 py-2.5 rounded-lg bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+            className={cn(
+              "shrink-0 rounded-lg px-3 py-2.5 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer",
+              compact ? "border border-[var(--border-control)] hover:bg-[var(--surface-hover)]" : "bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] shadow-sm"
+            )}
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Target</span>
+            <span>{compact ? "Add goal" : "Add Target"}</span>
           </button>
         </div>
 
         {/* Category Pill selector */}
+        {compact ? (
+          <label className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+            Category
+            <select
+              value={selectedCategory}
+              onChange={(event) => setSelectedCategory(event.target.value as DailyTarget["category"])}
+              className="rounded-md border border-[var(--border-control)] bg-[var(--surface)] px-2 py-1 text-[var(--text-primary)]"
+            >
+              {(["DSA", "System Design", "Core CS", "Behavioral", "General"] as const).map((category) => (
+                <option key={category}>{category}</option>
+              ))}
+            </select>
+          </label>
+        ) : (
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <span className="text-[11px] text-[var(--text-muted)] font-mono mr-1">Category:</span>
           {(["DSA", "System Design", "Core CS", "Behavioral", "General"] as const).map((cat) => (
@@ -168,6 +198,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
             </button>
           ))}
         </div>
+        )}
       </form>
 
       {/* Quick Suggestions Strip */}
@@ -200,7 +231,15 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
       </div> */}
 
       {/* Target Items List */}
-      <div className="space-y-2 pt-2 divide-y divide-[var(--border-subtle)] max-h-44 overflow-y-auto pr-1">
+      <div
+        className={cn(
+          "space-y-2 divide-y divide-[var(--border-subtle)] overflow-y-auto pr-1",
+          compact ? "h-32 border-t border-[var(--border-subtle)] pt-2 [scrollbar-gutter:stable]" : "max-h-44 pt-2"
+        )}
+        role={compact ? "region" : undefined}
+        aria-label={compact ? "Daily goals checklist" : undefined}
+        tabIndex={compact ? 0 : undefined}
+      >
         {targets.length === 0 ? (
           <div className="p-6 rounded-xl bg-[var(--surface-muted)] border border-dashed border-[var(--border-subtle)] text-center text-[var(--text-muted)] text-xs">
             No daily targets set for today. Add your first goal above to start tracking!
@@ -231,7 +270,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                 </button>
 
                 {editingId === target.id ? (
-                  <div className="flex items-center gap-2 flex-1">
+                  <div className="flex min-w-0 items-center gap-2 flex-1">
                     <input
                       type="text"
                       value={editingText}
@@ -240,7 +279,8 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
                         if (e.key === "Enter") handleSaveEdit(target.id);
                         if (e.key === "Escape") setEditingId(null);
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-[var(--surface)] border border-[var(--action-primary)] text-xs text-[var(--text-primary)] flex-1 focus:outline-none"
+                      aria-label="Edit daily goal"
+                      className="min-w-0 px-2.5 py-1 rounded-lg bg-[var(--surface)] border border-[var(--action-primary)] text-xs text-[var(--text-primary)] flex-1 focus:outline-none"
                       autoFocus
                     />
                     <button
@@ -281,7 +321,7 @@ export function DailyTargetTracker({ className, compact = false }: DailyTargetTr
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex shrink-0 items-center gap-1">
                 <button
                   type="button"
                   onClick={() => handleStartEdit(target)}

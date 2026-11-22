@@ -36,6 +36,19 @@ enum EvalStatus {
   failed
 }
 
+enum ExecutionJobType {
+  RUN
+  SUBMIT
+}
+
+enum ExecutionJobStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
 // ─── Coding enums ──────────────────────────────────
 enum ProblemDifficulty {
   EASY
@@ -168,6 +181,7 @@ model User {
   learnRevisions    LearnConceptRevision[]
   conceptProgress   UserConceptProgress[]
   recallSessions    UserRecallSession[]
+  executionJobs     ExecutionJob[]
 }
 
 model UserSolvedProblem {
@@ -258,6 +272,10 @@ model Evaluation {
   id              String     @id @default(cuid())
   interviewId     String     @unique
   status          EvalStatus @default(pending)
+  attemptCount    Int        @default(0)
+  lastAttemptAt   DateTime?
+  nextAttemptAt   DateTime?
+  lastError       String?
   score           Int?
   feedback        String?
   strengths       String[]
@@ -268,6 +286,9 @@ model Evaluation {
   completedAt     DateTime?
 
   interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextAttemptAt])
+  @@index([status, lastAttemptAt])
 }
 
 model Problem {
@@ -298,6 +319,36 @@ model Problem {
   roomSubmissions RoomSubmission[]
   sheetProblems   DsaSheetProblem[]
   author          User?             @relation(fields: [authorId], references: [id])
+  executionJobs   ExecutionJob[]
+}
+
+model ExecutionJob {
+  id             String             @id @default(cuid())
+  type           ExecutionJobType
+  status         ExecutionJobStatus @default(QUEUED)
+  userId         String
+  problemId      Int
+  sourceCode     String             @db.Text
+  language       String
+  roomCode       String?
+  attemptCount   Int                @default(0)
+  nextAttemptAt  DateTime?
+  leaseExpiresAt DateTime?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  durationMs     Int?
+  result         Json?
+  error          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  submission Submission?
+
+  @@index([status, nextAttemptAt, createdAt])
+  @@index([status, leaseExpiresAt])
+  @@index([userId, createdAt])
 }
 
 model TestCase {
@@ -348,10 +399,12 @@ model Submission {
   isAccepted Boolean  @default(false)
   userId     String
   problemId  Int
+  executionJobId String? @unique
   createdAt  DateTime @default(now())
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   problem Problem @relation(fields: [problemId], references: [id])
+  executionJob ExecutionJob? @relation(fields: [executionJobId], references: [id], onDelete: SetNull)
 
   @@index([userId, problemId])
 }

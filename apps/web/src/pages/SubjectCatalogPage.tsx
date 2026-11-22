@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -7,9 +8,10 @@ import {
   Search,
   Code2,
   CheckCircle2,
+  Clock,
   Sparkles,
 } from "lucide-react";
-import { useLearnSubject } from "@/hooks/useLearn";
+import { useLearnSubject, useRevisionQueue } from "@/hooks/useLearn";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -21,8 +23,13 @@ const MODULE_ICONS: Record<string, any> = {
 export default function SubjectCatalogPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data, isLoading, isError } = useLearnSubject(slug);
+  const { data: queueData } = useRevisionQueue();
 
   const subject = data?.subject;
+
+  const queueSet = useMemo(() => {
+    return new Set(queueData?.queue?.map((item) => item.concept.slug) || []);
+  }, [queueData]);
 
   if (isLoading) {
     return (
@@ -152,10 +159,22 @@ export default function SubjectCatalogPage() {
 
                   {/* Card Bottom Row: Concept Count + Action */}
                   <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)]/70 w-full text-xs">
-                    <span className="flex items-center gap-1.5 text-[var(--text-muted)] font-mono text-[11px]">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                      {module.concepts.length} {module.concepts.length === 1 ? "concept" : "concepts"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center gap-1.5 text-[var(--text-muted)] font-mono text-[11px]">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                        {module.concepts.length} {module.concepts.length === 1 ? "concept" : "concepts"}
+                      </span>
+                      {(() => {
+                        const moduleDueCount = module.concepts.filter((c) => queueSet.has(c.slug)).length;
+                        if (moduleDueCount === 0) return null;
+                        return (
+                          <span className="flex items-center gap-1 text-amber-500 font-mono text-[11px] bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                            <Clock className="h-3 w-3" />
+                            {moduleDueCount} due
+                          </span>
+                        );
+                      })()}
+                    </div>
 
                     <span className="font-medium text-[#327CF6] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                       Open topics <ArrowRight className="h-3.5 w-3.5" />

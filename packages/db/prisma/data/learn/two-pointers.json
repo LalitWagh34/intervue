@@ -1,0 +1,83 @@
+{
+  "moduleSlug": "arrays-patterns",
+  "slug": "two-pointers",
+  "orderIndex": 1,
+  "title": "Two Pointers",
+  "summary": "Replace nested O(n²) loops on sorted arrays, strings, or linked lists with two coordinated indices moving in O(n) time and O(1) space.",
+  "difficulty": "FOUNDATION",
+  "estimatedMinutes": 12,
+  "objectives": [
+    "Understand the monotonicity prerequisite required for two-pointer pair elimination.",
+    "Master opposite-direction converging pointers for sorted pair sum and palindrome checks.",
+    "Master same-direction fast and slow pointers for in-place compaction and Floyd's cycle detection.",
+    "Implement Dutch National Flag 3-way partitioning in a single pass."
+  ],
+  "prerequisites": [
+    "Array indexing and traversal",
+    "Basic Big-O notation for time and auxiliary space"
+  ],
+  "quickRevisionMd": "## Core Idea\nMaintain two pointers (`left`, `right` or `slow`, `fast`) whose movements are **strictly monotonic**. Each step evaluates the state and permanently discards an entire slice of search space, cutting brute force `O(n²)` down to **`O(n)` amortized time**.\n\n```\nArray:  [ 2,  3,  7, 11, 15 ], Target = 18\nPointers: ^               ^\n         left            right   -> Sum = 17 < 18: left must advance!\n```\n\n---\n\n### When to Recognize It\n- **Sorted Array Target Pair / Triplet:** *Two Sum II*, *3Sum*, *4Sum*.\n- **Palindrome Verification & String Manipulation:** Reversing words, validating alphanumeric symmetry.\n- **In-Place Array Compaction:** *Remove Duplicates*, *Move Zeroes*, *Remove Element*.\n- **Linked List Topology:** Fast & Slow pointers for finding the midpoint or cycle detection.\n- **3-Way Partitioning:** *Sort Colors (Dutch National Flag)*.\n\n---\n\n### Complexity Comparison\n| Technique | Time Complexity | Auxiliary Space | Input Requirement |\n| :--- | :--- | :--- | :--- |\n| **Brute Force Nested Loops** | `O(n²)` | `O(1)` | Any |\n| **Hash Map Complements** | `O(n)` | `O(n)` | Any |\n| **Opposite-Direction Two Pointers** | `O(n)` | `O(1)` | **Must be sorted** |\n| **Fast & Slow Pointers** | `O(n)` | `O(1)` | Any sequential structure |\n\n---\n\n### Quick Code Template: Opposite-Direction Target Sum\n```ts\nfunction twoSumSorted(numbers: number[], target: number): [number, number] | null {\n  let left = 0;\n  let right = numbers.length - 1;\n\n  while (left < right) {\n    const sum = numbers[left] + numbers[right];\n\n    if (sum === target) {\n      return [left, right];\n    } else if (sum < target) {\n      // Sum is too small: all pairs (left, < right) are even smaller!\n      left++;\n    } else {\n      // Sum is too large: all pairs (> left, right) are even larger!\n      right--;\n    }\n  }\n\n  return null;\n}\n```",
+  "deepDiveMd": "## Theoretical Foundation: Why Two Pointers Works\n\nIn a brute-force search over a sorted array `nums`, you consider all pairs `(i, j)` where `i < j`. This forms an `n × n` matrix of potential sums:\n\n```\n       j=0   j=1   j=2   j=3   j=4\ni=0  (0,0) (0,1) (0,2) (0,3) (0,4)\ni=1        (1,1) (1,2) (1,3) (1,4)\ni=2              (2,2) (2,3) (2,4)\ni=3                    (3,3) (3,4)\ni=4                          (4,4)\n```\n\nWhen the array is sorted monotonically:\n- If `nums[left] + nums[right] < target`, then `nums[left]` paired with **any element at or to the left of `right`** (`nums[left] + nums[j]` for `j < right`) will also strictly be `< target`.\n- Therefore, we can discard an entire row of pairs in **one single `left++` step**!\n- Similarly, if `sum > target`, we discard an entire column of pairs with **`right--`**.\n- Since each step increments `left` or decrements `right`, we make at most `n` comparisons. **Total work is strictly `O(n)`.**\n\n---\n\n## The Four Core Flavors\n\n### 1. Opposite-Direction (Converging Pointers)\nUsed when searching for pairs from the extremes inward.\n- **Invariant:** The solution, if one exists, is guaranteed to lie within the inclusive subsegment `[left, right]`.\n- **Termination:** Stops when `left >= right` (for distinct elements) or `left > right`.\n- **Handling Duplicates (e.g. in 3Sum):**\n  After finding a valid match, both pointers must bypass identical neighboring values:\n  ```ts\n  while (left < right && nums[left] === nums[left + 1]) left++;\n  while (left < right && nums[right] === nums[right - 1]) right--;\n  left++;\n  right--;\n  ```\n\n---\n\n### 2. Fast & Slow Pointers (Array Compaction)\nBoth pointers start at the front and traverse forward at different speeds.\n- `fast` (the reader): iterates through every element sequentially.\n- `slow` (the writer): tracks the boundary of the processed, valid prefix.\n\n```ts\nfunction removeDuplicates(nums: number[]): number {\n  if (nums.length === 0) return 0;\n  let slow = 1;\n\n  for (let fast = 1; fast < nums.length; fast++) {\n    if (nums[fast] !== nums[fast - 1]) {\n      nums[slow] = nums[fast];\n      slow++;\n    }\n  }\n\n  return slow;\n}\n```\n\n---\n\n### 3. Fast & Slow on Linked Lists (Floyd's Cycle Detection)\n- `slow` advances by 1 step: `slow = slow.next`\n- `fast` advances by 2 steps: `fast = fast.next.next`\n\n**Mathematical Proof of Meeting:**\nSuppose the linked list has a cycle of length `C`. Once `slow` enters the cycle, `fast` is at some distance `d` behind `slow` (`0 <= d < C`). In each iteration, the distance between them decreases by `2 - 1 = 1`. After exactly `d` steps, the distance becomes 0, guaranteeing they meet without an infinite loop in at most `O(n)` steps.\n\n---\n\n### 4. Dutch National Flag (3 Pointers / 3-Way Partitioning)\nPartitions an array into three segments (e.g. `0`s, `1`s, `2`s or `< pivot`, `== pivot`, `> pivot`) in a single `O(n)` pass with `O(1)` space:\n- `low`: boundary where all indices `< low` are `0`.\n- `mid`: current inspection pointer.\n- `high`: boundary where all indices `> high` are `2`.\n\n```ts\nfunction sortColors(nums: number[]): void {\n  let low = 0;\n  let mid = 0;\n  let high = nums.length - 1;\n\n  while (mid <= high) {\n    if (nums[mid] === 0) {\n      [nums[low], nums[mid]] = [nums[mid], nums[low]];\n      low++;\n      mid++;\n    } else if (nums[mid] === 1) {\n      mid++;\n    } else {\n      [nums[mid], nums[high]] = [nums[high], nums[mid]];\n      high--;\n    }\n  }\n}\n```\n\n---\n\n## Senior Engineer Interview Traps\n1. **Integer Overflow on Sums:** In languages like Java or C++, `nums[left] + nums[right]` can overflow 32-bit signed integers. In TypeScript/JS, integers up to `2^53 - 1` are safe, but in C++ write `long long sum = (long long)nums[left] + nums[right]`.\n2. **Double-counting mid elements:** When checking palindromes, expanding outward from center requires handling both odd centers `(i, i)` and even centers `(i, i+1)`.",
+  "complexity": {
+    "time": "O(n) amortized time across all variants as each index is traversed at most a constant number of times",
+    "space": "O(1) auxiliary space, keeping state strictly in two or three pointer variables",
+    "tradeOffs": "Requires monotonic input ordering; for unsorted data, sorting first requires O(n log n) time."
+  },
+  "commonMistakes": [
+    "Attempting opposite-direction pair sum on an unsorted array without sorting first.",
+    "Using `left <= right` vs `left < right` inconsistently and double-counting the middle element.",
+    "Overwriting array values during in-place compaction before reading them.",
+    "Failing to skip duplicate values when enumerating unique combinations like 3Sum."
+  ],
+  "keyTakeaways": [
+    "Monotonicity is the prerequisite: pair elimination only works when advancing an index predictably eliminates unneeded search space.",
+    "Opposite-direction pointers converge to search sorted ranges or verify palindromes in O(n) time.",
+    "Same-direction pointers (slow/fast) compact arrays in-place or detect cycles (Floyd's Tortoise and Hare algorithm).",
+    "Dutch National Flag (3 pointers) partitions an array into three distinct slices in a single pass."
+  ],
+  "sources": [
+    "Introduction to Algorithms (CLRS) - Two Pointers and Partitioning",
+    "LeetCode Curated Algorithm Patterns - Two Pointers & Fast-Slow"
+  ],
+  "reviewer": "Intervue Curriculum Team",
+  "reviewDate": "2026-11-20",
+  "changeSummary": "Canonical reference concept manifest for Two Pointers with comprehensive theory and recall questions.",
+  "recallQuestions": [
+    {
+      "prompt": "Under what conditions can the Two Pointers opposite-ends technique find a pair summing to target in O(n) time and O(1) space?",
+      "options": [
+        "The input array must have no duplicate elements.",
+        "The input array must be sorted in monotonic order.",
+        "The input array must contain only positive numbers.",
+        "The input array must have an even length."
+      ],
+      "correctOption": 1,
+      "explanation": "Opposite-direction two pointers requires monotonic ordering (e.g. sorted ascending). If sum < target, left advances to increase sum; if sum > target, right retreats. Without monotonicity, pair elimination is invalid.",
+      "isPublished": true
+    },
+    {
+      "prompt": "In the Dutch National Flag algorithm (3-way partition), why is the inspection index `mid` NOT incremented when `nums[mid] === 2` is swapped with `nums[high]`?",
+      "options": [
+        "Because `high` is already guaranteed to contain a 0.",
+        "Because the element swapped from `high` has not been inspected yet and could be a 0, 1, or 2.",
+        "Because `mid` always lags behind `low` by at least one index.",
+        "Because incrementing `mid` would violate the sorted invariant of `low`."
+      ],
+      "correctOption": 1,
+      "explanation": "When swapping `nums[mid]` with `nums[high]`, the value originally at `high` was unexamined. It might be a 0, 1, or 2, so `mid` must examine this newly received element in the next iteration before advancing.",
+      "isPublished": true
+    },
+    {
+      "prompt": "In Floyd's Cycle-Finding Algorithm on linked lists, if `fast` moves at 2 steps per iteration and `slow` moves at 1 step, what guarantees they must meet if a cycle exists?",
+      "options": [
+        "The fast pointer reverses direction upon reaching the tail.",
+        "Once both are in the cycle of length C, the relative distance between them decreases by exactly 1 in each iteration.",
+        "The slow pointer stops at the midpoint of the cycle until fast catches up.",
+        "The hash table tracks visited node memory addresses."
+      ],
+      "correctOption": 1,
+      "explanation": "Inside a cycle of length C, each step reduces the relative distance between `fast` and `slow` by (2 - 1) = 1. Therefore, `fast` is mathematically guaranteed to close the gap and meet `slow` in at most C steps.",
+      "isPublished": true
+    }
+  ]
+}

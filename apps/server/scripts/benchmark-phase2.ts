@@ -69,7 +69,7 @@ async function testWorkerPool(): Promise<boolean> {
   const queue = new TaskQueue(2, 50);
 
   // Enqueue 4 simulated jobs
-  const job1 = queue.enqueue({
+  const job1 = await queue.enqueue({
     type: "RUN",
     userId: "test-user-1",
     problemId: 1,
@@ -77,7 +77,7 @@ async function testWorkerPool(): Promise<boolean> {
     language: "JAVASCRIPT",
   });
 
-  const job2 = queue.enqueue({
+  const job2 = await queue.enqueue({
     type: "RUN",
     userId: "test-user-2",
     problemId: 1,
@@ -88,13 +88,13 @@ async function testWorkerPool(): Promise<boolean> {
   console.log(`  Job 1 Enqueued: ID=${job1.id} | Initial Status=${job1.status}`);
   console.log(`  Job 2 Enqueued: ID=${job2.id} | Initial Status=${job2.status}`);
 
-  const initialStats = queue.getStats();
+  const initialStats = await queue.getStats();
   console.log(`  Initial Queue Stats: Total=${initialStats.total} | Queued/Processing=${initialStats.queued + initialStats.processing}`);
 
   // Wait for background worker consumers
   await new Promise((resolve) => setTimeout(resolve, 250));
 
-  const stats = queue.getStats();
+  const stats = await queue.getStats();
   console.log(`  Worker Progress Stats: Processed=${stats.completed + stats.failed} / Total=${stats.total}`);
 
   const passed = job1.status !== undefined && initialStats.total === 2;
@@ -117,7 +117,7 @@ async function testBackpressure(): Promise<boolean> {
 
   for (let i = 0; i < 8; i++) {
     try {
-      saturatedQueue.enqueue({
+      await saturatedQueue.enqueue({
         type: "RUN",
         userId: `flood-user-${i}`,
         problemId: 1,
@@ -166,7 +166,7 @@ async function testCancellation(): Promise<boolean> {
 
   // Test Task Queue job cancellation
   const queue = new TaskQueue(0, 10);
-  const queuedJob = queue.enqueue({
+  const queuedJob = await queue.enqueue({
     type: "SUBMIT",
     userId: "cancel-user",
     problemId: 1,
@@ -174,8 +174,8 @@ async function testCancellation(): Promise<boolean> {
     language: "CPP",
   });
 
-  const queueCancelled = queue.cancelJob(queuedJob.id, "Candidate edited code");
-  const jobStateAfter = queue.getJob(queuedJob.id);
+  const queueCancelled = await queue.cancelJob(queuedJob.id, "cancel-user", "Candidate edited code");
+  const jobStateAfter = await queue.getJob(queuedJob.id);
 
   console.log(`  Queue Job Cancelled: Success=${queueCancelled} | Status=${jobStateAfter?.status} (Expected: CANCELLED)`);
 
