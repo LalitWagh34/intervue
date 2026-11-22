@@ -325,5 +325,35 @@ describe("Cross-Instance Redis Revocation & Passive Broadcast Authorization", ()
 
     expect(dbCheckCount).toBe(1); // No second DB check
   });
+
+  it("revalidates membership before delivering final contest results", async () => {
+    const broker = new MockRedisBroker();
+    const redisClient = new MockRedisClient(broker);
+    const redisSub = new MockRedisSubscriber(broker);
+    const mgr = new RoomSocketManager({
+      redisClient,
+      redisSubscriber: redisSub,
+      isRedisConnected: true,
+    });
+
+    const ws = new MockWebSocket();
+    mgr.registerConnection(ws, userKicked);
+    await mgr.joinRoom(ws, { roomCode });
+    ws.messages = [];
+
+    const client = mgr.getClient(ws);
+    expect(client).toBeDefined();
+    client!.lastMembershipVerifiedAt = Date.now() - 6000;
+    activeParticipants = activeParticipants.filter((id) => id !== userKicked.id);
+
+    await mgr.broadcastToRoom(roomCode, "contest:ended", {
+      status: "FINISHED",
+      finalLeaderboard: [{ userId: userLegit.id, score: 100 }],
+    });
+
+    expect(ws.findMessage((message) => message.event === "contest:ended")).toBeUndefined();
+    expect(ws.closed).toBe(true);
+    expect(ws.closeCode).toBe(4403);
+  });
 });
 

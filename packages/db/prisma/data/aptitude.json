@@ -41,6 +41,56 @@
   },
   {
     "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Compound Interest",
+    "difficulty": "EASY",
+    "question": "A sum of $1,000 is invested at 10% annual compound interest compounded annually. What will the total amount be after 2 years?",
+    "options": ["$1,200", "$1,210", "$1,220", "$1,250"],
+    "correctOption": 1,
+    "explanation": "Amount = P * (1 + r)^t = 1000 * (1.1)^2 = 1000 * 1.21 = $1,210."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Permutations & Combinations",
+    "difficulty": "MEDIUM",
+    "question": "In how many distinct ways can the letters of the word 'LEADER' be arranged?",
+    "options": ["720", "360", "120", "180"],
+    "correctOption": 1,
+    "explanation": "LEADER contains 6 letters with 'E' repeating twice: 6! / 2! = 720 / 2 = 360."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Percentages",
+    "difficulty": "MEDIUM",
+    "question": "A vendor buys lemons at 6 for $10 and sells them at 4 for $8. What is the profit percentage?",
+    "options": ["15%", "20%", "25%", "30%"],
+    "correctOption": 1,
+    "explanation": "Cost per lemon = 10/6 = 5/3 dollars. Selling price per lemon = 8/4 = 2 dollars. Profit = 2 - 5/3 = 1/3 dollar. Profit % = (1/3) / (5/3) * 100 = 20%."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Ratios & Proportions",
+    "difficulty": "EASY",
+    "question": "The ratio of ages of two friends A and B is 3:5. If the sum of their ages is 56 years, what is the age of B?",
+    "options": ["21 years", "28 years", "35 years", "40 years"],
+    "correctOption": 2,
+    "explanation": "Sum of parts = 3 + 5 = 8 parts. 1 part = 56 / 8 = 7 years. B's age = 5 * 7 = 35 years."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "QUANT",
+    "topic": "Mixtures & Alligations",
+    "difficulty": "HARD",
+    "question": "In what ratio must water be mixed with milk costing $12 per liter to obtain a mixture worth $9 per liter, assuming water is free ($0/liter)?",
+    "options": ["1:3", "1:4", "3:1", "2:3"],
+    "correctOption": 0,
+    "explanation": "By alligation rule: (Cost of Milk - Mean) / (Mean - Cost of Water) = (12 - 9) / (9 - 0) = 3 / 9 = 1 / 3. So Water : Milk = 1 : 3."
+  },
+  {
+    "category": "APTITUDE",
     "subject": "LOGICAL",
     "topic": "Blood Relations",
     "difficulty": "EASY",
@@ -71,6 +121,56 @@
   },
   {
     "category": "APTITUDE",
+    "subject": "LOGICAL",
+    "topic": "Coding-Decoding",
+    "difficulty": "MEDIUM",
+    "question": "If in a certain code language, 'SYSTEM' is coded as 'SYSMET' and 'NEARER' is coded as 'AENRER', how is 'FRACTION' coded?",
+    "options": ["CARFNOIT", "ARFCITNO", "CRAFNOIT", "CARFTION"],
+    "correctOption": 0,
+    "explanation": "The word is divided into two halves of 4 letters. 'FRAC' reversed is 'CARF', and 'TION' reversed is 'NOIT'. Combining gives 'CARFNOIT'."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "LOGICAL",
+    "topic": "Number Series",
+    "difficulty": "EASY",
+    "question": "Look at this series: 7, 10, 8, 11, 9, 12, ... What number should come next?",
+    "options": ["10", "12", "13", "14"],
+    "correctOption": 0,
+    "explanation": "Alternating pattern: +3, -2, +3, -2, +3, -2. 12 - 2 = 10."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "LOGICAL",
+    "topic": "Clocks & Calendars",
+    "difficulty": "MEDIUM",
+    "question": "At what angle are the hands of a clock inclined at 3:30?",
+    "options": ["70 degrees", "75 degrees", "80 degrees", "90 degrees"],
+    "correctOption": 1,
+    "explanation": "Angle = |30*H - 5.5*M| = |30(3) - 5.5(30)| = |90 - 165| = 75 degrees."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "LOGICAL",
+    "topic": "Seating Arrangement",
+    "difficulty": "HARD",
+    "question": "Five people A, B, C, D, and E are in a row facing North. C is in the middle. A and B are at extreme ends. If E is immediately left of C, who is between C and B?",
+    "options": ["A", "D", "E", "Cannot be determined"],
+    "correctOption": 1,
+    "explanation": "Positions: 1=A, 2=E, 3=C, 4=D, 5=B. Person between C and B is D."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "LOGICAL",
+    "topic": "Syllogisms",
+    "difficulty": "HARD",
+    "question": "Statements: 'No cats are dogs. All dogs are mammals.' Conclusions: I. No cats are mammals. II. Some mammals are dogs.",
+    "options": ["Only conclusion I follows", "Only conclusion II follows", "Both I and II follow", "Neither follows"],
+    "correctOption": 1,
+    "explanation": "Since all dogs are mammals, the subset of mammals that are dogs exists ('Some mammals are dogs'). Cats may still be other mammals, so I does not follow."
+  },
+  {
+    "category": "APTITUDE",
     "subject": "VERBAL",
     "topic": "Vocabulary / Antonyms",
     "difficulty": "EASY",
@@ -78,6 +178,16 @@
     "options": ["Careful", "Careless", "Thorough", "Methodical"],
     "correctOption": 1,
     "explanation": "Meticulous means showing great attention to detail; careless is the exact opposite."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "VERBAL",
+    "topic": "Vocabulary / Antonyms",
+    "difficulty": "EASY",
+    "question": "Choose the word that is most nearly opposite in meaning to CANDID:",
+    "options": ["Frank", "Deceitful", "Blunt", "Sincere"],
+    "correctOption": 1,
+    "explanation": "Candid means truthful and straightforward. Deceitful means dishonest, which is the direct antonym."
   },
   {
     "category": "APTITUDE",
@@ -97,11 +207,56 @@
   {
     "category": "APTITUDE",
     "subject": "VERBAL",
+    "topic": "Grammar & Error Spotting",
+    "difficulty": "MEDIUM",
+    "question": "Identify the part of the sentence that contains an error: 'Each of the students (A) have submitted (B) their assignment (C) on time (D).'",
+    "options": ["A", "B", "C", "D"],
+    "correctOption": 1,
+    "explanation": "'Each' is a singular indefinite pronoun and takes the singular verb 'has submitted', not 'have submitted'."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "VERBAL",
+    "topic": "Analogies",
+    "difficulty": "MEDIUM",
+    "question": "Select the pair that expresses a relationship similar to: ARCHITECT : BUILDING",
+    "options": ["Warden : Prison", "Composer : Symphony", "Doctor : Patient", "Author : Library"],
+    "correctOption": 1,
+    "explanation": "An architect designs and creates a building; a composer creates a symphony."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "VERBAL",
+    "topic": "Idioms & Phrases",
+    "difficulty": "EASY",
+    "question": "Choose the correct meaning of the idiom 'to burn the midnight oil':",
+    "options": [
+      "To waste valuable resources unnecessarily",
+      "To work or study late into the night",
+      "To cause irreversible destruction",
+      "To wake up early in the morning"
+    ],
+    "correctOption": 1,
+    "explanation": "'Burn the midnight oil' refers to working or studying late into the night."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "VERBAL",
     "topic": "Sentence Completion",
     "difficulty": "MEDIUM",
     "question": "Despite his initial reluctance, he eventually ________ to the proposal after seeing the projected outcomes.",
     "options": ["acquiesced", "dissent", "abhorred", "relinquish"],
     "correctOption": 0,
     "explanation": "'Acquiesced' means accepted something reluctantly but without protest, and fits grammatically as a past tense verb."
+  },
+  {
+    "category": "APTITUDE",
+    "subject": "VERBAL",
+    "topic": "Vocabulary / Contextual Fill",
+    "difficulty": "HARD",
+    "question": "The scientist's groundbreaking theory was initially met with skepticism, but recent empirical observations have ________ its validity.",
+    "options": ["undermined", "corroborated", "repudiated", "precluded"],
+    "correctOption": 1,
+    "explanation": "'Corroborated' means confirmed or supported with evidence."
   }
 ]

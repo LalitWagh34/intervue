@@ -285,6 +285,37 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
     roomSocketManager.leaveRoom(spectatorWs);
   });
 
+  it("rejects code inspection when the target participant has been removed", async () => {
+    const spectatorWs = new MockWebSocket();
+    roomSocketManager.registerConnection(spectatorWs, userB);
+
+    db.room.findFirst = mock(async () => ({ id: "room_1", status: "ACTIVE" } as any));
+    db.room.findUnique = mock(async () => ({
+      id: "room_1",
+      code: roomAlphaCode,
+      status: "ACTIVE",
+      duration: 30,
+      endTime: null,
+      participants: [],
+      submissions: [],
+    } as any));
+    db.roomParticipant.findFirst = mock(async () => null as any);
+
+    await roomSocketManager.handleMessage(spectatorWs, "room:join", { roomCode: roomAlphaCode });
+    spectatorWs.sentMessages = [];
+    await roomSocketManager.handleMessage(spectatorWs, "code:inspect", {
+      roomCode: roomAlphaCode,
+      targetUserId: userA.id,
+    });
+
+    expect(spectatorWs.findMessage((m) => m.event === "code:inspect_result")).toBeUndefined();
+    expect(spectatorWs.findMessage(
+      (m) => m.event === "error" && m.data?.code === "TARGET_NOT_IN_ROOM"
+    )).toBeDefined();
+
+    roomSocketManager.leaveRoom(spectatorWs);
+  });
+
   it("Priority 1: Enforces active membership before sensitive events and revokes revoked users", async () => {
     const ws = new MockWebSocket();
     roomSocketManager.registerConnection(ws, userA);
@@ -320,6 +351,33 @@ describe("Phase 1: WebSocket Room Authorization & Scoping", () => {
     expect(ws.closed).toBe(true);
     expect(ws.closeCode).toBe(4403);
     expect(roomSocketManager.isUserInRoom(roomAlphaCode, userA.id)).toBe(false);
+  });
+
+  it("authorizes direct room sync calls and rejects a removed member", async () => {
+    const ws = new MockWebSocket();
+    roomSocketManager.registerConnection(ws, userA);
+
+    db.room.findFirst = mock(async () => ({ id: "room_1", status: "ACTIVE" } as any));
+    db.room.findUnique = mock(async () => ({
+      id: "room_1",
+      code: roomAlphaCode,
+      status: "ACTIVE",
+      duration: 30,
+      endTime: null,
+      participants: [],
+      submissions: [],
+    } as any));
+
+    await roomSocketManager.handleMessage(ws, "room:join", { roomCode: roomAlphaCode });
+    ws.sentMessages = [];
+    db.room.findFirst = mock(async () => null as any);
+
+    await roomSocketManager.sendRoomSync(ws, roomAlphaCode);
+
+    expect(ws.findMessage((m) => m.event === "room:sync")).toBeUndefined();
+    expect(ws.findMessage((m) => m.event === "room:kicked")).toBeDefined();
+    expect(ws.closed).toBe(true);
+    expect(ws.closeCode).toBe(4403);
   });
 
   it("Priority 1: Fails closed when database error occurs during active membership verification", async () => {

@@ -364,7 +364,7 @@ export class RoomSocketManager {
     }
 
     // Send instant full room sync to the newly connected/reconnected client
-    await this.sendRoomSync(ws, code);
+    await this.sendRoomSync(ws, code, true);
     return true;
   }
 
@@ -500,7 +500,7 @@ export class RoomSocketManager {
     if (eventName === "room:leave") {
       this.leaveRoom(ws);
     } else if (eventName === "time:sync") {
-      await this.sendRoomSync(ws, boundRoomCode);
+      await this.sendRoomSync(ws, boundRoomCode, true);
     } else if (eventName === "anticheat:violation") {
       if (data?.type) {
         await this.recordViolation(boundRoomCode, boundUserId, data.type, data.details);
@@ -718,7 +718,11 @@ export class RoomSocketManager {
       // Tighten freshness for high-sensitivity events (live competitor code snapshots, anti-cheat violations)
       // to 5 seconds to bound data exposure while avoiding DB query storms during high-frequency typing.
       // General room events (leaderboard updates, timers, presence) use 30 seconds.
-      const isHighSensitivity = event === "code:stream_update" || event === "anticheat:violation";
+      const isHighSensitivity =
+        event === "code:stream_update" ||
+        event === "anticheat:violation" ||
+        event === "leaderboard:update" ||
+        event === "contest:ended";
       const maxTrustTtlMs = isHighSensitivity ? 5000 : 30000;
 
       const isHealthy = this.isSubscriberHealthy();
@@ -956,9 +960,24 @@ export class RoomSocketManager {
   /**
    * Authoritative Room Sync: sends complete state snapshot to client
    */
-  public async sendRoomSync(ws: any, roomCode: string) {
+  public async sendRoomSync(ws: any, roomCode: string, membershipAlreadyVerified = false) {
     try {
       const code = roomCode.toUpperCase();
+      const client = this.clients.get(ws);
+
+      if (!client || client.state !== "JOINED" || client.roomCode !== code) {
+        this.sendToClient(ws, "error", {
+          code: "ROOM_BINDING_REQUIRED",
+          message: "Room sync requires an active socket bound to this room.",
+        });
+        return;
+      }
+
+      if (!membershipAlreadyVerified) {
+        const isStillMember = await this.verifyActiveMembership(ws);
+        if (!isStillMember) return;
+      }
+
       const room = await db.room.findUnique({
         where: { code },
         include: {
@@ -973,7 +992,6 @@ export class RoomSocketManager {
 
       if (!room) return;
 
-      const client = this.clients.get(ws);
       const remainingSeconds = room.endTime
         ? Math.max(0, Math.floor((new Date(room.endTime).getTime() - Date.now()) / 1000))
         : room.duration * 60;

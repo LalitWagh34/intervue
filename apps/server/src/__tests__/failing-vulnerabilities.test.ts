@@ -268,6 +268,195 @@ describe("Reproduce Confirmed Vulnerabilities (Should FAIL before fix)", () => {
     expect(res.status).toBe(403);
   });
 
+  it("Room read authorization: outsiders and kicked users cannot inspect leaderboard or scorecard", async () => {
+    const removedUser = { id: "removed_user_777", email: "removed@example.com", name: "Removed User" };
+    auth.api.getSession = mock(async () => ({
+      user: removedUser,
+      session: { id: "sess_removed", userId: removedUser.id },
+    } as any));
+
+    db.room.findUnique = mock(async () => ({
+      id: "room_vuln_1",
+      code: roomCode,
+      hostId: hostUser.id,
+      status: "FINISHED",
+      participants: [{ id: "p1", userId: participantUser.id, role: "PARTICIPANT" }],
+    } as any));
+
+    const [leaderboard, scorecard] = await Promise.all([
+      roomRoutes.request(`/${roomCode}/leaderboard`),
+      roomRoutes.request(`/${roomCode}/scorecard`),
+    ]);
+
+    expect(leaderboard.status).toBe(403);
+    expect(scorecard.status).toBe(403);
+  });
+
+  it("Room read authorization: a non-member cannot inspect finished room details", async () => {
+    const outsider = { id: "finished_outsider", email: "finished@example.com", name: "Outsider" };
+    auth.api.getSession = mock(async () => ({
+      user: outsider,
+      session: { id: "sess_finished_out", userId: outsider.id },
+    } as any));
+
+    db.room.findUnique = mock(async () => ({
+      id: "room_vuln_1",
+      code: roomCode,
+      title: "Private finished room",
+      type: "MIXED",
+      status: "FINISHED",
+      duration: 30,
+      maxParticipants: 10,
+      startTime: new Date(),
+      endTime: new Date(),
+      hostId: hostUser.id,
+      host: hostUser,
+      config: {},
+      participants: [{
+        id: "p1",
+        userId: participantUser.id,
+        role: "PARTICIPANT",
+        score: 4,
+        solvedCount: 1,
+        penaltyTime: 0,
+        user: participantUser,
+      }],
+      questions: [{
+        id: "rq-secret",
+        orderIndex: 1,
+        points: 4,
+        problem: null,
+        assessmentQuestion: {
+          id: "secret-question",
+          category: "CORE_CS",
+          subject: "OS",
+          topic: "Processes",
+          difficulty: "MEDIUM",
+          question: "Secret question",
+          options: ["A", "B"],
+          correctOption: 1,
+          explanation: "Secret explanation",
+        },
+      }],
+    } as any));
+
+    const response = await roomRoutes.request(`/${roomCode}`);
+    const body = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(body.room).toBeUndefined();
+    expect(JSON.stringify(body)).not.toContain("Secret explanation");
+  });
+
+  it("Room read authorization: active member scorecard omits answer keys and explanations", async () => {
+    auth.api.getSession = mock(async () => ({
+      user: participantUser,
+      session: { id: "sess_part", userId: participantUser.id },
+    } as any));
+
+    db.room.findUnique = mock(async ({ include }: any) => {
+      if (!include?.host) {
+        return {
+          id: "room_vuln_1",
+          code: roomCode,
+          hostId: hostUser.id,
+          participants: [{ id: "p1", userId: participantUser.id, role: "PARTICIPANT" }],
+        } as any;
+      }
+
+      return {
+        id: "room_vuln_1",
+        code: roomCode,
+        title: "Active room",
+        type: "APTITUDE",
+        status: "ACTIVE",
+        duration: 30,
+        startTime: new Date(),
+        endTime: new Date(Date.now() + 60_000),
+        hostId: hostUser.id,
+        host: hostUser,
+        participants: [{
+          id: "p1",
+          userId: participantUser.id,
+          score: 4,
+          solvedCount: 1,
+          penaltyTime: 0,
+          user: participantUser,
+        }],
+        questions: [{
+          id: "rq-active",
+          orderIndex: 1,
+          points: 4,
+          problem: null,
+          assessmentQuestion: {
+            id: "active-question",
+            category: "CORE_CS",
+            subject: "OS",
+            topic: "Processes",
+            difficulty: "MEDIUM",
+            question: "Active question",
+            options: ["A", "B"],
+            correctOption: 1,
+            explanation: "Must stay hidden",
+          },
+        }],
+      } as any;
+    });
+    (db as any).roomMcqAnswer ??= {};
+    (db as any).roomSubmission ??= {};
+    db.roomMcqAnswer.findMany = mock(async () => [] as any);
+    db.roomSubmission.findMany = mock(async () => [] as any);
+
+    const response = await roomRoutes.request(`/${roomCode}/scorecard`);
+    const body = await response.json();
+    const question = body.questions[0].assessmentQuestion;
+
+    expect(response.status).toBe(200);
+    expect(question.correctOption).toBeUndefined();
+    expect(question.explanation).toBeUndefined();
+  });
+
+  it("Room read authorization: current participant can still read the leaderboard", async () => {
+    auth.api.getSession = mock(async () => ({
+      user: participantUser,
+      session: { id: "sess_part", userId: participantUser.id },
+    } as any));
+
+    db.room.findUnique = mock(async ({ include }: any) => {
+      if (!include?.participants?.include?.user) {
+        return {
+          id: "room_vuln_1",
+          code: roomCode,
+          hostId: hostUser.id,
+          participants: [{ id: "p1", userId: participantUser.id, role: "PARTICIPANT" }],
+        } as any;
+      }
+
+      return {
+        id: "room_vuln_1",
+        code: roomCode,
+        hostId: hostUser.id,
+        status: "ACTIVE",
+        participants: [{
+          id: "p1",
+          userId: participantUser.id,
+          role: "PARTICIPANT",
+          score: 4,
+          solvedCount: 1,
+          penaltyTime: 0,
+          user: participantUser,
+        }],
+      } as any;
+    });
+
+    const response = await roomRoutes.request(`/${roomCode}/leaderboard`);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.leaderboard).toHaveLength(1);
+    expect(body.leaderboard[0].userId).toBe(participantUser.id);
+  });
+
   it("Code sync DB query caching: High-frequency code:sync does not query DB excessively", async () => {
     const ws = new MockWebSocket();
     roomSocketManager.registerConnection(ws, participantUser);

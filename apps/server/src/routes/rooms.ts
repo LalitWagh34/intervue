@@ -15,9 +15,217 @@ import { roomSocketManager } from "../services/roomSocket";
 import { requireRoomMember, requireRoomHost } from "../middleware/authorize";
 import { idempotency } from "../middleware/idempotency";
 import { judgeSemaphore } from "../lib/semaphore";
-import { AppError } from "../lib/errors";
+import { AppError, BadRequestError, ForbiddenError, NotFoundError } from "../lib/errors";
 
 const app = new Hono<{ Variables: AuthVariables }>();
+
+async function runSerializableRoomTransaction<T>(
+  action: (tx: any) => Promise<T>,
+  client: Pick<typeof db, "$transaction"> = db,
+  maxRetries = 3
+): Promise<T> {
+  let retries = 0;
+
+  while (true) {
+    try {
+      return await client.$transaction(action, {
+        isolationLevel: "Serializable",
+      });
+    } catch (error: any) {
+      const isSerializationConflict =
+        error?.code === "P2034" ||
+        error?.code === "40001" ||
+        error?.message?.includes("could not serialize") ||
+        error?.message?.includes("serialization");
+
+      if (!isSerializationConflict || retries >= maxRetries) {
+        throw error;
+      }
+
+      retries++;
+      await new Promise((resolve) => setTimeout(resolve, 20 * 2 ** retries));
+    }
+  }
+}
+
+export async function applyRoomMcqAnswer(
+  input: { code: string; userId: string; questionId: string; selectedOption: number },
+  client: any = db
+) {
+  const { code, userId, questionId, selectedOption } = input;
+
+  return runSerializableRoomTransaction(async (tx) => {
+    const room = await tx.room.findUnique({
+      where: { code },
+      include: {
+        participants: { where: { userId } },
+        questions: {
+          where: { assessmentQuestionId: questionId },
+          include: { assessmentQuestion: true },
+        },
+      },
+    });
+
+    if (!room) throw new NotFoundError("Room not found");
+    if (room.status !== "ACTIVE") throw new BadRequestError("Contest is not active");
+    if (room.endTime && new Date() > room.endTime) {
+      throw new BadRequestError("Time is up! Submissions closed");
+    }
+
+    const participant = room.participants[0];
+    if (!participant) throw new ForbiddenError("You are not a participant in this room");
+
+    const roomQuestion = room.questions[0];
+    if (!roomQuestion?.assessmentQuestion) {
+      throw new BadRequestError("Question is not part of this room contest");
+    }
+
+    const question = roomQuestion.assessmentQuestion;
+    const isCorrect = Number(selectedOption) === question.correctOption;
+    const pointsAwarded = isCorrect ? 4 : -1;
+    const existingAnswer = await tx.roomMcqAnswer.findUnique({
+      where: { roomId_userId_questionId: { roomId: room.id, userId, questionId } },
+    });
+
+    const scoreDelta = pointsAwarded - (existingAnswer?.pointsAwarded ?? 0);
+    const solvedDelta = Number(isCorrect) - Number(existingAnswer?.isCorrect ?? false);
+
+    if (existingAnswer) {
+      await tx.roomMcqAnswer.update({
+        where: { id: existingAnswer.id },
+        data: {
+          selectedOption: Number(selectedOption),
+          isCorrect,
+          pointsAwarded,
+          answeredAt: new Date(),
+        },
+      });
+    } else {
+      await tx.roomMcqAnswer.create({
+        data: {
+          roomId: room.id,
+          participantId: participant.id,
+          userId,
+          questionId,
+          selectedOption: Number(selectedOption),
+          isCorrect,
+          pointsAwarded,
+        },
+      });
+    }
+
+    const updatedParticipant = await tx.roomParticipant.update({
+      where: { id: participant.id },
+      data: {
+        score: { increment: scoreDelta },
+        solvedCount: { increment: solvedDelta },
+      },
+    });
+
+    return { room, question, isCorrect, pointsAwarded, updatedParticipant };
+  }, client);
+}
+
+export async function applyRoomCodeSubmission(
+  input: {
+    code: string;
+    userId: string;
+    problemId: number;
+    sourceCode: string;
+    language: string;
+    judgeResult: { verdict: string; runtime: number; memory: number | null };
+    submittedAt?: Date;
+  },
+  client: any = db
+) {
+  const { code, userId, problemId, sourceCode, language, judgeResult } = input;
+  const submittedAt = input.submittedAt ?? new Date();
+
+  return runSerializableRoomTransaction(async (tx) => {
+    const room = await tx.room.findUnique({
+      where: { code },
+      include: {
+        participants: { where: { userId } },
+        questions: {
+          where: { problemId },
+          include: { problem: true },
+        },
+      },
+    });
+
+    if (!room) throw new NotFoundError("Room not found");
+    if (room.status !== "ACTIVE") throw new BadRequestError("Contest is not active");
+    if (room.endTime && submittedAt > room.endTime) {
+      throw new BadRequestError("Time is up! Submissions closed");
+    }
+
+    const participant = room.participants[0];
+    if (!participant) throw new ForbiddenError("You are not a participant in this room");
+
+    const roomQuestion = room.questions[0];
+    if (!roomQuestion?.problem) {
+      throw new BadRequestError("Problem is not part of this room contest");
+    }
+
+    const isAccepted = judgeResult.verdict === "ACCEPTED";
+    const alreadyAccepted = isAccepted
+      ? await tx.roomSubmission.findFirst({
+          where: { roomId: room.id, userId, problemId, verdict: "ACCEPTED" },
+          select: { id: true },
+        })
+      : null;
+    const isFirstSolve = isAccepted && !alreadyAccepted;
+    const pointsAwarded = isFirstSolve ? roomQuestion.points : 0;
+    let addedPenalty = 0;
+
+    if (isFirstSolve) {
+      const priorFails = await tx.roomSubmission.count({
+        where: {
+          roomId: room.id,
+          userId,
+          problemId,
+          verdict: { not: "ACCEPTED" },
+        },
+      });
+      const contestStartMs = room.startTime ? room.startTime.getTime() : submittedAt.getTime();
+      const minutesToSolve = Math.max(0, Math.floor((submittedAt.getTime() - contestStartMs) / 60_000));
+      addedPenalty = minutesToSolve + priorFails * 10;
+
+      await tx.roomParticipant.update({
+        where: { id: participant.id },
+        data: {
+          score: { increment: pointsAwarded },
+          solvedCount: { increment: 1 },
+          penaltyTime: { increment: addedPenalty },
+        },
+      });
+    }
+
+    const submission = await tx.roomSubmission.create({
+      data: {
+        roomId: room.id,
+        participantId: participant.id,
+        userId,
+        problemId,
+        sourceCode,
+        language,
+        verdict: judgeResult.verdict,
+        pointsAwarded,
+        runtime: judgeResult.runtime,
+        memory: judgeResult.memory,
+      },
+    });
+
+    return {
+      room,
+      problem: roomQuestion.problem,
+      submission,
+      pointsAwarded,
+      addedPenalty,
+      isFirstSolve,
+    };
+  }, client);
+}
 
 // Standard RFC 7807 problem details handler for room router errors
 app.onError((err, c) => {
@@ -36,6 +244,17 @@ function generateRoomCode(): string {
   let result = "";
   for (let i = 0; i < 6; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// Helper to shuffle candidates in-place (Fisher-Yates) without database-specific raw SQL
+function shuffleCandidates<T>(items: T[]): T[] {
+  if (!items || !Array.isArray(items)) return [];
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
   }
   return result;
 }
@@ -181,9 +400,35 @@ app.post("/", requireAuth, validateBody(createRoomSchema), async (c) => {
 
     let currentOrder = 1;
 
+    const codingCount =
+      type === "CODING" || type === "MIXED"
+        ? Number(body.codingCount) || (type === "MIXED" ? 2 : 3)
+        : 0;
+    const assessmentCount =
+      type === "APTITUDE" || type === "MIXED"
+        ? Number(body.assessmentCount) || (type === "MIXED" ? 10 : 15)
+        : 0;
+
+    const effectiveFilters = {
+      codingTags: body.codingTags || [],
+      codingDifficulty: body.codingDifficulty || null,
+      assessmentSubjects: body.assessmentSubjects || [],
+      assessmentTopics: Array.isArray(body.assessmentTopics)
+        ? body.assessmentTopics
+        : typeof body.assessmentTopic === "string" && body.assessmentTopic.trim()
+        ? [body.assessmentTopic.trim()]
+        : [],
+      assessmentCategory: body.assessmentCategory || null,
+      assessmentDifficulty: body.assessmentDifficulty || null,
+      allowLateJoin: body.allowLateJoin ?? true,
+      requestedCounts: {
+        coding: codingCount,
+        assessment: assessmentCount,
+      },
+    };
+
     // 1. Coding Problems Selection
     if (type === "CODING" || type === "MIXED") {
-      const codingCount = Number(body.codingCount) || (type === "MIXED" ? 2 : 3);
       const codingTags = Array.isArray(body.codingTags) && body.codingTags.length > 0 ? body.codingTags : undefined;
       const codingDifficulty = body.codingDifficulty;
 
@@ -195,24 +440,31 @@ app.post("/", requireAuth, validateBody(createRoomSchema), async (c) => {
         problemWhere.tags = { hasSome: codingTags };
       }
 
-      let selectedProblems = await db.problem.findMany({
+      const totalAvailableProblems = await db.problem.count({
         where: problemWhere,
-        take: codingCount,
-        orderBy: { id: "asc" },
       });
 
-      // Fallback if specific tags don't yield enough problems
-      if (selectedProblems.length < codingCount) {
-        const fallbackProblems = await db.problem.findMany({
-          where: {
-            status: "published",
-            id: { notIn: selectedProblems.map((p) => p.id) },
+      if (totalAvailableProblems < codingCount) {
+        return c.json(
+          {
+            error: "Insufficient coding problems matching criteria",
+            requested: codingCount,
+            available: totalAvailableProblems,
+            filters: {
+              difficulty: codingDifficulty || null,
+              tags: codingTags || null,
+            },
           },
-          take: codingCount - selectedProblems.length,
-          orderBy: { id: "asc" },
-        });
-        selectedProblems = [...selectedProblems, ...fallbackProblems];
+          400
+        );
       }
+
+      const candidateProblems = await db.problem.findMany({
+        where: problemWhere,
+        select: { id: true, difficulty: true },
+      });
+
+      const selectedProblems = shuffleCandidates(candidateProblems).slice(0, codingCount);
 
       selectedProblems.forEach((problem) => {
         let points = 100;
@@ -229,34 +481,60 @@ app.post("/", requireAuth, validateBody(createRoomSchema), async (c) => {
 
     // 2. Assessment MCQs Selection (Aptitude / Core CS)
     if (type === "APTITUDE" || type === "MIXED") {
-      const assessmentCount = Number(body.assessmentCount) || (type === "MIXED" ? 10 : 15);
       const assessmentSubjects =
         Array.isArray(body.assessmentSubjects) && body.assessmentSubjects.length > 0
           ? body.assessmentSubjects
           : undefined;
+      const assessmentTopics =
+        Array.isArray(body.assessmentTopics) && body.assessmentTopics.length > 0
+          ? body.assessmentTopics
+          : typeof body.assessmentTopic === "string" && body.assessmentTopic.trim()
+          ? [body.assessmentTopic.trim()]
+          : undefined;
+      const assessmentCategory = body.assessmentCategory;
+      const assessmentDifficulty = body.assessmentDifficulty;
 
       const assessmentWhere: any = {};
+      if (assessmentCategory) {
+        assessmentWhere.category = assessmentCategory;
+      }
       if (assessmentSubjects) {
         assessmentWhere.subject = { in: assessmentSubjects };
       }
+      if (assessmentTopics) {
+        assessmentWhere.topic = { in: assessmentTopics };
+      }
+      if (assessmentDifficulty) {
+        assessmentWhere.difficulty = assessmentDifficulty;
+      }
 
-      let selectedMCQs = await db.assessmentQuestion.findMany({
+      const totalAvailableMCQs = await db.assessmentQuestion.count({
         where: assessmentWhere,
-        take: assessmentCount,
-        orderBy: { id: "asc" },
       });
 
-      // Fallback if specific subjects don't yield enough questions
-      if (selectedMCQs.length < assessmentCount) {
-        const fallbackMCQs = await db.assessmentQuestion.findMany({
-          where: {
-            id: { notIn: selectedMCQs.map((m) => m.id) },
+      if (totalAvailableMCQs < assessmentCount) {
+        return c.json(
+          {
+            error: "Insufficient assessment questions matching criteria",
+            requested: assessmentCount,
+            available: totalAvailableMCQs,
+            filters: {
+              category: assessmentCategory || null,
+              subjects: assessmentSubjects || null,
+              topics: assessmentTopics || null,
+              difficulty: assessmentDifficulty || null,
+            },
           },
-          take: assessmentCount - selectedMCQs.length,
-          orderBy: { id: "asc" },
-        });
-        selectedMCQs = [...selectedMCQs, ...fallbackMCQs];
+          400
+        );
       }
+
+      const candidateMCQs = await db.assessmentQuestion.findMany({
+        where: assessmentWhere,
+        select: { id: true },
+      });
+
+      const selectedMCQs = shuffleCandidates(candidateMCQs).slice(0, assessmentCount);
 
       selectedMCQs.forEach((mcq) => {
         questionsToLink.push({
@@ -267,28 +545,9 @@ app.post("/", requireAuth, validateBody(createRoomSchema), async (c) => {
       });
     }
 
-    // Safety check: Never allow an empty contest room
+    // Hard Constraint Check: Never allow an empty contest room
     if (questionsToLink.length === 0) {
-      // Emergency fallback: fetch any published problem or MCQ
-      const anyProblem = await db.problem.findFirst({ where: { status: "published" } });
-      if (anyProblem) {
-        questionsToLink.push({
-          orderIndex: currentOrder++,
-          points: 100,
-          problemId: anyProblem.id,
-        });
-      } else {
-        const anyMCQ = await db.assessmentQuestion.findFirst();
-        if (anyMCQ) {
-          questionsToLink.push({
-            orderIndex: currentOrder++,
-            points: 4,
-            assessmentQuestionId: anyMCQ.id,
-          });
-        } else {
-          return c.json({ error: "No questions available in database to initialize contest room." }, 400);
-        }
-      }
+      return c.json({ error: "No questions selected for contest room." }, 400);
     }
 
     // Create Room and Link Host Participant + Questions inside a transaction
@@ -302,11 +561,7 @@ app.post("/", requireAuth, validateBody(createRoomSchema), async (c) => {
           duration,
           maxParticipants,
           hostId: user.id,
-          config: {
-            codingTags: body.codingTags || [],
-            assessmentSubjects: body.assessmentSubjects || [],
-            allowLateJoin: body.allowLateJoin ?? true,
-          },
+          config: effectiveFilters,
         },
       });
 
@@ -536,8 +791,13 @@ app.get("/:code", requireAuth, async (c) => {
       roomSocketManager.handleContestEnd(room.code).catch(() => {});
     }
 
-    // Strictly enforce authorization: if not host and not participant, do NOT reveal questions or allow arena access
-    if (!currentParticipant && !isHost && !isFinished) {
+    // Non-members may see only the minimal pre-join preview while the room is joinable.
+    // Finished room questions, standings, and answer keys remain private to current members.
+    if (!currentParticipant && !isHost) {
+      if (isFinished) {
+        return c.json({ error: "Access denied" }, 403);
+      }
+
       return c.json(
         {
           error: "You are not a participant in this room. Please join using the room code first.",
@@ -805,7 +1065,7 @@ app.post("/:code/end", requireAuth, requireRoomHost, idempotency(), async (c) =>
 
 // ─── GET /api/rooms/:code/leaderboard ────────────────────────────────────
 // Fetch authoritative leaderboard
-app.get("/:code/leaderboard", requireAuth, async (c) => {
+app.get("/:code/leaderboard", requireAuth, requireRoomMember, async (c) => {
   try {
     const code = (c.req.param("code") || "").toUpperCase();
 
@@ -849,7 +1109,7 @@ app.get("/:code/leaderboard", requireAuth, async (c) => {
 
 // ─── GET /api/rooms/:code/scorecard ────────────────────────────────────
 // Detailed question-by-question breakdown, user answers, and explanations
-app.get("/:code/scorecard", requireAuth, async (c) => {
+app.get("/:code/scorecard", requireAuth, requireRoomMember, async (c) => {
   try {
     const user = c.get("user");
     const code = (c.req.param("code") || "").toUpperCase();
@@ -888,11 +1148,6 @@ app.get("/:code/scorecard", requireAuth, async (c) => {
     }
 
     const participant = room.participants.find((p) => p.userId === user.id);
-    const isHost = room.hostId === user.id;
-
-    if (!participant && !isHost && room.status !== "FINISHED") {
-      return c.json({ error: "Access denied" }, 403);
-    }
 
     // Fetch user's MCQ answers for this room
     const userMcqAnswers = await db.roomMcqAnswer.findMany({
@@ -924,8 +1179,8 @@ app.get("/:code/scorecard", requireAuth, async (c) => {
       ? room.participants.findIndex((p) => p.userId === user.id) + 1
       : 1;
 
-    // Explanations can be revealed if contest finished OR participant is reviewing
-    const canRevealExplanations = room.status === "FINISHED" || participant != null;
+    // Never reveal the answer key while a contest is still active.
+    const canRevealExplanations = room.status === "FINISHED";
 
     let codingPoints = 0;
     let mcqPoints = 0;
@@ -1045,117 +1300,40 @@ app.post("/:code/mcq-answer", requireAuth, requireRoomMember, contestSubmissionL
     const body = (c as any).get("validatedBody") as { questionId: string; selectedOption: number };
     const { questionId, selectedOption } = body;
 
-    const room = await db.room.findUnique({
-      where: { code },
-      include: {
-        participants: true,
-      },
-    });
-
-    if (!room) return c.json({ error: "Room not found" }, 404);
-    if (room.status !== "ACTIVE") {
-      return c.json({ error: "Contest is not active" }, 400);
-    }
-
-    // Check timer
-    if (room.endTime && new Date() > room.endTime) {
-      return c.json({ error: "Time is up! Submissions closed" }, 400);
-    }
-
-    const participant = room.participants.find((p) => p.userId === user.id);
-    if (!participant) {
-      return c.json({ error: "You are not a participant in this room" }, 403);
-    }
-
     if (await roomSocketManager.isUserDisqualified(code, user.id)) {
       return c.json({ error: "Disqualified: You have exceeded the maximum allowed anti-cheat warnings." }, 403);
     }
 
-    // Fetch the question to verify the answer deterministically
-    const question = await db.assessmentQuestion.findUnique({
-      where: { id: questionId },
-    });
-
-    if (!question) {
-      return c.json({ error: "Question not found" }, 404);
-    }
-
-    const isCorrect = Number(selectedOption) === question.correctOption;
-    const pointsAwarded = isCorrect ? 4 : -1;
-
-    // Check if already answered
-    const existingAnswer = await db.roomMcqAnswer.findUnique({
-      where: {
-        roomId_userId_questionId: {
-          roomId: room.id,
-          userId: user.id,
-          questionId,
-        },
-      },
-    });
-
-    let scoreDelta = pointsAwarded;
-    let solvedDelta = isCorrect ? 1 : 0;
-
-    if (existingAnswer) {
-      // Re-answering: replace previous score delta
-      scoreDelta = pointsAwarded - existingAnswer.pointsAwarded;
-      solvedDelta = (isCorrect ? 1 : 0) - (existingAnswer.isCorrect ? 1 : 0);
-
-      await db.roomMcqAnswer.update({
-        where: { id: existingAnswer.id },
-        data: {
-          selectedOption: Number(selectedOption),
-          isCorrect,
-          pointsAwarded,
-          answeredAt: new Date(),
-        },
-      });
-    } else {
-      await db.roomMcqAnswer.create({
-        data: {
-          roomId: room.id,
-          participantId: participant.id,
-          userId: user.id,
-          questionId,
-          selectedOption: Number(selectedOption),
-          isCorrect,
-          pointsAwarded,
-        },
-      });
-    }
-
-    // Update participant score
-    const updatedParticipant = await db.roomParticipant.update({
-      where: { id: participant.id },
-      data: {
-        score: { increment: scoreDelta },
-        solvedCount: { increment: solvedDelta },
-      },
+    const result = await applyRoomMcqAnswer({
+      code,
+      userId: user.id,
+      questionId,
+      selectedOption,
     });
 
     // Broadcast updated leaderboard to all participants in room
-    roomSocketManager.broadcastLeaderboard(room.code);
+    roomSocketManager.broadcastLeaderboard(result.room.code);
 
     // Broadcast live activity event if correct
-    if (isCorrect) {
-      roomSocketManager.broadcastActivity(room.code, {
+    if (result.isCorrect) {
+      roomSocketManager.broadcastActivity(result.room.code, {
         userId: user.id,
         userName: user.name || "Anonymous",
         userImage: user.image,
-        problemTitle: `${question.subject}: ${question.topic}`,
+        problemTitle: `${result.question.subject}: ${result.question.topic}`,
         isAccepted: true,
-        pointsAwarded,
+        pointsAwarded: result.pointsAwarded,
       });
     }
 
     return c.json({
       success: true,
-      isCorrect,
-      pointsAwarded,
-      currentScore: updatedParticipant.score,
+      isCorrect: result.isCorrect,
+      pointsAwarded: result.pointsAwarded,
+      currentScore: result.updatedParticipant.score,
     });
   } catch (error) {
+    if (error instanceof AppError) throw error;
     console.error("Error submitting MCQ answer:", error);
     return c.json({ error: "Internal server error" }, 500);
   }
@@ -1204,6 +1382,8 @@ app.post("/:code/submit-code", requireAuth, requireRoomMember, contestSubmission
       return c.json({ error: "Problem is not part of this room contest" }, 400);
     }
 
+    const submittedAt = new Date();
+
     // Run Judge0
     const judgeResult = await judgeSemaphore.withPermit(async () => {
       return await judgeSubmission({
@@ -1214,75 +1394,27 @@ app.post("/:code/submit-code", requireAuth, requireRoomMember, contestSubmission
       });
     });
 
-    const isAccepted = judgeResult.verdict === "ACCEPTED";
-
-    // Check if participant already solved this problem in this room
-    const alreadyAccepted = await db.roomSubmission.findFirst({
-      where: {
-        roomId: room.id,
-        userId: user.id,
-        problemId: Number(problemId),
-        verdict: "ACCEPTED",
-      },
+    const scoringResult = await applyRoomCodeSubmission({
+      code,
+      userId: user.id,
+      problemId: Number(problemId),
+      sourceCode,
+      language,
+      judgeResult,
+      submittedAt,
     });
 
-    // Compute points and penalty
-    let pointsAwarded = 0;
-    if (isAccepted && !alreadyAccepted) {
-      pointsAwarded = roomQuestion.points;
-
-      // Count prior failed submissions for this problem by this user
-      const priorFails = await db.roomSubmission.count({
-        where: {
-          roomId: room.id,
-          userId: user.id,
-          problemId: Number(problemId),
-          verdict: { not: "ACCEPTED" },
-        },
-      });
-
-      const contestStartMs = room.startTime ? room.startTime.getTime() : Date.now();
-      const minutesToSolve = Math.max(0, Math.floor((Date.now() - contestStartMs) / 60000));
-      const addedPenalty = minutesToSolve + priorFails * 10;
-
-      await db.roomParticipant.update({
-        where: { id: participant.id },
-        data: {
-          score: { increment: pointsAwarded },
-          solvedCount: { increment: 1 },
-          penaltyTime: { increment: addedPenalty },
-        },
-      });
-
-      // Broadcast live solve event to everyone in the room!
+    if (scoringResult.isFirstSolve) {
       roomSocketManager.broadcastActivity(room.code, {
         userId: user.id,
         userName: user.name || "Anonymous",
         userImage: user.image,
-        problemTitle: roomQuestion.problem.title,
+        problemTitle: scoringResult.problem.title,
         isAccepted: true,
-        pointsAwarded,
+        pointsAwarded: scoringResult.pointsAwarded,
       });
-
-      // Broadcast updated leaderboard to everyone in the room!
       roomSocketManager.broadcastLeaderboard(room.code);
     }
-
-    // Save RoomSubmission
-    await db.roomSubmission.create({
-      data: {
-        roomId: room.id,
-        participantId: participant.id,
-        userId: user.id,
-        problemId: Number(problemId),
-        sourceCode,
-        language: language as any,
-        verdict: judgeResult.verdict as any,
-        pointsAwarded,
-        runtime: judgeResult.runtime,
-        memory: judgeResult.memory,
-      },
-    });
 
     // Also update code snapshot for spectator inspection
     await roomSocketManager.updateCodeSnapshot(code, user.id, {
@@ -1293,10 +1425,11 @@ app.post("/:code/submit-code", requireAuth, requireRoomMember, contestSubmission
 
     return c.json({
       ...judgeResult,
-      pointsAwarded,
-      isFirstSolve: isAccepted && !alreadyAccepted,
+      pointsAwarded: scoringResult.pointsAwarded,
+      isFirstSolve: scoringResult.isFirstSolve,
     });
   } catch (error) {
+    if (error instanceof AppError) throw error;
     console.error("Error submitting code in room:", error);
     return c.json({ error: "Internal server error submitting code" }, 500);
   }
