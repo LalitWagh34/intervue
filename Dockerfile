@@ -21,11 +21,14 @@ COPY apps/server ./apps/server
 # Generate Prisma client for database connection
 RUN bun run --cwd packages/db db:generate
 
+# Bun inlines NODE_ENV while bundling. Set it before the build so the server
+# artifact contains production auth, cookie, and origin behavior.
+ENV NODE_ENV=production
+
 # Pre-build server bundle to eliminate runtime TypeScript compiling overhead
 RUN bun run --cwd apps/server build
 
 # Default production environment variables
-ENV NODE_ENV=production
 ENV PORT=3000
 # Tell JavaScriptCore runtime memory limit is 384MB (staying well within Render 512MB free tier limit)
 ENV BUN_JSC_forceRAMSize=384000000
