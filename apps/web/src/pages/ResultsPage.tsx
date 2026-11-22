@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useInterview } from "@/hooks/useInterview";
+import { useInterview, useRetryInterviewEvaluation } from "@/hooks/useInterview";
 import { useInterviewRecommendations } from "@/hooks/useLearn";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ export default function ResultsPage() {
   const { id } = useParams();
   const [isDismissed, setIsDismissed] = useState(false);
   const { data: interview, isLoading, isError, refetch } = useInterview(id);
+  const retryEvaluation = useRetryInterviewEvaluation(id);
   const { data: recData } = useInterviewRecommendations(id);
   const recommendations = recData?.recommendations || [];
 
@@ -70,6 +71,8 @@ export default function ResultsPage() {
   const isAbandoned = interview.status?.toLowerCase() === "abandoned" && !evaluation;
   const isProcessing = !isAbandoned && (!evaluation || evaluation.status === "processing" || evaluation.status === "pending");
   const isFailed = evaluation?.status === "failed";
+  const isRetryScheduled = isFailed && Boolean(evaluation.nextAttemptAt);
+  const attemptLabel = evaluation?.attemptCount ? `Attempt ${evaluation.attemptCount} of 3` : null;
 
   return (
     <div className="min-h-full bg-[var(--canvas)] text-[var(--text-primary)] p-8 max-w-3xl mx-auto">
@@ -102,8 +105,12 @@ export default function ResultsPage() {
         <Card className="bg-[var(--surface)] border-[var(--border-subtle)] shadow-sm">
           <CardContent className="py-10 flex flex-col items-center text-center">
             <Loader2 className="w-6 h-6 text-[var(--accent-text)] animate-spin mb-3" />
-            <p className="text-[var(--text-primary)]">Evaluating your interview...</p>
-            <p className="text-[var(--text-muted)] text-sm mt-1">This usually takes a few seconds</p>
+            <p className="text-[var(--text-primary)]">
+              {evaluation?.status === "pending" ? "Evaluation queued..." : evaluation?.attemptCount > 1 ? "Retrying your evaluation..." : "Evaluating your interview..."}
+            </p>
+            <p className="text-[var(--text-muted)] text-sm mt-1">
+              {attemptLabel || "This usually takes a few seconds"}
+            </p>
           </CardContent>
         </Card>
       )}
@@ -112,17 +119,32 @@ export default function ResultsPage() {
         <Card className="bg-[var(--surface)] border-[var(--border-subtle)] shadow-sm" role="alert">
           <CardContent className="py-10 flex flex-col items-center text-center gap-3">
             <AlertCircle className="w-6 h-6 text-[var(--status-danger)]" />
-            <p className="text-[var(--text-primary)]">Evaluation failed</p>
-            <p className="text-[var(--text-secondary)] text-sm">Something went wrong scoring this interview</p>
+            <p className="text-[var(--text-primary)]">
+              {isRetryScheduled ? "Evaluation temporarily unavailable" : "Evaluation failed"}
+            </p>
+            <p className="text-[var(--text-secondary)] text-sm">
+              {isRetryScheduled
+                ? "An automatic retry is scheduled. You can also retry now."
+                : "Automatic attempts are exhausted. Start a new retry when you are ready."}
+            </p>
+            {attemptLabel && <p className="text-[var(--text-muted)] text-xs">{attemptLabel}</p>}
+            {retryEvaluation.isError && (
+              <p className="text-[var(--status-danger)] text-xs" role="status">
+                Could not restart the evaluation. Please try again.
+              </p>
+            )}
             <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => refetch()}
+                onClick={() => retryEvaluation.mutate()}
+                disabled={retryEvaluation.isPending}
                 className="border-[var(--border-control)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] gap-1.5"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Retry
+                {retryEvaluation.isPending
+                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  : <RefreshCw className="w-3.5 h-3.5" />}
+                {retryEvaluation.isPending ? "Restarting..." : "Retry evaluation"}
               </Button>
               <Link to="/history">
                 <Button size="sm" variant="ghost" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]">

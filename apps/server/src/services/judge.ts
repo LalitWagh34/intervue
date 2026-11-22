@@ -515,12 +515,14 @@ export async function judgeSubmission({
   problemId,
   sourceCode,
   language,
+  executionJobId,
   signal,
 }: {
   userId: string;
   problemId: number;
   sourceCode: string;
   language: string;
+  executionJobId?: string;
   signal?: AbortSignal;
 }): Promise<
   JudgeExecutionSummary & {
@@ -546,17 +548,23 @@ export async function judgeSubmission({
   if (problem.status !== "published") throw new Error("Problem is not available");
   if (problem.testCases.length === 0) throw new Error("Problem has no test cases");
 
-  const submission = await db.submission.create({
-    data: {
+  const submissionData = {
       userId,
       problemId,
       language: language as any,
       languageId: LANGUAGE_IDS[language],
       sourceCode,
-      verdict: "PENDING",
+      verdict: "PENDING" as const,
       isAccepted: false,
-    },
-  });
+      executionJobId,
+  };
+  const submission = executionJobId
+    ? await db.submission.upsert({
+        where: { executionJobId },
+        update: { ...submissionData, runtime: null, memory: null, stderr: null, stdout: null },
+        create: submissionData,
+      })
+    : await db.submission.create({ data: submissionData });
 
   const results: TestCaseResult[] = [];
   let finalVerdict: FinalVerdict = "ACCEPTED";

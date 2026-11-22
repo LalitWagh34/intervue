@@ -132,6 +132,13 @@ export const createRoomSchema = z.object({
     .array(z.string().trim().max(50))
     .max(10, "Cannot specify more than 10 subjects")
     .optional(),
+  assessmentTopics: z
+    .array(z.string().trim().max(50))
+    .max(20, "Cannot specify more than 20 topics")
+    .optional(),
+  assessmentTopic: z.string().trim().max(50).optional(),
+  assessmentCategory: z.enum(["APTITUDE", "CORE_CS"]).optional(),
+  assessmentDifficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
   allowLateJoin: z.boolean().default(true),
 });
 

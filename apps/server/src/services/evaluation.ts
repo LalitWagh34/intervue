@@ -1,22 +1,58 @@
 import { db } from "@intervue/db";
 import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
 
+const MAX_EVALUATION_ATTEMPTS = 3;
+const EVALUATION_RETRY_BASE_MS = 30_000;
+const EVALUATION_LEASE_MS = 5 * 60_000;
+const EVALUATION_RECOVERY_INTERVAL_MS = 30_000;
+const EVALUATION_RECOVERY_BATCH_SIZE = 10;
+
 export async function evaluateInterview(interviewId: string) {
+  const claimedAt = new Date();
+  const claim = await db.evaluation.updateMany({
+    where: {
+      interviewId,
+      attemptCount: { lt: MAX_EVALUATION_ATTEMPTS },
+      OR: [
+        { status: "pending" },
+        { status: "failed", nextAttemptAt: { lte: claimedAt } },
+      ],
+    },
+    data: {
+      status: "processing",
+      attemptCount: { increment: 1 },
+      lastAttemptAt: claimedAt,
+      nextAttemptAt: null,
+      lastError: null,
+    },
+  });
+
+  // Another worker already owns the job, or the evaluation is complete.
+  if (claim.count !== 1) return null;
+
+  const claimedEvaluation = await db.evaluation.findUnique({
+    where: { interviewId },
+    select: { attemptCount: true },
+  });
+  const attemptCount = claimedEvaluation?.attemptCount ?? MAX_EVALUATION_ATTEMPTS;
+
   const interview = await db.interview.findUnique({
     where: { id: interviewId },
     include: { messages: { orderBy: { createdAt: "asc" } } },
   });
 
   if (!interview || interview.messages.length === 0) {
+    await db.evaluation.update({
+      where: { interviewId },
+      data: {
+        status: "failed",
+        attemptCount: MAX_EVALUATION_ATTEMPTS,
+        nextAttemptAt: null,
+        lastError: "Interview transcript is empty",
+      },
+    });
     return null;
   }
-
-  // Mark as processing
-  await db.evaluation.upsert({
-    where: { interviewId },
-    update: { status: "processing" },
-    create: { interviewId, status: "processing" },
-  });
 
   const transcript = interview.messages
     .map((m) => `${m.role === "user" ? "Candidate" : "Interviewer"}: ${m.content}`)
@@ -62,6 +98,8 @@ Evaluate the candidate's performance and respond with ONLY valid JSON in this ex
         improvements: result.improvements || [],
         dimensionScores: result.dimensionScores || {},
         completedAt: new Date(),
+        nextAttemptAt: null,
+        lastError: null,
       },
     });
 
@@ -71,12 +109,73 @@ Evaluate the candidate's performance and respond with ONLY valid JSON in this ex
     });
 
     return result;
-  } catch (err) {
+  } catch (err: any) {
     console.error("Evaluation failed:", err);
+    const canRetry = attemptCount < MAX_EVALUATION_ATTEMPTS;
+    const retryDelay = EVALUATION_RETRY_BASE_MS * 2 ** Math.max(0, attemptCount - 1);
     await db.evaluation.update({
       where: { interviewId },
-      data: { status: "failed" },
+      data: {
+        status: "failed",
+        nextAttemptAt: canRetry ? new Date(Date.now() + retryDelay) : null,
+        lastError: String(err?.message || "Evaluation failed").slice(0, 500),
+      },
     });
     return null;
   }
+}
+
+export async function recoverEvaluationJobs(now = new Date()) {
+  const staleBefore = new Date(now.getTime() - EVALUATION_LEASE_MS);
+
+  const recovered = await db.evaluation.updateMany({
+    where: {
+      status: "processing",
+      lastAttemptAt: { lt: staleBefore },
+      attemptCount: { lt: MAX_EVALUATION_ATTEMPTS },
+    },
+    data: { status: "pending" },
+  });
+
+  const exhausted = await db.evaluation.updateMany({
+    where: {
+      status: "processing",
+      lastAttemptAt: { lt: staleBefore },
+      attemptCount: { gte: MAX_EVALUATION_ATTEMPTS },
+    },
+    data: {
+      status: "failed",
+      nextAttemptAt: null,
+      lastError: "Evaluation retry limit reached",
+    },
+  });
+
+  const jobs = await db.evaluation.findMany({
+    where: {
+      attemptCount: { lt: MAX_EVALUATION_ATTEMPTS },
+      OR: [
+        { status: "pending" },
+        { status: "failed", nextAttemptAt: { lte: now } },
+      ],
+    },
+    orderBy: { createdAt: "asc" },
+    take: EVALUATION_RECOVERY_BATCH_SIZE,
+    select: { interviewId: true },
+  });
+
+  await Promise.allSettled(jobs.map(({ interviewId }) => evaluateInterview(interviewId)));
+  return { recovered: recovered.count, exhausted: exhausted.count, dispatched: jobs.length };
+}
+
+export function startEvaluationRecoveryWorker() {
+  const runRecovery = () => {
+    recoverEvaluationJobs().catch((error) => {
+      console.error("[Evaluation Recovery] Worker cycle failed", error);
+    });
+  };
+
+  runRecovery();
+  const interval = setInterval(runRecovery, EVALUATION_RECOVERY_INTERVAL_MS);
+  interval.unref?.();
+  return () => clearInterval(interval);
 }
