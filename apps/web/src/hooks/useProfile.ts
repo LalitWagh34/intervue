@@ -1,5 +1,12 @@
 import { api } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { PlatformSyncStatus } from "@/components/profile/PlatformFreshness";
+
+export type SyncAllPlatformsResponse = {
+  success: boolean;
+  profile: unknown;
+  syncStatus: Record<"leetcode" | "codeforces" | "github", PlatformSyncStatus>;
+};
 
 export interface CalendarDay {
   date: string;
@@ -153,7 +160,7 @@ export function useConnectPlatform() {
 
 export function useSyncAllPlatforms() {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<SyncAllPlatformsResponse>({
     mutationFn: async () => {
       const res = await api.post("/profile/sync-all");
       return res.data;

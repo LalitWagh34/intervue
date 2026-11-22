@@ -8,16 +8,68 @@ import { checkInputGuardrails, buildChatSystemPrompt } from "../lib/guardrails";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
+const DEFAULT_CHAT_PAGE_SIZE = 30;
+const DEFAULT_MESSAGE_PAGE_SIZE = 100;
+const MAX_PAGE_SIZE = 100;
+const MAX_USER_MESSAGE_CHARS = 8_000;
+const CHAT_CONTEXT_MESSAGE_LIMIT = 60;
+export const CHAT_CONTEXT_CHAR_BUDGET = 24_000;
+
+function parsePageSize(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) return fallback;
+  return Math.min(parsed, MAX_PAGE_SIZE);
+}
+
+export function buildBoundedChatHistory(
+  messages: Array<{ role: string; content: string }>,
+  charBudget = CHAT_CONTEXT_CHAR_BUDGET
+): Array<{ role: "user" | "assistant"; content: string }> {
+  const selected: Array<{ role: "user" | "assistant"; content: string }> = [];
+  let remaining = Math.max(0, charBudget);
+
+  for (let index = messages.length - 1; index >= 0 && remaining > 0; index--) {
+    const message = messages[index];
+    if (message.role !== "user" && message.role !== "assistant") continue;
+    const content = message.content || "";
+    if (!content) continue;
+
+    if (content.length <= remaining) {
+      selected.push({ role: message.role, content });
+      remaining -= content.length;
+      continue;
+    }
+
+    // Preserve the newest part of an oversized legacy message without exceeding the provider budget.
+    selected.push({ role: message.role, content: content.slice(-remaining) });
+    remaining = 0;
+  }
+
+  return selected.reverse();
+}
+
 // Get all chats for current user
 app.get("/", requireAuth, async (c) => {
   const user = c.get("user");
+  const limit = parsePageSize(c.req.query("limit"), DEFAULT_CHAT_PAGE_SIZE);
+  const cursor = c.req.query("cursor");
 
   const chats = await db.chat.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
   });
 
-  return c.json({ chats });
+  const hasMore = chats.length > limit;
+  const page = hasMore ? chats.slice(0, limit) : chats;
+  return c.json({
+    chats: page,
+    pageInfo: {
+      hasMore,
+      nextCursor: hasMore ? page[page.length - 1]?.id ?? null : null,
+    },
+  });
 });
 
 // Create new chat
@@ -38,19 +90,34 @@ app.post("/", requireAuth, async (c) => {
 app.get("/:id", requireAuth, async (c) => {
   const user = c.get("user");
   const id = c.req.param("id")!;
+  const limit = parsePageSize(c.req.query("limit"), DEFAULT_MESSAGE_PAGE_SIZE);
+  const cursor = c.req.query("cursor");
 
   const chat = await db.chat.findFirst({
     where: { id, userId: user.id },
-    include: {
-      messages: { orderBy: { createdAt: "asc" } },
-    },
   });
 
   if (!chat) {
     return c.json({ error: "Chat not found" }, 404);
   }
 
-  return c.json({ chat });
+  const newestFirst = await db.chatMessage.findMany({
+    where: { chatId: id },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: limit + 1,
+    ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+  });
+  const hasMore = newestFirst.length > limit;
+  const pageNewestFirst = hasMore ? newestFirst.slice(0, limit) : newestFirst;
+  const messages = [...pageNewestFirst].reverse();
+
+  return c.json({
+    chat: { ...chat, messages },
+    pageInfo: {
+      hasMore,
+      nextCursor: hasMore ? pageNewestFirst[pageNewestFirst.length - 1]?.id ?? null : null,
+    },
+  });
 });
 
 // Send message — SSE streaming response
@@ -63,10 +130,13 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
   if (!userMessage) {
     return c.json({ error: "Message text is required" }, 400);
   }
+  if (userMessage.length > MAX_USER_MESSAGE_CHARS) {
+    return c.json({ error: `Message must be ${MAX_USER_MESSAGE_CHARS} characters or fewer` }, 400);
+  }
 
   const chat = await db.chat.findFirst({
     where: { id, userId: user.id },
-    include: { messages: { orderBy: { createdAt: "asc" } } },
+    include: { _count: { select: { messages: true } } },
   });
 
   if (!chat) {
@@ -119,11 +189,13 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
     },
   });
 
-  const history = chat.messages.map((m) => ({
-    role: m.role as "user" | "assistant",
-    content: m.content,
-  }));
-  history.push({ role: "user", content: userMessage });
+  const recentMessages = await db.chatMessage.findMany({
+    where: { chatId: id },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: CHAT_CONTEXT_MESSAGE_LIMIT,
+    select: { role: true, content: true },
+  });
+  const history = buildBoundedChatHistory([...recentMessages].reverse());
 
   let stream;
   try {
@@ -189,7 +261,7 @@ app.post("/:id/message", requireAuth, aiReviewLimiter, async (c) => {
             });
           }
 
-          if (chat.messages.length === 0) {
+          if (chat._count.messages === 0) {
             await db.chat.update({
               where: { id },
               data: { title: userMessage.slice(0, 50) },

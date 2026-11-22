@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useChats, useChat } from "@/hooks/useChats";
 import { api } from "@/lib/api";
+import { getSessionToken } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -53,8 +54,20 @@ export default function ChatPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { data: chats } = useChats();
-  const { data: chat } = useChat(id);
+  const chatsQuery = useChats();
+  const chatQuery = useChat(id);
+  const chats = useMemo(
+    () => chatsQuery.data?.pages.flatMap((page) => page.chats) ?? [],
+    [chatsQuery.data]
+  );
+  const chat = useMemo(() => {
+    const pages = chatQuery.data?.pages;
+    if (!pages?.length) return undefined;
+    const messages = [...pages]
+      .reverse()
+      .flatMap((page) => page.chat.messages);
+    return { ...pages[0].chat, messages };
+  }, [chatQuery.data]);
 
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -66,6 +79,7 @@ export default function ChatPage() {
   const isStreamingRef = useRef(false);
   const activeChatIdRef = useRef(id);
   const autoSentRef = useRef(false);
+  const isLoadingOlderMessagesRef = useRef(false);
 
   // Synchronize active chat ID changes (e.g. user clicks another chat in the sidebar)
   useEffect(() => {
@@ -92,8 +106,22 @@ export default function ChatPage() {
   }, [chat, id]);
 
   useEffect(() => {
+    if (isLoadingOlderMessagesRef.current) {
+      isLoadingOlderMessagesRef.current = false;
+      return;
+    }
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isStreaming]);
+
+  async function loadOlderMessages() {
+    isLoadingOlderMessagesRef.current = true;
+    try {
+      await chatQuery.fetchNextPage();
+    } catch {
+      isLoadingOlderMessagesRef.current = false;
+      toast.error("Unable to load older messages");
+    }
+  }
 
   async function createNewChat() {
     try {
@@ -156,7 +184,7 @@ export default function ChatPage() {
     }
 
     const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-    const token = localStorage.getItem("intervue_session_token");
+    const token = getSessionToken();
     try {
       const res = await fetch(`${baseURL}/chats/${chatId}/message`, {
         method: "POST",
@@ -341,6 +369,17 @@ export default function ChatPage() {
               </button>
             </div>
           ))}
+          {chatsQuery.hasNextPage && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => chatsQuery.fetchNextPage()}
+              disabled={chatsQuery.isFetchingNextPage}
+              className="w-full mt-2 text-xs"
+            >
+              {chatsQuery.isFetchingNextPage ? "Loading discussions..." : "Load older discussions"}
+            </Button>
+          )}
         </div>
       </aside>
 
@@ -378,6 +417,19 @@ export default function ChatPage() {
 
         {/* Messages Body */}
         <div className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full space-y-5">
+          {id && chatQuery.hasNextPage && (
+            <div className="flex justify-center pb-1">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={loadOlderMessages}
+                disabled={chatQuery.isFetchingNextPage}
+                className="text-xs"
+              >
+                {chatQuery.isFetchingNextPage ? "Loading messages..." : "Load older messages"}
+              </Button>
+            </div>
+          )}
           {messages.length === 0 && (
             <div className="py-8 space-y-8 max-w-2xl mx-auto">
               <div className="text-center space-y-2">

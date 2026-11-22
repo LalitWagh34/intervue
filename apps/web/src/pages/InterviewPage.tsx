@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "@/lib/api";
+import { getSessionToken } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import {
   Send,
@@ -32,8 +33,9 @@ import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
 
-type Msg = { role: "user" | "assistant"; content: string };
+type Msg = { id?: string; role: "user" | "assistant"; content: string };
 
 const TRACKS = [
   {
@@ -208,9 +210,13 @@ export default function InterviewPage() {
   const [isEnding, setIsEnding] = useState(false);
   const [startedAt, setStartedAt] = useState<Date>(new Date());
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
+  const [hasOlderMessages, setHasOlderMessages] = useState(false);
+  const [olderMessagesCursor, setOlderMessagesCursor] = useState<string | null>(null);
+  const [isLoadingOlderMessages, setIsLoadingOlderMessages] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const isLoadingOlderMessagesRef = useRef(false);
 
   // Track elapsed session timer
   useEffect(() => {
@@ -231,6 +237,8 @@ export default function InterviewPage() {
         setIsStarting(true);
         const res = await api.get(`/interviews/${idParam}`);
         const interview = res.data.interview;
+        setHasOlderMessages(Boolean(res.data.pageInfo?.hasMore));
+        setOlderMessagesCursor(res.data.pageInfo?.nextCursor ?? null);
         setInterviewId(interview.id);
         setSelectedTrack(interview.role);
         setSelectedLevel(interview.difficulty);
@@ -245,6 +253,7 @@ export default function InterviewPage() {
         if (interview.messages && interview.messages.length > 0) {
           setMessages(
             interview.messages.map((m: any) => ({
+              id: m.id,
               role: m.role as "user" | "assistant",
               content: m.content,
             }))
@@ -271,8 +280,36 @@ export default function InterviewPage() {
   }, [roleParam, diffParam]);
 
   useEffect(() => {
+    if (isLoadingOlderMessagesRef.current) {
+      isLoadingOlderMessagesRef.current = false;
+      return;
+    }
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isStreaming]);
+
+  async function loadOlderMessages() {
+    if (!interviewId || !olderMessagesCursor || isLoadingOlderMessages) return;
+    isLoadingOlderMessagesRef.current = true;
+    setIsLoadingOlderMessages(true);
+    try {
+      const res = await api.get(`/interviews/${interviewId}`, {
+        params: { limit: 100, cursor: olderMessagesCursor },
+      });
+      const olderMessages = (res.data.interview.messages || []).map((message: any) => ({
+        id: message.id,
+        role: message.role as "user" | "assistant",
+        content: message.content,
+      }));
+      setMessages((current) => [...olderMessages, ...current]);
+      setHasOlderMessages(Boolean(res.data.pageInfo?.hasMore));
+      setOlderMessagesCursor(res.data.pageInfo?.nextCursor ?? null);
+    } catch {
+      isLoadingOlderMessagesRef.current = false;
+      toast.error("Unable to load older interview messages");
+    } finally {
+      setIsLoadingOlderMessages(false);
+    }
+  }
 
   async function triggerInitialGreeting(id: string) {
     try {
@@ -332,7 +369,7 @@ export default function InterviewPage() {
     setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
     const baseURL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-    const token = localStorage.getItem("intervue_session_token");
+    const token = getSessionToken();
     try {
       const res = await fetch(`${baseURL}/interviews/${interviewId}/message`, {
         method: "POST",
@@ -1079,11 +1116,24 @@ export default function InterviewPage() {
 
       {/* Messages Stream Area */}
       <main className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full space-y-5">
+        {hasOlderMessages && (
+          <div className="flex justify-center pb-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={loadOlderMessages}
+              disabled={isLoadingOlderMessages}
+              className="text-xs"
+            >
+              {isLoadingOlderMessages ? "Loading messages..." : "Load older messages"}
+            </Button>
+          </div>
+        )}
         {messages.map((msg, i) => {
           const isUser = msg.role === "user";
           return (
             <div
-              key={i}
+              key={msg.id ?? i}
               className={cn("flex items-start gap-3", isUser ? "flex-row-reverse" : "flex-row")}
             >
               <div

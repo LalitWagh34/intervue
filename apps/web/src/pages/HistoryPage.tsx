@@ -62,6 +62,9 @@ export default function HistoryPage() {
     isLoading: isInterviewsLoading,
     isError: isInterviewsError,
     refetch: refetchInterviews,
+    hasNextPage: hasMoreInterviews,
+    fetchNextPage: fetchMoreInterviews,
+    isFetchingNextPage: isLoadingMoreInterviews,
   } = useInterviews();
 
   const loadContests = useCallback(async () => {
@@ -395,8 +398,9 @@ export default function HistoryPage() {
                   </Link>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {interviews.map((item: any) => (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {interviews.map((item: any) => (
                     <div
                       key={item.id}
                       className="bg-[var(--surface)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] rounded-xl p-6 flex flex-col justify-between gap-4 transition-all duration-200 group shadow-sm"
@@ -458,7 +462,21 @@ export default function HistoryPage() {
                         )}
                       </div>
                     </div>
-                  ))}
+                    ))}
+                  </div>
+                  {hasMoreInterviews && (
+                    <div className="flex justify-center pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => void fetchMoreInterviews()}
+                        disabled={isLoadingMoreInterviews}
+                        className="border-[var(--border-control)] bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--surface-hover)] text-xs"
+                      >
+                        {isLoadingMoreInterviews ? "Loading interviews..." : "Load older interviews"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>

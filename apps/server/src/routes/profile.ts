@@ -6,6 +6,7 @@ import {
   fetchLeetCodeStats,
   fetchCodeforcesStats,
   fetchGitHubStats,
+  isExternalProviderTimeout,
   type LeetCodeStats,
   type CodeforcesStats,
   type GitHubStats,
@@ -327,6 +328,9 @@ app.post("/connect-platform", requireAuth, async (c) => {
     return c.json({ success: true, platform, data: statsData });
   } catch (err: any) {
     console.error("Connect platform error:", err);
+    if (isExternalProviderTimeout(err)) {
+      return c.json({ error: "The external platform timed out. Please try again." }, 504);
+    }
     return c.json({ error: err.message || "Failed to connect platform" }, 400);
   }
 });
@@ -341,45 +345,80 @@ app.post("/sync-all", requireAuth, async (c) => {
       return c.json({ error: "Profile not found" }, 404);
     }
 
-    let updatedLc = profile.leetcodeData;
-    let updatedCf = profile.codeforcesData;
-    let updatedGh = profile.githubData;
+    const platformJobs = [
+      {
+        platform: "leetcode" as const,
+        handle: profile.leetcodeHandle,
+        previous: profile.leetcodeData,
+        fetch: fetchLeetCodeStats,
+      },
+      {
+        platform: "codeforces" as const,
+        handle: profile.codeforcesHandle,
+        previous: profile.codeforcesData,
+        fetch: fetchCodeforcesStats,
+      },
+      {
+        platform: "github" as const,
+        handle: profile.githubHandle,
+        previous: profile.githubData,
+        fetch: fetchGitHubStats,
+      },
+    ];
 
-    if (profile.leetcodeHandle) {
-      try {
-        updatedLc = (await fetchLeetCodeStats(profile.leetcodeHandle)) as any;
-      } catch (e) {
-        console.warn("LeetCode sync failed:", e);
+    const syncResults = await Promise.all(platformJobs.map(async (job) => {
+      if (!job.handle) {
+        return {
+          platform: job.platform,
+          data: job.previous,
+          status: { state: "disconnected" as const, lastSyncedAt: null },
+        };
       }
-    }
 
-    if (profile.codeforcesHandle) {
       try {
-        updatedCf = (await fetchCodeforcesStats(profile.codeforcesHandle)) as any;
-      } catch (e) {
-        console.warn("Codeforces sync failed:", e);
+        const data = await job.fetch(job.handle) as any;
+        return {
+          platform: job.platform,
+          data,
+          status: { state: "fresh" as const, lastSyncedAt: data.lastSyncedAt ?? null },
+        };
+      } catch (error) {
+        const previous = job.previous as { lastSyncedAt?: string } | null;
+        console.warn(`${job.platform} sync failed`, { timeout: isExternalProviderTimeout(error) });
+        return {
+          platform: job.platform,
+          data: job.previous,
+          status: {
+            state: "stale" as const,
+            lastSyncedAt: previous?.lastSyncedAt ?? null,
+            reason: isExternalProviderTimeout(error) ? "timeout" as const : "unavailable" as const,
+          },
+        };
       }
-    }
+    }));
 
-    if (profile.githubHandle) {
-      try {
-        updatedGh = (await fetchGitHubStats(profile.githubHandle)) as any;
-      } catch (e) {
-        console.warn("GitHub sync failed:", e);
-      }
-    }
+    const resultByPlatform = Object.fromEntries(
+      syncResults.map((result) => [result.platform, result])
+    ) as Record<"leetcode" | "codeforces" | "github", (typeof syncResults)[number]>;
+    const successfulSyncs = syncResults.filter((result) => result.status.state === "fresh");
 
     const updatedProfile = await db.profile.update({
       where: { userId: user.id },
       data: {
-        leetcodeData: updatedLc as any,
-        codeforcesData: updatedCf as any,
-        githubData: updatedGh as any,
-        lastSyncedAt: new Date(),
+        leetcodeData: resultByPlatform.leetcode.data as any,
+        codeforcesData: resultByPlatform.codeforces.data as any,
+        githubData: resultByPlatform.github.data as any,
+        ...(successfulSyncs.length > 0 ? { lastSyncedAt: new Date() } : {}),
       },
     });
 
-    return c.json({ success: true, profile: updatedProfile });
+    return c.json({
+      success: true,
+      profile: updatedProfile,
+      syncStatus: Object.fromEntries(
+        syncResults.map((result) => [result.platform, result.status])
+      ),
+    });
   } catch (err: any) {
     console.error("Sync all error:", err);
     return c.json({ error: err.message || "Failed to sync profiles" }, 500);

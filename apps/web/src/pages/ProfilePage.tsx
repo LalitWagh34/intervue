@@ -37,6 +37,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth";
+import { PlatformFreshness } from "@/components/profile/PlatformFreshness";
 
 export default function ProfilePage() {
   const [selectedYear, setSelectedYear] = useState<string>("Current");
@@ -256,6 +257,24 @@ export default function ProfilePage() {
     }
   };
 
+  const handleSyncAll = () => {
+    syncAllMutation.mutate(undefined, {
+      onSuccess: (data) => {
+        const stalePlatforms = Object.entries(data.syncStatus)
+          .filter(([, status]) => status.state === "stale")
+          .map(([platform]) => platform);
+        if (stalePlatforms.length > 0) {
+          toast.warning(`Some platform data is stale: ${stalePlatforms.join(", ")}`);
+        } else {
+          toast.success("Connected platform data is up to date");
+        }
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.error || "Unable to sync connected platforms");
+      },
+    });
+  };
+
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto text-[var(--text-primary)] font-sans">
       {/* ─── Profile Brief & Header ───────────────────────────────────── */}
@@ -311,7 +330,7 @@ export default function ProfilePage() {
             {/* Action Buttons */}
             <div className="flex items-center gap-2.5 pt-4 sm:pt-0 pb-1 w-full sm:w-auto">
               <button
-                onClick={() => syncAllMutation.mutate()}
+                onClick={handleSyncAll}
                 disabled={syncAllMutation.isPending}
                 className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer disabled:opacity-50"
                 title="Sync all connected platforms"
@@ -871,16 +890,8 @@ export default function ProfilePage() {
 
               {lcStats?.handle ? (
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-[var(--border-subtle)]">
-                    Live
-                  </span>
                   <button
-                    onClick={() => {
-                      syncAllMutation.mutate(undefined, {
-                        onSuccess: () => toast.success("LeetCode stats synced!"),
-                        onError: () => toast.error("Failed to sync stats"),
-                      });
-                    }}
+                    onClick={handleSyncAll}
                     disabled={syncAllMutation.isPending}
                     className="p-1 text-[var(--text-muted)] hover:text-[var(--status-warning)] transition-colors cursor-pointer disabled:opacity-50"
                     title="Sync LeetCode Stats"
@@ -907,6 +918,10 @@ export default function ProfilePage() {
 
             {lcStats?.handle ? (
               <div className="space-y-3 pt-2">
+                <PlatformFreshness
+                  lastSyncedAt={lcStats.lastSyncedAt}
+                  status={syncAllMutation.data?.syncStatus.leetcode}
+                />
                 <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                   <div>
                     <span className="text-[11px] text-[var(--text-secondary)] block">Contest Rating</span>
@@ -1008,16 +1023,8 @@ export default function ProfilePage() {
 
               {cfStats?.handle ? (
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] font-semibold uppercase px-2 py-0.5 rounded bg-[var(--surface-selected)] text-[var(--accent-text)] border border-[var(--border-control)]">
-                    Live
-                  </span>
                   <button
-                    onClick={() => {
-                      syncAllMutation.mutate(undefined, {
-                        onSuccess: () => toast.success("Codeforces stats synced!"),
-                        onError: () => toast.error("Failed to sync stats"),
-                      });
-                    }}
+                    onClick={handleSyncAll}
                     disabled={syncAllMutation.isPending}
                     className="p-1 text-[var(--text-muted)] hover:text-[var(--accent-text)] transition-colors cursor-pointer disabled:opacity-50"
                     title="Sync Codeforces Stats"
@@ -1044,6 +1051,10 @@ export default function ProfilePage() {
 
             {cfStats?.handle ? (
               <div className="space-y-3 pt-2">
+                <PlatformFreshness
+                  lastSyncedAt={cfStats.lastSyncedAt}
+                  status={syncAllMutation.data?.syncStatus.codeforces}
+                />
                 <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)]">
                   <div>
                     <p className="text-[11px] text-[var(--text-secondary)]">Current Rating</p>
@@ -1135,20 +1146,28 @@ export default function ProfilePage() {
             <div className="space-y-2">
               {/* GitHub */}
               {ghStats?.handle || profile?.githubUrl ? (
-                <a
-                  href={ghStats?.profileUrl || profile?.githubUrl || ""}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <svg className="w-4 h-4 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                    </svg>
-                    GitHub ({ghStats?.handle || "Linked"})
-                  </span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[var(--text-muted)]" />
-                </a>
+                <div className="space-y-2">
+                  <a
+                    href={ghStats?.profileUrl || profile?.githubUrl || ""}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-muted)] border border-[var(--border-subtle)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <svg className="w-4 h-4 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                      </svg>
+                      GitHub ({ghStats?.handle || "Linked"})
+                    </span>
+                    <ExternalLink className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                  </a>
+                  {ghStats?.handle && (
+                    <PlatformFreshness
+                      lastSyncedAt={ghStats.lastSyncedAt}
+                      status={syncAllMutation.data?.syncStatus.github}
+                    />
+                  )}
+                </div>
               ) : null}
 
               {/* LinkedIn */}

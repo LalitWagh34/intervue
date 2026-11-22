@@ -36,9 +36,27 @@ export interface GitHubStats {
   lastSyncedAt: string;
 }
 
+export const EXTERNAL_PROVIDER_TIMEOUT_MS = 10_000;
+
+export function fetchWithProviderTimeout(
+  input: string | URL | Request,
+  init: RequestInit = {},
+  timeoutMs = EXTERNAL_PROVIDER_TIMEOUT_MS
+) {
+  return fetch(input, {
+    ...init,
+    signal: init.signal ?? AbortSignal.timeout(timeoutMs),
+  });
+}
+
+export function isExternalProviderTimeout(error: unknown): boolean {
+  const name = (error as { name?: string } | null)?.name;
+  return name === "AbortError" || name === "TimeoutError";
+}
+
 export async function fetchLeetCodeStats(username: string): Promise<LeetCodeStats> {
   const cleanUsername = username.trim().toLowerCase();
-  const res = await fetch("https://leetcode.com/graphql", {
+  const res = await fetchWithProviderTimeout("https://leetcode.com/graphql", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -162,7 +180,7 @@ export async function fetchCodeforcesStats(username: string): Promise<Codeforces
   const cleanUsername = username.trim();
 
   // 1. User info
-  const infoRes = await fetch(
+  const infoRes = await fetchWithProviderTimeout(
     `https://codeforces.com/api/user.info?handles=${encodeURIComponent(cleanUsername)}`
   );
   if (!infoRes.ok) {
@@ -176,7 +194,7 @@ export async function fetchCodeforcesStats(username: string): Promise<Codeforces
   const user = infoData.result[0];
 
   // 2. User submissions (up to 2000 submissions for calendar & solved count)
-  const statusRes = await fetch(
+  const statusRes = await fetchWithProviderTimeout(
     `https://codeforces.com/api/user.status?handle=${encodeURIComponent(cleanUsername)}&from=1&count=2000`
   );
 
@@ -233,7 +251,7 @@ export async function fetchCodeforcesStats(username: string): Promise<Codeforces
 
 export async function fetchGitHubStats(username: string): Promise<GitHubStats> {
   const cleanUsername = username.trim();
-  const res = await fetch(`https://api.github.com/users/${encodeURIComponent(cleanUsername)}`, {
+  const res = await fetchWithProviderTimeout(`https://api.github.com/users/${encodeURIComponent(cleanUsername)}`, {
     headers: {
       "User-Agent": "Intervue-Platform",
     },
