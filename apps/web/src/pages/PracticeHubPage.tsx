@@ -46,8 +46,10 @@ import {
   Zap,
   NotebookPen,
   Play,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth";
 
 // ============================================================================
 // SHEET DATASETS
@@ -87,6 +89,31 @@ const fetchSheets = async () => {
   return res.data;
 };
 
+const SOLVED_CACHE_VERSION = "v1";
+
+export const getSolvedProblemsCacheKey = (userId: string) =>
+  `intervue:solved-problems:${SOLVED_CACHE_VERSION}:${userId}`;
+
+const readSolvedProblemsCache = (userId: string): Record<string, boolean> => {
+  try {
+    const raw = localStorage.getItem(getSolvedProblemsCacheKey(userId));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter((entry): entry is [string, boolean] => typeof entry[1] === "boolean")
+    );
+  } catch {
+    return {};
+  }
+};
+
+const writeSolvedProblemsCache = (userId: string, solved: Record<string, boolean>) => {
+  try {
+    localStorage.setItem(getSolvedProblemsCacheKey(userId), JSON.stringify(solved));
+  } catch {}
+};
+
 const TOP_COMPANIES_PRESET = [
   { name: "Amazon", count: 443, global: true },
   { name: "Google", count: 447, global: true },
@@ -107,6 +134,8 @@ const TOP_COMPANIES_PRESET = [
 export default function PracticeHubPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const { completedCount: dailyCompleted, totalCount: dailyTotal } = useDailyTargets();
 
   // Target Company Readiness
@@ -191,27 +220,37 @@ export default function PracticeHubPage() {
   });
 
   const dynamicSheets: SheetMeta[] = sheetsData?.sheets || [];
-  const globalStats = sheetsData?.stats || { totalUsers: 0, curatedSubjects: 0, activeThisMonth: 0 };
+  const globalStats = sheetsData?.stats || { totalUsers: null, curatedSubjects: 0, totalProblems: 0 };
 
-  // Solved state persisted in localStorage
+  // Solved state is server-authoritative with an account-scoped offline cache.
   const [solvedProblems, setSolvedProblems] = useState<Record<string, boolean>>({});
+  const [isUsingSolvedCache, setIsUsingSolvedCache] = useState(false);
 
-  // Fetch solved problems from backend on mount
+  // Reset on identity changes and ignore stale responses from a previous account.
   useEffect(() => {
+    let active = true;
+    setSolvedProblems({});
+    setIsUsingSolvedCache(false);
+
+    if (!userId) return () => { active = false; };
+
     const fetchSolved = async () => {
       try {
         const res = await api.get("/profile/solved-problems");
-        setSolvedProblems(res.data.solvedProblems || {});
+        if (!active) return;
+        const solved = res.data.solvedProblems || {};
+        setSolvedProblems(solved);
+        writeSolvedProblemsCache(userId, solved);
       } catch {
-        // fallback to localstorage if api fails
-        try {
-          const saved = localStorage.getItem("tuf_solved_problems");
-          if (saved) setSolvedProblems(JSON.parse(saved));
-        } catch {}
+        if (!active) return;
+        setSolvedProblems(readSolvedProblemsCache(userId));
+        setIsUsingSolvedCache(true);
       }
     };
-    fetchSolved();
-  }, []);
+    void fetchSolved();
+
+    return () => { active = false; };
+  }, [userId]);
 
   const toggleSolved = async (id: string, e: React.MouseEvent, difficulty: string = "EASY", tags: string[] = []) => {
     e.stopPropagation();
@@ -220,9 +259,7 @@ export default function PracticeHubPage() {
     const isNowSolved = !wasSolved;
     setSolvedProblems((prev) => {
       const next = { ...prev, [id]: isNowSolved };
-      try {
-        localStorage.setItem("tuf_solved_problems", JSON.stringify(next));
-      } catch {}
+      if (userId) writeSolvedProblemsCache(userId, next);
       return next;
     });
 
@@ -238,9 +275,7 @@ export default function PracticeHubPage() {
       console.error("Failed to sync solved problem:", err);
       setSolvedProblems((prev) => {
         const reverted = { ...prev, [id]: wasSolved };
-        try {
-          localStorage.setItem("tuf_solved_problems", JSON.stringify(reverted));
-        } catch {}
+        if (userId) writeSolvedProblemsCache(userId, reverted);
         return reverted;
       });
       toast.error("Failed to sync solved status. Changes were reverted.");
@@ -507,6 +542,15 @@ export default function PracticeHubPage() {
 
   return (
     <div className="min-h-full bg-[var(--canvas)] text-[var(--text-primary)] font-sans pb-16 px-4 sm:px-6 lg:px-8 pt-6 max-w-[1400px] mx-auto">
+      {isUsingSolvedCache && (
+        <div
+          role="status"
+          className="mb-4 max-w-6xl mx-auto rounded-xl border border-[var(--status-warning)]/30 bg-[var(--status-warning)]/10 px-4 py-3 text-xs text-[var(--text-secondary)] flex items-start gap-2"
+        >
+          <AlertTriangle className="w-4 h-4 text-[var(--status-warning)] shrink-0" />
+          <span>Offline solved progress is shown from this account's last saved data. Changes still require server confirmation.</span>
+        </div>
+      )}
       {/* LEVEL 1: PREP HUB ROOT OVERVIEW */}
       {currentView === "hub" && (
         <div className="space-y-6 max-w-6xl mx-auto">
@@ -523,16 +567,20 @@ export default function PracticeHubPage() {
                 {/* Single Continuous Stats Capsule Bar */}
                 <div className="mt-6 inline-flex items-center rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] px-3.5 py-2 text-xs text-[var(--text-secondary)] font-sans">
                   <div className="flex items-center gap-1.5 pr-3.5 border-r border-[var(--border-subtle)]">
-                    <Flame className="w-3.5 h-3.5 text-[var(--status-warning)]" />
+                    <Code2 className="w-3.5 h-3.5 text-[var(--status-warning)]" />
                     <span>
-                      <strong className="text-[var(--text-primary)] font-semibold">{(globalStats.activeThisMonth).toLocaleString()}</strong> Active this month
+                      <strong className="text-[var(--text-primary)] font-semibold">{globalStats.totalProblems.toLocaleString()}</strong> Curated Problems
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1.5 px-3.5 border-r border-[var(--border-subtle)]">
                     <Sparkles className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                     <span>
-                      <strong className="text-[var(--text-primary)] font-semibold">{(globalStats.totalUsers).toLocaleString()}</strong> Total Users
+                      {typeof globalStats.totalUsers === "number" ? (
+                        <><strong className="text-[var(--text-primary)] font-semibold">{globalStats.totalUsers.toLocaleString()}</strong> Registered Users</>
+                      ) : (
+                        <span>User count unavailable</span>
+                      )}
                     </span>
                   </div>
 

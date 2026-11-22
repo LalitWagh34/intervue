@@ -24,7 +24,7 @@ export function openProductTour() {
   }
 }
 
-interface TourStep {
+export interface TourStep {
   step: number;
   badge: string;
   badgeColor: string;
@@ -38,7 +38,7 @@ interface TourStep {
   accentGradient: string;
 }
 
-const TOUR_STEPS: TourStep[] = [
+export const TOUR_STEPS: TourStep[] = [
   {
     step: 1,
     badge: "Platform Overview",
@@ -47,10 +47,10 @@ const TOUR_STEPS: TourStep[] = [
     title: "Welcome to Intervue",
     headline: "Your All-in-One Technical Interview Ecosystem",
     description:
-      "Intervue combines AI-driven technical mock interviews, real-time 1v1 multiplayer coding arenas, curated FAANG company prep kits, and multi-platform developer profiles into one unified workstation.",
+      "Intervue combines AI-guided technical mock interviews, timed multiplayer coding rooms, curated company-tagged practice, and multi-platform developer profiles in one workspace.",
     highlights: [
       "Role-tailored AI technical evaluations with automated scorecards",
-      "Live 1v1 coding duels with Monaco editor, anti-cheat & test runner",
+      "Timed coding rooms with Monaco editor, integrity signals, and a test runner",
       "Unified LeetCode & Codeforces contest rating & heatmap sync",
     ],
     actionLabel: "Start Tour →",
@@ -82,10 +82,10 @@ const TOUR_STEPS: TourStep[] = [
     title: "1v1 Live Battle Arena",
     headline: "Compete Live Against Peers in Timed Coding Duels",
     description:
-      "Train under real interview time constraints. Battle side-by-side with Monaco editor, run test cases against an automated judge, and track live standings with anti-cheat protection.",
+      "Train under timed constraints. Work side-by-side in a Monaco editor, run test cases against an automated judge, and follow room standings while hosts receive browser activity signals.",
     highlights: [
       "Synchronized real-time testcase runner with immediate verdicts",
-      "Anti-cheat tab switch & blur tracking with spectator mode",
+      "Tab-switch and window-blur signals for host review, plus spectator mode",
       "Head-to-head match analytics, winner celebrations & leaderboards",
     ],
     actionLabel: "Explore Arena",
@@ -97,14 +97,14 @@ const TOUR_STEPS: TourStep[] = [
     badge: "Targeted Prep",
     badgeColor: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/25",
     icon: Building2,
-    title: "FAANG Company Prep Kits",
-    headline: "Practice What Top Tech Companies Actually Ask",
+    title: "Company Prep Kits",
+    headline: "Explore Curated Company-Tagged Problems",
     description:
-      "Target Google, Meta, Amazon, Microsoft, and Uber with specialized question banks. Explore company tag frequency charts, realistic problem distributions, and interview patterns.",
+      "Explore curated question collections tagged for companies such as Google, Meta, Amazon, Microsoft, and Uber, with frequency and difficulty views where data is available.",
     highlights: [
       "Company-specific question archives & tag distribution charts",
       "Problem frequency weights and difficulty classifications",
-      "One-click workspace opening to code solutions with inline notes",
+      "Problem references alongside integrated preparation notes",
     ],
     actionLabel: "View Company Kits",
     actionHref: "/practice?view=company_kits",
@@ -136,11 +136,11 @@ const TOUR_STEPS: TourStep[] = [
     title: "Unified Profile & Activity Heatmap",
     headline: "Connect LeetCode & Codeforces into One Dashboard",
     description:
-      "Bring all your coding activity under one roof. Connect your external handles to view a unified 365-day consistency heatmap, live contest ratings, and global rankings in one shareable profile.",
+      "Connect supported external handles to view a unified activity heatmap, contest ratings, and rankings in your profile, with freshness shown for each provider.",
     highlights: [
       "LeetCode contest rating, contest rank & solved count tracking",
       "Codeforces current rating vs peak rating distinction",
-      "Unified daily activity heatmap across all platforms with 1-click sync",
+      "Unified activity heatmap with manual sync and provider freshness status",
     ],
     actionLabel: "Visit Profile",
     actionHref: "/profile",

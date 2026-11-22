@@ -140,7 +140,7 @@ export default function LandingPage() {
             <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
             <span className="text-[#3969D6] font-semibold">AI Technical Mock Cockpit</span>
             <span className="text-[#75746E] hidden sm:inline">•</span>
-            <span className="text-[#A8A7A1] hidden sm:inline">FAANG Placement Ready</span>
+            <span className="text-[#A8A7A1] hidden sm:inline">Company-focused interview practice</span>
           </div>
 
           {/* Hero Title */}
@@ -153,7 +153,7 @@ export default function LandingPage() {
 
           {/* Hero Subtitle */}
           <p className="text-sm sm:text-lg text-[#A8A7A1] max-w-2xl mx-auto leading-relaxed mb-6 sm:mb-8">
-            Adaptive AI technical interviews, curated FAANG company prep kits, real-time 1v1 coding battle arenas, and granular diagnostic scorecards.
+            AI-guided technical interviews, curated company-tagged practice, timed multiplayer coding rooms, and detailed diagnostic scorecards.
           </p>
 
           {/* Hero CTAs */}
@@ -178,7 +178,7 @@ export default function LandingPage() {
           {/* Social Proof Pill */}
           <p className="text-[11px] sm:text-xs text-[#A8A7A1] flex items-center justify-center gap-1.5 sm:gap-2 font-mono">
             <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
-            Free practice tier · No credit card required · Instant start
+            Create an account to access the practice workspace
           </p>
 
           {/* Company Brand Logos Trust Strip (Sideways Auto-Scroll Marquee) */}
@@ -296,8 +296,8 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-bold text-white">Live Evaluation Telemetry</h4>
-                      <p className="text-[11px] text-[#A8A7A1]">Adaptive assessment in progress</p>
+                      <h4 className="text-xs font-bold text-white">Sample Evaluation Preview</h4>
+                      <p className="text-[11px] text-[#A8A7A1]">Illustrative interview feedback</p>
                     </div>
                     <span className="px-2 py-1 rounded-lg bg-[#3969D6]/15 border border-[#3969D6]/30 text-[#3969D6] font-mono font-bold text-xs">
                       SCORE 84/100
@@ -450,8 +450,8 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="p-2.5 sm:p-3 rounded-xl bg-[#202123] border border-[#383B40] text-[11px] sm:text-xs font-mono text-[#A8A7A1] flex items-center justify-between">
-                <span>FAANG / Top Tier</span>
-                <span className="text-[#F59E0B] font-semibold">Updated</span>
+                <span>Company-tagged practice</span>
+                <span className="text-[#F59E0B] font-semibold">Curated</span>
               </div>
             </div>
 
@@ -740,7 +740,7 @@ export default function LandingPage() {
                 Don't just practice. Understand your score.
               </h2>
               <p className="text-xs sm:text-sm text-[#A8A7A1]">
-                Every mock session yields actionable, quote-attributed assessments rather than generic feedback.
+                Completed AI mock interviews provide scored feedback and improvement guidance based on the session.
               </p>
             </div>
 
@@ -828,7 +828,7 @@ export default function LandingPage() {
             </h2>
 
             <p className="text-xs sm:text-sm text-[#A8A7A1] max-w-lg mx-auto leading-relaxed">
-              Join candidates using Intervue to master system design, solve curated company problem kits, and simulate real interview pressure.
+              Practice system design, work through curated company-tagged problems, and rehearse under timed interview conditions.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -842,7 +842,7 @@ export default function LandingPage() {
             </div>
 
             <p className="text-[11px] sm:text-xs font-mono text-[#75746E] pt-1">
-              No download required · Runs in any browser · Instant start
+              No download required · Create an account to begin
             </p>
           </div>
         </section>

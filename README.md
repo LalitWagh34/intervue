@@ -2,7 +2,7 @@
 
 # ⚡ interVue
 
-**Next-Generation AI Technical Interview Platform, Real-Time Battle Arena & Target Company Prep Ecosystem**
+**AI Technical Interview Practice, Multiplayer Coding Rooms & Curated Preparation**
 
 <br/>
 
@@ -18,7 +18,7 @@
 [![Bun](https://img.shields.io/badge/Bun-Runtime-fbf0df?style=for-the-badge&logo=bun&logoColor=black)](https://bun.sh)
 [![Hono](https://img.shields.io/badge/Hono-API_Framework-E36002?style=for-the-badge&logo=hono&logoColor=white)](https://hono.dev)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Prisma-2D3748?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Groq Llama 3.3](https://img.shields.io/badge/Groq-Llama_3.3_70B-F05A28?style=for-the-badge&logo=meta&logoColor=white)](https://groq.com)
+[![Groq API](https://img.shields.io/badge/Groq-Configurable_AI_Model-F05A28?style=for-the-badge&logoColor=white)](https://groq.com)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS_v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](./LICENSE)
 
@@ -34,12 +34,18 @@
 
 **interVue** is an all-in-one technical interview readiness platform designed for modern software engineers. It bridges the gap between static algorithmic practice and real-world hiring loops by combining:
 
-1. **AI Technical Mock Interviews**: Lifelike conversational interviews powered by Llama 3.3 70B with adaptive questioning ladders and multi-dimensional rubric evaluations.
+1. **AI Technical Mock Interviews**: Text-based conversational interviews powered through a configurable Groq model with follow-up questions and multi-dimensional rubric evaluations.
 2. **Real-Time Multiplayer Battle Arenas**: Timed competitive rooms with authoritative WebSockets, dynamic countdown clocks, spectator consoles, and live podiums.
-3. **Triple-Sensor Anti-Cheat Surveillance**: Automated proctoring detecting tab switching, window defocus, and clipboard injection with a 3-strike escalation penalty system.
-4. **Learn & Revise Hub with Interactive Visualizers**: Deep conceptual lessons (Quick Revision + Deep Dive) across DSA and DBMS paired with GPU-accelerated interactive step-by-step visualizers and spaced-repetition active recall MCQs.
-5. **Target Company Practice Kits & 470+ Archive**: Curated problem loops for Google, Amazon, Meta, Apple, Microsoft, Netflix, Uber, Accenture, and 470+ companies ranked by ask rate and interview frequency.
-6. **Interview Target Tracker (POTD)**: Daily problem challenge loops, streak tracking, and customizable goals synced with your LeetCode progress.
+3. **Room Integrity Signals**: Browser tab, window-focus, and large-paste events can be reported to room hosts and used by the configured three-strike room policy. These browser signals are review aids, not tamper-proof proof of misconduct.
+4. **Learn & Revise Hub with Interactive Visualizers**: Conceptual lessons (Quick Revision + Deep Dive) across DSA and DBMS paired with interactive step-by-step visualizers and spaced-repetition active recall MCQs.
+5. **Target Company Practice Kits**: Curated company-tagged problem collections with difficulty and frequency data where available.
+6. **Interview Target Tracker (POTD)**: Deterministic daily problem selections, configurable goals, and solved-state tracking for selected target companies.
+
+### Current route support
+
+- **Available:** text AI interviews (`/interview`), Prep Hub and company kits (`/practice`), learning (`/learn`), profiles (`/profile`), and multiplayer coding/assessment rooms (`/rooms`).
+- **Standalone coding:** `/coding` is not a separate V1 workspace and currently redirects to `/practice`; coding execution remains available inside multiplayer rooms.
+- **Voice interviews:** voice-related source and API boundaries exist, but `/voice-interview` is not registered in the web application and is not advertised as an available user flow.
 
 ---
 
@@ -47,11 +53,11 @@
 
 - [Key Features](#-key-features)
   - [1. Real-Time Battle Arena & Multiplayer Contests](#1-real-time-battle-arena--multiplayer-contests)
-  - [2. Authoritative Anti-Cheat Surveillance](#2-authoritative-anti-cheat-surveillance)
+  - [2. Room Integrity Signals and Enforcement](#2-room-integrity-signals-and-enforcement)
   - [3. Live Spectator Command Center](#3-live-spectator-command-center--code-streaming)
   - [4. AI Technical Mock Interviews & Automated Grading](#4-ai-technical-mock-interviews--automated-grading)
   - [5. Learn & Revise Hub & Interactive Visualizers](#5-learn--revise-hub--interactive-visualizers)
-  - [6. Target Company Practice Kits & 470+ Archive](#6-target-company-practice-kits--470-archive)
+  - [6. Target Company Practice Kits](#6-target-company-practice-kits)
   - [7. Interview Target Tracker (POTD Loops)](#7-interview-target-tracker-potd-loops)
   - [8. Curated Learning Hub & Flagship Sheets](#8-curated-learning-hub--flagship-sheets)
   - [9. Notes & Revision Bookmarks](#9-notes--revision-bookmarks)
@@ -81,12 +87,15 @@
   * Self-healing logic ensures past-due contests automatically transition to `FINISHED` across all history cards and leaderboards.
 * **Animated Results & Standings**: Responsive podium showcase, solutions review accordion with test case breakdown, and filterable scorecards.
 
-### 2. Authoritative Anti-Cheat Surveillance
-* **Triple-Sensor Surveillance**:
+### 2. Room Integrity Signals and Enforcement
+
+Browser events provide reviewable integrity signals and can have false positives; they should not be described as conclusive or tamper-proof surveillance.
+
+* **Three Browser Signals**:
   * **Tab Switching**: Monitors `visibilitychange` events and detects hidden browser tabs.
   * **Window Defocus**: Debounced window focus loss detection (`window.blur`).
   * **Suspicious Clipboard Injection**: Intercepts paste events exceeding 120 characters to deter external code dumps.
-* **Authoritative 3-Strike Escalation Ladder**:
+* **Server-Enforced 3-Strike Room Policy**:
   * **Strike 1 (Warning)**: Proctoring warning dialogue triggered and logged to the authoritative room incident audit feed.
   * **Strike 2 (Time Penalty)**: Backend authoritatively injects **+180 seconds (+3 minutes)** into the participant's official penalty clock in PostgreSQL.
   * **Strike 3 (Disqualification)**: Candidate is flagged `isDisqualified: true`. Subsequent code and MCQ submissions are rejected with **HTTP 403 Forbidden**, the contest UI is locked, and the candidate is disqualified.
@@ -103,7 +112,7 @@
 
 ### 4. AI Technical Mock Interviews & Automated Grading
 * **Adaptive Conversational Interviewer**:
-  * Powered by **Llama 3.3 70B Versatile** on Groq Cloud inference with senior engineering evaluation prompts.
+  * Powered through Groq Cloud inference using `GROQ_MODEL` (default: `openai/gpt-oss-120b`) with technical evaluation prompts.
   * Dynamically adjusts technical questioning depth based on candidate seniority level and engineering track (DSA, System Design, Frontend, Backend).
 * **Progressive Hint Ladder**:
   * Evaluates responses in real time, delivering calibrated architectural and algorithmic hints without giving away the full solution.
@@ -129,9 +138,9 @@
   * Multi-stage mastery progression: `UNSEEN` $\to$ `LEARNING` $\to$ `REVIEW_DUE` $\to$ `MASTERED`.
   * Atomic session tracking with automated scheduling based on retention performance.
 
-### 6. Target Company Practice Kits & 470+ Archive
-* **Curated Company Prep Kits**: High-yield interview problem tracks specifically tailored to **Google**, **Amazon**, **Meta**, **Microsoft**, **Apple**, **Netflix**, **Uber**, **Accenture**, and startups.
-* **470+ Company Archive**: Deep archive of real questions tagged with popularity metrics:
+### 6. Target Company Practice Kits
+* **Curated Company Prep Kits**: Company-tagged interview problem collections for supported catalog entries such as **Google**, **Amazon**, **Meta**, **Microsoft**, **Apple**, **Netflix**, **Uber**, and **Accenture**.
+* **Frequency Metadata**: Available question data may include frequency bands such as:
   * 🔥 *Very Hot* (Frequency $\ge$ 2.5)
   * ⚡ *Hot / Frequent* (Frequency 1.0 – 2.5)
   * Standard interview ask rates
@@ -139,10 +148,10 @@
 * **Direct LeetCode Integration**: Quick-launch links directly to original LeetCode problems with optimistic solved-state synchronization.
 
 ### 7. Interview Target Tracker (POTD Loops)
-* **Active Target Selectors**: Choose up to 5 target companies you are interviewing with.
-* **Daily POTD Challenge Generation**: Automatically pulls high-frequency problems matching your selected companies every morning.
-* **Configurable Goals**: Toggle daily goals (1, 2, 3, or 5 problems per day) with streak rewards.
-* **Cross-Company Tagging**: See exactly which of your target companies ask each daily problem.
+* **Active Target Selectors**: Select one or more target companies for focused preparation.
+* **Daily POTD Selection**: Uses the current UTC date to select a consistent daily set from the available company-tagged problem pool.
+* **Configurable Goals**: Show 1, 2, 3, or 5 problems from the daily set; this display preference is currently stored in the browser.
+* **Cross-Company Tagging**: Shows the selected-company tags associated with each returned problem.
 
 ### 8. Curated Learning Hub & Flagship Sheets
 * **Striver A2Z DSA Sheet**: Comprehensive roadmap covering step-by-step algorithms from foundational data structures to advanced graphs and dynamic programming.
@@ -186,7 +195,7 @@ interVue is designed with a high-performance decoupled architecture:
                       ▼                                                             ▼
        ┌───────────────────────────┐                                 ┌───────────────────────────┐
        │    PostgreSQL + Prisma    │                                 │       Groq AI APIs        │
-       │  - Users & Profiles       │                                 │  - Llama 3.3 70B          │
+       │  - Users & Profiles       │                                 │  - Configured Groq model  │
        │  - Rooms & Participants   │                                 │  - Adaptive Prompts       │
        │  - Curated Flagship Sheets│                                 │  - Rubric Evaluator       │
        │  - Submissions & Audits   │                                 └───────────────────────────┘
@@ -286,7 +295,7 @@ intervue/
 | **Authentication** | Better-Auth (Google OAuth & Email/Password, cross-domain cookie resilience) |
 | **Database & ORM** | PostgreSQL, Prisma ORM |
 | **Real-Time Engine** | Bun WebSockets (Port 3000, path `/ws/rooms`) |
-| **AI Inference** | Groq Cloud SDK (Llama 3.3 70B Versatile) |
+| **AI Inference** | Groq Cloud SDK (`GROQ_MODEL`, default `openai/gpt-oss-120b`) |
 | **Monorepo Tools** | Turborepo, Bun Workspaces |
 
 ---

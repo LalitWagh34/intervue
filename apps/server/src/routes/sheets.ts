@@ -6,21 +6,25 @@ const app = new Hono();
 
 // ─── GET /api/sheets ───────────────────────────────────────────────────
 app.get("/", async (c) => {
-  let userCount = 1420;
+  let userCount: number | null = null;
 
   try {
-    const realUserCount = await db.user.count();
-    if (realUserCount > 0) userCount = realUserCount;
+    userCount = await db.user.count();
   } catch {
-    // Ignore count error in offline/pool exhaustion scenarios
+    // Catalog data remains available, but the response must not invent a user count.
   }
+
+  const totalProblems = CURATED_FLAGSHIP_SHEETS.reduce(
+    (sum, sheet) => sum + sheet.problems.length,
+    0
+  );
 
   return c.json({
     sheets: CURATED_FLAGSHIP_SHEETS,
     stats: {
       totalUsers: userCount,
       curatedSubjects: CURATED_FLAGSHIP_SHEETS.length,
-      activeThisMonth: Math.floor(userCount * 0.4) + 1200,
+      totalProblems,
     },
   });
 });
