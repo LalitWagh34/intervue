@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth";
+import { requireAdmin } from "../middleware/admin";
 import { codeExecutionLimiter, aiReviewLimiter } from "../middleware/rateLimiter";
 import { validateBody, runCodeSchema, aiReviewSchema } from "../middleware/validator";
 import { idempotency } from "../middleware/idempotency";
@@ -246,7 +247,7 @@ app.post("/jobs", requireAuth, codeExecutionLimiter, idempotency(), validateBody
     roomCode?: string;
   };
 
-  const job = executionQueue.enqueue({
+  const job = await executionQueue.enqueue({
     type: body.mode === "run" ? "RUN" : "SUBMIT",
     userId: user.id,
     problemId: body.problemId,
@@ -260,9 +261,9 @@ app.post("/jobs", requireAuth, codeExecutionLimiter, idempotency(), validateBody
       jobId: job.id,
       status: job.status,
       type: job.type,
-      queuePosition: executionQueue.getQueuePosition(job.id),
+      queuePosition: await executionQueue.getQueuePosition(job.id),
       pollUrl: `/api/code/jobs/${job.id}`,
-      createdAt: job.createdAt,
+      createdAt: job.createdAt.getTime(),
       message: "Submission accepted and queued for asynchronous background execution.",
     },
     202
@@ -271,26 +272,27 @@ app.post("/jobs", requireAuth, codeExecutionLimiter, idempotency(), validateBody
 
 // Consumer Inspector: Poll status & result of an asynchronous execution job
 app.get("/jobs/:id", requireAuth, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   if (!id) {
     return c.json({ error: "Job ID parameter is required." }, 400);
   }
-  const job = executionQueue.getJob(id);
+  const job = await executionQueue.getJob(id, user.id);
 
   if (!job) {
     return c.json({ error: `Job with ID '${id}' was not found or has expired.` }, 404);
   }
 
-  const queuePosition = job.status === "QUEUED" ? executionQueue.getQueuePosition(job.id) : 0;
+  const queuePosition = job.status === "QUEUED" ? await executionQueue.getQueuePosition(job.id) : 0;
 
   return c.json({
     id: job.id,
     status: job.status,
     type: job.type,
     queuePosition,
-    createdAt: job.createdAt,
-    startedAt: job.startedAt,
-    completedAt: job.completedAt,
+    createdAt: job.createdAt.getTime(),
+    startedAt: job.startedAt?.getTime(),
+    completedAt: job.completedAt?.getTime(),
     durationMs: job.durationMs,
     result: job.result,
     error: job.error,
@@ -299,17 +301,19 @@ app.get("/jobs/:id", requireAuth, async (c) => {
 
 // 2.4 Cancellation: Abort in-flight or queued background execution job
 app.delete("/jobs/:id", requireAuth, async (c) => {
+  const user = c.get("user");
   const id = c.req.param("id");
   if (!id) {
     return c.json({ error: "Job ID parameter is required." }, 400);
   }
 
-  const success = executionQueue.cancelJob(id, "Cancelled by user request");
+  const job = await executionQueue.getJob(id, user.id);
+  if (!job) {
+    return c.json({ error: `Job with ID '${id}' was not found.` }, 404);
+  }
+
+  const success = await executionQueue.cancelJob(id, user.id, "Cancelled by user request");
   if (!success) {
-    const job = executionQueue.getJob(id);
-    if (!job) {
-      return c.json({ error: `Job with ID '${id}' was not found.` }, 404);
-    }
     return c.json({ message: `Job is already in status '${job.status}'.`, status: job.status }, 400);
   }
 
@@ -320,10 +324,10 @@ app.delete("/jobs/:id", requireAuth, async (c) => {
   });
 });
 
-// Observability: Current Queue Depth and Semaphore Permit Statistics
-app.get("/queue-stats", requireAuth, async (c) => {
+// Observability: Current Queue Depth and Semaphore Permit Statistics (Admin only)
+app.get("/queue-stats", requireAuth, requireAdmin, async (c) => {
   return c.json({
-    queue: executionQueue.getStats(),
+    queue: await executionQueue.getStats(),
     semaphore: judgeSemaphore.getStats(),
     timestamp: Date.now(),
   });

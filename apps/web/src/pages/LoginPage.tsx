@@ -140,7 +140,7 @@ export default function LoginPage() {
         toast.success("Account created successfully!", {
           description: "Welcome to Intervue! Redirecting to your dashboard...",
         });
-        window.location.replace("/dashboard");
+        navigate("/dashboard", { replace: true });
       } else {
         const result = await signIn.email({
           email: email.trim(),
@@ -163,7 +163,7 @@ export default function LoginPage() {
         toast.success("Welcome back!", {
           description: "Signed in successfully. Redirecting...",
         });
-        window.location.replace("/dashboard");
+        navigate("/dashboard", { replace: true });
       }
     } catch (err: any) {
       console.error("Auth submit error:", err);

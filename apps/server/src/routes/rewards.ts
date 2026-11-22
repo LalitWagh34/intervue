@@ -1,5 +1,5 @@
 ﻿import { Hono } from "hono";
-import { db } from "@intervue/db";
+import { db, Prisma } from "@intervue/db";
 import { requireAuth } from "../middleware/auth";
 import type { AuthVariables } from "../types";
 
@@ -9,6 +9,31 @@ rewards.use("*", requireAuth);
 
 const DAILY_POINTS = 10;
 const REFERRAL_POINTS = 50;
+
+async function runSerializableTx<T>(
+  action: (tx: any) => Promise<T>,
+  maxRetries = 3
+): Promise<T> {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await db.$transaction(action, {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      });
+    } catch (err: any) {
+      attempt++;
+      const isSerializationFailure =
+        err?.code === "P2034" ||
+        err?.message?.includes("serialization") ||
+        err?.message?.includes("could not serialize");
+      if (isSerializationFailure && attempt <= maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, 20 * Math.pow(2, attempt)));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
 
 // GET /api/rewards/status - get points, streak, whether today is claimed
 rewards.get("/status", async (c) => {
@@ -57,50 +82,60 @@ rewards.post("/daily-checkin", async (c) => {
   const user = c.get("user");
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
-  let profile = await db.profile.findUnique({
-    where: { userId: user.id },
-    select: { points: true, streakCount: true, lastDailyCheckInAt: true },
-  });
+  try {
+    const now = new Date();
+    const result = await runSerializableTx(async (tx) => {
+      let profile = await tx.profile.findUnique({
+        where: { userId: user.id },
+        select: { points: true, streakCount: true, lastDailyCheckInAt: true },
+      });
 
-  if (!profile) {
-    profile = await db.profile.create({
-      data: { userId: user.id },
-      select: { points: true, streakCount: true, lastDailyCheckInAt: true },
+      if (!profile) {
+        profile = await tx.profile.create({
+          data: { userId: user.id },
+          select: { points: true, streakCount: true, lastDailyCheckInAt: true },
+        });
+      }
+
+      // Check if already claimed today
+      if (profile.lastDailyCheckInAt && isSameDay(new Date(profile.lastDailyCheckInAt), now)) {
+        return {
+          alreadyClaimed: true,
+          points: profile.points,
+          streakCount: profile.streakCount,
+        };
+      }
+
+      // Check if continuing a streak (solved yesterday) or resetting
+      const isConsecutive =
+        profile.lastDailyCheckInAt &&
+        isYesterday(new Date(profile.lastDailyCheckInAt), now);
+
+      const newStreak = isConsecutive ? profile.streakCount + 1 : 1;
+
+      const updated = await tx.profile.update({
+        where: { userId: user.id },
+        data: {
+          points: { increment: DAILY_POINTS },
+          streakCount: newStreak,
+          lastDailyCheckInAt: now,
+        },
+        select: { points: true, streakCount: true },
+      });
+
+      return {
+        alreadyClaimed: false,
+        pointsAwarded: DAILY_POINTS,
+        points: updated.points,
+        streakCount: updated.streakCount,
+      };
     });
+
+    return c.json(result);
+  } catch (err: any) {
+    console.error("Error claiming daily reward:", err);
+    return c.json({ error: "Failed to process daily check-in" }, 500);
   }
-
-  // Check if already claimed today
-  if (profile.lastDailyCheckInAt && isSameDay(new Date(profile.lastDailyCheckInAt), new Date())) {
-    return c.json({
-      alreadyClaimed: true,
-      points: profile.points,
-      streakCount: profile.streakCount,
-    });
-  }
-
-  // Check if continuing a streak (solved yesterday) or resetting
-  const isConsecutive =
-    profile.lastDailyCheckInAt &&
-    isYesterday(new Date(profile.lastDailyCheckInAt));
-
-  const newStreak = isConsecutive ? profile.streakCount + 1 : 1;
-  const newPoints = profile.points + DAILY_POINTS;
-
-  await db.profile.update({
-    where: { userId: user.id },
-    data: {
-      points: newPoints,
-      streakCount: newStreak,
-      lastDailyCheckInAt: new Date(),
-    },
-  });
-
-  return c.json({
-    alreadyClaimed: false,
-    pointsAwarded: DAILY_POINTS,
-    points: newPoints,
-    streakCount: newStreak,
-  });
 });
 
 // GET /api/rewards/referral - get or generate referral code
@@ -161,45 +196,51 @@ rewards.post("/referral/claim", async (c) => {
       return c.json({ error: "You cannot refer your own account" }, 400);
     }
 
-    // Ensure current user has a profile
-    let myProfile = await db.profile.findUnique({
-      where: { userId: user.id },
-      select: { referredByUserId: true, points: true },
-    });
-
-    if (!myProfile) {
-      myProfile = await db.profile.create({
-        data: { userId: user.id, points: 0 },
+    // Credit both users with +50 points atomically
+    const result = await runSerializableTx(async (tx) => {
+      // Re-read current user profile inside transaction to prevent double claim race
+      let myProfile = await tx.profile.findUnique({
+        where: { userId: user.id },
         select: { referredByUserId: true, points: true },
       });
-    }
 
-    if (myProfile.referredByUserId) {
-      return c.json({ error: "You have already claimed a referral bonus" }, 400);
-    }
+      if (!myProfile) {
+        myProfile = await tx.profile.create({
+          data: { userId: user.id, points: 0 },
+          select: { referredByUserId: true, points: true },
+        });
+      }
 
-    // Credit both users with +50 points
-    await db.$transaction([
-      db.profile.update({
+      if (myProfile.referredByUserId) {
+        throw new Error("ALREADY_CLAIMED");
+      }
+
+      await tx.profile.update({
         where: { userId: user.id },
         data: {
-          points: myProfile.points + REFERRAL_POINTS,
+          points: { increment: REFERRAL_POINTS },
           referredByUserId: referrerProfile.userId,
         },
-      }),
-      db.profile.update({
+      });
+
+      await tx.profile.update({
         where: { userId: referrerProfile.userId },
         data: {
-          points: referrerProfile.points + REFERRAL_POINTS,
-          totalReferrals: referrerProfile.totalReferrals + 1,
+          points: { increment: REFERRAL_POINTS },
+          totalReferrals: { increment: 1 },
         },
-      }),
-    ]);
+      });
 
-    return c.json({ success: true, pointsAwarded: REFERRAL_POINTS });
+      return { success: true, pointsAwarded: REFERRAL_POINTS };
+    });
+
+    return c.json(result);
   } catch (err: any) {
+    if (err?.message === "ALREADY_CLAIMED") {
+      return c.json({ error: "You have already claimed a referral bonus" }, 400);
+    }
     console.error("Error claiming referral:", err);
-    return c.json({ error: err.message || "Failed to claim referral" }, 500);
+    return c.json({ error: "Failed to claim referral bonus" }, 500);
   }
 });
 
@@ -212,8 +253,8 @@ function isSameDay(a: Date, b: Date) {
   );
 }
 
-function isYesterday(d: Date) {
-  const yesterday = new Date();
+function isYesterday(d: Date, referenceDate = new Date()) {
+  const yesterday = new Date(referenceDate);
   yesterday.setUTCDate(yesterday.getUTCDate() - 1);
   return isSameDay(d, yesterday);
 }

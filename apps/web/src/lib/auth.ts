@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/react";
+import { useEffect, useState } from "react";
 
 const getAuthBaseUrl = () => {
   if (import.meta.env.VITE_AUTH_URL) return import.meta.env.VITE_AUTH_URL;
@@ -6,54 +7,23 @@ const getAuthBaseUrl = () => {
   return "http://localhost:3000";
 };
 
+// In-memory token store: never persist long-lived durable tokens to localStorage
+let inMemorySessionToken: string | null = null;
+
 export const getSessionToken = () => {
-  try {
-    return localStorage.getItem("intervue_session_token") || "";
-  } catch {
-    return "";
-  }
+  return inMemorySessionToken || "";
 };
 
 export const setSessionToken = (token: string) => {
-  try {
-    if (token) {
-      localStorage.setItem("intervue_session_token", token);
-    } else {
-      localStorage.removeItem("intervue_session_token");
-    }
-  } catch {}
+  inMemorySessionToken = token ? token : null;
 };
-
-// Check URL for session_token from OAuth redirect (e.g. mobile Safari / Google OAuth fallback)
-if (typeof window !== "undefined") {
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("session_token") || params.get("token");
-    if (token) {
-      localStorage.setItem("intervue_session_token", token);
-      params.delete("session_token");
-      params.delete("token");
-      const newSearch = params.toString();
-      const targetPath =
-        window.location.pathname === "/" || !window.location.pathname
-          ? "/dashboard"
-          : window.location.pathname;
-      const newUrl = targetPath + (newSearch ? `?${newSearch}` : "") + window.location.hash;
-      if (window.location.pathname === "/" || !window.location.pathname) {
-        window.location.replace(newUrl);
-      } else {
-        window.history.replaceState({}, document.title, newUrl);
-      }
-    }
-  } catch {}
-}
 
 export const authClient = createAuthClient({
   baseURL: getAuthBaseUrl(),
   fetchOptions: {
     onRequest: (context) => {
       try {
-        const token = localStorage.getItem("intervue_session_token");
+        const token = getSessionToken();
         if (token) {
           context.headers.set("authorization", `Bearer ${token}`);
         }
@@ -66,18 +36,97 @@ export const authClient = createAuthClient({
           context.response.headers.get("set-auth-token") ||
           context.response.headers.get("Set-Auth-Token");
         if (token) {
-          localStorage.setItem("intervue_session_token", token);
+          setSessionToken(token);
         }
       } catch {}
     },
   },
 });
 
-export const { signIn, signUp, useSession } = authClient;
+let authBootstrapPending = false;
+let authBootstrapPromise: Promise<void> = Promise.resolve();
+
+// Remove legacy durable tokens and exchange an OAuth callback code before route guards decide.
+if (typeof window !== "undefined") {
+  try {
+    localStorage.removeItem("intervue_session_token");
+
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const hadLegacyToken = params.has("session_token") || params.has("token");
+    params.delete("code");
+    params.delete("session_token");
+    params.delete("token");
+
+    if (code || hadLegacyToken) {
+      const targetPath =
+        window.location.pathname === "/" || !window.location.pathname
+          ? "/dashboard"
+          : window.location.pathname;
+      const newSearch = params.toString();
+      const newUrl = targetPath + (newSearch ? `?${newSearch}` : "") + window.location.hash;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+
+    if (code) {
+      authBootstrapPending = true;
+      authBootstrapPromise = fetch(`${getAuthBaseUrl()}/api/auth/exchange-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ code }),
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error("Authorization code exchange failed");
+          const data = await res.json();
+          if (!data?.token) throw new Error("Authorization code exchange returned no token");
+          setSessionToken(data.token);
+        })
+        .catch(() => {
+          setSessionToken("");
+        })
+        .finally(() => {
+          authBootstrapPending = false;
+        });
+    }
+  } catch {
+    authBootstrapPending = false;
+  }
+}
+
+export const { signIn, signUp } = authClient;
+
+export function useSession() {
+  const session = authClient.useSession();
+  const [isBootstrapping, setIsBootstrapping] = useState(authBootstrapPending);
+
+  useEffect(() => {
+    if (!isBootstrapping) return;
+    let active = true;
+    void authBootstrapPromise.finally(async () => {
+      try {
+        await session.refetch();
+      } catch {
+        // The route guard will render the signed-out state if verification is unavailable.
+      } finally {
+        if (active) setIsBootstrapping(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [isBootstrapping, session.refetch]);
+
+  return {
+    ...session,
+    isPending: session.isPending || isBootstrapping,
+  };
+}
 
 export const signOut = async (options?: Parameters<typeof authClient.signOut>[0]) => {
+  setSessionToken("");
   try {
     localStorage.removeItem("intervue_session_token");
   } catch {}
   return authClient.signOut(options);
-};
+};

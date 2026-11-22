@@ -25,6 +25,8 @@ import { register, httpRequestDurationMicroseconds } from "./lib/metrics";
 import { logger as pinoLogger } from "./lib/logger";
 
 import { AppError, InternalServerError } from "./lib/errors";
+import { createAuthExchangeCode, consumeAuthExchangeCode } from "./lib/exchangeCodes";
+import { startEvaluationRecoveryWorker } from "./services/evaluation";
 
 const { upgradeWebSocket, websocket } = createBunWebSocket();
 const app = new Hono<{ Variables: AuthVariables }>();
@@ -60,28 +62,51 @@ app.use("*", async (c, next) => {
   await next();
 });
 app.use("*", logger());
+export function isAllowedOrigin(origin: string | undefined): boolean {
+  if (!origin) return false;
+  try {
+    const parsed = new URL(origin);
+    const originLower = parsed.origin.toLowerCase();
+
+    // 1. In non-production, permit local development hostnames
+    if (process.env.NODE_ENV !== "production") {
+      if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") {
+        return true;
+      }
+    }
+
+    // 2. Strict production allowlist: exact origins only (no wildcard prefix/substring matching)
+    const productionAllowlist = new Set<string>([
+      "https://intervue-mu.vercel.app",
+      "https://intervue.vercel.app",
+      "https://intervue-git-main-lalit-wagh-s-projects.vercel.app",
+    ]);
+
+    if (process.env.FRONTEND_URL) {
+      try {
+        productionAllowlist.add(new URL(process.env.FRONTEND_URL).origin.toLowerCase());
+      } catch {}
+    }
+    if (process.env.CLIENT_URL) {
+      try {
+        productionAllowlist.add(new URL(process.env.CLIENT_URL).origin.toLowerCase());
+      } catch {}
+    }
+
+    return productionAllowlist.has(originLower);
+  } catch {
+    return false;
+  }
+}
+
 app.use(
   "*",
   cors({
     origin: (origin) => {
-      if (!origin) return "http://localhost:5173";
-      if (
-        origin.includes("localhost") ||
-        origin.includes("127.0.0.1") ||
-        origin.endsWith(".vercel.app") ||
-        origin.includes("vercel.app")
-      ) {
+      if (isAllowedOrigin(origin)) {
         return origin;
       }
-      const allowedOrigins = [
-        process.env.FRONTEND_URL,
-        process.env.CLIENT_URL,
-      ].filter(Boolean) as string[];
-
-      if (allowedOrigins.some((allowed) => origin === allowed || origin.startsWith(allowed))) {
-        return origin;
-      }
-      return origin;
+      return null;
     },
     credentials: true,
     exposeHeaders: ["set-auth-token", "Set-Auth-Token"],
@@ -106,6 +131,20 @@ app.get("/test-auth", (c) => {
 });
 
 // Auth routes — better-auth handles everything under /api/auth/* (Google OAuth + Email/Password)
+// Register the exchange before the catch-all Better Auth route so it remains reachable.
+app.post("/api/auth/exchange-token", async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const code = body?.code;
+  if (!code || typeof code !== "string") {
+    return c.json({ error: "Authorization code is required" }, 400);
+  }
+  const token = consumeAuthExchangeCode(code);
+  if (!token) {
+    return c.json({ error: "Invalid or expired authorization code" }, 400);
+  }
+  return c.json({ token, success: true });
+});
+
 app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
   const isGetSession = c.req.path.includes("get-session");
   const authStart = Date.now();
@@ -158,7 +197,10 @@ app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
         if (url.pathname === "/" || url.pathname === "") {
           url.pathname = "/dashboard";
         }
-        url.searchParams.set("session_token", decodeURIComponent(token));
+        // Do NOT expose long-lived session_token in query params!
+        // Use a short-lived, single-use exchange code with 60-second validity window:
+        const exchangeCode = createAuthExchangeCode(decodeURIComponent(token));
+        url.searchParams.set("code", exchangeCode);
         const headers = new Headers(res.headers);
         headers.set("location", url.toString());
         return new Response(res.body, {
@@ -168,12 +210,13 @@ app.on(["GET", "POST", "PUT", "DELETE", "PATCH"], "/api/auth/*", async (c) => {
         });
       }
     } catch (e) {
-      console.error("[OAuth redirect session_token attachment failed]:", e);
+      console.error("[OAuth redirect exchange code attachment failed]:", e);
     }
   }
 
   return res;
 });
+
 app.route("/api/profile", profileRoutes);
 app.route("/api/interviews", interviewRoutes);
 app.route("/api/chats", chatRoutes);
@@ -325,6 +368,10 @@ const server = {
   fetch: app.fetch,
   websocket,
 };
+
+if (process.env.NODE_ENV !== "test") {
+  startEvaluationRecoveryWorker();
+}
 
 // Graceful Shutdown
 process.on("SIGINT", async () => {

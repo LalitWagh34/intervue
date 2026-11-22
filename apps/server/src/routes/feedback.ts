@@ -9,6 +9,15 @@ import type { AuthVariables } from "../types";
 
 const feedback = new Hono<{ Variables: AuthVariables }>();
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const feedbackLimiter = rateLimiter({
   windowMs: 5 * 60_000,
   max: 5,
@@ -32,6 +41,23 @@ feedback.post("/", feedbackLimiter, async (c) => {
       return c.json({ error: "Message must be under 5,000 characters" }, 400);
     }
 
+    // Validate email format if provided
+    let safeEmail: string | undefined = undefined;
+    if (email && typeof email === "string" && email.trim()) {
+      const trimmedEmail = email.trim();
+      if (trimmedEmail.length > 150) {
+        return c.json({ error: "Email must be under 150 characters" }, 400);
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+        return c.json({ error: "Invalid email address format" }, 400);
+      }
+      safeEmail = trimmedEmail;
+    }
+
+    const safeName = name && typeof name === "string" ? name.trim().slice(0, 100) : null;
+    const safeSubject = subject && typeof subject === "string" ? subject.trim().slice(0, 200) : "General";
+    const trimmedMessage = message.trim();
+
     // Attempt to identify user if logged in
     let userId: string | null = null;
     try {
@@ -41,17 +67,29 @@ feedback.post("/", feedbackLimiter, async (c) => {
       }
     } catch (_) {}
 
+    // 1. Persist feedback securely to PostgreSQL first
+    const saved = await db.feedback.create({
+      data: {
+        name: safeName,
+        email: safeEmail || null,
+        subject: safeSubject,
+        message: trimmedMessage,
+        emailed: false,
+        userId,
+      },
+    });
+
+    let emailDelivered = false;
     const targetAdminEmail = process.env.ADMIN_EMAIL || "lalitwagh2804@gmail.com";
     const resendApiKey = process.env.RESEND_API_KEY;
 
-    let emailDelivered = false;
-
-    // 1. Send Email via Resend if API key is provided
+    // 2. Send Email via Resend with strict HTML escaping
     if (resendApiKey) {
       try {
-        const safeName = name ? String(name).slice(0, 100) : "User";
-        const safeSubject = subject ? String(subject).slice(0, 200) : "General";
-        const safeEmail = email ? String(email).slice(0, 150) : undefined;
+        const escapedName = escapeHtml(safeName || "User");
+        const escapedSubject = escapeHtml(safeSubject);
+        const escapedEmail = safeEmail ? escapeHtml(safeEmail) : null;
+        const escapedMessage = escapeHtml(trimmedMessage);
 
         const emailResponse = await fetch("https://api.resend.com/emails", {
           method: "POST",
@@ -63,18 +101,18 @@ feedback.post("/", feedbackLimiter, async (c) => {
             from: "onboarding@resend.dev",
             to: [targetAdminEmail.trim()],
             reply_to: safeEmail,
-            subject: `[Intervue Feedback] ${safeSubject}: from ${safeName}`,
+            subject: `[Intervue Feedback] ${escapedSubject}: from ${escapedName}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 10px;">
                 <h2 style="color: #2563EB; margin-top: 0;">New User Feedback Received</h2>
                 <hr style="border: 0; border-top: 1px solid #eaeaea;" />
-                <p><strong>Name:</strong> ${safeName}</p>
-                <p><strong>Email:</strong> ${safeEmail ? `<a href="mailto:${safeEmail}">${safeEmail}</a>` : "Not provided"}</p>
-                <p><strong>Subject:</strong> ${safeSubject}</p>
+                <p><strong>Name:</strong> ${escapedName}</p>
+                <p><strong>Email:</strong> ${escapedEmail ? `<a href="mailto:${escapedEmail}">${escapedEmail}</a>` : "Not provided"}</p>
+                <p><strong>Subject:</strong> ${escapedSubject}</p>
                 <p><strong>Received At:</strong> ${new Date().toLocaleString()}</p>
                 <div style="background-color: #f8fafc; padding: 15px; border-left: 4px solid #2563EB; border-radius: 4px; margin: 15px 0;">
                   <h4 style="margin: 0 0 10px 0; color: #334155;">Message:</h4>
-                  <p style="margin: 0; white-space: pre-wrap; color: #1e293b;">${message.trim()}</p>
+                  <p style="margin: 0; white-space: pre-wrap; color: #1e293b;">${escapedMessage}</p>
                 </div>
                 <hr style="border: 0; border-top: 1px solid #eaeaea;" />
                 <p style="font-size: 11px; color: #888;">Intervue Automated Notification</p>
@@ -85,6 +123,10 @@ feedback.post("/", feedbackLimiter, async (c) => {
 
         if (emailResponse.ok) {
           emailDelivered = true;
+          await db.feedback.update({
+            where: { id: saved.id },
+            data: { emailed: true },
+          }).catch(() => {});
           console.log(`[Email Dispatcher] Feedback email successfully sent via Resend.`);
         } else {
           const errText = await emailResponse.text();
@@ -95,7 +137,7 @@ feedback.post("/", feedbackLimiter, async (c) => {
       }
     }
 
-    // 2. Dispatch to Discord / Slack webhook if configured
+    // 3. Dispatch to Discord / Slack webhook if configured
     const webhookUrl = process.env.FEEDBACK_WEBHOOK_URL;
     if (webhookUrl) {
       try {
@@ -103,25 +145,13 @@ feedback.post("/", feedbackLimiter, async (c) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            content: `**New Feedback Received on Intervue!**\n**From:** ${name || "Anonymous"} (${email || "N/A"})\n**Subject:** ${subject || "General"}\n**Message:**\n> ${message.trim().replace(/\n/g, "\n> ")}`,
+            content: `**New Feedback Received on Intervue!**\n**From:** ${safeName || "Anonymous"} (${safeEmail || "N/A"})\n**Subject:** ${safeSubject}\n**Message:**\n> ${trimmedMessage.replace(/\n/g, "\n> ")}`,
           }),
         });
       } catch (err) {
         console.error("[Webhook Dispatcher] Failed calling webhook:", err);
       }
     }
-
-    // 3. Persist feedback securely to PostgreSQL
-    const saved = await db.feedback.create({
-      data: {
-        name: name ? String(name).slice(0, 100) : null,
-        email: email ? String(email).slice(0, 150) : null,
-        subject: subject ? String(subject).slice(0, 200) : "General",
-        message: message.trim(),
-        emailed: emailDelivered,
-        userId,
-      },
-    });
 
     // 4. Safe Server Log without raw PII exposure
     console.log(`[Feedback] Saved feedback id=${saved.id}, subject="${saved.subject}", userId=${userId || "guest"}, emailed=${emailDelivered}`);
@@ -135,7 +165,7 @@ feedback.post("/", feedbackLimiter, async (c) => {
     });
   } catch (err: any) {
     console.error("Error saving feedback:", err);
-    return c.json({ error: err.message || "Failed to submit feedback" }, 500);
+    return c.json({ error: "Failed to submit feedback. Please try again later." }, 500);
   }
 });
 
@@ -159,7 +189,7 @@ feedback.get("/", requireAuth, requireAdmin, async (c) => {
     return c.json({ feedbacks });
   } catch (err: any) {
     console.error("[Feedback Admin Error]", err);
-    return c.json({ error: err.message || "Failed to retrieve feedback list" }, 500);
+    return c.json({ error: "Failed to retrieve feedback list" }, 500);
   }
 });
 
