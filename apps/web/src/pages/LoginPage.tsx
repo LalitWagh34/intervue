@@ -90,7 +90,7 @@ export default function LoginPage() {
 
     if (errorParam === "state_mismatch") {
       toast.error("Sign-in session expired. Please click below to try again.", {
-        description: "Google verification state mismatched. Avoid double clicking the sign-in button.",
+        description: "The secure Google sign-in state could not be completed. Please start a new sign-in attempt.",
       });
     } else if (errorParam === "account_not_linked") {
       toast.error("Account already exists with this email.", {

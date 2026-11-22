@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { bearer } from "better-auth/plugins";
 import { db } from "@intervue/db";
+import { shouldSkipOAuthStateCookieCheck } from "./authOptions";
 
 const defaultFrontendUrl =
   process.env.FRONTEND_URL ||
@@ -21,6 +22,12 @@ export const auth = betterAuth({
     enabled: true,
   },
   account: {
+    // Vercel and Render are different sites, so browsers that block third-party
+    // cookies can drop Better Auth's secondary signed state cookie. Keep the
+    // one-time database state + PKCE checks, and skip only that cookie comparison
+    // in production until auth and web are served from the same parent domain.
+    storeStateStrategy: "database",
+    skipStateCookieCheck: shouldSkipOAuthStateCookieCheck(),
     accountLinking: {
       enabled: true,
       trustedProviders: ["google"],

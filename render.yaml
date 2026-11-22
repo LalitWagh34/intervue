@@ -17,6 +17,9 @@ services:
         generateValue: true
       - key: BETTER_AUTH_URL
         sync: false
+      # Set to true after frontend and auth use the same parent domain.
+      - key: AUTH_REQUIRE_STATE_COOKIE
+        value: "false"
       - key: FRONTEND_URL
         sync: false
       - key: CLIENT_URL

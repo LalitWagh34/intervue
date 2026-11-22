@@ -6,6 +6,7 @@ import feedbackRoutes from "../routes/feedback";
 import rewardsRoutes from "../routes/rewards";
 import { executionQueue } from "../services/taskQueue";
 import { auth } from "../lib/auth";
+import { shouldSkipOAuthStateCookieCheck } from "../lib/authOptions";
 import { db } from "@intervue/db";
 
 describe("Phase 1: P0 Security & Data Integrity", () => {
@@ -18,6 +19,13 @@ describe("Phase 1: P0 Security & Data Integrity", () => {
   });
 
   describe("Finding 01 & 02: Strict CORS & Origin Allowlist Validation", () => {
+    it("limits the cross-site OAuth cookie compatibility mode to production", () => {
+      expect(shouldSkipOAuthStateCookieCheck("production", undefined)).toBe(true);
+      expect(shouldSkipOAuthStateCookieCheck("development", undefined)).toBe(false);
+      expect(shouldSkipOAuthStateCookieCheck("test", undefined)).toBe(false);
+      expect(shouldSkipOAuthStateCookieCheck("production", "true")).toBe(false);
+    });
+
     it("rejects hostile external origins", () => {
       expect(isAllowedOrigin("https://evil.com")).toBe(false);
       expect(isAllowedOrigin("https://hacker.org")).toBe(false);
