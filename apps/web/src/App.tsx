@@ -215,8 +215,6 @@ export default function App() {
             <Route path="/rooms" element={<RoomsPage />} />
             <Route path="/rooms/:code/lobby" element={<RoomLobbyPage />} />
             <Route path="/rooms/:code/results" element={<RoomResultsPage />} />
-            {/* <Route path="/voice-interview" element={<VoiceInterviewPage />} /> */}
-            
             <Route path="*" element={<NotFoundPage />} />
           </Route>
 
