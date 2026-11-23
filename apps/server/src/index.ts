@@ -292,7 +292,7 @@ app.get(
         (ws as any).msgCount = 0;
         (ws as any).lastMsgReset = Date.now();
         roomSocketManager.registerConnection(ws, verifiedUser);
-        console.log(`[WS] Authenticated client connected to /ws/rooms: ${verifiedUser.id} (${verifiedUser.name || "Anonymous"})`);
+        pinoLogger.info({ scope: "rooms" }, "Authenticated WebSocket client connected");
       },
       onMessage: async (event, ws) => {
         const authUser = (ws as any).user || verifiedUser;
@@ -359,6 +359,24 @@ app.get("/health", (c) => {
     return c.json({ status: "shutting_down" }, 503);
   }
   return c.json({ status: "ok", message: "Intervue server running" });
+});
+
+app.get("/live", (c) => {
+  if (isShuttingDown) return c.json({ status: "shutting_down" }, 503);
+  return c.json({ status: "ok" });
+});
+
+app.get("/ready", async (c) => {
+  if (isShuttingDown) return c.json({ status: "shutting_down" }, 503);
+  try {
+    await Promise.race([
+      db.$queryRaw`SELECT 1`,
+      new Promise((_, reject) => setTimeout(() => reject(new Error("readiness timeout")), 2000)),
+    ]);
+    return c.json({ status: "ready", database: "available" });
+  } catch {
+    return c.json({ status: "not_ready", database: "unavailable" }, 503);
+  }
 });
 
 export { app };
