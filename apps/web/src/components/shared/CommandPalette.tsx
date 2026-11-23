@@ -7,12 +7,18 @@ import { openProductTour } from "@/components/shared/ProductTourModal";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const getSheetPracticePath = (sheetSlug: string) =>
   `/practice?${new URLSearchParams({ view: "sheet_practice", sheet: sheetSlug }).toString()}`;
 
 export function CommandPalette() {
-  const { isOpen, setIsOpen } = useCommandPalette();
+  const { isOpen, returnFocus, setIsOpen } = useCommandPalette();
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
@@ -45,20 +51,23 @@ export function CommandPalette() {
     command();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[100] bg-[var(--overlay-scrim)] backdrop-blur-sm flex items-start justify-center pt-[20vh] px-4" onClick={() => setIsOpen(false)}>
-      <div 
-        className="w-full max-w-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
-        onClick={(e) => e.stopPropagation()}
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent
+        showCloseButton={false}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          returnFocus?.focus();
+        }}
+        className="top-[20vh] max-w-2xl translate-y-0 gap-0 overflow-hidden border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-0 text-[var(--text-primary)] shadow-2xl"
       >
+        <DialogTitle className="sr-only">Search Intervue</DialogTitle>
+        <DialogDescription className="sr-only">
+          Search published problems and practice sheets, or choose a quick action.
+        </DialogDescription>
         <Command 
           shouldFilter={false} 
           className="flex flex-col h-full w-full"
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setIsOpen(false);
-          }}
         >
           {/* Header Input */}
           <div className="flex items-center gap-3 px-4 py-4 border-b border-[var(--border-subtle)]">
@@ -161,7 +170,7 @@ export function CommandPalette() {
             )}
           </Command.List>
         </Command>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
