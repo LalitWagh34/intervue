@@ -5,6 +5,12 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { CommandPalette, getSheetPracticePath } from "./CommandPalette";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 
+const { apiGet } = vi.hoisted(() => ({ apiGet: vi.fn() }));
+
+vi.mock("@/lib/api", () => ({
+  api: { get: apiGet },
+}));
+
 beforeAll(() => {
   vi.stubGlobal(
     "ResizeObserver",
@@ -37,6 +43,7 @@ const renderPalette = () => {
 
 afterEach(() => {
   useCommandPalette.setState({ isOpen: false, returnFocus: null });
+  apiGet.mockReset();
 });
 
 describe("command palette destinations", () => {
@@ -76,5 +83,60 @@ describe("command palette accessibility", () => {
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     await waitFor(() => expect(previousControl).toHaveFocus());
+  });
+});
+
+describe("command palette search resilience", () => {
+  it("debounces requests and passes a cancellation signal", async () => {
+    apiGet.mockResolvedValue({ data: { problems: [], sheets: [] } });
+    renderPalette();
+    act(() => useCommandPalette.getState().setIsOpen(true));
+
+    const input = await screen.findByPlaceholderText("Search problems, sheets, tracks...");
+    fireEvent.change(input, { target: { value: "array" } });
+
+    expect(apiGet).not.toHaveBeenCalled();
+    await waitFor(() => expect(apiGet).toHaveBeenCalledTimes(1));
+    expect(apiGet).toHaveBeenCalledWith("/search?q=array", {
+      signal: expect.any(AbortSignal),
+    });
+  });
+
+  it("cancels an obsolete request when a newer query starts", async () => {
+    let firstSignal: AbortSignal | undefined;
+    apiGet.mockImplementationOnce((_url, config) => {
+      firstSignal = config.signal;
+      return new Promise((_resolve, reject) => {
+        config.signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+      });
+    });
+    apiGet.mockResolvedValueOnce({ data: { problems: [], sheets: [] } });
+    renderPalette();
+    act(() => useCommandPalette.getState().setIsOpen(true));
+
+    const input = await screen.findByPlaceholderText("Search problems, sheets, tracks...");
+    fireEvent.change(input, { target: { value: "array" } });
+    await waitFor(() => expect(apiGet).toHaveBeenCalledTimes(1));
+
+    fireEvent.change(input, { target: { value: "graph" } });
+    await waitFor(() => expect(apiGet).toHaveBeenCalledTimes(2));
+    expect(firstSignal?.aborted).toBe(true);
+  });
+
+  it("shows a retry action when search fails", async () => {
+    apiGet
+      .mockRejectedValueOnce(new Error("network unavailable"))
+      .mockResolvedValueOnce({ data: { problems: [], sheets: [] } });
+    renderPalette();
+    act(() => useCommandPalette.getState().setIsOpen(true));
+
+    const input = await screen.findByPlaceholderText("Search problems, sheets, tracks...");
+    fireEvent.change(input, { target: { value: "array" } });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Search is temporarily unavailable");
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+
+    await waitFor(() => expect(apiGet).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
   });
 });

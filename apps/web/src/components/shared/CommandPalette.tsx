@@ -20,7 +20,14 @@ export const getSheetPracticePath = (sheetSlug: string) =>
 export function CommandPalette() {
   const { isOpen, returnFocus, setIsOpen } = useCommandPalette();
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const normalizedQuery = query.trim();
+    const timeout = window.setTimeout(() => setDebouncedQuery(normalizedQuery), 250);
+    return () => window.clearTimeout(timeout);
+  }, [query]);
 
   // Toggle on Cmd+K
   useEffect(() => {
@@ -35,16 +42,19 @@ export function CommandPalette() {
   }, [setIsOpen]);
 
   // Fetch search results
-  const { data, isLoading } = useQuery({
-    queryKey: ["globalSearch", query],
-    queryFn: async () => {
-      if (query.length < 2) return { problems: [], sheets: [] };
-      const res = await api.get(`/search?q=${encodeURIComponent(query)}`);
+  const { data, isFetching, isError, refetch } = useQuery({
+    queryKey: ["globalSearch", debouncedQuery],
+    queryFn: async ({ signal }) => {
+      const res = await api.get(`/search?q=${encodeURIComponent(debouncedQuery)}`, { signal });
       return res.data;
     },
-    enabled: query.length >= 2,
+    enabled: debouncedQuery.length >= 2,
     staleTime: 60000,
   });
+  const normalizedQuery = query.trim();
+  const isWaitingForDebounce = normalizedQuery.length >= 2 && normalizedQuery !== debouncedQuery;
+  const isSearching = isWaitingForDebounce || isFetching;
+  const visibleData = isWaitingForDebounce ? undefined : data;
 
   const runCommand = (command: () => void) => {
     setIsOpen(false);
@@ -79,7 +89,7 @@ export function CommandPalette() {
               onValueChange={setQuery}
               className="flex-1 bg-transparent text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none font-sans text-sm"
             />
-            {isLoading && <Loader2 className="w-4 h-4 text-[var(--action-primary)] animate-spin" />}
+            {isSearching && <Loader2 aria-label="Searching" className="w-4 h-4 text-[var(--action-primary)] animate-spin" />}
             <kbd className="hidden sm:inline-flex items-center gap-0.5 px-2 py-1 rounded-md bg-[var(--surface-muted)] border border-[var(--border-control)] text-[10px] font-mono text-[var(--text-secondary)]">
               ESC
             </kbd>
@@ -107,16 +117,30 @@ export function CommandPalette() {
               </div>
             )}
 
-            {!isLoading && query.length >= 2 && data?.problems?.length === 0 && data?.sheets?.length === 0 && (
+            {isError && !isWaitingForDebounce && (
+              <div role="alert" className="flex flex-col items-center gap-3 px-4 py-12 text-center">
+                <p className="text-sm font-medium text-[var(--text-primary)]">Search is temporarily unavailable.</p>
+                <p className="text-xs text-[var(--text-secondary)]">Check your connection and try again.</p>
+                <button
+                  type="button"
+                  onClick={() => void refetch()}
+                  className="rounded-lg border border-[var(--border-control)] bg-[var(--surface-muted)] px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+
+            {!isSearching && !isError && normalizedQuery.length >= 2 && visibleData?.problems?.length === 0 && visibleData?.sheets?.length === 0 && (
               <Command.Empty className="py-14 text-center text-sm text-[var(--text-muted)]">
                 No results found.
               </Command.Empty>
             )}
 
             {/* Sheets Section */}
-            {data?.sheets && data.sheets.length > 0 && (
+            {!isError && visibleData?.sheets && visibleData.sheets.length > 0 && (
               <Command.Group heading={<div className="px-2 py-1.5 text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Sheets</div>}>
-                {data.sheets.map((sheet: any) => (
+                {visibleData.sheets.map((sheet: any) => (
                   <Command.Item
                     key={sheet.slug}
                     onSelect={() => runCommand(() => navigate(getSheetPracticePath(sheet.slug)))}
@@ -135,9 +159,9 @@ export function CommandPalette() {
             )}
 
             {/* Problems Section */}
-            {data?.problems && data.problems.length > 0 && (
+            {!isError && visibleData?.problems && visibleData.problems.length > 0 && (
               <Command.Group heading={<div className="px-2 py-1.5 text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mt-2">Problems</div>}>
-                {data.problems.map((prob: any) => (
+                {visibleData.problems.map((prob: any) => (
                   <Command.Item
                     key={prob.id}
                     onSelect={() => runCommand(() => window.open(`https://leetcode.com/problems/${prob.slug}`, "_blank"))}
