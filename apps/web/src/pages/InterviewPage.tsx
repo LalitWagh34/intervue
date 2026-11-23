@@ -4,6 +4,12 @@ import { api } from "@/lib/api";
 import { getSessionToken } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Send,
   Square,
   Sparkles,
@@ -28,6 +34,8 @@ import {
   Upload,
   FileCheck,
   X,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
@@ -213,9 +221,12 @@ export default function InterviewPage() {
   const [hasOlderMessages, setHasOlderMessages] = useState(false);
   const [olderMessagesCursor, setOlderMessagesCursor] = useState<string | null>(null);
   const [isLoadingOlderMessages, setIsLoadingOlderMessages] = useState(false);
+  const [loadError, setLoadError] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const endSessionTriggerRef = useRef<HTMLButtonElement>(null);
   const isLoadingOlderMessagesRef = useRef(false);
 
   // Track elapsed session timer
@@ -234,6 +245,7 @@ export default function InterviewPage() {
 
     async function loadInterview() {
       try {
+        setLoadError("");
         setIsStarting(true);
         const res = await api.get(`/interviews/${idParam}`);
         const interview = res.data.interview;
@@ -263,14 +275,14 @@ export default function InterviewPage() {
         }
       } catch (err) {
         console.error("Failed to load interview:", err);
-        setIsConfiguring(true);
+        setLoadError("We couldn't load this interview. Your saved session has not been deleted.");
       } finally {
         setIsStarting(false);
       }
     }
 
     loadInterview();
-  }, [idParam]);
+  }, [idParam, loadAttempt]);
 
   // Auto-launch if role was directly passed via query params
   useEffect(() => {
@@ -440,6 +452,29 @@ export default function InterviewPage() {
       setIsEnding(false);
       setShowEndConfirm(false);
     }
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-full bg-[var(--canvas)] flex items-center justify-center p-6 text-[var(--text-primary)]">
+        <div role="alert" className="w-full max-w-md space-y-4 rounded-2xl border border-[var(--status-danger)]/25 bg-[var(--surface)] p-6 text-center shadow-sm">
+          <AlertCircle className="mx-auto h-8 w-8 text-[var(--status-danger)]" />
+          <div className="space-y-1.5">
+            <h2 className="text-base font-bold">Unable to load interview</h2>
+            <p className="text-xs text-[var(--text-secondary)]">{loadError}</p>
+          </div>
+          <div className="flex justify-center gap-2">
+            <Button type="button" variant="outline" onClick={() => navigate("/interview")}>
+              New interview
+            </Button>
+            <Button type="button" onClick={() => setLoadAttempt((attempt) => attempt + 1)} className="gap-2">
+              <RefreshCw className="h-3.5 w-3.5" />
+              Try again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // ─────────────────────────────────────────────────────────────
@@ -1053,7 +1088,7 @@ export default function InterviewPage() {
   // ─────────────────────────────────────────────────────────────
   if (isStarting) {
     return (
-      <div className="min-h-full bg-[var(--canvas)] flex flex-col items-center justify-center text-center p-6 space-y-4">
+      <div role="status" aria-live="polite" className="min-h-full bg-[var(--canvas)] flex flex-col items-center justify-center text-center p-6 space-y-4">
         <div className="w-12 h-12 rounded-xl bg-[var(--surface-selected)] border border-[var(--border-control)] flex items-center justify-center animate-pulse">
           <Activity className="w-6 h-6 text-[var(--accent-text)]" />
         </div>
@@ -1104,6 +1139,7 @@ export default function InterviewPage() {
           </div>
 
           <button
+            ref={endSessionTriggerRef}
             type="button"
             onClick={() => setShowEndConfirm(true)}
             className="px-3.5 py-1.5 rounded-xl bg-[var(--status-danger-subtle)] hover:opacity-90 border border-[var(--border-subtle)] text-[var(--status-danger)] text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
@@ -1220,12 +1256,14 @@ export default function InterviewPage() {
               }
             }}
             placeholder="Type your response... (Enter to send, Shift+Enter for new line)"
+            aria-label="Interview response"
             disabled={isStreaming}
             className="flex-1 bg-[var(--surface-muted)] border border-[var(--border-control)] focus:border-[var(--action-primary)] rounded-xl px-4 py-2.5 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-xs sm:text-sm outline-none transition-colors resize-none max-h-36 min-h-[42px]"
           />
 
           <Button
             type="button"
+            aria-label="Send interview response"
             onClick={sendMessage}
             disabled={isStreaming || !input.trim()}
             className="h-[42px] px-4 rounded-xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] text-[var(--on-primary)] font-semibold text-xs shadow-sm transition-all cursor-pointer flex items-center justify-center shrink-0"
@@ -1236,14 +1274,20 @@ export default function InterviewPage() {
       </footer>
 
       {/* End Interview Confirmation Modal */}
-      {showEndConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] p-6 space-y-5 shadow-2xl">
+      <Dialog open={showEndConfirm} onOpenChange={(open) => !isEnding && setShowEndConfirm(open)}>
+        <DialogContent
+          className="max-w-md gap-5 border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-6 text-[var(--text-primary)] shadow-2xl"
+          showCloseButton={false}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            endSessionTriggerRef.current?.focus();
+          }}
+        >
             <div className="space-y-1">
-              <h3 className="text-base font-bold text-[var(--text-primary)]">Conclude Assessment Round?</h3>
-              <p className="text-xs text-[var(--text-secondary)]">
+              <DialogTitle className="text-base font-bold text-[var(--text-primary)]">Conclude Assessment Round?</DialogTitle>
+              <DialogDescription className="text-xs text-[var(--text-secondary)]">
                 Are you ready to submit your responses and generate your comprehensive scorecard?
-              </p>
+              </DialogDescription>
             </div>
 
             <p className="text-xs text-[var(--text-secondary)] bg-[var(--surface-muted)] p-3 rounded-xl border border-[var(--border-subtle)]">
@@ -1275,9 +1319,8 @@ export default function InterviewPage() {
                 )}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
