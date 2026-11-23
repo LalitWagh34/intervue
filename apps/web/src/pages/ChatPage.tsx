@@ -19,6 +19,8 @@ import {
   Cpu,
   Layers,
   X,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
@@ -328,7 +330,28 @@ export default function ChatPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
-          {(!chats || chats.length === 0) && (
+          {chatsQuery.isPending && (
+            <div role="status" className="flex items-center justify-center gap-2 p-4 text-xs text-[var(--text-secondary)]">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Loading discussions...</span>
+            </div>
+          )}
+
+          {chatsQuery.isError && (
+            <div role="alert" className="space-y-2 rounded-xl border border-[var(--status-danger)]/25 bg-[var(--status-danger)]/5 p-4 text-center">
+              <p className="text-xs font-medium text-[var(--text-primary)]">Discussion history is unavailable.</p>
+              <button
+                type="button"
+                onClick={() => void chatsQuery.refetch()}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-control)] px-2.5 py-1.5 text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Retry history
+              </button>
+            </div>
+          )}
+
+          {!chatsQuery.isPending && !chatsQuery.isError && chats.length === 0 && (
             <div className="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-subtle)] text-center space-y-1">
               <p className="text-xs text-[var(--text-primary)] font-medium">No discussions yet</p>
               <p className="text-[10px] text-[var(--text-muted)]">Start a conversation with your AI Mentor.</p>
@@ -417,6 +440,24 @@ export default function ChatPage() {
 
         {/* Messages Body */}
         <div className="flex-1 overflow-y-auto px-4 py-6 max-w-4xl mx-auto w-full space-y-5">
+          {id && chatQuery.isPending && messages.length === 0 && (
+            <div role="status" className="flex min-h-48 items-center justify-center gap-2 text-sm text-[var(--text-secondary)]">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Loading discussion...</span>
+            </div>
+          )}
+
+          {id && chatQuery.isError && messages.length === 0 && (
+            <div role="alert" className="mx-auto flex min-h-48 max-w-md flex-col items-center justify-center gap-3 rounded-2xl border border-[var(--status-danger)]/25 bg-[var(--surface)] p-6 text-center">
+              <p className="text-sm font-semibold text-[var(--text-primary)]">Unable to load this discussion.</p>
+              <p className="text-xs text-[var(--text-secondary)]">Your messages are still saved. Try loading them again.</p>
+              <Button type="button" variant="outline" onClick={() => void chatQuery.refetch()} className="gap-2 text-xs">
+                <RefreshCw className="h-3.5 w-3.5" />
+                Retry discussion
+              </Button>
+            </div>
+          )}
+
           {id && chatQuery.hasNextPage && (
             <div className="flex justify-center pb-1">
               <Button
@@ -430,7 +471,7 @@ export default function ChatPage() {
               </Button>
             </div>
           )}
-          {messages.length === 0 && (
+          {messages.length === 0 && (!id || (!chatQuery.isPending && !chatQuery.isError)) && (
             <div className="py-8 space-y-8 max-w-2xl mx-auto">
               <div className="text-center space-y-2">
                 <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/25 text-purple-500 dark:text-purple-400 flex items-center justify-center mx-auto shadow-sm">
