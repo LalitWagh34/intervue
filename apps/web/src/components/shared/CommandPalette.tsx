@@ -8,6 +8,9 @@ import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
+export const getSheetPracticePath = (sheetSlug: string) =>
+  `/practice?${new URLSearchParams({ view: "sheet_practice", sheet: sheetSlug }).toString()}`;
+
 export function CommandPalette() {
   const { isOpen, setIsOpen } = useCommandPalette();
   const [query, setQuery] = useState("");
@@ -107,7 +110,7 @@ export function CommandPalette() {
                 {data.sheets.map((sheet: any) => (
                   <Command.Item
                     key={sheet.slug}
-                    onSelect={() => runCommand(() => navigate("/practice"))}
+                    onSelect={() => runCommand(() => navigate(getSheetPracticePath(sheet.slug)))}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer aria-selected:bg-[var(--surface-selected)] text-sm text-[var(--text-primary)] transition-colors"
                   >
                     <div className="w-8 h-8 rounded-lg bg-[var(--status-success)]/10 flex items-center justify-center text-[var(--status-success)] shrink-0">

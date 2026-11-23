@@ -17,6 +17,7 @@ app.get("/", async (c) => {
     const [problems, sheets] = await Promise.all([
       db.problem.findMany({
         where: {
+          status: "published",
           OR: [
             { title: { contains: query, mode: "insensitive" } },
             { tags: { hasSome: [query.toLowerCase()] } },
