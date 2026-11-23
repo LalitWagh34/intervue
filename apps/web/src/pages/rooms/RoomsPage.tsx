@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { useRef } from "react";
 import {
   Swords,
   Users,
@@ -25,6 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 type RoomType = "CODING" | "APTITUDE" | "MIXED";
 
@@ -49,6 +51,9 @@ export default function RoomsPage() {
     coreCsSubjects: [],
     aptitudeSubjects: [],
   });
+  const [topicsStatus, setTopicsStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [topicsAttempt, setTopicsAttempt] = useState(0);
+  const createReturnFocusRef = useRef<HTMLButtonElement | null>(null);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -64,14 +69,23 @@ export default function RoomsPage() {
   useEffect(() => {
     async function fetchTopics() {
       try {
+        setTopicsStatus("loading");
         const res = await api.get("/rooms/meta/topics");
         setMetaTopics(res.data);
+        setTopicsStatus("ready");
       } catch (err) {
         console.error("Failed to load topics:", err);
+        setTopicsStatus("error");
       }
     }
     fetchTopics();
-  }, []);
+  }, [topicsAttempt]);
+
+  const openCreateRoom = (trigger: HTMLButtonElement) => {
+    createReturnFocusRef.current = trigger;
+    setTitle("Placement Contest #" + Math.floor(100 + Math.random() * 900));
+    setIsCreateOpen(true);
+  };
 
   const handleJoinByCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,10 +188,7 @@ export default function RoomsPage() {
 
           <div className="flex items-center gap-3">
             <Button
-              onClick={() => {
-                setTitle("Placement Contest #" + Math.floor(100 + Math.random() * 900));
-                setIsCreateOpen(true);
-              }}
+              onClick={(event) => openCreateRoom(event.currentTarget)}
               className="relative group overflow-hidden bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--on-primary)] font-medium px-5 py-2.5 rounded-xl shadow-sm transition-all duration-300"
             >
               <div className="flex items-center gap-2 relative z-10">
@@ -218,6 +229,8 @@ export default function RoomsPage() {
               <div className="flex gap-3">
                 <div className="relative flex-1">
                   <Input
+                    id="room-code"
+                    aria-label="Room code"
                     value={joinCode}
                     onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                     maxLength={6}
@@ -288,10 +301,7 @@ export default function RoomsPage() {
               </div>
 
               <Button
-                onClick={() => {
-                  setTitle("Placement Contest #" + Math.floor(100 + Math.random() * 900));
-                  setIsCreateOpen(true);
-                }}
+                onClick={(event) => openCreateRoom(event.currentTarget)}
                 className="h-11 px-5 rounded-xl bg-[var(--surface-muted)] hover:bg-[var(--surface-hover)] text-[var(--text-primary)] font-medium border border-[var(--border-control)] shadow-sm transition-all"
               >
                 Configure Arena →
@@ -355,16 +365,15 @@ export default function RoomsPage() {
       </div>
 
       {/* ─── CREATE ROOM MODAL ────────────────────────────────────────── */}
-      <AnimatePresence>
-        {isCreateOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ duration: 0.2 }}
-              className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-2xl text-[var(--text-primary)] p-6 md:p-8"
-            >
+      <Dialog open={isCreateOpen} onOpenChange={(open) => !isCreating && setIsCreateOpen(open)}>
+        <DialogContent
+          showCloseButton={false}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            createReturnFocusRef.current?.focus();
+          }}
+          className="max-w-xl max-h-[90vh] overflow-y-auto gap-0 rounded-2xl bg-[var(--surface-elevated)] border border-[var(--border-subtle)] shadow-2xl text-[var(--text-primary)] p-6 md:p-8"
+        >
               {/* Header */}
               <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
                 <div className="flex items-center gap-3">
@@ -372,15 +381,17 @@ export default function RoomsPage() {
                     <Swords className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
+                    <DialogTitle className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
                       Create Assessment Room
-                    </h2>
-                    <p className="text-xs text-[var(--text-secondary)]">
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-[var(--text-secondary)]">
                       Configure your contest format, problem topics, and duration.
-                    </p>
+                    </DialogDescription>
                   </div>
                 </div>
                 <button
+                  type="button"
+                  aria-label="Close create room dialog"
                   onClick={() => setIsCreateOpen(false)}
                   className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)] transition-colors"
                 >
@@ -390,12 +401,22 @@ export default function RoomsPage() {
 
               {/* Form */}
               <form onSubmit={handleCreateRoom} className="space-y-6 pt-5">
+                {topicsStatus === "loading" && (
+                  <div role="status" className="text-xs text-[var(--text-secondary)]">Loading room topics...</div>
+                )}
+                {topicsStatus === "error" && (
+                  <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-[var(--status-danger)]/25 p-3 text-xs">
+                    <span>Room topics are unavailable. Retry before creating a filtered contest.</span>
+                    <button type="button" onClick={() => setTopicsAttempt((attempt) => attempt + 1)} className="font-semibold text-[var(--accent-text)]">Try again</button>
+                  </div>
+                )}
                 {/* Room Title */}
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
+                  <label htmlFor="room-title" className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
                     Room Title
                   </label>
                   <Input
+                    id="room-title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. SDE Placement Mock Test"
@@ -438,6 +459,7 @@ export default function RoomsPage() {
                         key={mins}
                         type="button"
                         onClick={() => setDuration(mins)}
+                        aria-pressed={duration === mins}
                         className={`py-2 rounded-xl border text-xs font-semibold font-mono transition-all ${
                           duration === mins
                             ? "bg-[var(--action-primary)] border-[var(--action-primary)] text-[var(--on-primary)] shadow-sm"
@@ -476,6 +498,7 @@ export default function RoomsPage() {
                               key={tag}
                               type="button"
                               onClick={() => toggleCodingTag(tag)}
+                              aria-pressed={isSelected}
                               className={`text-[11px] px-3 py-1 rounded-lg border transition-all ${
                                 isSelected
                                   ? "bg-[var(--surface-selected)] border-[var(--action-primary)] text-[var(--accent-text)] font-medium"
@@ -512,6 +535,7 @@ export default function RoomsPage() {
                             key={sub}
                             type="button"
                             onClick={() => toggleSubject(sub)}
+                            aria-pressed={isSelected}
                             className={`text-[11px] px-3 py-1 rounded-lg border transition-all ${
                               isSelected
                                 ? "bg-[var(--surface-selected)] border-[var(--action-primary)] text-[var(--accent-text)] font-medium"
@@ -552,10 +576,8 @@ export default function RoomsPage() {
                   </Button>
                 </div>
               </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
