@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import ChatPage from "./ChatPage";
@@ -87,5 +87,39 @@ describe("chat query states", () => {
 
     expect(screen.getByText("No discussions yet")).toBeInTheDocument();
     expect(screen.getByText("What would you like to master today?")).toBeInTheDocument();
+  });
+});
+
+describe("chat history accessibility", () => {
+  beforeEach(() => {
+    useChatsMock.mockReturnValue({
+      ...emptyQuery,
+      data: { pages: [{ chats: [{ id: "chat-1", title: "Arrays review" }] }] },
+    });
+    useChatMock.mockReturnValue({
+      ...emptyQuery,
+      data: { pages: [{ chat: { id: "chat-1", messages: [] } }] },
+    });
+  });
+
+  it("opens as a labelled dialog, closes with Escape and restores trigger focus", async () => {
+    renderChat();
+    const trigger = screen.getByRole("button", { name: /History \(1\)/ });
+
+    trigger.focus();
+    fireEvent.click(trigger);
+    const drawer = screen.getByRole("dialog", { name: "Discussion History" });
+    await waitFor(() => expect(screen.getByRole("button", { name: "Close discussion history" })).toHaveFocus());
+
+    fireEvent.keyDown(drawer, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog", { name: "Discussion History" })).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it("exposes separate keyboard actions for opening and deleting a conversation", () => {
+    renderChat();
+
+    expect(screen.getByRole("button", { name: "Open Arrays review" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "Delete Arrays review" })).toBeInTheDocument();
   });
 });

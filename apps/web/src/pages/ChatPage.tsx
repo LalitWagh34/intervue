@@ -77,11 +77,53 @@ export default function ChatPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const historyDrawerRef = useRef<HTMLElement>(null);
+  const historyTriggerRef = useRef<HTMLButtonElement>(null);
+  const historyCloseRef = useRef<HTMLButtonElement>(null);
 
   const isStreamingRef = useRef(false);
   const activeChatIdRef = useRef(id);
   const autoSentRef = useRef(false);
   const isLoadingOlderMessagesRef = useRef(false);
+
+  useEffect(() => {
+    if (!isHistoryOpen) return;
+
+    const previouslyFocused = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : historyTriggerRef.current;
+    const focusFrame = window.requestAnimationFrame(() => historyCloseRef.current?.focus());
+
+    const handleDrawerKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsHistoryOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = historyDrawerRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], textarea:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleDrawerKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener("keydown", handleDrawerKeyDown);
+      window.requestAnimationFrame(() => previouslyFocused?.focus());
+    };
+  }, [isHistoryOpen]);
 
   // Synchronize active chat ID changes (e.g. user clicks another chat in the sidebar)
   useEffect(() => {
@@ -287,6 +329,7 @@ export default function ChatPage() {
       {/* Mobile Discussions Backdrop Overlay */}
       {isHistoryOpen && (
         <div
+          aria-hidden="true"
           onClick={() => setIsHistoryOpen(false)}
           className="fixed inset-0 bg-[var(--overlay-scrim)] backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-200"
         />
@@ -294,6 +337,11 @@ export default function ChatPage() {
 
       {/* Chats Left Sidebar (Responsive drawer on mobile, static on desktop) */}
       <aside
+        ref={historyDrawerRef}
+        id="discussion-history"
+        role={isHistoryOpen ? "dialog" : undefined}
+        aria-modal={isHistoryOpen ? true : undefined}
+        aria-labelledby={isHistoryOpen ? "discussion-history-title" : undefined}
         className={cn(
           "border-r border-[var(--border-subtle)] bg-[var(--surface)] p-4 flex flex-col shrink-0 transition-transform duration-300 z-40",
           "md:relative md:w-64 lg:w-72 md:translate-x-0 md:flex",
@@ -303,9 +351,11 @@ export default function ChatPage() {
       >
         {/* Mobile Header with Close button */}
         <div className="flex items-center justify-between md:hidden pb-3 border-b border-[var(--border-subtle)] mb-3">
-          <span className="text-xs font-bold text-[var(--text-primary)]">Discussion History</span>
+          <span id="discussion-history-title" className="text-xs font-bold text-[var(--text-primary)]">Discussion History</span>
           <button
+            ref={historyCloseRef}
             type="button"
+            aria-label="Close discussion history"
             onClick={() => setIsHistoryOpen(false)}
             className="p-1 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]"
           >
@@ -361,18 +411,23 @@ export default function ChatPage() {
           {chats?.map((c: any) => (
             <div
               key={c.id}
-              onClick={() => {
-                navigate(`/chat/${c.id}`);
-                setIsHistoryOpen(false);
-              }}
               className={cn(
-                "group w-full text-left px-3 py-2.5 rounded-xl text-xs flex items-center justify-between gap-2 border transition-all cursor-pointer",
+                "group w-full rounded-xl text-xs flex items-center justify-between gap-1 border transition-all",
                 id === c.id
                   ? "bg-[var(--surface-selected)] border-[var(--action-primary)] text-[var(--text-primary)] font-medium"
                   : "bg-[var(--surface-muted)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-control)] hover:bg-[var(--surface-hover)]"
               )}
             >
-              <div className="flex items-center gap-2 min-w-0 flex-1">
+              <button
+                type="button"
+                aria-label={`Open ${c.title || "New Discussion"}`}
+                aria-current={id === c.id ? "page" : undefined}
+                onClick={() => {
+                  navigate(`/chat/${c.id}`);
+                  setIsHistoryOpen(false);
+                }}
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-l-xl px-3 py-2.5 text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--action-primary)]"
+              >
                 <MessageSquare
                   className={cn(
                     "w-3.5 h-3.5 shrink-0",
@@ -380,13 +435,14 @@ export default function ChatPage() {
                   )}
                 />
                 <span className="truncate">{c.title || "New Discussion"}</span>
-              </div>
+              </button>
 
               <button
                 type="button"
                 onClick={(e) => deleteChat(c.id, e)}
                 title="Delete discussion"
-                className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-[var(--status-danger-subtle)] text-[var(--text-muted)] hover:text-[var(--status-danger)] transition-all shrink-0 cursor-pointer"
+                aria-label={`Delete ${c.title || "New Discussion"}`}
+                className="mr-2 shrink-0 rounded-md p-1 text-[var(--text-muted)] opacity-100 transition-all hover:bg-[var(--status-danger-subtle)] hover:text-[var(--status-danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--status-danger)] md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -429,8 +485,11 @@ export default function ChatPage() {
 
           {/* Mobile Discussion History Drawer Button */}
           <button
+            ref={historyTriggerRef}
             type="button"
             onClick={() => setIsHistoryOpen(true)}
+            aria-expanded={isHistoryOpen}
+            aria-controls="discussion-history"
             className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-control)] text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] shrink-0 cursor-pointer"
           >
             <MessageSquare className="w-3.5 h-3.5 text-[var(--accent-text)]" />
