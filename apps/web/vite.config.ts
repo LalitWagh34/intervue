@@ -10,6 +10,19 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("react-markdown") || id.includes("remark-") || id.includes("micromark")) return "vendor-markdown";
+          if (id.includes("framer-motion")) return "vendor-motion";
+          if (id.includes("@tanstack")) return "vendor-query";
+          if (id.includes("radix") || id.includes("cmdk")) return "vendor-ui";
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     headers: {

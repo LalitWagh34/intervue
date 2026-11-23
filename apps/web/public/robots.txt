@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /history
+Disallow: /results
+
+Sitemap: https://intervue-mu.vercel.app/sitemap.xml
