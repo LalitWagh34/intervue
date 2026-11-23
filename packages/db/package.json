@@ -7,6 +7,7 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
+    "db:validate": "DATABASE_URL=postgresql://validate:validate@localhost:5432/validate prisma validate",
     "db:migrate": "prisma migrate dev",
     "seed:assessments": "bun prisma/seed-assessments.ts",
     "seed:sheets": "bun prisma/seed-sheets.ts",
@@ -18,9 +19,7 @@
     "prisma": "^6.0.0"
   },
   "dependencies": {
-    "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^6.0.0",
-    "@prisma/config": "^7.8.0",
     "dotenv": "^17.4.2"
   }
 }

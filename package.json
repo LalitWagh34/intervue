@@ -2,7 +2,7 @@
   "name": "intervue",
   "private": true,
   "type": "module",
-  "packageManager": "bun@1.2.0",
+  "packageManager": "bun@1.3.13",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -10,6 +10,11 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "test": "turbo test",
+    "test:server": "bun test apps/server/src/__tests__",
+    "test:web": "bun run --cwd apps/web test -- --maxWorkers=1",
+    "typecheck": "bun run --cwd apps/web build && bun run --cwd apps/server build",
+    "db:validate": "bun run --cwd packages/db db:validate",
     "db:push": "turbo db:push",
     "db:studio": "turbo db:studio"
   },

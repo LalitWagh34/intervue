@@ -83,9 +83,7 @@
       "name": "@intervue/db",
       "version": "0.0.1",
       "dependencies": {
-        "@prisma/adapter-neon": "^7.8.0",
         "@prisma/client": "^6.0.0",
-        "@prisma/config": "^7.8.0",
         "dotenv": "^17.4.2",
       },
       "devDependencies": {
