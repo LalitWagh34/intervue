@@ -68,8 +68,8 @@ intervue-banner.jpg
 
 # Test files to exclude from remote
 *.test.tsx
-!apps/web/src/lib/cacheIsolation.regression.test.tsx
-!apps/web/src/hooks/useLearn.regression.test.tsx
+apps/server/src/__tests__/optimization-cache.test.ts
+apps/web/src/lib/localCache.test.ts
 !apps/web/src/pages/LandingPage.test.tsx
 !apps/web/src/components/shared/ProductTourModal.test.tsx
 !apps/web/src/pages/PracticeHubPage.test.tsx
