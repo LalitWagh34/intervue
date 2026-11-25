@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { PlatformSyncStatus } from "@/components/profile/PlatformFreshness";
 
@@ -118,8 +119,10 @@ export interface ProfileStatsResponse {
 }
 
 export function useProfile() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", userId],
     queryFn: async () => {
       const res = await api.get("/profile/me");
       return res.data.profile;
@@ -127,14 +130,17 @@ export function useProfile() {
   });
 }
 
-export function useProfileStats(year?: string) {
+export function useProfileStats(year?: string, options?: { enabled?: boolean }) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<ProfileStatsResponse>({
-    queryKey: ["profile-stats", year],
+    queryKey: ["profile-stats", userId, year],
     queryFn: async () => {
       const url = year ? `/profile/stats?year=${year}` : "/profile/stats";
       const res = await api.get(url);
       return res.data;
     },
+    enabled: options?.enabled ?? true,
   });
 }
 

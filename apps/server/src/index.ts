@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { compress } from "hono/compress";
 import { logger } from "hono/logger";
 import { createBunWebSocket } from "hono/bun";
 import { auth } from "./lib/auth";
@@ -114,6 +115,30 @@ app.use(
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
+
+const compressResponse = compress();
+const SSE_STREAM_PATH_REGEX = /^\/api\/(?:interviews|chats)\/[^/]+\/message$/;
+
+app.use("*", async (c, next) => {
+  const path = c.req.path;
+  if (SSE_STREAM_PATH_REGEX.test(path) || path.startsWith("/ws/")) {
+    return next();
+  }
+
+  return compressResponse(c, async () => {
+    await next();
+    const contentType = c.res.headers.get("content-type")?.toLowerCase() || "";
+    if (contentType.includes("text/event-stream")) {
+      const existingCacheControl = c.res.headers.get("Cache-Control");
+      if (!existingCacheControl || !existingCacheControl.includes("no-transform")) {
+        c.res.headers.set(
+          "Cache-Control",
+          existingCacheControl ? `${existingCacheControl}, no-transform` : "no-cache, no-transform"
+        );
+      }
+    }
+  });
+});
 app.get("/", (c) => {
   const accept = c.req.header("accept") || "";
   if (accept.includes("text/html")) {

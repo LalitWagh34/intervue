@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,9 +15,10 @@ import {
   Sparkles,
   Brain,
 } from "lucide-react";
-import { useLearnConcept, useRecallQuestions } from "@/hooks/useLearn";
+import { useLearnConcept, useRecallQuestions, prefetchLearnConcept } from "@/hooks/useLearn";
 import { useSession } from "@/lib/auth";
 import { rememberLesson } from "@/lib/lastLesson";
+import { getLearnReaderMode, setLearnReaderMode } from "@/lib/localCache";
 import { useBookmarkSlugs, useToggleBookmark } from "@/hooks/useBookmarks";
 import { QuestionNoteDrawer } from "@/components/shared/QuestionNoteDrawer";
 import { SafeMarkdown } from "@/components/shared/SafeMarkdown";
@@ -44,11 +46,12 @@ const DIFFICULTY_STYLES: Record<string, string> = {
 
 export default function ConceptReaderPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [mode, setMode] = useState<ReaderMode>("quick");
-  const { data, isLoading, isError } = useLearnConcept(slug);
-  const { data: recallData } = useRecallQuestions(slug);
+  const queryClient = useQueryClient();
   const { data: session } = useSession();
   const userId = session?.user?.id;
+  const [mode, setMode] = useState<ReaderMode>(() => getLearnReaderMode(userId));
+  const { data, isLoading, isError } = useLearnConcept(slug);
+  const { data: recallData } = useRecallQuestions(slug);
   const lesson = data?.concept;
 
   const progress = recallData?.progress;
@@ -71,8 +74,15 @@ export default function ConceptReaderPage() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setMode("quick");
-  }, [slug]);
+    setMode(getLearnReaderMode(userId));
+  }, [slug, userId]);
+
+  const handleSelectReaderMode = (nextMode: ReaderMode) => {
+    setMode(nextMode);
+    if (nextMode === "quick" || nextMode === "deep") {
+      setLearnReaderMode(userId, nextMode);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -210,7 +220,7 @@ export default function ConceptReaderPage() {
                 type="button"
                 role="tab"
                 aria-selected={mode === "quick"}
-                onClick={() => setMode("quick")}
+                onClick={() => handleSelectReaderMode("quick")}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer",
                   mode === "quick"
@@ -225,7 +235,7 @@ export default function ConceptReaderPage() {
                 type="button"
                 role="tab"
                 aria-selected={mode === "deep"}
-                onClick={() => setMode("deep")}
+                onClick={() => handleSelectReaderMode("deep")}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer",
                   mode === "deep"
@@ -241,7 +251,7 @@ export default function ConceptReaderPage() {
                   type="button"
                   role="tab"
                   aria-selected={mode === "visualize"}
-                  onClick={() => setMode("visualize")}
+                  onClick={() => handleSelectReaderMode("visualize")}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer",
                     mode === "visualize"
@@ -480,6 +490,8 @@ export default function ConceptReaderPage() {
           {navigation.prev ? (
             <Link
               to={`/learn/concepts/${navigation.prev.slug}`}
+              onMouseEnter={() => prefetchLearnConcept(queryClient, navigation.prev!.slug, userId)}
+              onFocus={() => prefetchLearnConcept(queryClient, navigation.prev!.slug, userId)}
               className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left hover:bg-muted/40 transition-colors"
             >
               <ArrowLeft className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -499,6 +511,8 @@ export default function ConceptReaderPage() {
           {navigation.next ? (
             <Link
               to={`/learn/concepts/${navigation.next.slug}`}
+              onMouseEnter={() => prefetchLearnConcept(queryClient, navigation.next!.slug, userId)}
+              onFocus={() => prefetchLearnConcept(queryClient, navigation.next!.slug, userId)}
               className="flex items-center justify-end gap-3 rounded-xl border border-border bg-card px-4 py-3 text-right hover:bg-muted/40 transition-colors"
             >
               <div>

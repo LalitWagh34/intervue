@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface RewardsStatus {
@@ -10,8 +11,10 @@ export interface RewardsStatus {
 }
 
 export function useRewardsStatus() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<RewardsStatus>({
-    queryKey: ["rewards-status"],
+    queryKey: ["rewards-status", userId],
     queryFn: async () => {
       const res = await api.get("/rewards/status");
       return res.data;
@@ -39,8 +42,10 @@ export function useDailyCheckIn() {
 }
 
 export function useReferral() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery({
-    queryKey: ["referral"],
+    queryKey: ["referral", userId],
     queryFn: async () => {
       const res = await api.get("/rewards/referral");
       return res.data as { referralCode: string; totalReferrals: number; points: number };

@@ -1,5 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 import { useEffect, useState } from "react";
+import { clearUserLocalCaches } from "./localCache";
+import { queryClient } from "./queryClient";
 
 const getAuthBaseUrl = () => {
   if (import.meta.env.VITE_AUTH_URL) return import.meta.env.VITE_AUTH_URL;
@@ -9,14 +11,40 @@ const getAuthBaseUrl = () => {
 
 // In-memory token store: never persist long-lived durable tokens to localStorage
 let inMemorySessionToken: string | null = null;
+let activeSessionUserId: string | null = null;
 
 export const getSessionToken = () => {
   return inMemorySessionToken || "";
 };
 
 export const setSessionToken = (token: string) => {
-  inMemorySessionToken = token ? token : null;
+  const normalized = token ? token : null;
+  if (normalized !== inMemorySessionToken) {
+    queryClient.clear();
+  }
+  inMemorySessionToken = normalized;
 };
+
+/**
+ * Clear user-scoped caches whenever authenticated identity changes or ends
+ * (including session expiry or account switching without explicit signOut).
+ */
+export function syncSessionCacheBoundary(
+  nextUserId: string | undefined | null,
+  isPending: boolean
+): void {
+  if (isPending) return;
+  const normalized = nextUserId || null;
+  if (activeSessionUserId && activeSessionUserId !== normalized) {
+    clearUserLocalCaches(activeSessionUserId);
+    queryClient.clear();
+  }
+  activeSessionUserId = normalized;
+}
+
+export function resetSessionCacheBoundaryForTests(): void {
+  activeSessionUserId = null;
+}
 
 export const authClient = createAuthClient({
   baseURL: getAuthBaseUrl(),
@@ -80,6 +108,8 @@ if (typeof window !== "undefined") {
           if (!res.ok) throw new Error("Authorization code exchange failed");
           const data = await res.json();
           if (!data?.token) throw new Error("Authorization code exchange returned no token");
+          clearUserLocalCaches();
+          queryClient.clear();
           setSessionToken(data.token);
         })
         .catch(() => {
@@ -99,6 +129,11 @@ export const { signIn, signUp } = authClient;
 export function useSession() {
   const session = authClient.useSession();
   const [isBootstrapping, setIsBootstrapping] = useState(authBootstrapPending);
+  const isPending = session.isPending || isBootstrapping;
+
+  useEffect(() => {
+    syncSessionCacheBoundary(session.data?.user?.id, isPending);
+  }, [session.data?.user?.id, isPending]);
 
   useEffect(() => {
     if (!isBootstrapping) return;
@@ -119,14 +154,18 @@ export function useSession() {
 
   return {
     ...session,
-    isPending: session.isPending || isBootstrapping,
+    isPending,
   };
 }
 
 export const signOut = async (options?: Parameters<typeof authClient.signOut>[0]) => {
+  const prevUserId = activeSessionUserId;
+  activeSessionUserId = null;
   setSessionToken("");
   try {
     localStorage.removeItem("intervue_session_token");
   } catch {}
+  clearUserLocalCaches(prevUserId ?? undefined);
+  queryClient.clear();
   return authClient.signOut(options);
 };

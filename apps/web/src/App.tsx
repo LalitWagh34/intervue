@@ -59,19 +59,24 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { data: session, isPending: isSessionPending } = useSession();
-  const { data: profileStats, isLoading: isStatsLoading } = useProfileStats();
+  const sessionRole = (session?.user as any)?.role;
+  const shouldFetchStatsRole = Boolean(session && !sessionRole);
+  const { data: profileStats, isLoading: isStatsLoading } = useProfileStats(undefined, {
+    enabled: shouldFetchStatsRole,
+  });
 
-  const isAdmin = (session?.user as any)?.role === "admin" || profileStats?.user?.role === "admin";
+  const isAdmin = sessionRole === "admin" || profileStats?.user?.role === "admin";
+  const isCheckingRole = isSessionPending || (shouldFetchStatsRole && isStatsLoading);
 
   useEffect(() => {
-    if (!isSessionPending && !isStatsLoading && session && !isAdmin) {
+    if (!isCheckingRole && session && !isAdmin) {
       toast.error("Admin access required", {
         description: "You need administrator privileges to access the Admin Management CMS.",
       });
     }
-  }, [isSessionPending, isStatsLoading, session, isAdmin]);
+  }, [isCheckingRole, session, isAdmin]);
 
-  if (isSessionPending || isStatsLoading) {
+  if (isCheckingRole) {
     return (
       <SessionVerificationLoader
         title="Verifying administrator credentials..."
@@ -139,6 +144,8 @@ function MixedAccessLayout() {
 }
 
 export default function App() {
+  useSession();
+
   // Speculative backend pre-warm: Wake up sleeping Render container via lightweight /health endpoint
   useEffect(() => {
     try {

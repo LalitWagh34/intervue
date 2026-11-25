@@ -2,7 +2,10 @@ import { Hono } from "hono";
 import { requireAuth } from "../middleware/auth";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
-import { redis, isRedisConnected } from "../lib/redis.js";
+import { cacheGetOrSet } from "../lib/cache";
+
+const PUBLISHED_PROBLEM_SLUG_MAP_KEY = "problem:published-slug-map";
+const PUBLISHED_PROBLEM_SLUG_MAP_TTL_SECONDS = 300;
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -42,6 +45,7 @@ import { fetchCompanyQuestions } from "../services/companyService";
 
 // ─── GET /api/companies ────────────────────────────────────────────────
 app.get("/", requireAuth, async (c) => {
+  c.header("Cache-Control", "private, max-age=300");
   return c.json({ companies: FEATURED_COMPANIES });
 });
 
@@ -62,16 +66,27 @@ app.get("/:company", requireAuth, async (c) => {
     );
 
     const companyName = foundCompany ? foundCompany.name : companyParam;
-    const parsedQuestions = await fetchCompanyQuestions(companyName, timeframe);
-
-    // Cross-reference with our database problems to see which can be solved natively
-    const dbProblems = await db.problem.findMany({
-      select: { id: true, slug: true, title: true },
-    });
-    const dbSlugMap = new Map(dbProblems.map((p) => [p.slug.toLowerCase(), p]));
+    const [parsedQuestions, dbSlugMap] = await Promise.all([
+      fetchCompanyQuestions(companyName, timeframe),
+      cacheGetOrSet<Record<string, { id: number; slug: string; title: string }>>(
+        PUBLISHED_PROBLEM_SLUG_MAP_KEY,
+        PUBLISHED_PROBLEM_SLUG_MAP_TTL_SECONDS,
+        async () => {
+          const dbProblems = await db.problem.findMany({
+            where: { status: "published" },
+            select: { id: true, slug: true, title: true },
+          });
+          const slugRecord: Record<string, { id: number; slug: string; title: string }> = {};
+          for (const p of dbProblems) {
+            slugRecord[p.slug.toLowerCase()] = p;
+          }
+          return slugRecord;
+        }
+      ),
+    ]);
 
     const enrichedQuestions = parsedQuestions.map((q) => {
-      const native = dbSlugMap.get(q.slug.toLowerCase());
+      const native = dbSlugMap[q.slug.toLowerCase()];
       return {
         ...q,
         isNative: Boolean(native),
@@ -79,6 +94,7 @@ app.get("/:company", requireAuth, async (c) => {
       };
     });
 
+    c.header("Cache-Control", "private, max-age=300");
     return c.json({
       company: companyName,
       timeframe,

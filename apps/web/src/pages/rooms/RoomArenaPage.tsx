@@ -43,6 +43,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExamInstructionsGate } from "@/components/exam/ExamInstructionsGate";
+import { clearCodeDraft, getCodeDraft, setCodeDraft } from "@/lib/localCache";
 
 type MonacoEditor = Parameters<OnMount>[0];
 
@@ -62,6 +63,11 @@ const DEFAULT_CODE_TEMPLATES: Record<string, string> = {
   TYPESCRIPT: `import * as fs from 'fs';\nconst input = fs.readFileSync('/dev/stdin', 'utf-8').trim().split(/\\s+/);\n// Your solution here`,
 };
 
+function getTemplateForQuestion(question: any, lang: string): string {
+  const tmpl = question?.problem?.templates?.find((t: any) => t.language === lang);
+  return tmpl?.code || DEFAULT_CODE_TEMPLATES[lang] || "";
+}
+
 export default function RoomArenaPage() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
@@ -77,6 +83,13 @@ export default function RoomArenaPage() {
   // Coding State
   const [language, setLanguage] = useState("CPP");
   const [sourceCode, setSourceCode] = useState(DEFAULT_CODE_TEMPLATES.CPP);
+  const draftSaveTimerRef = useRef<number | null>(null);
+  const pendingDraftRef = useRef<{
+    userId: string | undefined;
+    scopeKey: string;
+    language: string;
+    code: string;
+  } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [judgeResult, setJudgeResult] = useState<any>(null);
   const [solvedProblemIds, setSolvedProblemIds] = useState<Set<number>>(new Set());
@@ -99,6 +112,32 @@ export default function RoomArenaPage() {
   });
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
 
+  const flushPendingDraft = useCallback(() => {
+    if (draftSaveTimerRef.current !== null) {
+      window.clearTimeout(draftSaveTimerRef.current);
+      draftSaveTimerRef.current = null;
+    }
+    const pending = pendingDraftRef.current;
+    if (pending) {
+      setCodeDraft(pending.userId, pending.scopeKey, pending.language, pending.code);
+      pendingDraftRef.current = null;
+    }
+  }, []);
+
+  const clearRoomCodeDrafts = useCallback(() => {
+    if (draftSaveTimerRef.current !== null) {
+      window.clearTimeout(draftSaveTimerRef.current);
+      draftSaveTimerRef.current = null;
+    }
+    pendingDraftRef.current = null;
+    if (!code || !room?.questions) return;
+    for (const q of room.questions) {
+      if (q?.problem?.id) {
+        clearCodeDraft(session?.user?.id, `room:${code}:problem:${q.problem.id}`);
+      }
+    }
+  }, [code, room?.questions, session?.user?.id]);
+
   // Real-Time Socket
   const {
     isConnected,
@@ -115,6 +154,7 @@ export default function RoomArenaPage() {
     roomCode: code,
     user: session?.user,
     onContestEnd: () => {
+      clearRoomCodeDrafts();
       navigate(`/rooms/${code}/results`);
     },
   });
@@ -260,11 +300,10 @@ export default function RoomArenaPage() {
         }
 
         const firstQ = data.questions?.[0];
-        if (firstQ?.problem?.templates?.length > 0) {
-          const cppTemplate = firstQ.problem.templates.find((t: any) => t.language === "CPP");
-          if (cppTemplate) {
-            setSourceCode(cppTemplate.code);
-          }
+        if (firstQ?.problem) {
+          const scopeKey = `room:${code}:problem:${firstQ.problem.id}`;
+          const savedDraft = getCodeDraft(session?.user?.id, scopeKey, "CPP");
+          setSourceCode(savedDraft ?? getTemplateForQuestion(firstQ, "CPP"));
         }
       } catch (err: any) {
         if (err?.response?.status === 403) {
@@ -283,16 +322,60 @@ export default function RoomArenaPage() {
     loadRoom();
   }, [code, navigate]);
 
-  // Handle language change
+  // Restore draft or template when active question changes (flushing pending edits first)
+  useEffect(() => {
+    flushPendingDraft();
+    const activeQ = room?.questions?.[activeQuestionIndex];
+    if (!activeQ?.problem || !code) return;
+
+    const scopeKey = `room:${code}:problem:${activeQ.problem.id}`;
+    const savedDraft = getCodeDraft(session?.user?.id, scopeKey, language);
+    setSourceCode(savedDraft ?? getTemplateForQuestion(activeQ, language));
+  }, [activeQuestionIndex, room?.id, code, language, session?.user?.id, flushPendingDraft]);
+
+  useEffect(() => {
+    window.addEventListener("pagehide", flushPendingDraft);
+    return () => {
+      window.removeEventListener("pagehide", flushPendingDraft);
+      flushPendingDraft();
+    };
+  }, [flushPendingDraft]);
+
+  // Handle code changes with debounced local draft persistence
+  const handleSourceCodeChange = (nextCode: string) => {
+    setSourceCode(nextCode);
+    const activeQ = room?.questions?.[activeQuestionIndex];
+    if (!activeQ?.problem || !code || isSpectatorMode) return;
+
+    const scopeKey = `room:${code}:problem:${activeQ.problem.id}`;
+    const userId = session?.user?.id;
+    const currentLang = language;
+
+    pendingDraftRef.current = {
+      userId,
+      scopeKey,
+      language: currentLang,
+      code: nextCode,
+    };
+
+    if (draftSaveTimerRef.current !== null) {
+      window.clearTimeout(draftSaveTimerRef.current);
+    }
+    draftSaveTimerRef.current = window.setTimeout(() => {
+      flushPendingDraft();
+    }, 300);
+  };
+
+  // Handle language change (flushing pending edits for previous language first)
   const handleLanguageChange = (newLang: string) => {
+    flushPendingDraft();
     setLanguage(newLang);
     const activeQ = room?.questions[activeQuestionIndex];
-    if (activeQ?.problem?.templates) {
-      const tmpl = activeQ.problem.templates.find((t: any) => t.language === newLang);
-      if (tmpl) {
-        setSourceCode(tmpl.code);
-        return;
-      }
+    if (activeQ?.problem && code) {
+      const scopeKey = `room:${code}:problem:${activeQ.problem.id}`;
+      const savedDraft = getCodeDraft(session?.user?.id, scopeKey, newLang);
+      setSourceCode(savedDraft ?? getTemplateForQuestion(activeQ, newLang));
+      return;
     }
     setSourceCode(DEFAULT_CODE_TEMPLATES[newLang] || "");
   };
@@ -400,6 +483,7 @@ export default function RoomArenaPage() {
     setIsSubmittingTest(true);
     try {
       await api.post(`/rooms/${code}/finish`);
+      clearRoomCodeDrafts();
       toast.success("Assessment submitted successfully!");
       setIsFinishModalOpen(false);
       navigate(`/rooms/${code}/results`);
@@ -414,6 +498,7 @@ export default function RoomArenaPage() {
     if (!code) return;
     try {
       await api.post(`/rooms/${code}/end`);
+      clearRoomCodeDrafts();
       setIsForceEndModalOpen(false);
       navigate(`/rooms/${code}/results`);
     } catch (err: any) {
@@ -1207,7 +1292,7 @@ export default function RoomArenaPage() {
                   height="100%"
                   language={MONACO_LANG_MAP[language] || "cpp"}
                   value={sourceCode}
-                  onChange={(val) => setSourceCode(val || "")}
+                  onChange={(val) => handleSourceCodeChange(val || "")}
                   theme="vs-dark"
                   options={{
                     fontSize: 13,

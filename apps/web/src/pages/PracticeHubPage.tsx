@@ -50,6 +50,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth";
+import { getPracticePreferences, setPracticePreferences } from "@/lib/localCache";
 
 // ============================================================================
 // SHEET DATASETS
@@ -134,7 +135,7 @@ const TOP_COMPANIES_PRESET = [
 export default function PracticeHubPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data: session } = useSession();
+  const { data: session, isPending: isSessionPending } = useSession();
   const userId = session?.user?.id;
   const { completedCount: dailyCompleted, totalCount: dailyTotal } = useDailyTargets();
 
@@ -173,6 +174,34 @@ export default function PracticeHubPage() {
   const [companyTabFilter, setCompanyTabFilter] = useState<"global" | "indian">("global");
   const [companyPage, setCompanyPage] = useState<number>(1);
   const [companyPageSize, setCompanyPageSize] = useState<number>(25);
+  const [hydratedPrefsUserId, setHydratedPrefsUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isSessionPending) return;
+    if (!userId) {
+      setSelectedTimeframe("thirtyDays");
+      setCompanyTabFilter("global");
+      setCompanyPageSize(25);
+      setHydratedPrefsUserId(null);
+      return;
+    }
+
+    if (hydratedPrefsUserId === userId) return;
+    const saved = getPracticePreferences(userId);
+    setSelectedTimeframe(saved?.selectedTimeframe || "thirtyDays");
+    setCompanyTabFilter(saved?.companyTabFilter === "indian" ? "indian" : "global");
+    setCompanyPageSize(typeof saved?.companyPageSize === "number" ? saved.companyPageSize : 25);
+    setHydratedPrefsUserId(userId);
+  }, [isSessionPending, userId, hydratedPrefsUserId]);
+
+  useEffect(() => {
+    if (isSessionPending || !userId || hydratedPrefsUserId !== userId) return;
+    setPracticePreferences(userId, {
+      selectedTimeframe,
+      companyTabFilter,
+      companyPageSize,
+    });
+  }, [isSessionPending, userId, hydratedPrefsUserId, selectedTimeframe, companyTabFilter, companyPageSize]);
 
   useEffect(() => {
     setCompanyPage(1);
@@ -351,7 +380,7 @@ export default function PracticeHubPage() {
     clearFilters, 
     filteredProblems: filteredSheetProblems, 
     filterOptions 
-  } = useProblemFilter(activeSheetProblems, solvedProblems);
+  } = useProblemFilter(activeSheetProblems, solvedProblems, userId);
 
   // Group problems into takeUforward syllabus hierarchy (Topics -> Subtopics -> Problems)
   interface SubtopicGroup {

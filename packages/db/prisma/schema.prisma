@@ -255,6 +255,9 @@ model Interview {
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages   Message[]
   evaluation Evaluation?
+
+  @@index([userId, createdAt])
+  @@index([userId, status])
 }
 
 model Message {
@@ -266,6 +269,8 @@ model Message {
   createdAt   DateTime @default(now())
 
   interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+
+  @@index([interviewId, createdAt])
 }
 
 model Evaluation {
@@ -320,6 +325,8 @@ model Problem {
   sheetProblems   DsaSheetProblem[]
   author          User?             @relation(fields: [authorId], references: [id])
   executionJobs   ExecutionJob[]
+
+  @@index([status])
 }
 
 model ExecutionJob {
@@ -407,6 +414,8 @@ model Submission {
   executionJob ExecutionJob? @relation(fields: [executionJobId], references: [id], onDelete: SetNull)
 
   @@index([userId, problemId])
+  @@index([userId, isAccepted])
+  @@index([userId, createdAt])
 }
 
 model Chat {
@@ -417,6 +426,8 @@ model Chat {
 
   user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages ChatMessage[]
+
+  @@index([userId, createdAt])
 }
 
 model ChatMessage {
@@ -427,6 +438,8 @@ model ChatMessage {
   createdAt DateTime @default(now())
 
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
 }
 
 // ─── Competitive Rooms & Assessment Models ─────────

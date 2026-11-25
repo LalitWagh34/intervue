@@ -1,12 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, MessageSquare, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  clearFeedbackDraft,
+  getFeedbackDraft,
+  setFeedbackDraft,
+} from "@/lib/localCache";
 
 export default function FeedbackPage() {
-  const { data: session } = useSession();
+  const { data: session, isPending: isSessionPending } = useSession();
+  const userId = session?.user?.id;
+  const settledScope = isSessionPending ? null : (userId ?? "anon");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -15,6 +22,30 @@ export default function FeedbackPage() {
   const [errors, setErrors] = useState<{ subject?: string; message?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [hydratedScope, setHydratedScope] = useState<string | null>(null);
+  const [hasLocalEdits, setHasLocalEdits] = useState(false);
+  const submissionVersionRef = useRef(0);
+
+  // Hydrate draft strictly after session settles for the active scope
+  useEffect(() => {
+    if (!settledScope || hydratedScope === settledScope) return;
+    if (userId) {
+      clearFeedbackDraft(undefined);
+    }
+    if (hydratedScope !== null || !hasLocalEdits) {
+      submissionVersionRef.current++;
+      const saved = getFeedbackDraft(userId);
+      setSubject(saved?.subject ?? "");
+      setMessage(saved?.message ?? "");
+      setName(saved?.name ?? session?.user?.name ?? "");
+      setEmail(saved?.email ?? session?.user?.email ?? "");
+      setHasLocalEdits(false);
+      setSubmitted(false);
+      setIsSubmitting(false);
+      setErrors({});
+    }
+    setHydratedScope(settledScope);
+  }, [settledScope, hydratedScope, userId, hasLocalEdits, session?.user?.name, session?.user?.email]);
 
   // Prepopulate from session if available
   useEffect(() => {
@@ -22,7 +53,18 @@ export default function FeedbackPage() {
       if (session.user.name && !name) setName(session.user.name);
       if (session.user.email && !email) setEmail(session.user.email);
     }
-  }, [session]);
+  }, [session, name, email]);
+
+  // Persist feedback draft only after the settled scope has hydrated
+  useEffect(() => {
+    if (!settledScope || hydratedScope !== settledScope || submitted) return;
+    if (!hasLocalEdits && !subject && !message) return;
+    if (!subject && !message) {
+      clearFeedbackDraft(userId);
+      return;
+    }
+    setFeedbackDraft(userId, { name, email, subject, message });
+  }, [settledScope, hydratedScope, userId, name, email, subject, message, submitted, hasLocalEdits]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +86,7 @@ export default function FeedbackPage() {
     setErrors({});
 
     setIsSubmitting(true);
+    const submissionVersion = submissionVersionRef.current;
     const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
     try {
       const response = await fetch(`${API_BASE_URL}/feedback`, {
@@ -58,6 +101,7 @@ export default function FeedbackPage() {
       });
 
       const data = await response.json();
+      if (submissionVersion !== submissionVersionRef.current) return;
       if (!response.ok) {
         throw new Error(data.error || "Failed to submit feedback");
       }
@@ -66,15 +110,20 @@ export default function FeedbackPage() {
         description: "Thank you for helping us improve Intervue.",
       });
 
+      clearFeedbackDraft(userId);
       setSubmitted(true);
+      setHasLocalEdits(false);
       setMessage("");
       setSubject("");
       setErrors({});
     } catch (err: any) {
+      if (submissionVersion !== submissionVersionRef.current) return;
       console.error("Feedback error:", err);
       toast.error(err?.message || "Failed to submit feedback. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      if (submissionVersion === submissionVersionRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -151,6 +200,7 @@ export default function FeedbackPage() {
               value={subject}
               onChange={(e) => {
                 setSubject(e.target.value);
+                setHasLocalEdits(true);
                 if (errors.subject) setErrors((prev) => ({ ...prev, subject: undefined }));
               }}
               className={cn(
@@ -195,6 +245,7 @@ export default function FeedbackPage() {
               value={message}
               onChange={(e) => {
                 setMessage(e.target.value);
+                setHasLocalEdits(true);
                 if (errors.message) setErrors((prev) => ({ ...prev, message: undefined }));
               }}
               placeholder="Tell us what you think or how we can help..."

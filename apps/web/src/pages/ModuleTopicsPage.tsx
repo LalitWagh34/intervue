@@ -12,7 +12,9 @@ import {
   CheckCircle2,
   Sparkles,
 } from "lucide-react";
-import { useLearnModule, useRevisionQueue, RevisionQueueItem } from "@/hooks/useLearn";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLearnModule, useRevisionQueue, prefetchLearnConcept, RevisionQueueItem } from "@/hooks/useLearn";
+import { useSession } from "@/lib/auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +36,9 @@ export default function ModuleTopicsPage() {
     subjectSlug: string;
     moduleSlug: string;
   }>();
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   const { data, isLoading, isError } = useLearnModule(subjectSlug, moduleSlug);
   const moduleItem = data?.module;
@@ -275,7 +280,11 @@ export default function ModuleTopicsPage() {
 
                     <div className="p-4 pt-0">
                       <Button asChild size="sm" className="w-full h-8 text-xs font-semibold gap-1.5 bg-[#327CF6] hover:bg-[#2563EB] text-white">
-                        <Link to={`/learn/concepts/${concept.slug}`}>
+                        <Link
+                          to={`/learn/concepts/${concept.slug}`}
+                          onMouseEnter={() => prefetchLearnConcept(queryClient, concept.slug, userId)}
+                          onFocus={() => prefetchLearnConcept(queryClient, concept.slug, userId)}
+                        >
                           {isDue ? "Scheduled Review" : "Revise Concept"} <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                       </Button>

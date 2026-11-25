@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface QuestionNote {
@@ -11,8 +12,10 @@ export interface QuestionNote {
 }
 
 export function useNotes() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<QuestionNote[]>({
-    queryKey: ["notes"],
+    queryKey: ["notes", userId],
     queryFn: async () => {
       const res = await api.get("/notes");
       return res.data.notes;
@@ -21,8 +24,10 @@ export function useNotes() {
 }
 
 export function useNote(slug: string) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<QuestionNote | null>({
-    queryKey: ["notes", slug],
+    queryKey: ["notes", slug, userId],
     queryFn: async () => {
       const res = await api.get(`/notes/${slug}`);
       return res.data.note;

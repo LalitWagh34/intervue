@@ -1,9 +1,12 @@
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export function useBookmarkSlugs() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<string[]>({
-    queryKey: ["bookmark-slugs"],
+    queryKey: ["bookmark-slugs", userId],
     queryFn: async () => {
       const res = await api.get("/bookmarks/slugs");
       return res.data.slugs;
@@ -21,8 +24,10 @@ export interface Bookmark {
 }
 
 export function useBookmarks() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<Bookmark[]>({
-    queryKey: ["bookmarks"],
+    queryKey: ["bookmarks", userId],
     queryFn: async () => {
       const res = await api.get("/bookmarks");
       return res.data.bookmarks;
@@ -32,6 +37,8 @@ export function useBookmarks() {
 
 export function useToggleBookmark() {
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useMutation({
     mutationFn: async ({
       problemSlug,
@@ -51,17 +58,17 @@ export function useToggleBookmark() {
     },
     onMutate: async ({ problemSlug }) => {
       // Optimistic update on slug list
-      await queryClient.cancelQueries({ queryKey: ["bookmark-slugs"] });
-      const prev = queryClient.getQueryData<string[]>(["bookmark-slugs"]) ?? [];
+      await queryClient.cancelQueries({ queryKey: ["bookmark-slugs", userId] });
+      const prev = queryClient.getQueryData<string[]>(["bookmark-slugs", userId]) ?? [];
       const isBookmarked = prev.includes(problemSlug);
       queryClient.setQueryData(
-        ["bookmark-slugs"],
+        ["bookmark-slugs", userId],
         isBookmarked ? prev.filter((s) => s !== problemSlug) : [...prev, problemSlug]
       );
       return { prev, isBookmarked };
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx) queryClient.setQueryData(["bookmark-slugs"], ctx.prev);
+      if (ctx) queryClient.setQueryData(["bookmark-slugs", userId], ctx.prev);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["bookmark-slugs"] });

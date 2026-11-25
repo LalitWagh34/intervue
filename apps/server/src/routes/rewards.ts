@@ -1,4 +1,4 @@
-﻿import { Hono } from "hono";
+import { Hono } from "hono";
 import { db, Prisma } from "@intervue/db";
 import { requireAuth } from "../middleware/auth";
 import type { AuthVariables } from "../types";

@@ -1,5 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth";
+import { loadLatestLearnConceptCache, saveLearnConceptCache } from "@/lib/localCache";
+
+const LEARN_CATALOG_STALE_TIME = 15 * 60 * 1000;
 
 export interface LearnSubjectSummary {
   id: string;
@@ -80,6 +85,7 @@ export function useLearnSubjects() {
       const { data } = await api.get<{ subjects: LearnSubjectSummary[] }>("/learn/subjects");
       return data;
     },
+    staleTime: LEARN_CATALOG_STALE_TIME,
   });
 }
 
@@ -91,6 +97,7 @@ export function useLearnSubject(slug?: string) {
       return data;
     },
     enabled: Boolean(slug),
+    staleTime: LEARN_CATALOG_STALE_TIME,
   });
 }
 
@@ -120,18 +127,91 @@ export function useLearnModule(subjectSlug?: string, moduleSlug?: string) {
       return data;
     },
     enabled: Boolean(subjectSlug && moduleSlug),
+    staleTime: LEARN_CATALOG_STALE_TIME,
   });
 }
 
 export function useLearnConcept(slug?: string) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
+  const [cachedPlaceholder, setCachedPlaceholder] = useState<LearnConceptResponse | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    let active = true;
+    setCachedPlaceholder(undefined);
+    if (!slug) return;
+
+    void loadLatestLearnConceptCache(slug).then((cached) => {
+      if (active && cached) {
+        setCachedPlaceholder(cached);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [slug]);
+
   return useQuery<LearnConceptResponse>({
-    queryKey: ["learn", "concept", slug],
+    queryKey: ["learn", "concept", slug, userId],
     queryFn: async () => {
       const { data } = await api.get<LearnConceptResponse>(`/learn/concepts/${slug}`);
+      void saveLearnConceptCache(data);
       return data;
     },
     enabled: Boolean(slug),
+    staleTime: LEARN_CATALOG_STALE_TIME,
+    placeholderData: cachedPlaceholder?.concept.slug === slug ? cachedPlaceholder : undefined,
     retry: 1,
+  });
+}
+
+export function prefetchLearnSubject(queryClient: QueryClient, slug: string): void {
+  if (!slug) return;
+  void queryClient.prefetchQuery({
+    queryKey: ["learn", "subject", slug],
+    queryFn: async () => {
+      const { data } = await api.get<{ subject: LearnSubjectDetail }>(`/learn/subjects/${slug}`);
+      return data;
+    },
+    staleTime: LEARN_CATALOG_STALE_TIME,
+  });
+}
+
+export function prefetchLearnModule(
+  queryClient: QueryClient,
+  subjectSlug: string,
+  moduleSlug: string
+): void {
+  if (!subjectSlug || !moduleSlug) return;
+  void queryClient.prefetchQuery({
+    queryKey: ["learn", "module", subjectSlug, moduleSlug],
+    queryFn: async () => {
+      const { data } = await api.get<{ module: LearnModuleDetail }>(
+        `/learn/subjects/${subjectSlug}/modules/${moduleSlug}`
+      );
+      return data;
+    },
+    staleTime: LEARN_CATALOG_STALE_TIME,
+  });
+}
+
+export function prefetchLearnConcept(
+  queryClient: QueryClient,
+  slug: string,
+  userId?: string | null
+): void {
+  if (!slug) return;
+  void queryClient.prefetchQuery({
+    queryKey: ["learn", "concept", slug, userId ?? "anon"],
+    queryFn: async () => {
+      const { data } = await api.get<LearnConceptResponse>(`/learn/concepts/${slug}`);
+      void saveLearnConceptCache(data);
+      return data;
+    },
+    staleTime: LEARN_CATALOG_STALE_TIME,
   });
 }
 
@@ -177,8 +257,10 @@ export interface RecallSessionResult {
 }
 
 export function useRecallQuestions(slug?: string) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<RecallResponse>({
-    queryKey: ["learn", "recall", slug],
+    queryKey: ["learn", "recall", slug, userId],
     queryFn: async () => {
       const { data } = await api.get<RecallResponse>(`/learn/concepts/${slug}/recall`);
       return data;
@@ -291,8 +373,10 @@ export interface RevisionQueueResponse {
 }
 
 export function useRevisionQueue() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<RevisionQueueResponse>({
-    queryKey: ["learn", "queue"],
+    queryKey: ["learn", "queue", userId],
     queryFn: async () => {
       const { data } = await api.get<RevisionQueueResponse>("/learn/queue");
       return data;
@@ -321,8 +405,10 @@ export interface InterviewConceptRecommendation {
 }
 
 export function useInterviewRecommendations(interviewId?: string) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<{ recommendations: InterviewConceptRecommendation[] }>({
-    queryKey: ["learn", "recommendations", "interview", interviewId],
+    queryKey: ["learn", "recommendations", "interview", interviewId, userId],
     queryFn: async () => {
       const { data } = await api.get<{ recommendations: InterviewConceptRecommendation[] }>(
         `/learn/recommendations/interview/${interviewId}`

@@ -1,10 +1,13 @@
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 export function useInterviews(){
+    const { data: session } = useSession();
+    const userId = session?.user?.id ?? "anon";
     const query = useInfiniteQuery({
-        queryKey:["interviews"],
+        queryKey:["interviews", userId],
         initialPageParam: undefined as string | undefined,
         queryFn:async({ pageParam })=>{
             const res = await api.get("/interviews", {

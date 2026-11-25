@@ -89,12 +89,14 @@ mock.module("../lib/auth", () => ({
 }));
 
 const { default: learnRoutes } = await import("../routes/learn");
+const { clearCache } = await import("../lib/cache");
 
 describe("Learn Routes", () => {
   const app = new Hono();
   app.route("/api/learn", learnRoutes);
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await clearCache();
     mockFindFirst.mockReset();
     mockFindUniqueConcept.mockReset();
     mockFindFirstModule.mockReset();

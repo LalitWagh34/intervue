@@ -13,6 +13,7 @@ import {
 } from "../lib/externalStats";
 import { getCuratedProblemsForCompanies } from "../services/companyService";
 import { CURATED_FLAGSHIP_SHEETS } from "../data/flagshipSheetsData";
+import { cacheGetOrSet } from "../lib/cache";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -136,35 +137,53 @@ app.put("/avatar", requireAuth, async (c) => {
 app.get("/dashboard", requireAuth, async (c) => {
   const user = c.get("user");
 
-  const profile = await db.profile.findUnique({
-    where: { userId: user.id },
-  });
-
-  const nativeSolvedCount = await db.submission.count({
-    where: { userId: user.id, isAccepted: true },
-  });
-
-  const externalSolvedCount = await db.userSolvedProblem.count({
-    where: { userId: user.id },
-  });
+  const [
+    profile,
+    nativeSolvedCount,
+    externalSolvedCount,
+    simulationsCount,
+    recentInterviews,
+    recentCompleted,
+  ] = await Promise.all([
+    db.profile.findUnique({
+      where: { userId: user.id },
+      select: { streakCount: true },
+    }),
+    db.submission.count({
+      where: { userId: user.id, isAccepted: true },
+    }),
+    db.userSolvedProblem.count({
+      where: { userId: user.id },
+    }),
+    db.interview.count({
+      where: { userId: user.id, status: "completed" },
+    }),
+    db.interview.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      select: {
+        id: true,
+        mode: true,
+        role: true,
+        difficulty: true,
+        focus: true,
+        status: true,
+        score: true,
+        duration: true,
+        endedAt: true,
+        createdAt: true,
+      },
+    }),
+    db.interview.findMany({
+      where: { userId: user.id, status: "completed", score: { not: null } },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: { id: true, score: true },
+    }),
+  ]);
 
   const solvedCount = nativeSolvedCount + externalSolvedCount;
-
-  const simulationsCount = await db.interview.count({
-    where: { userId: user.id, status: "completed" },
-  });
-
-  const recentInterviews = await db.interview.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    take: 3,
-  });
-
-  const recentCompleted = await db.interview.findMany({
-    where: { userId: user.id, status: "completed", score: { not: null } },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-  });
 
   const avgScore =
     recentCompleted.length > 0
@@ -479,78 +498,146 @@ app.get("/me", requireAuth, async (c) => {
 
 // ─── GET /api/profile/stats ────────────────────────────────────────────
 // Dynamic calculation of submission heatmap, question wheel, and topic counts
+const PUBLISHED_PROBLEM_SUMMARY_CACHE_KEY = "problem:published-summary-map";
+const PUBLISHED_PROBLEM_SUMMARY_TTL_SECONDS = 300;
+const FALLBACK_TOPICS = [
+  "Arrays",
+  "Strings",
+  "Hash Table",
+  "Two Pointers",
+  "Binary Search",
+  "Linked List",
+  "Stack & Queue",
+  "Binary Trees",
+  "Dynamic Programming",
+  "Graphs",
+];
+
+interface PublishedProblemSummary {
+  totalProblemsCount: number;
+  totalEasyCount: number;
+  totalMediumCount: number;
+  totalHardCount: number;
+  dbTags: string[];
+}
+
+async function getPublishedProblemSummary(): Promise<PublishedProblemSummary> {
+  return cacheGetOrSet<PublishedProblemSummary>(
+    PUBLISHED_PROBLEM_SUMMARY_CACHE_KEY,
+    PUBLISHED_PROBLEM_SUMMARY_TTL_SECONDS,
+    async () => {
+      const allProblems = await db.problem.findMany({
+        where: { status: "published" },
+        select: { id: true, difficulty: true, tags: true },
+      });
+
+      const allUniqueProblemMap = new Map<string, { difficulty: string; tags: string[] }>();
+
+      for (const sheet of CURATED_FLAGSHIP_SHEETS) {
+        for (const p of sheet.problems) {
+          const diff = p.difficulty === "Basic" ? "EASY" : p.difficulty === "Core" ? "MEDIUM" : "HARD";
+          allUniqueProblemMap.set(p.slug, {
+            difficulty: diff,
+            tags: [p.topic, p.subtopic].filter(Boolean) as string[],
+          });
+        }
+      }
+
+      allProblems.forEach((p) => {
+        allUniqueProblemMap.set(String(p.id), {
+          difficulty: p.difficulty,
+          tags: p.tags || [],
+        });
+      });
+
+      const allCombinedProblems = Array.from(allUniqueProblemMap.values());
+      const allDbTags = new Set<string>();
+      allProblems.forEach((p) => (p.tags || []).forEach((t) => allDbTags.add(t.trim())));
+      FALLBACK_TOPICS.forEach((t) => allDbTags.add(t));
+
+      return {
+        totalProblemsCount: Math.max(allCombinedProblems.length, 522),
+        totalEasyCount: allCombinedProblems.filter((p) => p.difficulty === "EASY").length,
+        totalMediumCount: allCombinedProblems.filter((p) => p.difficulty === "MEDIUM").length,
+        totalHardCount: allCombinedProblems.filter((p) => p.difficulty === "HARD").length,
+        dbTags: Array.from(allDbTags),
+      };
+    }
+  );
+}
+
 app.get("/stats", requireAuth, async (c) => {
   try {
     const user = c.get("user");
 
-    // 1. Fetch user data with submissions and profile
-    const userRecord = await db.user.findUnique({
-      where: { id: user.id },
-      include: {
-        profile: true,
-        submissions: {
-          include: {
-            problem: {
-              select: {
-                id: true,
-                title: true,
-                slug: true,
-                difficulty: true,
-                tags: true,
+    // 1. Parallelize user data, cached published problem summary, external solved, and contest count
+    const [userRecord, problemSummary, externalSolved, totalContests] = await Promise.all([
+      db.user.findUnique({
+        where: { id: user.id },
+        select: {
+          role: true,
+          profile: true,
+          submissions: {
+            select: {
+              id: true,
+              problemId: true,
+              isAccepted: true,
+              verdict: true,
+              createdAt: true,
+              problem: {
+                select: {
+                  id: true,
+                  title: true,
+                  slug: true,
+                  difficulty: true,
+                  tags: true,
+                },
               },
             },
+            orderBy: { createdAt: "desc" },
           },
-          orderBy: { createdAt: "desc" },
-        },
-        roomSubmissions: {
-          include: {
-            problem: {
-              select: {
-                id: true,
-                title: true,
-                slug: true,
-                difficulty: true,
-                tags: true,
+          roomSubmissions: {
+            select: {
+              id: true,
+              problemId: true,
+              verdict: true,
+              submittedAt: true,
+              problem: {
+                select: {
+                  id: true,
+                  title: true,
+                  slug: true,
+                  difficulty: true,
+                  tags: true,
+                },
               },
             },
+            orderBy: { submittedAt: "desc" },
           },
-          orderBy: { submittedAt: "desc" },
         },
-      },
-    });
+      }),
+      getPublishedProblemSummary(),
+      db.userSolvedProblem.findMany({
+        where: { userId: user.id },
+        select: {
+          problemSlug: true,
+          difficulty: true,
+          tags: true,
+          createdAt: true,
+        },
+      }),
+      db.roomParticipant.count({
+        where: { userId: user.id },
+      }),
+    ]);
 
-    // 2. Compute total available problems across curated flagship sheets and published native problems
-    const allProblems = await db.problem.findMany({
-      where: { status: "published" },
-      select: { id: true, difficulty: true, tags: true },
-    });
-
-    const allUniqueProblemMap = new Map<string, { difficulty: string; tags: string[] }>();
-
-    // Index all curated flagship sheet problems
-    for (const sheet of CURATED_FLAGSHIP_SHEETS) {
-      for (const p of sheet.problems) {
-        const diff = p.difficulty === "Basic" ? "EASY" : p.difficulty === "Core" ? "MEDIUM" : "HARD";
-        allUniqueProblemMap.set(p.slug, {
-          difficulty: diff,
-          tags: [p.topic, p.subtopic].filter(Boolean) as string[],
-        });
-      }
-    }
-
-    // Index native published database problems
-    allProblems.forEach((p) => {
-      allUniqueProblemMap.set(String(p.id), {
-        difficulty: p.difficulty,
-        tags: p.tags || [],
-      });
-    });
-
-    const allCombinedProblems = Array.from(allUniqueProblemMap.values());
-    const totalProblemsCount = Math.max(allCombinedProblems.length, 522);
-    const totalEasyCount = allCombinedProblems.filter((p) => p.difficulty === "EASY").length;
-    const totalMediumCount = allCombinedProblems.filter((p) => p.difficulty === "MEDIUM").length;
-    const totalHardCount = allCombinedProblems.filter((p) => p.difficulty === "HARD").length;
+    const {
+      totalProblemsCount,
+      totalEasyCount,
+      totalMediumCount,
+      totalHardCount,
+      dbTags,
+    } = problemSummary;
 
     // 3. User's Solved Problems (Unique problemId where accepted)
     const solvedProblemsMap = new Map<number, { id: number; difficulty: string; tags: string[] }>();
@@ -580,9 +667,6 @@ app.get("/stats", requireAuth, async (c) => {
     });
 
     const solvedProblems = Array.from(solvedProblemsMap.values());
-    const externalSolved = await db.userSolvedProblem.findMany({
-      where: { userId: user.id },
-    });
     
     // Deduplicate solved problems across native submissions and sheet practice
     const solvedKeys = new Set<string>();
@@ -637,26 +721,7 @@ app.get("/stats", requireAuth, async (c) => {
       }
     });
 
-    // Collect all unique tags in the database
-    const allDbTags = new Set<string>();
-    allProblems.forEach((p) => (p.tags || []).forEach((t) => allDbTags.add(t.trim())));
-
-    // Fallback common interview topics if database has only few problems seeded yet
-    const fallbackTopics = [
-      "Arrays",
-      "Strings",
-      "Hash Table",
-      "Two Pointers",
-      "Binary Search",
-      "Linked List",
-      "Stack & Queue",
-      "Binary Trees",
-      "Dynamic Programming",
-      "Graphs",
-    ];
-    fallbackTopics.forEach((t) => allDbTags.add(t));
-
-    const topicStats = Array.from(allDbTags)
+    const topicStats = dbTags
       .filter(Boolean)
       .map((tag) => {
         // match case-insensitively for friendly tag display
@@ -830,11 +895,6 @@ app.get("/stats", requireAuth, async (c) => {
     const intervueMetrics = generateCalendarMetrics(intervueDateCounts);
     const leetcodeMetrics = generateCalendarMetrics(leetcodeDateCounts);
     const codeforcesMetrics = generateCalendarMetrics(codeforcesDateCounts);
-
-    // 6. Contests
-    const totalContests = await db.roomParticipant.count({
-      where: { userId: user.id },
-    });
 
     // 7. Combined Progress across Intervue, LeetCode, Codeforces
     const combinedTotal =

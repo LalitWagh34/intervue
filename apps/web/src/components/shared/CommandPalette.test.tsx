@@ -5,10 +5,20 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { CommandPalette, getSheetPracticePath } from "./CommandPalette";
 import { useCommandPalette } from "@/hooks/useCommandPalette";
 
-const { apiGet } = vi.hoisted(() => ({ apiGet: vi.fn() }));
+const { apiGet, sessionState } = vi.hoisted(() => ({
+  apiGet: vi.fn(),
+  sessionState: { userId: "user-a" as string | undefined },
+}));
 
 vi.mock("@/lib/api", () => ({
   api: { get: apiGet },
+}));
+
+vi.mock("@/lib/auth", () => ({
+  useSession: () => ({
+    data: sessionState.userId ? { user: { id: sessionState.userId } } : null,
+    isPending: false,
+  }),
 }));
 
 beforeAll(() => {
@@ -44,6 +54,8 @@ const renderPalette = () => {
 afterEach(() => {
   useCommandPalette.setState({ isOpen: false, returnFocus: null });
   apiGet.mockReset();
+  localStorage.clear();
+  sessionState.userId = "user-a";
 });
 
 describe("command palette destinations", () => {
@@ -138,5 +150,35 @@ describe("command palette search resilience", () => {
 
     await waitFor(() => expect(apiGet).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
+  });
+
+  it("scopes recent searches per authenticated userId and prevents cross-account leakage", async () => {
+    apiGet.mockResolvedValue({
+      data: {
+        problems: [],
+        sheets: [{ slug: "neetcode-150", title: "NeetCode 150" }],
+      },
+    });
+
+    sessionState.userId = "user-a";
+    const viewA = renderPalette();
+    act(() => useCommandPalette.getState().setIsOpen(true));
+
+    const inputA = await screen.findByPlaceholderText("Search problems, sheets, tracks...");
+    fireEvent.change(inputA, { target: { value: "neetcode" } });
+
+    const sheetResult = await screen.findByText("NeetCode 150");
+    fireEvent.click(sheetResult);
+
+    expect(localStorage.getItem("intervue:recent-searches:v1:user-a")).toBe('["neetcode"]');
+    expect(localStorage.getItem("intervue:recent-searches:v1:anon")).toBeNull();
+    viewA.unmount();
+
+    sessionState.userId = "user-b";
+    renderPalette();
+    act(() => useCommandPalette.getState().setIsOpen(true));
+
+    expect(await screen.findByRole("dialog", { name: "Search Intervue" })).toBeInTheDocument();
+    expect(screen.queryByText("neetcode")).not.toBeInTheDocument();
   });
 });

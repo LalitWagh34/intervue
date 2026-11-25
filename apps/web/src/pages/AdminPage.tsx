@@ -198,8 +198,12 @@ export default function AdminPage() {
     : "overview";
 
   const { data: session, isPending: isSessionPending } = useSession();
-  const { data: profileStats, isLoading: isProfileStatsLoading } = useProfileStats();
-  const isAdmin = (session?.user as any)?.role === "admin" || profileStats?.user?.role === "admin";
+  const sessionRole = (session?.user as any)?.role;
+  const shouldFetchStatsRole = Boolean(session && !sessionRole);
+  const { data: profileStats, isLoading: isProfileStatsLoading } = useProfileStats(undefined, {
+    enabled: shouldFetchStatsRole,
+  });
+  const isAdmin = sessionRole === "admin" || profileStats?.user?.role === "admin";
 
   const switchTab = (tab: AdminTab) => {
     navigate(`/admin/${tab}`);

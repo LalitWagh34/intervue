@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth";
 
 export interface TargetProblem {
   id: string | number;
@@ -44,8 +45,10 @@ export interface ActivityItem {
 }
 
 export function useCompanyReadiness() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<CompanyReadinessData>({
-    queryKey: ["company-readiness"],
+    queryKey: ["company-readiness", userId],
     queryFn: async () => {
       const res = await api.get("/profile/target-company/readiness");
       return res.data;
@@ -93,8 +96,10 @@ export function useClearTargetCompanies() {
 }
 
 export function useRecentActivity() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useQuery<ActivityItem[]>({
-    queryKey: ["recent-activity"],
+    queryKey: ["recent-activity", userId],
     queryFn: async () => {
       const res = await api.get("/profile/recent-activity");
       return res.data.activity || [];

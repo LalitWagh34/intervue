@@ -7,7 +7,9 @@ import {
   getAuthoritativeRecallFilter,
   isQuestionEligibleForRevision,
 } from "../lib/learn-revision-guard";
+import { cacheGet, cacheGetOrSet, cacheSet, captureCacheGeneration } from "../lib/cache";
 
+const LEARN_CACHE_TTL_SECONDS = 300;
 const learn = new Hono<{ Variables: AuthVariables }>();
 
 learn.use("*", requireAuth);
@@ -18,53 +20,55 @@ learn.use("*", requireAuth);
  * Lesson Markdown content is strictly excluded for minimal payload weight.
  */
 learn.get("/subjects", async (c) => {
-  const subjects = await db.learnSubject.findMany({
-    where: { isPublished: true },
-    orderBy: { orderIndex: "asc" },
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      description: true,
-      icon: true,
-      orderIndex: true,
-      modules: {
-        where: { isPublished: true },
-        select: {
-          id: true,
-          concepts: {
-            where: { publishedRevisionId: { not: null } },
-            select: {
-              publishedRevision: {
-                select: { estimatedMinutes: true },
+  const payload = await cacheGetOrSet("learn:subjects", LEARN_CACHE_TTL_SECONDS, async () => {
+    const subjects = await db.learnSubject.findMany({
+      where: { isPublished: true },
+      orderBy: { orderIndex: "asc" },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        description: true,
+        icon: true,
+        orderIndex: true,
+        modules: {
+          where: { isPublished: true },
+          select: {
+            id: true,
+            concepts: {
+              where: { publishedRevisionId: { not: null } },
+              select: {
+                publishedRevision: {
+                  select: { estimatedMinutes: true },
+                },
               },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  const payload = subjects.map((sub) => {
-    let conceptCount = 0;
-    let totalMinutes = 0;
-    for (const mod of sub.modules) {
-      conceptCount += mod.concepts.length;
-      for (const concept of mod.concepts) {
-        totalMinutes += concept.publishedRevision?.estimatedMinutes || 0;
+    return subjects.map((sub) => {
+      let conceptCount = 0;
+      let totalMinutes = 0;
+      for (const mod of sub.modules) {
+        conceptCount += mod.concepts.length;
+        for (const concept of mod.concepts) {
+          totalMinutes += concept.publishedRevision?.estimatedMinutes || 0;
+        }
       }
-    }
 
-    return {
-      id: sub.id,
-      slug: sub.slug,
-      title: sub.title,
-      description: sub.description,
-      icon: sub.icon,
-      moduleCount: sub.modules.length,
-      conceptCount,
-      estimatedMinutes: totalMinutes,
-    };
+      return {
+        id: sub.id,
+        slug: sub.slug,
+        title: sub.title,
+        description: sub.description,
+        icon: sub.icon,
+        moduleCount: sub.modules.length,
+        conceptCount,
+        estimatedMinutes: totalMinutes,
+      };
+    });
   });
 
   return c.json({ subjects: payload });
@@ -77,6 +81,13 @@ learn.get("/subjects", async (c) => {
 learn.get("/subjects/:slug", async (c) => {
   const slug = c.req.param("slug");
   if (!slug) return c.json({ error: "Subject slug is required" }, 400);
+
+  const cacheKey = `learn:subject:${slug}`;
+  const cacheGeneration = await captureCacheGeneration();
+  const cached = await cacheGet<{ subject: unknown }>(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
 
   const subject = await db.learnSubject.findUnique({
     where: { slug },
@@ -152,7 +163,7 @@ learn.get("/subjects/:slug", async (c) => {
     };
   });
 
-  return c.json({
+  const responsePayload = {
     subject: {
       id: subject.id,
       slug: subject.slug,
@@ -163,7 +174,10 @@ learn.get("/subjects/:slug", async (c) => {
       estimatedMinutes: totalMinutes,
       modules,
     },
-  });
+  };
+
+  await cacheSet(cacheKey, responsePayload, LEARN_CACHE_TTL_SECONDS, cacheGeneration);
+  return c.json(responsePayload);
 });
 
 /**
@@ -176,6 +190,13 @@ learn.get("/subjects/:subjectSlug/modules/:moduleSlug", async (c) => {
 
   if (!subjectSlug || !moduleSlug) {
     return c.json({ error: "subjectSlug and moduleSlug are required" }, 400);
+  }
+
+  const cacheKey = `learn:module:${subjectSlug}:${moduleSlug}`;
+  const cacheGeneration = await captureCacheGeneration();
+  const cached = await cacheGet<{ module: unknown }>(cacheKey);
+  if (cached) {
+    return c.json(cached);
   }
 
   const moduleItem = await db.learnModule.findFirst({
@@ -240,7 +261,7 @@ learn.get("/subjects/:subjectSlug/modules/:moduleSlug", async (c) => {
       };
     });
 
-  return c.json({
+  const responsePayload = {
     module: {
       id: moduleItem.id,
       slug: moduleItem.slug,
@@ -252,13 +273,17 @@ learn.get("/subjects/:subjectSlug/modules/:moduleSlug", async (c) => {
       estimatedMinutes: totalMinutes,
       concepts,
     },
-  });
+  };
+
+  await cacheSet(cacheKey, responsePayload, LEARN_CACHE_TTL_SECONDS, cacheGeneration);
+  return c.json(responsePayload);
 });
 
 /**
  * GET /api/learn/concepts/:slug
  * Returns only the published revision of a concept, along with module/subject
  * metadata and prev/next published concept pointers within the same subject.
+ * Global curriculum data is cached independently from per-user progress.
  */
 learn.get("/concepts/:slug", async (c) => {
   const slug = c.req.param("slug");
@@ -266,117 +291,136 @@ learn.get("/concepts/:slug", async (c) => {
     return c.json({ error: "Concept slug is required" }, 400);
   }
 
-  const concept = await db.learnConcept.findFirst({
-    where: {
-      slug,
-      publishedRevisionId: { not: null },
-      module: {
-        isPublished: true,
-        subject: { isPublished: true },
+  const cacheKey = `learn:concept:${slug}`;
+  const cacheGeneration = await captureCacheGeneration();
+  let cachedPayload = await cacheGet<{
+    concept: { id: string; [key: string]: unknown };
+    navigation: {
+      prev: { slug: string; title: string } | null;
+      next: { slug: string; title: string } | null;
+    };
+  }>(cacheKey);
+
+  if (!cachedPayload) {
+    const concept = await db.learnConcept.findFirst({
+      where: {
+        slug,
+        publishedRevisionId: { not: null },
+        module: {
+          isPublished: true,
+          subject: { isPublished: true },
+        },
       },
-    },
-    select: {
-      id: true,
-      slug: true,
-      orderIndex: true,
-      module: {
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          orderIndex: true,
-          subject: {
-            select: {
-              id: true,
-              slug: true,
-              title: true,
+      select: {
+        id: true,
+        slug: true,
+        orderIndex: true,
+        module: {
+          select: {
+            id: true,
+            slug: true,
+            title: true,
+            orderIndex: true,
+            subject: {
+              select: {
+                id: true,
+                slug: true,
+                title: true,
+              },
             },
           },
         },
-      },
-      publishedRevision: {
-        select: {
-          id: true,
-          version: true,
-          title: true,
-          summary: true,
-          quickRevisionMd: true,
-          deepDiveMd: true,
-          estimatedMinutes: true,
-          difficulty: true,
-          keyTakeaways: true,
-          commonMistakes: true,
-          publishedAt: true,
+        publishedRevision: {
+          select: {
+            id: true,
+            version: true,
+            title: true,
+            summary: true,
+            quickRevisionMd: true,
+            deepDiveMd: true,
+            estimatedMinutes: true,
+            difficulty: true,
+            keyTakeaways: true,
+            commonMistakes: true,
+            publishedAt: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!concept || !concept.publishedRevision) {
-    return c.json({ error: "Concept not found" }, 404);
+    if (!concept || !concept.publishedRevision) {
+      return c.json({ error: "Concept not found" }, 404);
+    }
+
+    // Ordered published concepts within the same subject for prev/next navigation
+    const siblings = await db.learnConcept.findMany({
+      where: {
+        publishedRevisionId: { not: null },
+        module: {
+          isPublished: true,
+          subjectId: concept.module.subject.id,
+        },
+      },
+      orderBy: [
+        { module: { orderIndex: "asc" } },
+        { orderIndex: "asc" },
+      ],
+      select: {
+        slug: true,
+        publishedRevision: {
+          select: { title: true },
+        },
+      },
+    });
+
+    const currentIdx = siblings.findIndex((s) => s.slug === concept.slug);
+    const prevItem = currentIdx > 0 ? siblings[currentIdx - 1] : null;
+    const nextItem = currentIdx >= 0 && currentIdx < siblings.length - 1 ? siblings[currentIdx + 1] : null;
+
+    cachedPayload = {
+      concept: {
+        id: concept.id,
+        slug: concept.slug,
+        title: concept.publishedRevision.title,
+        summary: concept.publishedRevision.summary,
+        quickRevisionMd: concept.publishedRevision.quickRevisionMd,
+        deepDiveMd: concept.publishedRevision.deepDiveMd,
+        estimatedMinutes: concept.publishedRevision.estimatedMinutes,
+        difficulty: concept.publishedRevision.difficulty,
+        keyTakeaways: concept.publishedRevision.keyTakeaways,
+        commonMistakes: concept.publishedRevision.commonMistakes,
+        version: concept.publishedRevision.version,
+        publishedAt: concept.publishedRevision.publishedAt,
+        module: {
+          slug: concept.module.slug,
+          title: concept.module.title,
+        },
+        subject: {
+          slug: concept.module.subject.slug,
+          title: concept.module.subject.title,
+        },
+      },
+      navigation: {
+        prev: prevItem?.publishedRevision
+          ? { slug: prevItem.slug, title: prevItem.publishedRevision.title }
+          : null,
+        next: nextItem?.publishedRevision
+          ? { slug: nextItem.slug, title: nextItem.publishedRevision.title }
+          : null,
+      },
+    };
+
+    await cacheSet(cacheKey, cachedPayload, LEARN_CACHE_TTL_SECONDS, cacheGeneration);
   }
-
-  // Ordered published concepts within the same subject for prev/next navigation
-  const siblings = await db.learnConcept.findMany({
-    where: {
-      publishedRevisionId: { not: null },
-      module: {
-        isPublished: true,
-        subjectId: concept.module.subject.id,
-      },
-    },
-    orderBy: [
-      { module: { orderIndex: "asc" } },
-      { orderIndex: "asc" },
-    ],
-    select: {
-      slug: true,
-      publishedRevision: {
-        select: { title: true },
-      },
-    },
-  });
-
-  const currentIdx = siblings.findIndex((s) => s.slug === concept.slug);
-  const prevItem = currentIdx > 0 ? siblings[currentIdx - 1] : null;
-  const nextItem = currentIdx >= 0 && currentIdx < siblings.length - 1 ? siblings[currentIdx + 1] : null;
 
   const user = c.get("user");
   const progress = await db.userConceptProgress.findUnique({
-    where: { userId_conceptId: { userId: user.id, conceptId: concept.id } },
+    where: { userId_conceptId: { userId: user.id, conceptId: cachedPayload.concept.id } },
   });
 
   return c.json({
-    concept: {
-      id: concept.id,
-      slug: concept.slug,
-      title: concept.publishedRevision.title,
-      summary: concept.publishedRevision.summary,
-      quickRevisionMd: concept.publishedRevision.quickRevisionMd,
-      deepDiveMd: concept.publishedRevision.deepDiveMd,
-      estimatedMinutes: concept.publishedRevision.estimatedMinutes,
-      difficulty: concept.publishedRevision.difficulty,
-      keyTakeaways: concept.publishedRevision.keyTakeaways,
-      commonMistakes: concept.publishedRevision.commonMistakes,
-      version: concept.publishedRevision.version,
-      publishedAt: concept.publishedRevision.publishedAt,
-      module: {
-        slug: concept.module.slug,
-        title: concept.module.title,
-      },
-      subject: {
-        slug: concept.module.subject.slug,
-        title: concept.module.subject.title,
-      },
-    },
-    navigation: {
-      prev: prevItem?.publishedRevision
-        ? { slug: prevItem.slug, title: prevItem.publishedRevision.title }
-        : null,
-      next: nextItem?.publishedRevision
-        ? { slug: nextItem.slug, title: nextItem.publishedRevision.title }
-        : null,
-    },
+    concept: cachedPayload.concept,
+    navigation: cachedPayload.navigation,
     progress: progress
       ? {
           status: progress.status,

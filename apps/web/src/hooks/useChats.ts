@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth";
 
 type PageInfo = { hasMore: boolean; nextCursor: string | null };
 
@@ -14,8 +15,10 @@ export type ChatMessagesPage = {
 };
 
 export function useChats() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useInfiniteQuery<ChatsPage>({
-    queryKey: ["chats"],
+    queryKey: ["chats", userId],
     initialPageParam: undefined as string | undefined,
     queryFn: async ({ pageParam }) => {
       const res = await api.get("/chats", {
@@ -30,8 +33,10 @@ export function useChats() {
 }
 
 export function useChat(id: string | undefined) {
+  const { data: session } = useSession();
+  const userId = session?.user?.id ?? "anon";
   return useInfiniteQuery<ChatMessagesPage>({
-    queryKey: ["chat", id],
+    queryKey: ["chat", id, userId],
     initialPageParam: undefined as string | undefined,
     queryFn: async ({ pageParam }) => {
       const res = await api.get(`/chats/${id}`, {

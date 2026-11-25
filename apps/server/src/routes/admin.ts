@@ -4,6 +4,7 @@ import { requireAdmin } from "../middleware/admin";
 import { db } from "@intervue/db";
 import type { AuthVariables } from "../types";
 import { groq, GROQ_CHAT_MODEL } from "../lib/groq";
+import { cacheDeleteByPrefix } from "../lib/cache";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -85,6 +86,7 @@ app.post("/problems", async (c) => {
     },
   });
 
+  await cacheDeleteByPrefix("problem:");
   return c.json({ problem });
 });
 
@@ -111,6 +113,7 @@ app.put("/problems/:id", async (c) => {
     },
   });
 
+  await cacheDeleteByPrefix("problem:");
   return c.json({ problem });
 });
 
@@ -123,6 +126,7 @@ app.post("/problems/:id/publish", async (c) => {
     data: { status: "published" },
   });
 
+  await cacheDeleteByPrefix("problem:");
   return c.json({ problem });
 });
 
@@ -132,6 +136,7 @@ app.delete("/problems/:id", async (c) => {
 
   await db.problem.delete({ where: { id } });
 
+  await cacheDeleteByPrefix("problem:");
   return c.json({ success: true });
 });
 
@@ -568,6 +573,7 @@ app.post("/learn/concepts", async (c) => {
     });
   });
 
+  await cacheDeleteByPrefix("learn:");
   return c.json({ concept }, 201);
 });
 
@@ -638,6 +644,7 @@ app.patch("/learn/revisions/:id", async (c) => {
       return rev;
     });
 
+    await cacheDeleteByPrefix("learn:");
     return c.json({ revision: forkedRevision, forked: true });
   }
 
@@ -657,6 +664,7 @@ app.patch("/learn/revisions/:id", async (c) => {
     },
   });
 
+  await cacheDeleteByPrefix("learn:");
   return c.json({ revision: updatedRevision, forked: false });
 });
 
@@ -776,6 +784,7 @@ app.post("/learn/revisions/:revisionId/questions", async (c) => {
     });
   }
 
+  await cacheDeleteByPrefix("learn:");
   return c.json({ question }, 201);
 });
 
@@ -837,6 +846,7 @@ app.patch("/learn/questions/:id", async (c) => {
     });
   }
 
+  await cacheDeleteByPrefix("learn:");
   return c.json({ question: updated });
 });
 
@@ -866,6 +876,7 @@ app.delete("/learn/questions/:id", async (c) => {
     });
   }
 
+  await cacheDeleteByPrefix("learn:");
   return c.json({ success: true, deletedId: id });
 });
 
@@ -927,6 +938,7 @@ app.put("/learn/revisions/:revisionId/questions/reorder", async (c) => {
     });
   }
 
+  await cacheDeleteByPrefix("learn:");
   return c.json({ success: true });
 });
 
@@ -1022,6 +1034,7 @@ app.post("/learn/concepts/:id/publish", async (c) => {
     }),
   ]);
 
+  await cacheDeleteByPrefix("learn:");
   return c.json({ success: true, publishedRevisionId: targetRevision.id });
 });
 
@@ -1033,6 +1046,7 @@ app.post("/learn/concepts/:id/unpublish", async (c) => {
     data: { publishedRevisionId: null },
   });
 
+  await cacheDeleteByPrefix("learn:");
   return c.json({ success: true, publishedRevisionId: null });
 });
 
@@ -1040,6 +1054,7 @@ app.post("/learn/concepts/:id/unpublish", async (c) => {
 app.delete("/learn/concepts/:id", async (c) => {
   const id = c.req.param("id");
   await db.learnConcept.delete({ where: { id } });
+  await cacheDeleteByPrefix("learn:");
   return c.json({ success: true });
 });
 

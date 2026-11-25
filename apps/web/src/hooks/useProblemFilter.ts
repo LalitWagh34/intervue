@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getPracticePreferences, setPracticePreferences } from "@/lib/localCache";
 
 export type FilterState = {
   searchQuery: string;
@@ -24,11 +25,36 @@ export interface BaseProblem {
   companies?: string[];
 }
 
+function readInitialFilters(userId?: string | null): FilterState {
+  if (!userId) return initialFilterState;
+  const saved = getPracticePreferences(userId);
+  if (!saved) return initialFilterState;
+  return {
+    searchQuery: "",
+    difficulty: Array.isArray(saved.difficulty) ? saved.difficulty : [],
+    status: Array.isArray(saved.status) ? saved.status : [],
+    topics: Array.isArray(saved.topics) ? saved.topics : [],
+    companies: Array.isArray(saved.companies) ? saved.companies : [],
+  };
+}
+
 export function useProblemFilter<T extends BaseProblem>(
   problems: T[],
-  solvedMap: Record<string, boolean> = {}
+  solvedMap: Record<string, boolean> = {},
+  storageUserId?: string | null
 ) {
-  const [filters, setFilters] = useState<FilterState>(initialFilterState);
+  const [filters, setFilters] = useState<FilterState>(() => readInitialFilters(storageUserId));
+
+  useEffect(() => {
+    if (!storageUserId) {
+      setFilters(initialFilterState);
+      return;
+    }
+    setFilters((prev) => ({
+      ...readInitialFilters(storageUserId),
+      searchQuery: prev.searchQuery,
+    }));
+  }, [storageUserId]);
 
   // Helper to extract unique options for dropdowns based on current problems
   const filterOptions = useMemo(() => {
@@ -97,11 +123,30 @@ export function useProblemFilter<T extends BaseProblem>(
   }, [problems, filters, solvedMap]);
 
   const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    setFilters((prev) => {
+      const next = { ...prev, [key]: value };
+      if (storageUserId && key !== "searchQuery") {
+        setPracticePreferences(storageUserId, {
+          difficulty: next.difficulty,
+          status: next.status,
+          topics: next.topics,
+          companies: next.companies,
+        });
+      }
+      return next;
+    });
   };
 
   const clearFilters = () => {
     setFilters(initialFilterState);
+    if (storageUserId) {
+      setPracticePreferences(storageUserId, {
+        difficulty: [],
+        status: [],
+        topics: [],
+        companies: [],
+      });
+    }
   };
 
   return {

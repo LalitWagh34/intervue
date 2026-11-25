@@ -11,7 +11,8 @@ import {
   ArrowRight,
   BookOpen,
 } from "lucide-react";
-import { useLearnSubjects } from "@/hooks/useLearn";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLearnSubjects, prefetchLearnSubject } from "@/hooks/useLearn";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -81,6 +82,7 @@ const SUBJECT_TEMPLATES = [
 ];
 
 export default function LearnHomePage() {
+  const queryClient = useQueryClient();
   const { data, isLoading } = useLearnSubjects();
   const liveSubjects = data?.subjects || [];
 
@@ -162,6 +164,8 @@ export default function LearnHomePage() {
                   <Link
                     key={card.id}
                     to={`/learn/subjects/${card.slug}`}
+                    onMouseEnter={() => prefetchLearnSubject(queryClient, card.slug)}
+                    onFocus={() => prefetchLearnSubject(queryClient, card.slug)}
                     className="rounded-xl p-5 border border-[var(--border-subtle)] bg-[var(--surface)] hover:border-[#327CF6]/60 hover:bg-[var(--surface-hover)] hover:shadow-md transition-all flex flex-col justify-between gap-4 cursor-pointer group"
                   >
                     {/* Top Row: Icon + Code */}

@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { db } from "@intervue/db";
 import { CURATED_FLAGSHIP_SHEETS } from "../data/flagshipSheetsData";
 import { sheetsRouter } from "../routes/sheets";
+import { clearCache } from "../lib/cache";
 
 describe("public sheet metrics", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mock.restore();
+    await clearCache();
   });
 
   it("returns database and catalog-derived counts without synthetic activity", async () => {

@@ -11,7 +11,8 @@ import {
   Clock,
   Sparkles,
 } from "lucide-react";
-import { useLearnSubject, useRevisionQueue } from "@/hooks/useLearn";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLearnSubject, useRevisionQueue, prefetchLearnModule } from "@/hooks/useLearn";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -22,6 +23,7 @@ const MODULE_ICONS: Record<string, any> = {
 
 export default function SubjectCatalogPage() {
   const { slug } = useParams<{ slug: string }>();
+  const queryClient = useQueryClient();
   const { data, isLoading, isError } = useLearnSubject(slug);
   const { data: queueData } = useRevisionQueue();
 
@@ -134,6 +136,8 @@ export default function SubjectCatalogPage() {
                 <Link
                   key={module.id}
                   to={`/learn/subjects/${subject.slug}/modules/${module.slug}`}
+                  onMouseEnter={() => prefetchLearnModule(queryClient, subject.slug, module.slug)}
+                  onFocus={() => prefetchLearnModule(queryClient, subject.slug, module.slug)}
                   className="text-left rounded-xl p-5 border border-[var(--border-subtle)] bg-[var(--surface)] hover:border-[#327CF6]/60 hover:bg-[var(--surface-hover)] hover:shadow-md transition-all flex flex-col justify-between gap-4 cursor-pointer group"
                 >
                   {/* Card Top Row: Icon + Index */}
