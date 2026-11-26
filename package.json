@@ -11,7 +11,7 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "test": "turbo test",
-    "test:server": "bun test apps/server/src/__tests__",
+    "test:server": "bun run --cwd apps/server test",
     "test:web": "bun run --cwd apps/web test -- --maxWorkers=1",
     "typecheck": "bun run --cwd apps/web build && bun run --cwd apps/server build",
     "db:validate": "bun run --cwd packages/db db:validate",
